@@ -7,7 +7,7 @@ Thank you for contributing! This guide will help you set up the project environm
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Co-App-Team/backend.git
    ```
 
 2. **Open the project**
