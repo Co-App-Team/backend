@@ -2,17 +2,17 @@
 name: Build and Push to Docker Hub
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
 
 env:
-REGISTRY: docker.io
-IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/test-docker # This need to be updated
+  REGISTRY: docker.io
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/test-docker # This need to be updated
 
 jobs:
-build-and-push:
-runs-on: ubuntu-latest
-permissions:
-contents: read
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
