@@ -16,8 +16,8 @@ Thank you for contributing! This guide will help you set up the project environm
 
 3. **Install Java JDK**
 
-    * Make sure you have **Java JDK 21** installed.
-    * Configure IntelliJ to use JDK 21 for the project.
+    * Make sure you have **Java JDK 21** installed. You can install it from [Oracle](https://www.oracle.com/ca-en/java/technologies/downloads/#java21) or via IntelliJ.
+    * [Configure IntelliJ to use JDK 21](https://www.baeldung.com/intellij-change-java-version) for the project.
 
 4. **Set up Gradle**
 
