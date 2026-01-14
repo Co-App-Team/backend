@@ -6,7 +6,7 @@ on:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/test-docker # This need to be updated
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/co-app-backend
 
 jobs:
   build-and-push:

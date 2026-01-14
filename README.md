@@ -5,7 +5,7 @@
 [![Code Format](https://github.com/Co-App-Team/backend/actions/workflows/format.yml/badge.svg?branch=main&event=push)](https://github.com/Co-App-Team/backend/actions/workflows/format.yml)
 [![Gradle Build](https://github.com/Co-App-Team/backend/actions/workflows/gradle.yml/badge.svg?branch=main&event=push)](https://github.com/Co-App-Team/backend/actions/workflows/gradle.yml)
 
-*Description: TODO.*
+*Description: TODO*
 
 ## Onboarding Instructions
 
@@ -13,4 +13,4 @@ Please see instructions from [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 
 ## Running the App Locally
 
-*Description: TODO.*
+*Description: TODO*
