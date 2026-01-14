@@ -6,8 +6,12 @@ labels: enhancement, dev-task
 assignees: ''
 ---
 
+# Dev task
+
 **Description**
 Briefly describe the feature or improvement.
+
+**Related user story:** Please include link to the related user story here.
 
 **Motivation**
 Why is this useful? What problem does it solve?
