@@ -1,16 +1,30 @@
 name: Workflow for Codecov example-java-gradle
-on: [push, pull_request]
+
+on:
+  push:
+    branches: [ "main" , "dev" ]
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write   # 👈 REQUIRED for PR comments
+
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+
       - name: Set up JDK 18
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: 18
+
       - name: Install dependencies, run tests, and collect coverage
         run: gradle build
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
