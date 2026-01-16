@@ -1,4 +1,4 @@
-package com.backend.CoApp;
+package com.backend.coapp;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
