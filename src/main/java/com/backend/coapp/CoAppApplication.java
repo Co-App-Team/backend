@@ -1,4 +1,4 @@
-package com.backend.CoApp;
+package com.backend.coapp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
