@@ -7,7 +7,7 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write   # 👈 REQUIRED for PR comments
+  pull-requests: write
 
 jobs:
   run:

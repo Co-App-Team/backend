@@ -37,7 +37,7 @@ jacoco {
 jacocoTestReport {
 	dependsOn test
 	reports {
-		xml.required = true   // 👈 REQUIRED for Codecov
+		xml.required = true
 		html.required = true
 		csv.required = false
 	}
