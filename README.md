@@ -14,7 +14,7 @@ Please see instructions from [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 ## Project package structure
 
 We follow a **layered architecture**, where an application is organized into horizontal layers, 
-and each layer has a clear responsibility. For further breakdown, please check out [ARCHITECTURE.md](doc/ARCHITECTURE.md)
+and each layer has a clear responsibility. For further breakdown, please check out [ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ## Running the App Locally
 
