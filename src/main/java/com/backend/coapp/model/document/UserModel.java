@@ -1,4 +1,4 @@
-package com.backend.coapp.models.document;
+package com.backend.coapp.model.document;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

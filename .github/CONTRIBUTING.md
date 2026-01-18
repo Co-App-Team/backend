@@ -42,7 +42,7 @@ Thank you for contributing! This guide will help you set up the project environm
 ### Preliminary
 We follow a **layered architecture**, where an application is organized into horizontal layers,
 and each layer has a clear responsibility. 
-Ensure to follow the structure as described in [ARCHITECTURE.md](../docs/ARCHITECTURE.md).
+Ensure to follow the structure as described in [ARCHITECTURE.md](../doc/ARCHITECTURE.md).
 
 ### Development
 

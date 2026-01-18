@@ -14,10 +14,10 @@ com.coapp.backend
 ├── config
 ├── controller
 ├── service
-├── repositories
-├── models
+├── repository
+├── model
 │   ├── document
-│   └── enums
+│   └── enumeration
 ├── dto
 └── exception
 ```
@@ -64,7 +64,7 @@ This layer contains the core application logic and orchestration between reposit
 
 ---
 
-### 4. `repositories`
+### 4. `repository`
 
 **Purpose**: Data access layer.
 
@@ -77,13 +77,13 @@ Repositories abstract database interactions and are responsible for persisting a
 
 ---
 
-### 5. `models`
+### 5. `model`
 
 **Purpose**: Domain model definitions.
 
 This package represents the core business entities of the application.
 
-#### 5.1 `models.document`
+#### 5.1 `model.document`
 
 **Purpose**: MongoDB document models.
 
@@ -93,7 +93,7 @@ These classes:
 * Are annotated with `@Document`
 * May contain fields that should **not** be exposed to clients (e.g., passwords)
 
-#### 5.2 `models.enum`
+#### 5.2 `model.enumeration`
 
 **Purpose**: Enumerations for fixed sets of allowed values.
 
