@@ -1,6 +1,6 @@
 package com.backend.coapp.repositories;
 
-import com.backend.coapp.models.UserModel;
+import com.backend.coapp.models.document.UserModel;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 

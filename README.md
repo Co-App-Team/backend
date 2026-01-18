@@ -11,6 +11,22 @@
 
 Please see instructions from [CONTRIBUTING.md](.github/CONTRIBUTING.md)
 
+## Project package structure
+
+We follow a **layered architecture**, where an application is organized into horizontal layers, 
+and each layer has a clear responsibility. For further breakdown, please check out [ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ## Running the App Locally
 
-*Description: TODO*
+### Docker
+
+To run application with Docker image, please follow steps:
+1. Build docker image
+```bash
+docker image build -t coapp-backend .
+```
+
+2. Run docker image
+```bash
+docker run -d -p 8080:8080 coapp-backend
+```
