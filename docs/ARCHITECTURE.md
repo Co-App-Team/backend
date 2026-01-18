@@ -2,6 +2,7 @@
 
 This document describes the initial backend package structure for the **Co-App** Spring Boot project. 
 Co-App backend follows a **layered architecture**.
+
 ---
 
 ## High-Level Structure
