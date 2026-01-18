@@ -51,7 +51,7 @@ Ensure to follow the structure as described in [ARCHITECTURE.md](../docs/ARCHITE
 3. `dev` is only merged to `main` on the release day.
 
 > \[!IMPORTANT\]
-> All features branch need to be merged to `dev`. Please avoid merge feature branch to main.
+> All features branch need to be merged to `dev`. Please avoid merge feature branch directly to `main`.
 
  
  
