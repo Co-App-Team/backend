@@ -39,4 +39,19 @@ Thank you for contributing! This guide will help you set up the project environm
 
 ## Development workflow
 
-TBD 
+### Preliminary
+We follow a **layered architecture**, where an application is organized into horizontal layers,
+and each layer has a clear responsibility. 
+Ensure to follow the structure as described in [ARCHITECTURE.md](../docs/ARCHITECTURE.md).
+
+### Development
+
+1. Create a branch by following the convention: `feat/<issue_number>-<IndicatorOfTheFeature>`.
+2. Merge to `dev` when the feature development is completed.
+3. `dev` is only merged to `main` on the release day.
+
+> \[!IMPORTANT\]
+> All features branch need to be merged to `dev`. Please avoid merging feature branch directly to `main`.
+
+ 
+ 

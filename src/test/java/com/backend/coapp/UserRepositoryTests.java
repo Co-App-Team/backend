@@ -2,8 +2,8 @@ package com.backend.coapp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.backend.coapp.models.UserModel;
-import com.backend.coapp.repositories.UserRepository;
+import com.backend.coapp.model.document.UserModel;
+import com.backend.coapp.repository.UserRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
