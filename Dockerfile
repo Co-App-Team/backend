@@ -36,6 +36,9 @@ WORKDIR /app
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
+# Set production database URI
+ENV MONGODB_URI="mongodb+srv://4350_db_user:Con7AKxEZhrcnIMP@4350coapp.yfktzod.mongodb.net/myapp?appName=4350CoApp"
+
 # Copy the built jar from the build stage
 COPY --from=build /app/build/libs/*.jar app.jar
 
