@@ -14,27 +14,20 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
-/**
- * Unit tests for UserModel and its repository.
- * Proof of concept, for now.
- */
+/** Unit tests for UserModel and its repository. Proof of concept, for now. */
 @SpringBootTest
 @Testcontainers
 public class UserRepositoryTests {
-  @Container
-  @ServiceConnection
+  @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
-  @Autowired
-  UserRepository repository;
+  @Autowired UserRepository repository;
 
   UserModel john;
   UserModel jane;
   UserModel bob;
 
-  /**
-   * Runs before each test to reset the data.
-   */
+  /** Runs before each test to reset the data. */
   @BeforeEach
   public void setUp() {
     repository.deleteAll();
@@ -64,9 +57,7 @@ public class UserRepositoryTests {
   public void findsAllUsers() {
     List<UserModel> users = repository.findAll();
 
-    assertThat(users).hasSize(3)
-      .extracting("firstName")
-      .contains("John", "Jane", "Bob");
+    assertThat(users).hasSize(3).extracting("firstName").contains("John", "Jane", "Bob");
   }
 
   @Test
