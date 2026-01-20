@@ -11,6 +11,7 @@ The first endpoint is the most important and provides the minimum requirements f
 
 **Note:** This will also require a User DTO, which should be outlined in the documentation for Feature 1. There may also be a Job Application DTO outlined in feature 2, so this outlines the minimum requirements of that DTO for this feature.
 
+### Application DTO
 ```json
 {
   "id": "string",
