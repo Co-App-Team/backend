@@ -48,9 +48,17 @@ Ensure to follow the structure as described in [ARCHITECTURE.md](../docs/ARCHITE
 
 #### Coding standard
 
-We follow [Google Java Style Standard](https://google.github.io/styleguide/javaguide.html).
+We follow [Google Java Style Standard](https://google.github.io/styleguide/javaguide.html)
+for all Java code to ensure consistency and readability across the project.
 
+#### Commit message
 
+Each commit should follow the structure below:
+```bash
+Header  # A concise summary, no more than 50 characters
+
+Body    # Optional. Wrap lines at 72 characters
+```
 ### Development
 
 1. Create a branch by following the convention: `task/<issue_number>-<IndicatorOfTheTask>`.
