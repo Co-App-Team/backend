@@ -5,7 +5,7 @@ public class UserDTO {
     private String lastName;
     private String email;
 
-
+    //WIP
     public UserDTO(String firstName, String lastName, String email, int id){
 
         this.firstName = firstName;
