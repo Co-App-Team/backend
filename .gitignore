@@ -34,3 +34,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Secret env variable file ###
+local.properties
