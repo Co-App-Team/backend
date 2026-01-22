@@ -3,7 +3,6 @@ package com.backend.coapp.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.backend.coapp.model.document.UserModel;
-
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,34 +31,14 @@ public class UserRepositoryTests {
   public void setUp() {
     repository.deleteAll();
 
-    john = repository.save(new UserModel(
-            "john@mail.com",
-            "password123",
-            "John",
-            "Johnson"
-    ));
-    jane = repository.save(new UserModel(
-            "jane@mail.com",
-            "secure456",
-            "Jane",
-            "Smith"
-    ));
-    bob = repository.save(new UserModel(
-            "bob@mail.com",
-            "mypassword789",
-            "Bob",
-            "Williams"
-    ));
+    john = repository.save(new UserModel("john@mail.com", "password123", "John", "Johnson"));
+    jane = repository.save(new UserModel("jane@mail.com", "secure456", "Jane", "Smith"));
+    bob = repository.save(new UserModel("bob@mail.com", "mypassword789", "Bob", "Williams"));
   }
 
   @Test
   public void setsIdOnSave() {
-    UserModel user = repository.save(new UserModel(
-            "user@mail.com",
-            "secret",
-            "foo",
-            "woof"
-    ));
+    UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof"));
 
     assertThat(user.getId()).isNotNull();
   }
@@ -75,14 +54,21 @@ public class UserRepositoryTests {
     assertThat(found.getEmail().equals(john.getEmail()));
     assertThat(found.getPassword().equals(john.getPassword()));
   }
+
   @Test
   public void findsAllUsers() {
     List<UserModel> users = repository.findAll();
 
     assertThat(users).hasSize(3).extracting("firstName").contains("John", "Jane", "Bob");
     assertThat(users).hasSize(3).extracting("lastName").contains("Johnson", "Smith", "Williams");
-    assertThat(users).hasSize(3).extracting("password").contains("password123", "secure456", "mypassword789");
-    assertThat(users).hasSize(3).extracting("email").contains("john@mail.com", "jane@mail.com", "bob@mail.com");
+    assertThat(users)
+        .hasSize(3)
+        .extracting("password")
+        .contains("password123", "secure456", "mypassword789");
+    assertThat(users)
+        .hasSize(3)
+        .extracting("email")
+        .contains("john@mail.com", "jane@mail.com", "bob@mail.com");
   }
 
   @Test
