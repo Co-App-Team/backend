@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '4.0.1'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.diffplug.spotless' version '6.25.0'
+	id 'jacoco'
 }
 
 group = 'com.backend'
@@ -28,10 +29,13 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter:1.21.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	finalizedBy jacocoTestReport
 }
 
 
@@ -43,5 +47,14 @@ spotless {
 		removeUnusedImports()
 
 		target 'src/**/*.java'
+	}
+}
+
+jacocoTestReport {
+	dependsOn test
+	reports {
+		xml.required = true // Codecov needs XML
+		csv.required = false
+		html.required = true
 	}
 }
