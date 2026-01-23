@@ -60,9 +60,9 @@ The first endpoint is the most important and provides the minimum requirements f
 **Query Parameters:**
 
 | Parameter | Type | Required | Description | Example |
-| :-- | :-- | :-- | :-- | :-- |
+| - | - | - | - | - |
 | `search` | string | No | Search term to match against company name (case-insensitive, partial match) | `search=Niche` |
-| `status` | string | No | Filter by application status. Can be comma-separated for multiple filters | `status=APPLIED,INTERVIEWING` |
+| `status` | string | No | Filter by application status. Can be comma-separated for multiple filters. Allowed values: `NOT_APPLIED`, `APPLIED`, `INTERVIEW_SCHEDULED`, `INTERVIEWING`, `OFFER_RECEIVED`, `REJECTED`, `WITHDRAWN`, `ACCEPTED`  | `status=APPLIED,INTERVIEWING` |
 | `sortBy` | string | No | Field to sort by. Currently only 1 option: `dateApplied` | `sortBy=dateApplied` |
 | `sortOrder` | string | No | Sort direction. Options: `asc`, `desc`. Defaults to `desc` | `sortOrder=asc` |
 | `page` | integer | No | Page number for pagination (0-indexed). Defaults to `0` | `page=0` |
@@ -111,13 +111,29 @@ The first endpoint is the most important and provides the minimum requirements f
 
 **Response 400 Bad Request:**
 
+Returns when query has an invalid value:
+
+```json
+{
+  "error": "BAD_REQUEST",
+  "message": "Invalid query parameter",
+  "details": {
+    "parameter": {Name of offending parameter},
+    "invalidValue": {The value causing the offense},
+    "validValues": [{An array of valid values}]
+  }
+}
+```
+
+**Example:** `status=invalidStatusName` 
+
 ```json
 {
   "error": "BAD_REQUEST",
   "message": "Invalid query parameter",
   "details": {
     "parameter": "status",
-    "invalidValue": "INVALID_STATUS_VALUE_HERE",
+    "invalidValue": "invalidStatusName",
     "validValues": ["NOT_APPLIED", "APPLIED", "INTERVIEW_SCHEDULED", "INTERVIEWING", "OFFER_RECEIVED", "REJECTED", "WITHDRAWN", "ACCEPTED"]
   }
 }
@@ -140,106 +156,6 @@ The first endpoint is the most important and provides the minimum requirements f
   "message": "An unexpected error occurred while processing your request."
 }
 ```
-
----
-
-### 2. Get Application Count by Filter
-
-**Path:** `/api/applications/count`
-
-**Method:** `GET`
-
-**Description:** Returns the count of applications matching the specified filters. Useful for UI indicators showing result counts before loading full data.
-
-**Authentication:** Required (JWT token in cookie)
-
-**Request Headers:**
-
-- `Cookie`: Contains JWT authentication token
-
-**Query Parameters:**
-
-
-| Parameter | Type | Required | Description | Example |
-| :-- | :-- | :-- | :-- | :-- |
-| `search` | string | No | Search term to match against company name and job title | `search=Niche` |
-| `status` | string | No | Filter by application status. Can be comma-separated | `status=APPLIED,INTERVIEWING` |
-
-**Request Body:** None
-
-**Response 200 OK:**
-
-```json
-{
-  "count": 12
-}
-```
-
-**Response 401 Unauthorized:**
-
-```json
-{
-  "error": "UNAUTHORIZED",
-  "message": "Authentication required. Please log in."
-}
-```
-
-
----
-
-### 3. Get Distinct Status Counts
-
-**Path:** `/api/applications/statuses`
-
-**Method:** `GET`
-
-**Description:** Returns all unique status values present in the authenticated user's applications. Useful for dynamically populating filter dropdowns in the UI.
-
-**Authentication:** Required (JWT token in cookie)
-
-**Request Headers:**
-
-- `Cookie`: Contains JWT authentication token
-
-**Query Parameters:** None
-
-**Request Body:** None
-
-**Response 200 OK:**
-
-```json
-{
-  "statuses": [
-    {
-      "value": "APPLIED",
-      "count": 1
-    },
-    {
-      "value": "INTERVIEWING",
-      "count": 2
-    },
-    {
-      "value": "REJECTED",
-      "count": 3
-    },
-    {
-      "value": "NOT_APPLIED",
-      "count": 4
-    }
-  ]
-}
-```
-
-**Response 401 Unauthorized:**
-
-```json
-{
-  "error": "UNAUTHORIZED",
-  "message": "Authentication required. Please log in."
-}
-```
-
----
 
 ## Implementation Notes for Backend
 
@@ -296,5 +212,3 @@ The first endpoint is the most important and provides the minimum requirements f
 * Pagination metadata is accurate
 * Combining search + filter + sort works correctly
 * Unauthenticated requests return 401
-
-### Frontend Tests
