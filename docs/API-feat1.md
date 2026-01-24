@@ -1,7 +1,7 @@
 
 # API Documentation - Feature #1: User authentication
 
-We will use Jason Web Token (JWT) for managing users authentication and users sessions. For further information about JWT token, please see [Preamble on JWT](#preamble-on-jwt).
+We will use JSON Web Token (JWT) for managing users authentication and users sessions. For further information about JWT token, please see [Preamble on JWT](#preamble-on-jwt).
 
 
 
@@ -9,11 +9,11 @@ We will use Jason Web Token (JWT) for managing users authentication and users se
 
 ### 1. Login
 
-**Path:** `api/v1/auth/login`
+**Path:** `api/auth/login`
 
 **Method:** `POST`
 
-**Description**: Take `userEmail` and `password`, then check if password is correct. If yes, return JWT token; return authetication error if the password is incorrect
+**Description**: Take user email and password, then check if password is correct. If yes, return JWT token; return authetication error if the password is incorrect
 
 **Request Body** 
 
@@ -25,13 +25,18 @@ We will use Jason Web Token (JWT) for managing users authentication and users se
 ```
 
 **Response 200 OK:**
+Response header:
+```
+Set-Cookie: Authorization=Bearer <token>; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
+```
+
+*Each cookie is assumed to be expired in 2 hours.*
+
 Response body:
 
 ```json
 {
-  "accessToken": "<JWT token>",
-  "tokenType": "Bearer",
-  "expiresIn": ...
+  "message": "Login successfully."
 }
 
 ```
@@ -41,8 +46,8 @@ Response body:
 Response body:
 ```json
 {
-  "error":"ACCOUNT_NOT_ACTIVATE",
-  "message":"The account has not yet activated."
+  "error":"ACCOUNT_NOT_ACTIVATED",
+  "message":"The account has not yet been activated."
 }
 ```
 
@@ -61,7 +66,25 @@ Response body:
 
 ### 2. Log out
 
-To log user out, client will clean up token cache in web browser
+**Path:** `api/auth/logout`
+
+**Method:** `GET`
+
+**Description:** Unset browswer cookie to log out.
+
+**Request body:**
+
+N/A
+
+**Response**
+
+Response header:
+```
+Set-Cookie: Authorization=; HttpOnly; Secure; SameSite=Lax
+``` 
+
+Response body:
+N/A
 
 ### 3. Create account
 
@@ -72,7 +95,7 @@ Each account on Co-App is associated with a email. To create an new account on `
 
 If the user doesn't activate the account, the account can't be used.
 
-3.1. **Path:** `api/v1/auth/register`
+3.1. **Path:** `api/auth/register`
 
 **Method:** `POST`
 
@@ -105,12 +128,12 @@ Response body:
 ```json
 {
   "error":"EXIST_ACCOUNT_WITH_EMAIL",
-  "message":"Email already exists."
+  "message":"An account with that email already exists."
 }
 ```
-3.2. **Path:** `api/v1/auth/verify-email`
+3.2. **Path:** `api/auth/verify-email`
 
-**Method:** `UPDATE`
+**Method:** `PATCH`
 
 **Description**: Check user confirmation code. If it matches, activate their account.
 
@@ -142,7 +165,7 @@ Response body:
 }
 ```
 
-3.3 **Path:** `api/v1/auth/reset-confirmation-code`
+3.3 **Path:** `api/auth/reset-confirmation-code`
 
 **Description**: Reset confirmation code and send to user via email.
 
@@ -168,7 +191,7 @@ Response body:
 Response body:
 ```json
 {
-  "error":"ACCOUNT_NOT_EXIST",
+  "error":"ACCOUNT_DOES_NOT_EXIST",
   "message":"Account with provided email not exists."
 }
 ```
@@ -179,11 +202,11 @@ To change password, we will follow the process:
 1. The user provides the email that he/she used to register for the account
 2. The user provides the confirmation code that we send the user via email
 
-4.1. **Path:** `api/v1/auth/forgot-password`
+4.1. **Path:** `api/auth/forgot-password`
 
 **Description**: Take the email, and check if an account associated with the email exist and send confirmation code to the email.
 
-**Method:** `GET`
+**Method:** `POST`
 
 **Request Body** 
 
@@ -198,7 +221,7 @@ To change password, we will follow the process:
 Response body:
 ```json
 {
-  "message":"An confirmation code will be sent to your email. Please provide the confirmation to reset your password."
+  "message":"A confirmation code will be sent to your email. Please provide the code to reset your password."
 }
 ```
 
@@ -207,7 +230,7 @@ Response body:
 Response body:
 ```json
 {
-  "error":"ACCOUNT_NOT_EXIST",
+  "error":"ACCOUNT_DOES_NOT_EXIST",
   "message":"No account with the provided email."
 }
 ```
@@ -217,14 +240,14 @@ Response body:
 Response body:
 ```json
 {
-  "error":"ACCOUNT_NOT_ACTIVATE",
+  "error":"ACCOUNT_NOT_ACTIVATED",
   "message":"The account has not yet activated."
 }
 ```
 
 *Note: When get this error, we should re-direct user to the page to confirm confirmation code.*
 
-4.2 **Path:** `/api/v1/auth/update-password`
+4.2 **Path:** `/api/auth/update-password`
 
 
 **Description**: Check the confirmation code is correct, we let user to update the password
