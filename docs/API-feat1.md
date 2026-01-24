@@ -1,191 +1,320 @@
-# API Documentation - Feature #3: Application Filtering/Search
 
-## Overview
-This document outlines the API endpoints for the user authentication feature of CoApp. This feature allows users to log in, create an account, change their password, and log out.
+# API Documentation - Feature #1: User authentication
 
----
+We will use Jason Web Token (JWT) for managing users authentication and users sessions. For further information about JWT token, please see [Preamble on JWT](#preamble-on-jwt).
 
-## Data Models
 
-**Note:** This will also require a User DTO, which should be outlined in the documentation for Feature 1. There may also be a Job Application DTO outlined in feature 2, so this outlines the minimum requirements of that DTO for this feature.
-
-### Application DTO
-```json
-{
-  "id": "string",
-  "userId": "string",
-  "companyName": "string",
-  "jobTitle": "string",
-  "postingLink": "string",
-  "status": "string",
-  "dateApplied": "datetime string",
-  "notes": "string (optional)",
-  "address": "string (optional)"
-}
-```
-
-**Note:** We could also optionally add `dateCreated` and `dateModified` for other sorting options, if we so desired. We could also sort by company names alphabetically or other similar options.
-
-### Status Enum Values
-
-- `"NOT_APPLIED"`
-- `"APPLIED"`
-- `"INTERVIEW_SCHEDULED"`
-- `"INTERVIEWING"`
-- `"OFFER_RECEIVED"`
-- `"REJECTED"`
-- `"WITHDRAWN"`
-- `"ACCEPTED"`
-
----
 
 ## Endpoints
 
-### 1. Log in
+### 1. Login
 
-**Path:** `/api/login`
+**Path:** `api/v1/auth/login`
 
 **Method:** `POST`
 
-**Description:** Takes a username and password, and if correct, sets a JWT token in a cookie, authenticating the user.
+**Description**: Take `userEmail` and `password`, then check if password is correct. If yes, return JWT token; return authetication error if the password is incorrect
 
-**Request Body:** 
-
-```json
-{
-  "username": "x",
-  "password": "y"
-}
-```
-
-**Response 200 OK:** 
-
-Response header:
-```
-Set-Cookie: Authorization=Bearer <token>; HttpOnly; Secure; SameSite=Strict
-```
-
-Response body: N/A
-
-**Response 400 Bad Request:**
+**Request Body** 
 
 ```json
 {
-  "error": "BAD_REQUEST",
-  "message": "Username or password not present"
+    "email": "email",
+    "password": "password"
 }
 ```
+
+**Response 200 OK:**
+Response body:
+
+```json
+{
+  "accessToken": "<JWT token>",
+  "tokenType": "Bearer",
+  "expiresIn": ...
+}
+
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_NOT_ACTIVATE",
+  "message":"The account has not yet activated."
+}
+```
+
+*Note: When get this error, we should re-direct user to the page to confirm confirmation code.*
 
 **Response 401 Unauthorized:**
+Response body:
 
 ```json
 {
-  "error": "UNAUTHORIZED",
-  "message": "Invalid username or password."
+  "error": "INVALID_EMAIL_OR_PASSWORD",
+  "message": "Invalid email or password"
 }
 ```
 
-**Response 500 Internal Server Error:**
-
-```json
-{
-  "error": "INTERNAL_SERVER_ERROR",
-  "message": "An unexpected error occurred while processing your request."
-}
-```
-
----
 
 ### 2. Log out
 
-**Path:** `/api/login`
+To log user out, client will clean up token cache in web browser
 
-**Method:** `DELETE`
+### 3. Create account
 
-**Description:** Unsets the authentication cookie on the client, and invalidates their token on the backend.
+Each account on Co-App is associated with a email. To create an new account on `Co-App`, user need to follow the process:
+1. Create a new account and provide the user's email
+2. User need to provide the confirmation code, which we send to them through email, to activate their account
+3. User can request to resend a new confirmation code.
 
-**Authentication:** TODO
+If the user doesn't activate the account, the account can't be used.
 
-**Request Headers:**
-
-- `Cookie`: Contains JWT authentication token TODO
-
-**Query Parameters:**
-
-**Request Body:** None
-
-**Response 200 OK:** No body
-
-**Response 401 Unauthorized:** TODO
-
-```json
-{
-  "error": "UNAUTHORIZED",
-  "message": "Authentication required. Please log in."
-}
-```
-
-
----
-
-### 3. Create an account
-
-**Path:** `/api/account`
+3.1. **Path:** `api/v1/auth/register`
 
 **Method:** `POST`
 
-**Description:** Creates an account for a provided username and password.
+**Description**: Take user information, including firstname, lastname, email and password to create a new account on Co-App.
 
-
-**Request Body:** 
+**Request Body** 
 
 ```json
 {
-  "username": "abcd",
-  "password": "wxyz"
+  "firstName" : "user firstname",
+  "lastName" : "user lastname",
+  "email" : "email",
+  "password" : "password",
 }
 ```
 
 **Response 200 OK:**
 
-Response header:
-```
-Set-Cookie: Authorization=Bearer <token>; HttpOnly; Secure; SameSite=Strict
-```
-
-Response body: N/A
-
-**Response 409 Conflict:**
-
-Response body: 
+Response body:
 ```json
 {
-  "error": "ACCOUNT_ALREADY_EXISTS",
-  "message": "An account with that username already exists"
+  "message":"An confirmation code will be sent to your email. Please provide the confirmation to activate your account."
 }
 ```
 
----
+
+**Response 409 CONFLICT:**
+
+Response body:
+```json
+{
+  "error":"EXIST_ACCOUNT_WITH_EMAIL",
+  "message":"Email already exists."
+}
+```
+3.2. **Path:** `api/v1/auth/verify-email`
+
+**Method:** `UPDATE`
+
+**Description**: Check user confirmation code. If it matches, activate their account.
+
+**Request Body** 
+
+```json
+{
+  "email" : "email",
+  "verifyCode" : "code",
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "message":"Your account is verified. Account is created successfully. Please log in."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"INVALID_CONFIRMATION_CODE",
+  "message":"Invalid confirmation code."
+}
+```
+
+3.3 **Path:** `api/v1/auth/reset-confirmation-code`
+
+**Description**: Reset confirmation code and send to user via email.
+
+**Request Body** 
+
+```json
+{
+  "email" : "email",
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "message":"New confirmation code is sent. Check your mail."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_NOT_EXIST",
+  "message":"Account with provided email not exists."
+}
+```
 
 ### 4. Change password
 
-TODO
+To change password, we will follow the process:
+1. The user provides the email that he/she used to register for the account
+2. The user provides the confirmation code that we send the user via email
 
-## Implementation Notes for Backend
+4.1. **Path:** `api/v1/auth/forgot-password`
 
-- TODO: JWT token format
-- TODO: Make note regarding possible issues with setting `SameSite` and `Secure` Cookie flags
-- TODO: Should log out require auth? If I want it to invalidate the token in the back end then yes, but if not it doesn't matter.
+**Description**: Take the email, and check if an account associated with the email exist and send confirmation code to the email.
 
-### Error Response Format
+**Method:** `GET`
+
+**Request Body** 
+
+```json
+{
+  "email" : "email",
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "message":"An confirmation code will be sent to your email. Please provide the confirmation to reset your password."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_NOT_EXIST",
+  "message":"No account with the provided email."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_NOT_ACTIVATE",
+  "message":"The account has not yet activated."
+}
+```
+
+*Note: When get this error, we should re-direct user to the page to confirm confirmation code.*
+
+4.2 **Path:** `/api/v1/auth/update-password`
+
+
+**Description**: Check the confirmation code is correct, we let user to update the password
+
+**Method:** `POST`
+
+**Request Body** 
+
+```json
+{
+  "email" : "email",
+  "verifyCode" : "code",
+  "newPassword":"newPassword"
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "message":"Password was updated successfully."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"INVALID_CONFIRMATION_CODE",
+  "message":"Invalid confirmation code."
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+**Response 500 INTERNAL SERVER ERROR:**
+
+Response body:
+```json
+{
+  "error":"INTERNAL_ERROR",
+  "message":"<this message will indicate a specific failure>"
+}
+```
+
+
+  
+
+
+
+
+
+
+
 
 ---
 
-## Testing Checklist
+### Preamble on JWT
 
-### Backend Tests
+*If you want to read more about JWT go to: [jwt.io](https://www.jwt.io/introduction#what-is-json-web-token)*
 
-* TODO
+JWT (JSON Web Token) can be used for authorization, consists of 3 parts:
+- Header
+- Payload
+- Signature
 
-### Frontend Tests
+Typically looking like:
+```
+xxxx.yyyy.zzzz
+```
+where `xxxx` is the header encoded in base-64, same for `yyyy`. Then `zzzz` is `xxxx.yyyy` encrypted with a key on the backend.
 
+Anything you want can go into the payload, but there are some common standards like:
+- `iss`: Issuer
+- `exp`: Expiration time
+- `sub`: Subject (like a user ID)
+
+*A common and recommended practice is to store a JWT in a cookie, specifically an `HttpOnly` cookie with the `Secure` and `SameSite` flags.*
+
+### Auth flow
+
+1. (Client) `POST /api/login` body: `{"username": "...", "password": "..."}
+2. (Server) Response with JWT token, which will be used for any follow up API calls from client (until the token expire). 
