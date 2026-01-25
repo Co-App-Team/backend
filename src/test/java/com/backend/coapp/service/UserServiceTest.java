@@ -3,7 +3,7 @@ package com.backend.coapp.service;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
-import com.backend.coapp.dto.UserDTO;
+import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ public class UserServiceTest {
 
   @Test
   public void testGetDummyUser() {
-    UserDTO user = this.userService.getDummyUser();
+    UserResponse user = this.userService.getDummyUser();
 
     assertNotNull(user);
     assert (user.getFirstName().equals("Dummy Firstname"));

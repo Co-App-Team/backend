@@ -14,4 +14,12 @@ public interface UserRepository extends MongoRepository<UserModel, String> {
    * @return a user
    */
   UserModel findUserModelById(String id);
+
+  /**
+   * Finds the user given an email
+   *
+   * @param email String
+   * @return a user
+   */
+  UserModel findUserModelByEmail(String email);
 }

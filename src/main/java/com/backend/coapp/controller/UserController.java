@@ -1,13 +1,15 @@
 package com.backend.coapp.controller;
 
-import com.backend.coapp.dto.UserDTO;
+import com.backend.coapp.dto.response.UserResponse;
+import com.backend.coapp.service.EmailService;
 import com.backend.coapp.service.UserService;
 import java.util.Map;
+
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * User controllers
@@ -16,11 +18,15 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @Slf4j
-@RequestMapping("/api/v1/user")
+@Getter // For testing only
+@RequestMapping("/api/user")
 public class UserController {
-  private final UserService userService; // Singleton
+
+  /** Singleton service and repository **/
+  private final UserService userService;
 
   /** Constructor */
+  @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
   }
@@ -33,19 +39,8 @@ public class UserController {
    */
   @GetMapping("/dummyUser")
   public ResponseEntity<Map<String, Object>> getDummyUser() {
-    UserDTO dummyUser = this.userService.getDummyUser();
+    UserResponse dummyUser = this.userService.getDummyUser();
     log.info("INFO: GET dummyUser API is called.");
     return ResponseEntity.ok().body(dummyUser.toMap());
-  }
-
-  /**
-   * Get userService instance
-   *
-   * <p>For testing only
-   *
-   * @return UserService
-   */
-  public UserService getUserService() {
-    return this.userService;
   }
 }

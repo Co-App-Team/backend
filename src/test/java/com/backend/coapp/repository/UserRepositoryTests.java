@@ -31,14 +31,14 @@ public class UserRepositoryTests {
   public void setUp() {
     repository.deleteAll();
 
-    john = repository.save(new UserModel("john@mail.com", "password123", "John", "Johnson"));
-    jane = repository.save(new UserModel("jane@mail.com", "secure456", "Jane", "Smith"));
-    bob = repository.save(new UserModel("bob@mail.com", "mypassword789", "Bob", "Williams"));
+    john = repository.save(new UserModel("john@mail.com", "password123", "John", "Johnson",123));
+    jane = repository.save(new UserModel("jane@mail.com", "secure456", "Jane", "Smith",345));
+    bob = repository.save(new UserModel("bob@mail.com", "mypassword789", "Bob", "Williams",567));
   }
 
   @Test
   public void setsIdOnSave() {
-    UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof"));
+    UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof",123));
 
     assertThat(user.getId()).isNotNull();
   }
@@ -53,6 +53,8 @@ public class UserRepositoryTests {
     assertThat(found.getId() != null);
     assertThat(found.getEmail().equals(john.getEmail()));
     assertThat(found.getPassword().equals(john.getPassword()));
+    assertThat(found.getVerificationCode().equals(john.getVerificationCode()));
+    assertThat(found.getVerified().equals(john.getVerified()));
   }
 
   @Test

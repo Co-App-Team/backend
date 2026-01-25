@@ -1,12 +1,18 @@
-package com.backend.coapp.dto;
+package com.backend.coapp.dto.response;
 
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+
+/**
+ * DTO response for returning user information.
+ */
+
 @Getter
 @AllArgsConstructor
-public class UserDTO {
+public class UserResponse {
+  // JSON keys
   private String firstName;
   private String lastName;
   private String email;
