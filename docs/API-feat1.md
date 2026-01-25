@@ -117,7 +117,7 @@ If the user doesn't activate the account, the account can't be used.
 Response body:
 ```json
 {
-  "message":"An confirmation code will be sent to your email. Please provide the confirmation to activate your account."
+  "message":"A confirmation code will be sent to your email. Please provide the code to reset your password."
 }
 ```
 
@@ -129,6 +129,26 @@ Response body:
 {
   "error":"EXIST_ACCOUNT_WITH_EMAIL",
   "message":"An account with that email already exists."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message":"Email, password, firstname and lastname can NOT be null or empty."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"INVALID_EMAIL",
+  "message":"Invalid provided email: <provided email.>"
 }
 ```
 3.2. **Path:** `api/auth/verify-email`
@@ -165,7 +185,29 @@ Response body:
 }
 ```
 
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message":"Email can NOT be null or empty."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"EMAIL_NOT_REGISTERED",
+  "message":"Email is not yet registered."
+}
+```
+
 3.3 **Path:** `api/auth/reset-confirmation-code`
+
+**Method:** PATCH
 
 **Description**: Reset confirmation code and send to user via email.
 
@@ -191,8 +233,18 @@ Response body:
 Response body:
 ```json
 {
-  "error":"ACCOUNT_DOES_NOT_EXIST",
-  "message":"Account with provided email not exists."
+  "error":"EMAIL_NOT_REGISTERED",
+  "message":"Email is not yet registered."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message":"Email can NOT be null or empty."
 }
 ```
 
