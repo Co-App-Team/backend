@@ -29,7 +29,7 @@ public class UserRegisterRequestTest {
     assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
 
     UserRegisterRequest requestEmailBlank = new UserRegisterRequest("", "123", "foo", "woof");
-    assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
+    assertThrows(InvalidRequestException.class, requestEmailBlank::validateRequest);
   }
 
   @Test
