@@ -32,14 +32,14 @@ public class UserRepositoryTests {
   public void setUp() {
     repository.deleteAll();
 
-    john = repository.save(new UserModel("john@mail.com", "password123", "John", "Johnson",123));
-    jane = repository.save(new UserModel("jane@mail.com", "secure456", "Jane", "Smith",345));
-    bob = repository.save(new UserModel("bob@mail.com", "mypassword789", "Bob", "Williams",567));
+    john = repository.save(new UserModel("john@mail.com", "password123", "John", "Johnson", 123));
+    jane = repository.save(new UserModel("jane@mail.com", "secure456", "Jane", "Smith", 345));
+    bob = repository.save(new UserModel("bob@mail.com", "mypassword789", "Bob", "Williams", 567));
   }
 
   @Test
   public void setsIdOnSave() {
-    UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof",123));
+    UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof", 123));
 
     assertThat(user.getId()).isNotNull();
   }
@@ -59,7 +59,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void findUserModelByEmail_whenFindByJohnEmail_expectJohnUserModel(){
+  public void findUserModelByEmail_whenFindByJohnEmail_expectJohnUserModel() {
     UserModel found = repository.findUserModelByEmail(john.getEmail());
 
     assertThat(found).isNotNull();
@@ -73,10 +73,9 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void findUserModelByEmail_whenFindNonExistEmail_expectNull(){
+  public void findUserModelByEmail_whenFindNonExistEmail_expectNull() {
     UserModel found = repository.findUserModelByEmail("foo@mail.com");
     assertNull(found);
-
   }
 
   @Test

@@ -1,10 +1,8 @@
 package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.service.EmailService;
 import com.backend.coapp.service.UserService;
 import java.util.Map;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/user")
 public class UserController {
 
-  /** Singleton service and repository **/
+  /** Singleton service and repository * */
   private final UserService userService;
 
   /** Constructor */

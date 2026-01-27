@@ -4,11 +4,7 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-
-/**
- * DTO response for returning user information.
- */
-
+/** DTO response for returning user information. */
 @Getter
 @AllArgsConstructor
 public class UserResponse {

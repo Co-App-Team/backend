@@ -15,16 +15,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "users")
 public class UserModel {
 
-  /** Constants **/
-  public final static Integer DEFAULT_VERIFICATION_CODE = -1;
+  /** Constants * */
+  public static final Integer DEFAULT_VERIFICATION_CODE = -1;
 
-  /** Attributes **/
+  /** Attributes * */
   @Id private String id;
 
   @Indexed(unique = true)
   private String email;
 
-  private String password; //@TODO: we need to hash this to enhance security.
+  private String password; // @TODO: we need to hash this to enhance security.
 
   private String firstName;
   private String lastName;
@@ -39,9 +39,10 @@ public class UserModel {
    * @param password String password
    * @param firstName String first name
    * @param lastName String last name
-   * @param  verificationCode int confirmation code
+   * @param verificationCode int confirmation code
    */
-  public UserModel(String email, String password, String firstName, String lastName, int verificationCode) {
+  public UserModel(
+      String email, String password, String firstName, String lastName, int verificationCode) {
     this.email = email;
     this.password = password;
     this.firstName = firstName;
@@ -59,7 +60,11 @@ public class UserModel {
     this.lastName = newLastName;
   }
 
-  public void setVerified(boolean verified){this.verified = verified;}
+  public void setVerified(boolean verified) {
+    this.verified = verified;
+  }
 
-  public void setVerificationCode(int newVerificationCode){this.verificationCode = newVerificationCode;}
+  public void setVerificationCode(int newVerificationCode) {
+    this.verificationCode = newVerificationCode;
+  }
 }

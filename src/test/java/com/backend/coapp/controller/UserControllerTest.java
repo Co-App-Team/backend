@@ -19,6 +19,7 @@ public class UserControllerTest {
   private UserService userService;
   private UserController userController;
   private EmailService emailService;
+
   @BeforeEach
   public void setUp() {
     this.userService = Mockito.mock(UserService.class);

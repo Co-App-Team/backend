@@ -10,9 +10,8 @@ public class UserModelTest {
   @BeforeEach
   public void setUp() {
     this.testFullUserModel =
-
         new UserModel( // This will refresh testUserModel for every test
-            "1", "user@mail.com", "secret", "FirstName", "LastName",false,123);
+            "1", "user@mail.com", "secret", "FirstName", "LastName", false, 123);
   }
 
   @Test
@@ -41,23 +40,18 @@ public class UserModelTest {
 
     this.testFullUserModel.setVerified(true);
     assert (this.testFullUserModel.getVerified().equals(true));
-
-
   }
-
-
-
 
   @Test
   public void testExceptIDInit() {
     UserModel testLoginUserModel =
-        new UserModel("user@mail.com", "secret", "FirstName", "LastName",123);
+        new UserModel("user@mail.com", "secret", "FirstName", "LastName", 123);
     assert (testLoginUserModel.getId() == null);
     assert (testLoginUserModel.getEmail().equals("user@mail.com"));
     assert (testLoginUserModel.getPassword().equals("secret"));
     assert (testLoginUserModel.getFirstName().equals("FirstName"));
     assert (testLoginUserModel.getLastName().equals("LastName"));
-    assert (testLoginUserModel.getVerificationCode() ==  123);
+    assert (testLoginUserModel.getVerificationCode() == 123);
     assert (!testLoginUserModel.getVerified());
   }
 }

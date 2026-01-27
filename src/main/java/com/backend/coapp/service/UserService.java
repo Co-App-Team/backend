@@ -1,7 +1,6 @@
 package com.backend.coapp.service;
 
 import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Getter // For testing only
 public class UserService {
-  /** Singleton service and repository **/
+  /** Singleton service and repository * */
   private final UserRepository userRepository;
 
   public UserService(UserRepository userRepository) {
@@ -31,5 +30,4 @@ public class UserService {
   public UserResponse getDummyUser() {
     return new UserResponse("Dummy Firstname", "Dummy Lastname", "foo@mail.com");
   }
-
 }
