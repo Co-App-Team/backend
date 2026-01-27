@@ -1,6 +1,7 @@
 package com.backend.coapp.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.backend.coapp.model.document.UserModel;
 import java.util.List;
@@ -55,6 +56,27 @@ public class UserRepositoryTests {
     assertThat(found.getPassword().equals(john.getPassword()));
     assertThat(found.getVerificationCode().equals(john.getVerificationCode()));
     assertThat(found.getVerified().equals(john.getVerified()));
+  }
+
+  @Test
+  public void findUserModelByEmail_whenFindByJohnEmail_expectJohnUserModel(){
+    UserModel found = repository.findUserModelByEmail(john.getEmail());
+
+    assertThat(found).isNotNull();
+    assertThat(found.getFirstName()).isEqualTo("John");
+    assertThat(found.getLastName()).isEqualTo("Johnson");
+    assertThat(found.getId() != null);
+    assertThat(found.getEmail().equals(john.getEmail()));
+    assertThat(found.getPassword().equals(john.getPassword()));
+    assertThat(found.getVerificationCode().equals(john.getVerificationCode()));
+    assertThat(found.getVerified().equals(john.getVerified()));
+  }
+
+  @Test
+  public void findUserModelByEmail_whenFindNonExistEmail_expectNull(){
+    UserModel found = repository.findUserModelByEmail("foo@mail.com");
+    assertNull(found);
+
   }
 
   @Test

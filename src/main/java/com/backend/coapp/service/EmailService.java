@@ -1,9 +1,8 @@
 package com.backend.coapp.service;
 
 import com.backend.coapp.exception.EmailServiceException;
-import com.backend.coapp.exception.EmailInvalidAddress;
+import com.backend.coapp.exception.EmailInvalidAddressException;
 import org.springframework.mail.MailException;
-import org.springframework.mail.MailParseException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -34,16 +33,16 @@ public class EmailService {
      * @param body String body of the email
      */
     public void sendEmail(String targetEmail, String subject, String body) {
-        if (subject == null || subject.isEmpty()){
+        if (subject == null || subject.isBlank()){
             throw new EmailServiceException("Email subject is null or empty.");
         }
 
-        if(body == null || body.isEmpty()){
+        if(body == null || body.isBlank()){
             throw new EmailServiceException("Email body is null or empty");
         }
 
         if (!validateEmail(targetEmail)){
-            throw new EmailInvalidAddress("Invalid provided email: " + targetEmail);
+            throw new EmailInvalidAddressException("Invalid provided email: " + targetEmail);
         }
 
         try{

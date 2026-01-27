@@ -7,10 +7,10 @@ package com.backend.coapp.exception;
 public class EmailServiceException extends  RuntimeException{
 
     public EmailServiceException(){
-        super("JavaMailSender Service Failure");
+        super("JavaMailSender Service Failure.");
     }
 
     public EmailServiceException(String message){
-        super("JavaMailSender Service Failure." + message);
+        super("JavaMailSender Service Failure. " + message);
     }
 }

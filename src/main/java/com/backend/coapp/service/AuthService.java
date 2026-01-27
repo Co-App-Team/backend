@@ -1,11 +1,12 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.AuthEmailAlreadyUsed;
-import com.backend.coapp.exception.AuthEmailNotRegistered;
-import com.backend.coapp.exception.EmailInvalidAddress;
+import com.backend.coapp.exception.AuthEmailAlreadyUsedException;
+import com.backend.coapp.exception.AuthEmailNotRegisteredException;
+import com.backend.coapp.exception.EmailInvalidAddressException;
 import com.backend.coapp.exception.EmailServiceException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ import java.util.Random;
 
 @Service
 @Slf4j
+@Getter // For testing
 public class AuthService {
 
     public static final int NUMS_VERIFICATION_CODE = 6;
@@ -43,33 +45,27 @@ public class AuthService {
      * @param password password
      * @param firstName User first name
      * @param lastName User last name
-     * @throws AuthEmailAlreadyUsed if provided email has been used with an existing account
+     * @throws AuthEmailAlreadyUsedException if provided email has been used with an existing account
      * @throws EmailServiceException if there is a failure in EmailService
-     * @throws EmailInvalidAddress if provided email has invalid format
+     * @throws EmailInvalidAddressException if provided email has invalid format
      */
-    public void createNewUser(String email, String password, String firstName, String lastName) throws AuthEmailAlreadyUsed, EmailServiceException, EmailInvalidAddress {
+    public void createNewUser(String email, String password, String firstName, String lastName) throws AuthEmailAlreadyUsedException, EmailServiceException, EmailInvalidAddressException {
         UserModel userIfExist = this.userRepository.findUserModelByEmail(email);
 
         if (userIfExist != null){
             log.warn("WARNING LOG: User tried to create a new account with an email that has been used.");
-            throw new AuthEmailAlreadyUsed();
+            throw new AuthEmailAlreadyUsedException();
         }else{
             int verificationCode = this.generateVerificationCode();
             String emailSubject = "Verification code for your new account";
-            String emailBody = """
-                Dear user,
-    
-                Your confirmation code is: %d
-    
-                Please do NOT share this code.
-        
-                Thank you,
-                CoApp Team.
-                """.formatted(verificationCode);
-            this.emailService.sendEmail(email,emailSubject,emailBody);
+            String emailBody = this.generateEmailBodyWithVerificationCode(verificationCode);
 
             UserModel newUser = new UserModel(email,password,firstName,lastName, verificationCode);
             this.userRepository.save(newUser);
+
+            this.emailService.sendEmail(email,emailSubject,emailBody);
+
+
         }
 
     }
@@ -80,13 +76,13 @@ public class AuthService {
      * @param email user email
      * @param verifyCode verification code
      * @return true if user is successfully verified; false otherwise
-     * @throws AuthEmailNotRegistered if there aren't any accounts associated with provided email.
+     * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided email.
      */
-    public boolean verifyUser(String email, int verifyCode) throws AuthEmailNotRegistered {
+    public boolean verifyUser(String email, int verifyCode) throws AuthEmailNotRegisteredException {
         UserModel user = this.userRepository.findUserModelByEmail(email);
 
         if (user == null){
-            throw new AuthEmailNotRegistered();
+            throw new AuthEmailNotRegisteredException();
         }else{
             boolean verified = user.getVerified();
             if (verified){
@@ -97,7 +93,6 @@ public class AuthService {
             verified = user.getVerified();
             if (verified){
                 user.setVerificationCode(-1);
-                //@TODO This operation may fail if there is something wrong with database
                 this.userRepository.save(user);
             }
 
@@ -109,31 +104,23 @@ public class AuthService {
      * Reset verification code and resend the new code to user email.
      * @param email user email
      * @throws EmailServiceException if there is failure with EmailService
-     * @throws AuthEmailNotRegistered if there aren't any accounts associated with provided email.
+     * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided email.
      */
-    public void resetVerifyCode(String email) throws  EmailServiceException, AuthEmailNotRegistered{
+    public void resetVerifyCode(String email) throws  EmailServiceException, AuthEmailNotRegisteredException {
         UserModel user = this.userRepository.findUserModelByEmail(email);
 
         if (user == null){
-            throw new AuthEmailNotRegistered();
+            throw new AuthEmailNotRegisteredException();
         }else{
             int newVerifyCode = this.generateVerificationCode();
 
-            String emailSubject = "Verification code for your new account";
-            String emailBody = """
-                Dear user,
-    
-                Your confirmation code is: %d
-    
-                Please do NOT share this code.
-        
-                Thank you,
-                CoApp Team.
-                """.formatted(newVerifyCode);
-            this.emailService.sendEmail(email,emailSubject,emailBody);
-
+            String emailSubject = "New verification code";
+            String emailBody = this.generateEmailBodyWithVerificationCode(newVerifyCode);
             user.setVerificationCode(newVerifyCode);
             this.userRepository.save(user);
+
+            this.emailService.sendEmail(email,emailSubject,emailBody);
+
         }
     }
 
@@ -147,6 +134,19 @@ public class AuthService {
         int lowerBound = (int) Math.pow(10,NUMS_VERIFICATION_CODE - 1);
         int upperRange = lowerBound * 9;
         return lowerBound + random.nextInt(upperRange);
+    }
+
+    private String generateEmailBodyWithVerificationCode(int verificationCode){
+        return """
+                Dear user,
+    
+                Your confirmation code is: %d
+    
+                Please do NOT share this code.
+        
+                Thank you,
+                CoApp Team.
+                """.formatted(verificationCode);
     }
 
 }

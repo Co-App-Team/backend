@@ -27,7 +27,7 @@ public class UserModelTest {
   }
 
   @Test
-  public void testSetFirstName() {
+  public void testSet() {
     this.testFullUserModel.setFirstName("foo");
     assert (this.testFullUserModel.getFirstName().equals("foo"));
     assert (this.testFullUserModel.getLastName().equals("LastName"));
@@ -35,7 +35,17 @@ public class UserModelTest {
     this.testFullUserModel.setLastName("woof");
     assert (this.testFullUserModel.getLastName().equals(("woof")));
     assert (this.testFullUserModel.getFirstName().equals("foo"));
+
+    this.testFullUserModel.setVerificationCode(456);
+    assert (this.testFullUserModel.getVerificationCode().equals(456));
+
+    this.testFullUserModel.setVerified(true);
+    assert (this.testFullUserModel.getVerified().equals(true));
+
+
   }
+
+
 
 
   @Test

@@ -15,6 +15,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "users")
 public class UserModel {
 
+  /** Constants **/
+  public final static Integer DEFAULT_VERIFICATION_CODE = -1;
+
+  /** Attributes **/
   @Id private String id;
 
   @Indexed(unique = true)
@@ -26,7 +30,7 @@ public class UserModel {
   private String lastName;
 
   private Boolean verified;
-  private Integer verificationCode = -1; // -1 by default
+  private Integer verificationCode = DEFAULT_VERIFICATION_CODE; // -1 by default
 
   /**
    * Constructor with all information except for id. This will be helpful for creating account
