@@ -74,4 +74,13 @@ public class GlobalExceptionHandler {
             Map.of(
                 "error", AuthErrorCodeEnum.EXIST_ACCOUNT_WITH_EMAIL, "message", ex.getMessage()));
   }
+
+  @ExceptionHandler(AuthAccountNotYetActivatedException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthAccountNotYetActivatedException(
+          AuthAccountNotYetActivatedException ex) {
+    return ResponseEntity.status(401)
+            .body(
+                    Map.of(
+                            "error", AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
+  }
 }

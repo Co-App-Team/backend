@@ -1,9 +1,6 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.AuthEmailAlreadyUsedException;
-import com.backend.coapp.exception.AuthEmailNotRegisteredException;
-import com.backend.coapp.exception.EmailInvalidAddressException;
-import com.backend.coapp.exception.EmailServiceException;
+import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import java.util.Random;
@@ -121,6 +118,43 @@ public class AuthService {
       this.emailService.sendEmail(email, emailSubject, emailBody);
     }
   }
+
+
+  /**
+   *
+   * @param email Email associated to an account that client wants to reset password
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the email
+   * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   */
+  public void forgotPassword(String email) throws AuthEmailNotRegisteredException, AuthAccountNotYetActivatedException{
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+    if (user == null){
+      throw  new AuthEmailNotRegisteredException();
+    }else if (!user.getVerified()){
+      throw new AuthAccountNotYetActivatedException();
+    }
+    int newVerifyCode = this.generateVerificationCode();
+
+    String emailSubject = "Forgot password? New verification code";
+    String emailBody = this.generateEmailBodyWithVerificationCode(newVerifyCode);
+    user.setForgotPasswordCode(newVerifyCode);
+    this.userRepository.save(user);
+
+    this.emailService.sendEmail(email, emailSubject, emailBody);
+  }
+
+  /**
+   *
+   * @param email Registered email of an account to reset password
+   * @param verifyCode Verification code provide by user
+   * @param newPassword New password that user want to update
+   * @return True if the code is match and password updated successfully. False if the verification code is incorrect.
+   */
+//  public boolean updatePassword(String email, int verifyCode, String newPassword){
+//    UserModel user = this.userRepository.findUserModelByEmail(email);
+//    return true;
+//
+//  }
 
   /**
    * Generate verification code of NUMS_VERIFICATION_CODE digits.

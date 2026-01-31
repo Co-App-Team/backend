@@ -1,5 +1,6 @@
 package com.backend.coapp.controller;
 
+import com.backend.coapp.dto.request.ForgotPasswordRequest;
 import com.backend.coapp.dto.request.ResetVerificationRequest;
 import com.backend.coapp.dto.request.UserRegisterRequest;
 import com.backend.coapp.dto.request.VerifyEmailRequest;
@@ -95,5 +96,21 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .body(Map.of("message", "A confirmation code will be sent to your email."));
+  }
+
+  /**
+   * This API will set forgot password code and send the code to user email.
+   *
+   * @param forgotPasswordRequest ForgotPasswordRequest
+   * @return ResponseEntity
+   */
+  @PatchMapping("/forgot-password")
+  public ResponseEntity<Map<String, Object>> resetVerificationCode(
+          @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+    forgotPasswordRequest.validateRequest();
+    this.authService.forgotPassword(forgotPasswordRequest.getEmail());
+
+    return ResponseEntity.ok()
+            .body(Map.of("message", "A confirmation code will be sent to your email. Please provide the confirmation code to activate your account."));
   }
 }

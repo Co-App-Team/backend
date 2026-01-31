@@ -277,6 +277,14 @@ Response body:
 }
 ```
 
+Response body:
+```json
+{
+  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message":"Email can NOT be null or empty."
+}
+```
+
 **Response 400 BAD REQUEST:**
 
 Response body:
@@ -287,7 +295,7 @@ Response body:
 }
 ```
 
-**Response 400 BAD REQUEST:**
+**Response 401 UNAUTHORIZED:**
 
 Response body:
 ```json
