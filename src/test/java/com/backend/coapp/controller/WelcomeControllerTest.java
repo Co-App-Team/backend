@@ -14,7 +14,7 @@ public class WelcomeControllerTest {
   }
 
   @Test
-  public void testSpinUp() {
+  public void welcome_expectWelcomeMessage() {
     assertEquals("CoApp is Running", this.welcomeController.welcome());
   }
 }

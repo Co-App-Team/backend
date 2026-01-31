@@ -49,7 +49,7 @@ public class AuthController {
         .body(
             Map.of(
                 "message",
-                "An confirmation code will be sent to your email. Please provide the confirmation to activate your account."));
+                "A confirmation code will be sent to your email. Please provide the confirmation to activate your account."));
   }
 
   /**

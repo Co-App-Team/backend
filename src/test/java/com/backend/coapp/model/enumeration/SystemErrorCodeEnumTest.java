@@ -6,13 +6,13 @@ import org.junit.jupiter.api.Test;
 
 public class SystemErrorCodeEnumTest {
   @Test
-  public void expectContain() {
+  public void SystemErrorCodeEnum_expectContain() {
     SystemErrorCodeEnum internalError = SystemErrorCodeEnum.INTERNAL_ERROR;
     assertNotNull(internalError);
   }
 
   @Test
-  public void nameShouldMatch() {
+  public void SystemErrorCodeEnum_expectNameShouldMatch() {
     SystemErrorCodeEnum internalError = SystemErrorCodeEnum.INTERNAL_ERROR;
     assertEquals("INTERNAL_ERROR", internalError.name());
   }

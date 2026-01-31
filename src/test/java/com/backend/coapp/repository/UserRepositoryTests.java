@@ -38,14 +38,14 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void setsIdOnSave() {
+  public void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
     UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof", 123));
 
     assertThat(user.getId()).isNotNull();
   }
 
   @Test
-  public void findsUserById() {
+  public void findsUserById_expectReturnJohn() {
     UserModel found = repository.findUserModelById(john.getId());
 
     assertThat(found).isNotNull();
@@ -79,7 +79,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void findsAllUsers() {
+  public void findsAllUsers_expectReturn3Users() {
     List<UserModel> users = repository.findAll();
 
     assertThat(users).hasSize(3).extracting("firstName").contains("John", "Jane", "Bob");
@@ -95,7 +95,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void deletesUser() {
+  public void deleteById_whenDeleteBob_expectDeleteBob() {
     repository.deleteById(bob.getId());
 
     List<UserModel> users = repository.findAll();
@@ -106,7 +106,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void updatesUser() {
+  public void updatesUser_whenUpdateJohnFirstAndLastName_expectJohnNameUpdate() {
     john.setFirstName("Jonathan");
     john.setLastName("Dorothy");
     repository.save(john);
@@ -117,7 +117,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void returnsNullForNonExistentId() {
+  public void findUserModelById_whenUserNotExist_expectReturnNull() {
     UserModel notFound = repository.findUserModelById("fake-id");
 
     assertThat(notFound).isNull();
