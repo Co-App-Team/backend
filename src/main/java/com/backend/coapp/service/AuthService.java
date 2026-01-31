@@ -88,7 +88,7 @@ public class AuthService {
       user.setVerified(user.getVerificationCode() == verifyCode);
       verified = user.getVerified();
       if (verified) {
-        user.setVerificationCode(-1);
+        user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
         this.userRepository.save(user);
       }
 

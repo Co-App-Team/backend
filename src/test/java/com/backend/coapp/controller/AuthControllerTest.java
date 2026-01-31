@@ -2,6 +2,10 @@ package com.backend.coapp.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.backend.coapp.dto.request.ResetVerificationRequest;
 import com.backend.coapp.dto.request.UserRegisterRequest;
@@ -11,26 +15,36 @@ import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
 import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
 import com.backend.coapp.service.AuthService;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 
+@WebMvcTest(AuthController.class)
 public class AuthControllerTest {
-  private AuthService authService;
-  private AuthController authController;
+  @Autowired private MockMvc mockMvc;
+
+  @Autowired private ObjectMapper objectMapper;
+
+  @MockitoBean private AuthService authService;
+
+  @Autowired private AuthController authController;
+
   private UserRegisterRequest dummyUserRegisterRequest;
   private VerifyEmailRequest dummyVerifyEmailRequest;
   private ResetVerificationRequest dummyResetVerificationRequest;
 
   @BeforeEach
-  public void setUp() {
-    this.authService = mock(AuthService.class);
-    this.authController = new AuthController(this.authService);
-    this.dummyUserRegisterRequest = new UserRegisterRequest("foo@mail.com", "123", "foo", "woof");
-    this.dummyVerifyEmailRequest = new VerifyEmailRequest("foo@mail.com", 123);
-    this.dummyResetVerificationRequest = new ResetVerificationRequest("foo@mail.com");
+  void setUp() {
+    dummyUserRegisterRequest = new UserRegisterRequest("foo@mail.com", "123", "foo", "woof");
+
+    dummyVerifyEmailRequest = new VerifyEmailRequest("foo@mail.com", 123);
+
+    dummyResetVerificationRequest = new ResetVerificationRequest("foo@mail.com");
   }
 
   @Test
@@ -39,265 +53,297 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void createAccount_whenInvalidRequest_expect400Response() {
+  public void createAccount_whenInvalidRequest_expect400Response() throws Exception {
     UserRegisterRequest request = mock(UserRegisterRequest.class);
-    String errorMessage = "foo message.";
-    doThrow(new InvalidRequestException(errorMessage)).when(request).validateRequest();
+    doThrow(new InvalidRequestException()).when(request).validateRequest();
+    UserRegisterRequest invalidRequest = new UserRegisterRequest(null, null, null, null);
 
-    ResponseEntity<Map<String, Object>> response = this.authController.createAccount(request);
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(invalidRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(
+            jsonPath("$.error").value(RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()));
 
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals(
-        RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
     verifyNoInteractions(authService);
   }
 
   @Test
-  public void createAccount_whenEmailInvalidAddress_expect400Response() {
-    String errorMessage = "foo message.";
-    doThrow(new EmailInvalidAddressException(errorMessage))
+  public void createAccount_whenEmailInvalidAddress_expect400Response() throws Exception {
+    doThrow(new EmailInvalidAddressException())
         .when(this.authService)
         .createNewUser(anyString(), anyString(), anyString(), anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.createAccount(this.dummyUserRegisterRequest);
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_EMAIL.name()));
 
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals(AuthErrorCodeEnum.INVALID_EMAIL, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
-    verify(authService, times(1)).createNewUser(anyString(), anyString(), anyString(), anyString());
+    verify(authService, times(1))
+        .createNewUser(
+            this.dummyUserRegisterRequest.getEmail(),
+            this.dummyUserRegisterRequest.getPassword(),
+            this.dummyUserRegisterRequest.getFirstName(),
+            this.dummyUserRegisterRequest.getLastName());
   }
 
   @Test
-  public void createAccount_whenEmailServiceFail_expect500Response() {
-    String errorMessage = "foo message.";
-    doThrow(new EmailServiceException(errorMessage))
+  public void createAccount_whenEmailServiceFail_expect500Response() throws Exception {
+    doThrow(new EmailServiceException())
         .when(this.authService)
         .createNewUser(anyString(), anyString(), anyString(), anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.createAccount(this.dummyUserRegisterRequest);
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()));
 
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).createNewUser(anyString(), anyString(), anyString(), anyString());
+    verify(authService, times(1))
+        .createNewUser(
+            this.dummyUserRegisterRequest.getEmail(),
+            this.dummyUserRegisterRequest.getPassword(),
+            this.dummyUserRegisterRequest.getFirstName(),
+            this.dummyUserRegisterRequest.getLastName());
   }
 
   @Test
-  public void createAccount_whenEmailAlreadyUsed_expect409Response() {
+  public void createAccount_whenEmailAlreadyUsed_expect409Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new AuthEmailAlreadyUsedException(errorMessage))
         .when(this.authService)
         .createNewUser(anyString(), anyString(), anyString(), anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.createAccount(this.dummyUserRegisterRequest);
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
+        .andExpect(status().isConflict())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.EXIST_ACCOUNT_WITH_EMAIL.name()));
 
-    assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
-    assertEquals(AuthErrorCodeEnum.EXIST_ACCOUNT_WITH_EMAIL, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
-    verify(authService, times(1)).createNewUser(anyString(), anyString(), anyString(), anyString());
+    verify(authService, times(1))
+        .createNewUser(
+            this.dummyUserRegisterRequest.getEmail(),
+            this.dummyUserRegisterRequest.getPassword(),
+            this.dummyUserRegisterRequest.getFirstName(),
+            this.dummyUserRegisterRequest.getLastName());
   }
 
   @Test
-  public void createAccount_whenUnknowFailure_expect500Response() {
+  public void createAccount_whenUnknowFailure_expect500Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new RuntimeException(errorMessage))
         .when(this.authService)
         .createNewUser(anyString(), anyString(), anyString(), anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.createAccount(this.dummyUserRegisterRequest);
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()));
 
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).createNewUser(anyString(), anyString(), anyString(), anyString());
+    verify(authService, times(1))
+        .createNewUser(
+            this.dummyUserRegisterRequest.getEmail(),
+            this.dummyUserRegisterRequest.getPassword(),
+            this.dummyUserRegisterRequest.getFirstName(),
+            this.dummyUserRegisterRequest.getLastName());
   }
 
   @Test
-  public void createAccount_whenEverythingSuccess_expect200Response() {
+  public void createAccount_whenEverythingSuccess_expect200Response() throws Exception {
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.createAccount(this.dummyUserRegisterRequest);
+    doNothing().when(authService).createNewUser(anyString(), anyString(), anyString(), anyString());
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).createNewUser(anyString(), anyString(), anyString(), anyString());
+    mockMvc
+        .perform(
+            post("/api/auth/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .createNewUser(
+            this.dummyUserRegisterRequest.getEmail(),
+            this.dummyUserRegisterRequest.getPassword(),
+            this.dummyUserRegisterRequest.getFirstName(),
+            this.dummyUserRegisterRequest.getLastName());
   }
 
   @Test
-  public void verifyEmail_whenInvalidRequest_expect400Response() {
-    VerifyEmailRequest request = mock(VerifyEmailRequest.class);
-    String errorMessage = "foo message.";
-    doThrow(new InvalidRequestException(errorMessage)).when(request).validateRequest();
-
-    ResponseEntity<Map<String, Object>> response = this.authController.verifyEmail(request);
-
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals(
-        RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
+  public void verifyEmail_whenInvalidRequest_expect400Response() throws Exception {
+    VerifyEmailRequest invalidRequest = new VerifyEmailRequest(null, null);
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(invalidRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.error").value(RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
     verifyNoInteractions(authService);
   }
 
   @Test
-  public void verifyEmail_whenEmailNotRegistered_expect400Response() {
+  public void verifyEmail_whenEmailNotRegistered_expect400Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new AuthEmailNotRegisteredException(errorMessage))
         .when(this.authService)
         .verifyUser(anyString(), anyInt());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.verifyEmail(this.dummyVerifyEmailRequest);
-
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
-    verify(authService, times(1)).verifyUser(anyString(), anyInt());
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .verifyUser(
+            this.dummyVerifyEmailRequest.getEmail(), this.dummyVerifyEmailRequest.getVerifyCode());
   }
 
   @Test
-  public void verifyEmail_whenUnknowFailure_expect500Response() {
-    String errorMessage = "foo message.";
-    doThrow(new RuntimeException(errorMessage))
-        .when(this.authService)
-        .verifyUser(anyString(), anyInt());
+  public void verifyEmail_whenUnknowFailure_expect500Response() throws Exception {
+    doThrow(new RuntimeException()).when(this.authService).verifyUser(anyString(), anyInt());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.verifyEmail(this.dummyVerifyEmailRequest);
-
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).verifyUser(anyString(), anyInt());
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .verifyUser(
+            this.dummyVerifyEmailRequest.getEmail(), this.dummyVerifyEmailRequest.getVerifyCode());
   }
 
   @Test
-  public void verifyEmail_whenCorrectCode_expect200Response() {
+  public void verifyEmail_whenCorrectCode_expect200Response() throws Exception {
     doReturn(true).when(this.authService).verifyUser(anyString(), anyInt());
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.verifyEmail(this.dummyVerifyEmailRequest);
-
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).verifyUser(anyString(), anyInt());
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .verifyUser(
+            this.dummyVerifyEmailRequest.getEmail(), this.dummyVerifyEmailRequest.getVerifyCode());
   }
 
   @Test
-  public void verifyEmail_whenIncorrectCode_expect400Response() {
+  public void verifyEmail_whenIncorrectCode_expect400Response() throws Exception {
     doReturn(false).when(this.authService).verifyUser(anyString(), anyInt());
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.verifyEmail(this.dummyVerifyEmailRequest);
-
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).verifyUser(anyString(), anyInt());
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .verifyUser(
+            this.dummyVerifyEmailRequest.getEmail(), this.dummyVerifyEmailRequest.getVerifyCode());
   }
 
-  // TODO: Add unit test for resetVerificationCode
-
   @Test
-  public void resetVerificationCode_whenInvalidRequest_expect400Response() {
-    ResetVerificationRequest request = mock(ResetVerificationRequest.class);
-    String errorMessage = "foo message.";
-    doThrow(new InvalidRequestException(errorMessage)).when(request).validateRequest();
-
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.resetVerificationCode(request);
-
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals(
-        RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
+  public void resetVerificationCode_whenInvalidRequest_expect400Response() throws Exception {
+    ResetVerificationRequest invalidRequest = new ResetVerificationRequest(null);
+    mockMvc
+        .perform(
+            patch("/api/auth/reset-confirmation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(invalidRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.error").value(RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
     verifyNoInteractions(authService);
   }
 
   @Test
-  public void resetVerificationCode_whenEmailNotRegistered_expect400Response() {
-    String errorMessage = "foo message.";
-    doThrow(new AuthEmailNotRegisteredException(errorMessage))
+  public void resetVerificationCode_whenEmailNotRegistered_expect400Response() throws Exception {
+    doThrow(new AuthEmailNotRegisteredException())
         .when(this.authService)
         .resetVerifyCode(anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.resetVerificationCode(this.dummyResetVerificationRequest);
+    mockMvc
+        .perform(
+            patch("/api/auth/reset-confirmation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
 
-    assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    assertEquals(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertTrue(responseMessage.contains(errorMessage));
-    verify(authService, times(1)).resetVerifyCode(anyString());
+    verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
   }
 
   @Test
-  public void resetVerificationCode_whenEmailServiceFail_expect500Response() {
-    String errorMessage = "foo message.";
-    doThrow(new EmailServiceException(errorMessage))
-        .when(this.authService)
-        .resetVerifyCode(anyString());
+  public void resetVerificationCode_whenEmailServiceFail_expect500Response() throws Exception {
+    doThrow(new EmailServiceException()).when(this.authService).resetVerifyCode(anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.resetVerificationCode(this.dummyResetVerificationRequest);
+    mockMvc
+        .perform(
+            patch("/api/auth/reset-confirmation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
 
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).resetVerifyCode(anyString());
+    verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
   }
 
   @Test
-  public void resetVerificationCode_whenUnknowFailure_expect500Response() {
-    String errorMessage = "foo message.";
-    doThrow(new RuntimeException(errorMessage)).when(this.authService).resetVerifyCode(anyString());
+  public void resetVerificationCode_whenUnknowFailure_expect500Response() throws Exception {
+    doThrow(new RuntimeException()).when(this.authService).resetVerifyCode(anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.resetVerificationCode(this.dummyResetVerificationRequest);
-
-    assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).resetVerifyCode(anyString());
+    mockMvc
+        .perform(
+            patch("/api/auth/reset-confirmation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
   }
 
   @Test
-  public void resetVerificationCode_whenEverythingSuccess_expect200Response() {
+  void resetVerificationCode_whenEverythingSuccess_expect200Response() throws Exception {
+    doNothing().when(authService).resetVerifyCode(anyString());
 
-    ResponseEntity<Map<String, Object>> response =
-        this.authController.resetVerificationCode(this.dummyResetVerificationRequest);
+    mockMvc
+        .perform(
+            patch("/api/auth/reset-confirmation-code")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
 
-    assertEquals(HttpStatus.OK, response.getStatusCode());
-
-    String responseMessage = (String) response.getBody().get("message");
-    assertNotNull(responseMessage);
-    assertFalse(responseMessage.isBlank());
-    verify(authService, times(1)).resetVerifyCode(anyString());
+    verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
   }
 }

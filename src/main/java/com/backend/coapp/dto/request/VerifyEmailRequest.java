@@ -15,7 +15,7 @@ public class VerifyEmailRequest implements IRequest {
   @Override
   public void validateRequest() throws InvalidRequestException {
     if (this.email == null || this.email.isBlank() || this.verifyCode == null) {
-      throw new InvalidRequestException("Email and verification code can be null or empty.");
+      throw new InvalidRequestException("Email and verification code can NOT be null or empty.");
     }
   }
 }
