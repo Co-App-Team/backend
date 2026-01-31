@@ -2,6 +2,7 @@ package com.backend.coapp.model.document;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /** This test is for UserModel without MongoDB. */
 public class UserModelTest {
@@ -15,35 +16,66 @@ public class UserModelTest {
   }
 
   @Test
-  public void testGetter() {
-    assert (this.testFullUserModel.getId().equals("1"));
-    assert (this.testFullUserModel.getEmail().equals("user@mail.com"));
-    assert (this.testFullUserModel.getPassword().equals("secret"));
-    assert (this.testFullUserModel.getFirstName().equals("FirstName"));
-    assert (this.testFullUserModel.getLastName().equals("LastName"));
-    assert (!this.testFullUserModel.getVerified());
-    assert (this.testFullUserModel.getVerificationCode() == 123);
+  public void getterMethods_expectInitValues() {
+    assertEquals("1",this.testFullUserModel.getId());
+    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
+    assertEquals ("secret",this.testFullUserModel.getPassword());
+    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
+    assertEquals ("LastName",this.testFullUserModel.getLastName());
+    assertFalse(this.testFullUserModel.getVerified());
+    assertEquals(123,this.testFullUserModel.getVerificationCode());
+  }
+
+ @Test
+ public void setFirstName_expectOnlyFirstNameChange(){
+   this.testFullUserModel.setFirstName("foo");
+   assertEquals("1",this.testFullUserModel.getId());
+   assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
+   assertEquals ("secret",this.testFullUserModel.getPassword());
+   assertEquals ("foo",this.testFullUserModel.getFirstName());
+   assertEquals ("LastName",this.testFullUserModel.getLastName());
+   assertFalse(this.testFullUserModel.getVerified());
+   assertEquals(123,this.testFullUserModel.getVerificationCode());
+ }
+
+  @Test
+  public void setLastName_expectOnlyLastNameChange(){
+    this.testFullUserModel.setLastName("foo");
+    assertEquals("1",this.testFullUserModel.getId());
+    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
+    assertEquals ("secret",this.testFullUserModel.getPassword());
+    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
+    assertEquals ("foo",this.testFullUserModel.getLastName());
+    assertFalse(this.testFullUserModel.getVerified());
+    assertEquals(123,this.testFullUserModel.getVerificationCode());
   }
 
   @Test
-  public void testSet() {
-    this.testFullUserModel.setFirstName("foo");
-    assert (this.testFullUserModel.getFirstName().equals("foo"));
-    assert (this.testFullUserModel.getLastName().equals("LastName"));
-
-    this.testFullUserModel.setLastName("woof");
-    assert (this.testFullUserModel.getLastName().equals(("woof")));
-    assert (this.testFullUserModel.getFirstName().equals("foo"));
-
-    this.testFullUserModel.setVerificationCode(456);
-    assert (this.testFullUserModel.getVerificationCode().equals(456));
-
+  public void setVerified_expectVerifiedChange(){
     this.testFullUserModel.setVerified(true);
-    assert (this.testFullUserModel.getVerified().equals(true));
+    assertEquals("1",this.testFullUserModel.getId());
+    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
+    assertEquals ("secret",this.testFullUserModel.getPassword());
+    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
+    assertEquals ("LastName",this.testFullUserModel.getLastName());
+    assertTrue(this.testFullUserModel.getVerified());
+    assertEquals(123,this.testFullUserModel.getVerificationCode());
   }
 
   @Test
-  public void testExceptIDInit() {
+  public void setVerificationCode_expectVerificationCodeChange(){
+    this.testFullUserModel.setVerificationCode(999);
+    assertEquals("1",this.testFullUserModel.getId());
+    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
+    assertEquals ("secret",this.testFullUserModel.getPassword());
+    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
+    assertEquals ("LastName",this.testFullUserModel.getLastName());
+    assertFalse(this.testFullUserModel.getVerified());
+    assertEquals(999,this.testFullUserModel.getVerificationCode());
+  }
+
+  @Test
+  public void constructor_whenNoIDProvided_expectAutoGenerateID() {
     UserModel testLoginUserModel =
         new UserModel("user@mail.com", "secret", "FirstName", "LastName", 123);
     assert (testLoginUserModel.getId() == null);

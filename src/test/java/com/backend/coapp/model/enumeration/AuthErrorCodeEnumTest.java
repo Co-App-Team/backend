@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 public class AuthErrorCodeEnumTest {
   @Test
-  public void expectContain() {
+  public void AuthErrorCodeEnum_expectContain() {
     AuthErrorCodeEnum invalidEmail = AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE;
     assertNotNull(invalidEmail);
 
@@ -22,7 +22,7 @@ public class AuthErrorCodeEnumTest {
   }
 
   @Test
-  public void nameShouldMatch() {
+  public void AuthErrorCodeEnum_expectNameShouldMatch() {
     AuthErrorCodeEnum invalidEmail = AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE;
     assertEquals("INVALID_CONFIRMATION_CODE", invalidEmail.name());
 
