@@ -1,7 +1,9 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.dto.UserDTO;
+import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.repository.UserRepository;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -9,8 +11,11 @@ import org.springframework.stereotype.Service;
  *
  * <p>This handles all business logic related to User.
  */
+@Slf4j
 @Service
+@Getter // For testing only
 public class UserService {
+  /** Singleton service and repository * */
   private final UserRepository userRepository;
 
   public UserService(UserRepository userRepository) {
@@ -22,16 +27,7 @@ public class UserService {
    *
    * @return String
    */
-  public UserDTO getDummyUser() {
-    return new UserDTO("Dummy Firstname", "Dummy Lastname", "foo@mail.com");
-  }
-
-  /**
-   * Get userRepository instance.
-   *
-   * <p>For testing only
-   */
-  public UserRepository getUserRepository() {
-    return this.userRepository;
+  public UserResponse getDummyUser() {
+    return new UserResponse("Dummy Firstname", "Dummy Lastname", "foo@mail.com");
   }
 }

@@ -11,7 +11,7 @@ public class UserModelTest {
   public void setUp() {
     this.testFullUserModel =
         new UserModel( // This will refresh testUserModel for every test
-            "1", "user@mail.com", "secret", "FirstName", "LastName");
+            "1", "user@mail.com", "secret", "FirstName", "LastName", false, 123);
   }
 
   @Test
@@ -21,10 +21,12 @@ public class UserModelTest {
     assert (this.testFullUserModel.getPassword().equals("secret"));
     assert (this.testFullUserModel.getFirstName().equals("FirstName"));
     assert (this.testFullUserModel.getLastName().equals("LastName"));
+    assert (!this.testFullUserModel.getVerified());
+    assert (this.testFullUserModel.getVerificationCode() == 123);
   }
 
   @Test
-  public void testSetFirstName() {
+  public void testSet() {
     this.testFullUserModel.setFirstName("foo");
     assert (this.testFullUserModel.getFirstName().equals("foo"));
     assert (this.testFullUserModel.getLastName().equals("LastName"));
@@ -32,26 +34,24 @@ public class UserModelTest {
     this.testFullUserModel.setLastName("woof");
     assert (this.testFullUserModel.getLastName().equals(("woof")));
     assert (this.testFullUserModel.getFirstName().equals("foo"));
-  }
 
-  @Test
-  public void testEmailAndPasswordInit() {
-    UserModel testLoginUserModel = new UserModel("user@mail.com", "foo");
-    assert (testLoginUserModel.getId() == null);
-    assert (testLoginUserModel.getEmail().equals("user@mail.com"));
-    assert (testLoginUserModel.getPassword().equals("foo"));
-    assert (testLoginUserModel.getFirstName() == null);
-    assert (testLoginUserModel.getLastName() == null);
+    this.testFullUserModel.setVerificationCode(456);
+    assert (this.testFullUserModel.getVerificationCode().equals(456));
+
+    this.testFullUserModel.setVerified(true);
+    assert (this.testFullUserModel.getVerified().equals(true));
   }
 
   @Test
   public void testExceptIDInit() {
     UserModel testLoginUserModel =
-        new UserModel("user@mail.com", "secret", "FirstName", "LastName");
+        new UserModel("user@mail.com", "secret", "FirstName", "LastName", 123);
     assert (testLoginUserModel.getId() == null);
     assert (testLoginUserModel.getEmail().equals("user@mail.com"));
     assert (testLoginUserModel.getPassword().equals("secret"));
     assert (testLoginUserModel.getFirstName().equals("FirstName"));
     assert (testLoginUserModel.getLastName().equals("LastName"));
+    assert (testLoginUserModel.getVerificationCode() == 123);
+    assert (!testLoginUserModel.getVerified());
   }
 }

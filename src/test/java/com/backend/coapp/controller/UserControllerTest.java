@@ -4,7 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.when;
 
-import com.backend.coapp.dto.UserDTO;
+import com.backend.coapp.dto.response.UserResponse;
+import com.backend.coapp.service.EmailService;
 import com.backend.coapp.service.UserService;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ public class UserControllerTest {
 
   private UserService userService;
   private UserController userController;
+  private EmailService emailService;
 
   @BeforeEach
   public void setUp() {
@@ -31,7 +33,7 @@ public class UserControllerTest {
 
   @Test
   public void testgetDummyUser() {
-    UserDTO dummyUser = new UserDTO("Dummy Firstname", "Dummy Lastname", "foo@mail.com");
+    UserResponse dummyUser = new UserResponse("Dummy Firstname", "Dummy Lastname", "foo@mail.com");
     when(this.userService.getDummyUser()).thenReturn(dummyUser);
 
     ResponseEntity<Map<String, Object>> response = this.userController.getDummyUser();
