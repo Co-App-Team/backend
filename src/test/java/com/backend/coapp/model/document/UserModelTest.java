@@ -1,8 +1,9 @@
 package com.backend.coapp.model.document;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
 
 /** This test is for UserModel without MongoDB. */
 public class UserModelTest {
@@ -17,61 +18,61 @@ public class UserModelTest {
 
   @Test
   public void getterMethods_expectInitValues() {
-    assertEquals("1",this.testFullUserModel.getId());
-    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
-    assertEquals ("secret",this.testFullUserModel.getPassword());
-    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
-    assertEquals ("LastName",this.testFullUserModel.getLastName());
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("secret", this.testFullUserModel.getPassword());
+    assertEquals("FirstName", this.testFullUserModel.getFirstName());
+    assertEquals("LastName", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
-    assertEquals(123,this.testFullUserModel.getVerificationCode());
+    assertEquals(123, this.testFullUserModel.getVerificationCode());
   }
 
- @Test
- public void setFirstName_expectOnlyFirstNameChange(){
-   this.testFullUserModel.setFirstName("foo");
-   assertEquals("1",this.testFullUserModel.getId());
-   assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
-   assertEquals ("secret",this.testFullUserModel.getPassword());
-   assertEquals ("foo",this.testFullUserModel.getFirstName());
-   assertEquals ("LastName",this.testFullUserModel.getLastName());
-   assertFalse(this.testFullUserModel.getVerified());
-   assertEquals(123,this.testFullUserModel.getVerificationCode());
- }
+  @Test
+  public void setFirstName_expectOnlyFirstNameChange() {
+    this.testFullUserModel.setFirstName("foo");
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("secret", this.testFullUserModel.getPassword());
+    assertEquals("foo", this.testFullUserModel.getFirstName());
+    assertEquals("LastName", this.testFullUserModel.getLastName());
+    assertFalse(this.testFullUserModel.getVerified());
+    assertEquals(123, this.testFullUserModel.getVerificationCode());
+  }
 
   @Test
-  public void setLastName_expectOnlyLastNameChange(){
+  public void setLastName_expectOnlyLastNameChange() {
     this.testFullUserModel.setLastName("foo");
-    assertEquals("1",this.testFullUserModel.getId());
-    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
-    assertEquals ("secret",this.testFullUserModel.getPassword());
-    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
-    assertEquals ("foo",this.testFullUserModel.getLastName());
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("secret", this.testFullUserModel.getPassword());
+    assertEquals("FirstName", this.testFullUserModel.getFirstName());
+    assertEquals("foo", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
-    assertEquals(123,this.testFullUserModel.getVerificationCode());
+    assertEquals(123, this.testFullUserModel.getVerificationCode());
   }
 
   @Test
-  public void setVerified_expectVerifiedChange(){
+  public void setVerified_expectVerifiedChange() {
     this.testFullUserModel.setVerified(true);
-    assertEquals("1",this.testFullUserModel.getId());
-    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
-    assertEquals ("secret",this.testFullUserModel.getPassword());
-    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
-    assertEquals ("LastName",this.testFullUserModel.getLastName());
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("secret", this.testFullUserModel.getPassword());
+    assertEquals("FirstName", this.testFullUserModel.getFirstName());
+    assertEquals("LastName", this.testFullUserModel.getLastName());
     assertTrue(this.testFullUserModel.getVerified());
-    assertEquals(123,this.testFullUserModel.getVerificationCode());
+    assertEquals(123, this.testFullUserModel.getVerificationCode());
   }
 
   @Test
-  public void setVerificationCode_expectVerificationCodeChange(){
+  public void setVerificationCode_expectVerificationCodeChange() {
     this.testFullUserModel.setVerificationCode(999);
-    assertEquals("1",this.testFullUserModel.getId());
-    assertEquals ("user@mail.com",this.testFullUserModel.getEmail());
-    assertEquals ("secret",this.testFullUserModel.getPassword());
-    assertEquals ("FirstName",this.testFullUserModel.getFirstName());
-    assertEquals ("LastName",this.testFullUserModel.getLastName());
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("secret", this.testFullUserModel.getPassword());
+    assertEquals("FirstName", this.testFullUserModel.getFirstName());
+    assertEquals("LastName", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
-    assertEquals(999,this.testFullUserModel.getVerificationCode());
+    assertEquals(999, this.testFullUserModel.getVerificationCode());
   }
 
   @Test

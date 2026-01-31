@@ -1,13 +1,13 @@
 package com.backend.coapp.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 public class UserServiceTest {
 
@@ -30,8 +30,8 @@ public class UserServiceTest {
     UserResponse user = this.userService.getDummyUser();
 
     assertNotNull(user);
-    assertEquals("Dummy Firstname",user.getFirstName());
-    assertEquals ("Dummy Lastname",user.getLastName());
-    assertEquals ("foo@mail.com",user.getEmail());
+    assertEquals("Dummy Firstname", user.getFirstName());
+    assertEquals("Dummy Lastname", user.getLastName());
+    assertEquals("foo@mail.com", user.getEmail());
   }
 }
