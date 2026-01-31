@@ -8,13 +8,13 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ForgotPasswordRequest implements IRequest {
-    // JSON request keys
-    private String email;
+  // JSON request keys
+  private String email;
 
-    @Override
-    public void validateRequest() throws InvalidRequestException {
-        if (this.email == null || this.email.isBlank()) {
-            throw new InvalidRequestException("Email can NOT be null or empty.");
-        }
+  @Override
+  public void validateRequest() throws InvalidRequestException {
+    if (this.email == null || this.email.isBlank()) {
+      throw new InvalidRequestException("Email can NOT be null or empty.");
     }
+  }
 }

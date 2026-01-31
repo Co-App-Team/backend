@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.backend.coapp.dto.request.ForgotPasswordRequest;
 import com.backend.coapp.dto.request.ResetVerificationRequest;
 import com.backend.coapp.dto.request.UserRegisterRequest;
 import com.backend.coapp.dto.request.VerifyEmailRequest;
@@ -37,6 +38,7 @@ public class AuthControllerTest {
   private UserRegisterRequest dummyUserRegisterRequest;
   private VerifyEmailRequest dummyVerifyEmailRequest;
   private ResetVerificationRequest dummyResetVerificationRequest;
+  private ForgotPasswordRequest dummyForgotPasswordRequest;
 
   @BeforeEach
   void setUp() {
@@ -45,6 +47,7 @@ public class AuthControllerTest {
     dummyVerifyEmailRequest = new VerifyEmailRequest("foo@mail.com", 123);
 
     dummyResetVerificationRequest = new ResetVerificationRequest("foo@mail.com");
+    dummyForgotPasswordRequest = new ForgotPasswordRequest("foo@mail.com");
   }
 
   @Test
@@ -345,5 +348,39 @@ public class AuthControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty());
 
     verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
+  }
+
+  /// ////////////
+  @Test
+  public void forgotPassword_whenAccountNotActivatedYet_expect401Response() throws Exception {
+    doThrow(new AuthAccountNotYetActivatedException())
+        .when(this.authService)
+        .forgotPassword(anyString());
+
+    mockMvc
+        .perform(
+            patch("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyForgotPasswordRequest)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+
+    verify(authService, times(1)).forgotPassword(this.dummyForgotPasswordRequest.getEmail());
+  }
+
+  @Test
+  void forgotPassword_whenEverythingSuccess_expect200Response() throws Exception {
+    doNothing().when(authService).forgotPassword(anyString());
+
+    mockMvc
+        .perform(
+            patch("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyForgotPasswordRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+
+    verify(authService, times(1)).forgotPassword(this.dummyForgotPasswordRequest.getEmail());
   }
 }

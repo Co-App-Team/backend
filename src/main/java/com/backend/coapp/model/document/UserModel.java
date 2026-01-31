@@ -70,7 +70,7 @@ public class UserModel {
     this.verificationCode = newVerificationCode;
   }
 
-  public void setForgotPasswordCode(int forgotPasswordCode){
+  public void setForgotPasswordCode(int forgotPasswordCode) {
     this.forgotPasswordCode = forgotPasswordCode;
   }
 }

@@ -13,7 +13,14 @@ public class UserModelTest {
   public void setUp() {
     this.testFullUserModel =
         new UserModel( // This will refresh testUserModel for every test
-            "1", "user@mail.com", "secret", "FirstName", "LastName", false, 123);
+            "1",
+            "user@mail.com",
+            "secret",
+            "FirstName",
+            "LastName",
+            false,
+            123,
+            UserModel.DEFAULT_VERIFICATION_CODE);
   }
 
   @Test
@@ -25,6 +32,8 @@ public class UserModelTest {
     assertEquals("LastName", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
     assertEquals(123, this.testFullUserModel.getVerificationCode());
+    assertEquals(
+        UserModel.DEFAULT_VERIFICATION_CODE, this.testFullUserModel.getForgotPasswordCode());
   }
 
   @Test
@@ -37,6 +46,8 @@ public class UserModelTest {
     assertEquals("LastName", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
     assertEquals(123, this.testFullUserModel.getVerificationCode());
+    assertEquals(
+        UserModel.DEFAULT_VERIFICATION_CODE, this.testFullUserModel.getForgotPasswordCode());
   }
 
   @Test
@@ -49,6 +60,8 @@ public class UserModelTest {
     assertEquals("foo", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
     assertEquals(123, this.testFullUserModel.getVerificationCode());
+    assertEquals(
+        UserModel.DEFAULT_VERIFICATION_CODE, this.testFullUserModel.getForgotPasswordCode());
   }
 
   @Test
@@ -61,6 +74,8 @@ public class UserModelTest {
     assertEquals("LastName", this.testFullUserModel.getLastName());
     assertTrue(this.testFullUserModel.getVerified());
     assertEquals(123, this.testFullUserModel.getVerificationCode());
+    assertEquals(
+        UserModel.DEFAULT_VERIFICATION_CODE, this.testFullUserModel.getForgotPasswordCode());
   }
 
   @Test
@@ -73,6 +88,21 @@ public class UserModelTest {
     assertEquals("LastName", this.testFullUserModel.getLastName());
     assertFalse(this.testFullUserModel.getVerified());
     assertEquals(999, this.testFullUserModel.getVerificationCode());
+    assertEquals(
+        UserModel.DEFAULT_VERIFICATION_CODE, this.testFullUserModel.getForgotPasswordCode());
+  }
+
+  @Test
+  public void setVerificationCode_expectForgotPasswordCode() {
+    this.testFullUserModel.setForgotPasswordCode(999);
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("secret", this.testFullUserModel.getPassword());
+    assertEquals("FirstName", this.testFullUserModel.getFirstName());
+    assertEquals("LastName", this.testFullUserModel.getLastName());
+    assertFalse(this.testFullUserModel.getVerified());
+    assertEquals(123, this.testFullUserModel.getVerificationCode());
+    assertEquals(999, this.testFullUserModel.getForgotPasswordCode());
   }
 
   @Test

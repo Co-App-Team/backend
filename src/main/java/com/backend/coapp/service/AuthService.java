@@ -119,18 +119,18 @@ public class AuthService {
     }
   }
 
-
   /**
-   *
    * @param email Email associated to an account that client wants to reset password
-   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the email
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
+   *     email
    * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
    */
-  public void forgotPassword(String email) throws AuthEmailNotRegisteredException, AuthAccountNotYetActivatedException{
+  public void forgotPassword(String email)
+      throws AuthEmailNotRegisteredException, AuthAccountNotYetActivatedException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
-    if (user == null){
-      throw  new AuthEmailNotRegisteredException();
-    }else if (!user.getVerified()){
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else if (!user.getVerified()) {
       throw new AuthAccountNotYetActivatedException();
     }
     int newVerifyCode = this.generateVerificationCode();
@@ -142,19 +142,6 @@ public class AuthService {
 
     this.emailService.sendEmail(email, emailSubject, emailBody);
   }
-
-  /**
-   *
-   * @param email Registered email of an account to reset password
-   * @param verifyCode Verification code provide by user
-   * @param newPassword New password that user want to update
-   * @return True if the code is match and password updated successfully. False if the verification code is incorrect.
-   */
-//  public boolean updatePassword(String email, int verifyCode, String newPassword){
-//    UserModel user = this.userRepository.findUserModelByEmail(email);
-//    return true;
-//
-//  }
 
   /**
    * Generate verification code of NUMS_VERIFICATION_CODE digits.
