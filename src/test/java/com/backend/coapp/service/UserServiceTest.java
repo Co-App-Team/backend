@@ -1,7 +1,7 @@
 package com.backend.coapp.service;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.repository.UserRepository;
@@ -21,17 +21,17 @@ public class UserServiceTest {
   }
 
   @Test
-  public void testSameInitInstance() {
+  public void constructor_expectSameInitInstance() {
     assertSame(this.userRepository, this.userService.getUserRepository());
   }
 
   @Test
-  public void testGetDummyUser() {
+  public void getDummyUser_expectInitValues() {
     UserResponse user = this.userService.getDummyUser();
 
     assertNotNull(user);
-    assert (user.getFirstName().equals("Dummy Firstname"));
-    assert (user.getLastName().equals("Dummy Lastname"));
-    assert (user.getEmail().equals("foo@mail.com"));
+    assertEquals("Dummy Firstname", user.getFirstName());
+    assertEquals("Dummy Lastname", user.getLastName());
+    assertEquals("foo@mail.com", user.getEmail());
   }
 }
