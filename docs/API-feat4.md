@@ -230,7 +230,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 ```json
 {
   "error": "BAD_REQUEST",
-  "message": "Invalid companyId format."
+  "message": "Invalid companyId format. (must be an integer)"
 }
 ```
 
