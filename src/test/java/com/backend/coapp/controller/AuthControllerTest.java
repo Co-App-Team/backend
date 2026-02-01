@@ -7,10 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.backend.coapp.dto.request.ForgotPasswordRequest;
-import com.backend.coapp.dto.request.ResetVerificationRequest;
-import com.backend.coapp.dto.request.UserRegisterRequest;
-import com.backend.coapp.dto.request.VerifyEmailRequest;
+import com.backend.coapp.dto.request.*;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
@@ -39,6 +36,7 @@ public class AuthControllerTest {
   private VerifyEmailRequest dummyVerifyEmailRequest;
   private ResetVerificationRequest dummyResetVerificationRequest;
   private ForgotPasswordRequest dummyForgotPasswordRequest;
+  private UpdatePasswordRequest dummyUpdatePasswordRequest;
 
   @BeforeEach
   void setUp() {
@@ -48,6 +46,7 @@ public class AuthControllerTest {
 
     dummyResetVerificationRequest = new ResetVerificationRequest("foo@mail.com");
     dummyForgotPasswordRequest = new ForgotPasswordRequest("foo@mail.com");
+    dummyUpdatePasswordRequest = new UpdatePasswordRequest("foo@mail.com", 123, "newPassword");
   }
 
   @Test
@@ -350,7 +349,6 @@ public class AuthControllerTest {
     verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
   }
 
-  /// ////////////
   @Test
   public void forgotPassword_whenAccountNotActivatedYet_expect401Response() throws Exception {
     doThrow(new AuthAccountNotYetActivatedException())
@@ -382,5 +380,40 @@ public class AuthControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty());
 
     verify(authService, times(1)).forgotPassword(this.dummyForgotPasswordRequest.getEmail());
+  }
+
+  @Test
+  public void updatePassword_whenCorrectCode_expect200Response() throws Exception {
+    doReturn(true).when(this.authService).updatePassword(anyString(), anyInt(), anyString());
+    mockMvc
+        .perform(
+            patch("/api/auth/update-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUpdatePasswordRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .updatePassword(
+            this.dummyUpdatePasswordRequest.getEmail(),
+            this.dummyUpdatePasswordRequest.getVerifyCode(),
+            this.dummyUpdatePasswordRequest.getNewPassword());
+  }
+
+  @Test
+  public void updatePassword_whenIncorrectCode_expect400Response() throws Exception {
+    doReturn(false).when(this.authService).updatePassword(anyString(), anyInt(), anyString());
+    mockMvc
+        .perform(
+            patch("/api/auth/update-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUpdatePasswordRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .updatePassword(
+            this.dummyUpdatePasswordRequest.getEmail(),
+            this.dummyUpdatePasswordRequest.getVerifyCode(),
+            this.dummyUpdatePasswordRequest.getNewPassword());
   }
 }

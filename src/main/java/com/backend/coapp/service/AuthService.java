@@ -144,6 +144,36 @@ public class AuthService {
   }
 
   /**
+   * @param email Email associated to an account that client wants to reset password
+   * @param forgotPasswordCode Forgot password code provided by client
+   * @param newPassword New password
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
+   *     email
+   * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @return true if forgot password code match the code sent to user and update password
+   *     successfully; false otherwise
+   */
+  public boolean updatePassword(String email, Integer forgotPasswordCode, String newPassword)
+      throws AuthEmailNotRegisteredException, AuthAccountNotYetActivatedException {
+    boolean updatedPassword = false;
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+
+    updatedPassword = user.getForgotPasswordCode().equals(forgotPasswordCode);
+    if (updatedPassword) {
+      user.setPassword(newPassword);
+      user.setForgotPasswordCode(UserModel.DEFAULT_VERIFICATION_CODE);
+      this.userRepository.save(user);
+    }
+
+    return updatedPassword;
+  }
+
+  /**
    * Generate verification code of NUMS_VERIFICATION_CODE digits.
    *
    * @return int

@@ -46,6 +46,7 @@ public class AuthServiceTest {
             "woof",
             UserModel.DEFAULT_VERIFICATION_CODE);
     this.fooUserActivated.setVerified(true);
+    this.fooUserActivated.setForgotPasswordCode(789);
     this.userRepository.save(this.fooUserActivated);
     this.emailService = Mockito.mock(EmailService.class);
     this.authService = new AuthService(this.userRepository, this.emailService);
@@ -226,5 +227,49 @@ public class AuthServiceTest {
     int codeInEmail = Integer.parseInt(matcher.group());
 
     assertEquals(currFooUser.getForgotPasswordCode(), codeInEmail);
+  }
+
+  ///
+
+  @Test
+  public void updatePassword_whenUserNotYetRegistered_expectException() {
+    assertThrows(
+        AuthEmailNotRegisteredException.class,
+        () -> this.authService.updatePassword("notFoo@mail.com", 123, "newPassword"));
+  }
+
+  @Test
+  public void updatePassword_whenUserNotYetActivate_expectException() {
+    assertThrows(
+        AuthAccountNotYetActivatedException.class,
+        () ->
+            this.authService.updatePassword(
+                this.fooUserNotActivated.getEmail(), 123, "newPassword"));
+  }
+
+  @Test
+  public void updatePassword_whenUserAlreadyActivatedWithWrongCode_expectFalseVerificationStatus() {
+    boolean update =
+        this.authService.updatePassword(this.fooUserActivated.getEmail(), 000, "newPassword123");
+    assertFalse(update);
+    UserModel userFromDatabase =
+        this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
+    assertEquals(this.fooUserActivated.getPassword(), userFromDatabase.getPassword());
+    assertEquals(
+        this.fooUserActivated.getForgotPasswordCode(), userFromDatabase.getForgotPasswordCode());
+  }
+
+  @Test
+  public void verifyUser_whenUserAlreadyRegisteredCorrectCode_expectTrueVerificationStatus() {
+    boolean update =
+        this.authService.updatePassword(
+            this.fooUserActivated.getEmail(),
+            this.fooUserActivated.getForgotPasswordCode(),
+            "newPassword123");
+    assertTrue(update);
+    UserModel userFromDatabase =
+        this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
+    assertEquals("newPassword123", userFromDatabase.getPassword());
+    assertEquals(UserModel.DEFAULT_VERIFICATION_CODE, userFromDatabase.getForgotPasswordCode());
   }
 }

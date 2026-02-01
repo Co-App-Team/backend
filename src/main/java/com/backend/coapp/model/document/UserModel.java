@@ -73,4 +73,8 @@ public class UserModel {
   public void setForgotPasswordCode(int forgotPasswordCode) {
     this.forgotPasswordCode = forgotPasswordCode;
   }
+
+  public void setPassword(String newPassword) {
+    this.password = newPassword;
+  }
 }

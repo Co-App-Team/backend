@@ -1,10 +1,6 @@
 package com.backend.coapp.controller;
 
-import com.backend.coapp.dto.request.ForgotPasswordRequest;
-import com.backend.coapp.dto.request.ResetVerificationRequest;
-import com.backend.coapp.dto.request.UserRegisterRequest;
-import com.backend.coapp.dto.request.VerifyEmailRequest;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.dto.request.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.service.AuthService;
 import java.util.Map;
@@ -114,6 +110,34 @@ public class AuthController {
         .body(
             Map.of(
                 "message",
-                "A confirmation code will be sent to your email. Please provide the confirmation code to activate your account."));
+                "A confirmation code will be sent to your email. Please provide the confirmation code to reset your password."));
+  }
+
+  /**
+   * This API will set forgot password code and send the code to user email.
+   *
+   * @param updatePasswordRequest UpdatePasswordRequest
+   * @return ResponseEntity
+   */
+  @PatchMapping("/update-password")
+  public ResponseEntity<Map<String, Object>> updatePassword(
+      @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+    updatePasswordRequest.validateRequest();
+    boolean successUpdate =
+        this.authService.updatePassword(
+            updatePasswordRequest.getEmail(),
+            updatePasswordRequest.getVerifyCode(),
+            updatePasswordRequest.getNewPassword());
+    if (successUpdate) {
+      return ResponseEntity.ok().body(Map.of("message", "Password was updated successfully."));
+    } else {
+      return ResponseEntity.status(400)
+          .body(
+              Map.of(
+                  "error",
+                  AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE,
+                  "message",
+                  "Invalid confirmation code."));
+    }
   }
 }
