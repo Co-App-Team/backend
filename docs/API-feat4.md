@@ -30,7 +30,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "rating": "int",
   "comment": "string",
   "jobTitle": "string",
-  "workTerm": "string (e.g. fall 2025)",
+  "workTermSeason": "string (Fall, Winter, or Summer)",
+  "workTermYear": "integer (e.g. 2025)"
 }
 ```
 
@@ -179,7 +180,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
       "authorName": "aidan",
       "rating": 5,
       "comment": "Great work life balance and mentorship opportunities.",
-      "workTerm": "Summer 2025",
+      "workTermSeason": "Summer",
+      "workTermYear": 2025,
       "jobTitle": "Software developer",
     },
     {
@@ -187,7 +189,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
       "authorName": "bao",
       "rating": 3,
       "comment": "mid work life balance and mentorship opportunities.",
-      "workTerm": "Fall 2025",
+      "workTermSeason": "Summer",
+      "workTermYear": 2025,
       "jobTitle": "Software developer",
     }
   ],
@@ -373,7 +376,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 {
   "rating": 5,
   "comment": "Great work life balance and excellent mentorship opportunities.",
-  "workTerm": "Summer 2025",
+  "workTermSeason": "Summer",
+  "workTermYear": 2025,
   "jobTitle": "Software developer"
 }
 ```
@@ -382,7 +386,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 
 - `rating`: Integer between 1 and 5
 - `comment` (optional): String with max length of 2000 characters
-- `workTerm`: String (e.g. "Summer 2025", "Fall 2024")
+- `workTermSeason`: String (must be one of: "Fall", "Winter", "Summer")
+- `workTermYear`: Integer (must be between 1950 and current year inclusive)
 - `jobTitle`: String (e.g. "Software developer ")
 
 **Response 201 Created:**
@@ -395,7 +400,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "authorName": "aidan",
   "rating": 5,
   "comment": "Great work life balance and excellent mentorship opportunities.",
-  "workTerm": "Summer 2025",
+  "workTermSeason": "Summer",
+  "workTermYear": 2025,
   "jobTitle": "Software developer",
 }
 ```
@@ -422,7 +428,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 ```json
 {
   "error": "BAD_REQUEST",
-  "message": "Must be a valid work term (Allowed values: Summer, Winter, Fall)"
+  "message": "workTermSeason must be one of Fall, Winter, or Summer."
 }
 ```
 
@@ -498,7 +504,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 {
   "rating": 4,
   "comment": "Updated comment stuff",
-  "workTerm": "Summer 2025",
+  "workTermSeason": "Summer",
+  "workTermYear": 2025,
   "jobTitle": "Software develpoer"
 }
 ```
@@ -507,7 +514,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 
 - `rating` (optional): Integer between 1 and 5
 - `comment` (optional): String with max length of 2000 characters
-- `workTerm` (optional): String
+- `workTermSeason` (optional): String
+- `workTermYear` (optional): String
 - `jobTitle` (optional): String
 
 *Note: At least one field must be provided to update*
@@ -522,7 +530,8 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "authorName": "aidan",
   "rating": 5,
   "comment": "Updated comment stuff",
-  "workTerm": "Summer 2025",
+  "workTermSeason": "Summer",
+  "workTermYear": 2025,
   "jobTitle": "Software developer",
 }
 ```
@@ -681,6 +690,9 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 - Validate URL format for company websites
 - Enforce rating range (1-5)
 - Enforce maximum comment length (2000 characters)
+- Validate workTermSeason is one of: Fall, Winter, Summer (case-sensitive)
+- Validate workTermYear is between 1950 and current year (get current year from server, never trust client)
+
 
 ### Pagination
 
