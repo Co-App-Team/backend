@@ -74,4 +74,29 @@ public class GlobalExceptionHandler {
             Map.of(
                 "error", AuthErrorCodeEnum.EXIST_ACCOUNT_WITH_EMAIL, "message", ex.getMessage()));
   }
+
+  @ExceptionHandler(AuthAccountNotYetActivatedException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthAccountNotYetActivatedException(
+      AuthAccountNotYetActivatedException ex) {
+    return ResponseEntity.status(401)
+        .body(Map.of("error", AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(IncorrectCodeException.class)
+  public ResponseEntity<Map<String, Object>> handleIncorrectCodeException(
+      IncorrectCodeException ex) {
+    return ResponseEntity.status(400)
+        .body(
+            Map.of(
+                "error", AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(AuthAccountAlreadyVerifyException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthAccountAlreadyVerifyException(
+      AuthAccountAlreadyVerifyException ex) {
+    return ResponseEntity.status(405)
+        .body(
+            Map.of(
+                "error", AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
+  }
 }

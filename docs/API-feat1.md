@@ -205,6 +205,16 @@ Response body:
 }
 ```
 
+**Response 405 METHOD_NOT_ALLOWED:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_ALREADY_VERIFIED",
+  "message":"Account has been verified."
+}
+```
+
 3.3 **Path:** `api/auth/reset-confirmation-code`
 
 **Method:** PATCH
@@ -248,6 +258,16 @@ Response body:
 }
 ```
 
+**Response 405 METHOD_NOT_ALLOWED:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_ALREADY_VERIFIED",
+  "message":"Account has been verified."
+}
+```
+
 ### 4. Change password
 
 To change password, we will follow the process:
@@ -277,6 +297,14 @@ Response body:
 }
 ```
 
+Response body:
+```json
+{
+  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message":"Email can NOT be null or empty."
+}
+```
+
 **Response 400 BAD REQUEST:**
 
 Response body:
@@ -287,7 +315,7 @@ Response body:
 }
 ```
 
-**Response 400 BAD REQUEST:**
+**Response 401 UNAUTHORIZED:**
 
 Response body:
 ```json
@@ -331,7 +359,7 @@ Response body:
 ```json
 {
   "error":"INVALID_CONFIRMATION_CODE",
-  "message":"Invalid confirmation code."
+  "message":"The code provided is incorrect. Please check your email again."
 }
 ```
 

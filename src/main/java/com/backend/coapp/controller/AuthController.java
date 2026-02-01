@@ -1,10 +1,6 @@
 package com.backend.coapp.controller;
 
-import com.backend.coapp.dto.request.ResetVerificationRequest;
-import com.backend.coapp.dto.request.UserRegisterRequest;
-import com.backend.coapp.dto.request.VerifyEmailRequest;
-import com.backend.coapp.exception.*;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
+import com.backend.coapp.dto.request.*;
 import com.backend.coapp.service.AuthService;
 import java.util.Map;
 import lombok.Getter;
@@ -63,22 +59,8 @@ public class AuthController {
     boolean successVerify = false;
 
     verifyEmailRequest.validateRequest();
-    successVerify =
-        this.authService.verifyUser(
-            verifyEmailRequest.getEmail(), verifyEmailRequest.getVerifyCode());
-
-    if (successVerify) {
-      return ResponseEntity.ok().body(Map.of("message", "Your account is verified."));
-
-    } else {
-      return ResponseEntity.status(400)
-          .body(
-              Map.of(
-                  "error",
-                  AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE,
-                  "message",
-                  "Invalid confirmation code."));
-    }
+    this.authService.verifyUser(verifyEmailRequest.getEmail(), verifyEmailRequest.getVerifyCode());
+    return ResponseEntity.ok().body(Map.of("message", "Your account is verified."));
   }
 
   /**
@@ -95,5 +77,41 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .body(Map.of("message", "A confirmation code will be sent to your email."));
+  }
+
+  /**
+   * This API will set forgot password code and send the code to user email.
+   *
+   * @param forgotPasswordRequest ForgotPasswordRequest
+   * @return ResponseEntity
+   */
+  @PatchMapping("/forgot-password")
+  public ResponseEntity<Map<String, Object>> forgotPassword(
+      @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+    forgotPasswordRequest.validateRequest();
+    this.authService.forgotPassword(forgotPasswordRequest.getEmail());
+
+    return ResponseEntity.ok()
+        .body(
+            Map.of(
+                "message",
+                "A confirmation code will be sent to your email. Please provide the confirmation code to reset your password."));
+  }
+
+  /**
+   * This API will set forgot password code and send the code to user email.
+   *
+   * @param updatePasswordRequest UpdatePasswordRequest
+   * @return ResponseEntity
+   */
+  @PatchMapping("/update-password")
+  public ResponseEntity<Map<String, Object>> updatePassword(
+      @RequestBody UpdatePasswordRequest updatePasswordRequest) {
+    updatePasswordRequest.validateRequest();
+    this.authService.updatePassword(
+        updatePasswordRequest.getEmail(),
+        updatePasswordRequest.getVerifyCode(),
+        updatePasswordRequest.getNewPassword());
+    return ResponseEntity.ok().body(Map.of("message", "Password was updated successfully."));
   }
 }

@@ -1,9 +1,6 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.AuthEmailAlreadyUsedException;
-import com.backend.coapp.exception.AuthEmailNotRegisteredException;
-import com.backend.coapp.exception.EmailInvalidAddressException;
-import com.backend.coapp.exception.EmailServiceException;
+import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import java.util.Random;
@@ -70,11 +67,14 @@ public class AuthService {
    *
    * @param email user email
    * @param verifyCode verification code
-   * @return true if user is successfully verified; false otherwise
    * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
    *     email.
+   * @throws AuthAccountAlreadyVerifyException if the account has been verified
    */
-  public boolean verifyUser(String email, int verifyCode) throws AuthEmailNotRegisteredException {
+  public void verifyUser(String email, int verifyCode)
+      throws AuthEmailNotRegisteredException,
+          IncorrectCodeException,
+          AuthAccountAlreadyVerifyException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
 
     if (user == null) {
@@ -82,7 +82,7 @@ public class AuthService {
     } else {
       boolean verified = user.getVerified();
       if (verified) {
-        return true;
+        throw new AuthAccountAlreadyVerifyException();
       }
 
       user.setVerified(user.getVerificationCode() == verifyCode);
@@ -90,9 +90,9 @@ public class AuthService {
       if (verified) {
         user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
         this.userRepository.save(user);
+      } else {
+        throw new IncorrectCodeException();
       }
-
-      return verified;
     }
   }
 
@@ -103,14 +103,23 @@ public class AuthService {
    * @throws EmailServiceException if there is failure with EmailService
    * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
    *     email.
+   * @throws AuthAccountAlreadyVerifyException if the account has been verified
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
    */
   public void resetVerifyCode(String email)
-      throws EmailServiceException, AuthEmailNotRegisteredException {
+      throws EmailServiceException,
+          AuthEmailNotRegisteredException,
+          AuthAccountAlreadyVerifyException,
+          EmailInvalidAddressException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
 
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
     } else {
+      if (user.getVerified()) {
+        throw new AuthAccountAlreadyVerifyException();
+      }
       int newVerifyCode = this.generateVerificationCode();
 
       String emailSubject = "New verification code";
@@ -119,6 +128,70 @@ public class AuthService {
       this.userRepository.save(user);
 
       this.emailService.sendEmail(email, emailSubject, emailBody);
+    }
+  }
+
+  /**
+   * @param email Email associated to an account that client wants to reset password
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
+   *     email
+   * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
+   */
+  public void forgotPassword(String email)
+      throws AuthEmailNotRegisteredException,
+          AuthAccountNotYetActivatedException,
+          EmailServiceException,
+          EmailInvalidAddressException {
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+    int newVerifyCode = this.generateVerificationCode();
+
+    String emailSubject = "Forgot password? New verification code";
+    String emailBody = this.generateEmailBodyWithVerificationCode(newVerifyCode);
+    user.setVerificationCode(newVerifyCode);
+    this.userRepository.save(user);
+
+    this.emailService.sendEmail(email, emailSubject, emailBody);
+  }
+
+  /**
+   * @param email Email associated to an account that client wants to reset password
+   * @param verificationCode Forgot password code provided by client
+   * @param newPassword New password
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
+   *     email
+   * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
+   * @return true if forgot password code match the code sent to user and update password
+   *     successfully; false otherwise
+   */
+  public void updatePassword(String email, Integer verificationCode, String newPassword)
+      throws AuthEmailNotRegisteredException,
+          AuthAccountNotYetActivatedException,
+          IncorrectCodeException,
+          EmailServiceException,
+          EmailInvalidAddressException {
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+
+    boolean updatedPassword = user.getVerificationCode().equals(verificationCode);
+    if (updatedPassword) {
+      user.setPassword(newPassword);
+      user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
+      this.userRepository.save(user);
+    } else {
+      throw new IncorrectCodeException();
     }
   }
 
@@ -134,6 +207,12 @@ public class AuthService {
     return lowerBound + random.nextInt(upperRange);
   }
 
+  /**
+   * Generate body of email with verification code
+   *
+   * @param verificationCode verification code to share with user
+   * @return email body
+   */
   private String generateEmailBodyWithVerificationCode(int verificationCode) {
     return """
                 Dear user,

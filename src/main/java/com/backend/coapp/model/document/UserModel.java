@@ -67,4 +67,8 @@ public class UserModel {
   public void setVerificationCode(int newVerificationCode) {
     this.verificationCode = newVerificationCode;
   }
+
+  public void setPassword(String newPassword) {
+    this.password = newPassword;
+  }
 }

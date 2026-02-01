@@ -7,9 +7,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.backend.coapp.dto.request.ResetVerificationRequest;
-import com.backend.coapp.dto.request.UserRegisterRequest;
-import com.backend.coapp.dto.request.VerifyEmailRequest;
+import com.backend.coapp.dto.request.*;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
@@ -37,6 +35,8 @@ public class AuthControllerTest {
   private UserRegisterRequest dummyUserRegisterRequest;
   private VerifyEmailRequest dummyVerifyEmailRequest;
   private ResetVerificationRequest dummyResetVerificationRequest;
+  private ForgotPasswordRequest dummyForgotPasswordRequest;
+  private UpdatePasswordRequest dummyUpdatePasswordRequest;
 
   @BeforeEach
   void setUp() {
@@ -45,6 +45,8 @@ public class AuthControllerTest {
     dummyVerifyEmailRequest = new VerifyEmailRequest("foo@mail.com", 123);
 
     dummyResetVerificationRequest = new ResetVerificationRequest("foo@mail.com");
+    dummyForgotPasswordRequest = new ForgotPasswordRequest("foo@mail.com");
+    dummyUpdatePasswordRequest = new UpdatePasswordRequest("foo@mail.com", 123, "newPassword");
   }
 
   @Test
@@ -201,6 +203,24 @@ public class AuthControllerTest {
   }
 
   @Test
+  public void verifyEmail_whenAccountAlreadyVerified_expect405Response() throws Exception {
+    doThrow(new AuthAccountAlreadyVerifyException())
+        .when(this.authService)
+        .verifyUser(anyString(), anyInt());
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
+        .andExpect(status().isMethodNotAllowed())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .verifyUser(
+            this.dummyVerifyEmailRequest.getEmail(), this.dummyVerifyEmailRequest.getVerifyCode());
+  }
+
+  @Test
   public void verifyEmail_whenEmailNotRegistered_expect400Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new AuthEmailNotRegisteredException(errorMessage))
@@ -239,7 +259,7 @@ public class AuthControllerTest {
 
   @Test
   public void verifyEmail_whenCorrectCode_expect200Response() throws Exception {
-    doReturn(true).when(this.authService).verifyUser(anyString(), anyInt());
+    doNothing().when(this.authService).verifyUser(anyString(), anyInt());
     mockMvc
         .perform(
             patch("/api/auth/verify-email")
@@ -254,7 +274,7 @@ public class AuthControllerTest {
 
   @Test
   public void verifyEmail_whenIncorrectCode_expect400Response() throws Exception {
-    doReturn(false).when(this.authService).verifyUser(anyString(), anyInt());
+    doThrow(new IncorrectCodeException()).when(this.authService).verifyUser(anyString(), anyInt());
     mockMvc
         .perform(
             patch("/api/auth/verify-email")
@@ -345,5 +365,75 @@ public class AuthControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty());
 
     verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
+  }
+
+  @Test
+  public void forgotPassword_whenAccountNotActivatedYet_expect401Response() throws Exception {
+    doThrow(new AuthAccountNotYetActivatedException())
+        .when(this.authService)
+        .forgotPassword(anyString());
+
+    mockMvc
+        .perform(
+            patch("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyForgotPasswordRequest)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+
+    verify(authService, times(1)).forgotPassword(this.dummyForgotPasswordRequest.getEmail());
+  }
+
+  @Test
+  void forgotPassword_whenEverythingSuccess_expect200Response() throws Exception {
+    doNothing().when(authService).forgotPassword(anyString());
+
+    mockMvc
+        .perform(
+            patch("/api/auth/forgot-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyForgotPasswordRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+
+    verify(authService, times(1)).forgotPassword(this.dummyForgotPasswordRequest.getEmail());
+  }
+
+  @Test
+  public void updatePassword_whenCorrectCode_expect200Response() throws Exception {
+    doNothing().when(this.authService).updatePassword(anyString(), anyInt(), anyString());
+    mockMvc
+        .perform(
+            patch("/api/auth/update-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUpdatePasswordRequest)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .updatePassword(
+            this.dummyUpdatePasswordRequest.getEmail(),
+            this.dummyUpdatePasswordRequest.getVerifyCode(),
+            this.dummyUpdatePasswordRequest.getNewPassword());
+  }
+
+  @Test
+  public void updatePassword_whenIncorrectCode_expect400Response() throws Exception {
+    doThrow(new IncorrectCodeException())
+        .when(this.authService)
+        .updatePassword(anyString(), anyInt(), anyString());
+    mockMvc
+        .perform(
+            patch("/api/auth/update-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyUpdatePasswordRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .updatePassword(
+            this.dummyUpdatePasswordRequest.getEmail(),
+            this.dummyUpdatePasswordRequest.getVerifyCode(),
+            this.dummyUpdatePasswordRequest.getNewPassword());
   }
 }

@@ -76,6 +76,18 @@ public class UserModelTest {
   }
 
   @Test
+  public void setPassword_expectPasswordChange() {
+    this.testFullUserModel.setPassword("NewPassword123");
+    assertEquals("1", this.testFullUserModel.getId());
+    assertEquals("user@mail.com", this.testFullUserModel.getEmail());
+    assertEquals("NewPassword123", this.testFullUserModel.getPassword());
+    assertEquals("FirstName", this.testFullUserModel.getFirstName());
+    assertEquals("LastName", this.testFullUserModel.getLastName());
+    assertFalse(this.testFullUserModel.getVerified());
+    assertEquals(123, this.testFullUserModel.getVerificationCode());
+  }
+
+  @Test
   public void constructor_whenNoIDProvided_expectAutoGenerateID() {
     UserModel testLoginUserModel =
         new UserModel("user@mail.com", "secret", "FirstName", "LastName", 123);
