@@ -418,6 +418,22 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 }
 ```
 
+**Response 400 Bad Request:**
+```json
+{
+  "error": "BAD_REQUEST",
+  "message": "Must be a valid work term (Allowed values: Summer, Winter, Fall)"
+}
+```
+
+**Response 400 Bad Request:**
+```json
+{
+  "error": "BAD_REQUEST",
+  "message": "Year must be a non-negative integer between 1950 and the current year"
+}
+```
+
 **Response 404 Not Found:**
 
 ```json
