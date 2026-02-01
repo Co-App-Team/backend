@@ -241,8 +241,6 @@ public class AuthServiceTest {
     assertEquals(currFooUser.getVerificationCode(), codeInEmail);
   }
 
-  ///
-
   @Test
   public void updatePassword_whenUserNotYetRegistered_expectException() {
     assertThrows(

@@ -104,11 +104,14 @@ public class AuthService {
    * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
    *     email.
    * @throws AuthAccountAlreadyVerifyException if the account has been verified
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
    */
   public void resetVerifyCode(String email)
       throws EmailServiceException,
           AuthEmailNotRegisteredException,
-          AuthAccountAlreadyVerifyException {
+          AuthAccountAlreadyVerifyException,
+          EmailInvalidAddressException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
 
     if (user == null) {
@@ -133,9 +136,14 @@ public class AuthService {
    * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
    *     email
    * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
    */
   public void forgotPassword(String email)
-      throws AuthEmailNotRegisteredException, AuthAccountNotYetActivatedException {
+      throws AuthEmailNotRegisteredException,
+          AuthAccountNotYetActivatedException,
+          EmailServiceException,
+          EmailInvalidAddressException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
@@ -159,13 +167,17 @@ public class AuthService {
    * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
    *     email
    * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
    * @return true if forgot password code match the code sent to user and update password
    *     successfully; false otherwise
    */
   public void updatePassword(String email, Integer verificationCode, String newPassword)
       throws AuthEmailNotRegisteredException,
           AuthAccountNotYetActivatedException,
-          IncorrectCodeException {
+          IncorrectCodeException,
+          EmailServiceException,
+          EmailInvalidAddressException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
@@ -195,6 +207,12 @@ public class AuthService {
     return lowerBound + random.nextInt(upperRange);
   }
 
+  /**
+   * Generate body of email with verification code
+   *
+   * @param verificationCode verification code to share with user
+   * @return email body
+   */
   private String generateEmailBodyWithVerificationCode(int verificationCode) {
     return """
                 Dear user,
