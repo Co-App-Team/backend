@@ -1,7 +1,6 @@
 package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.*;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.service.AuthService;
 import java.util.Map;
 import lombok.Getter;
@@ -60,22 +59,8 @@ public class AuthController {
     boolean successVerify = false;
 
     verifyEmailRequest.validateRequest();
-    successVerify =
-        this.authService.verifyUser(
-            verifyEmailRequest.getEmail(), verifyEmailRequest.getVerifyCode());
-
-    if (successVerify) {
-      return ResponseEntity.ok().body(Map.of("message", "Your account is verified."));
-
-    } else {
-      return ResponseEntity.status(400)
-          .body(
-              Map.of(
-                  "error",
-                  AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE,
-                  "message",
-                  "Invalid confirmation code."));
-    }
+    this.authService.verifyUser(verifyEmailRequest.getEmail(), verifyEmailRequest.getVerifyCode());
+    return ResponseEntity.ok().body(Map.of("message", "Your account is verified."));
   }
 
   /**
@@ -123,21 +108,10 @@ public class AuthController {
   public ResponseEntity<Map<String, Object>> updatePassword(
       @RequestBody UpdatePasswordRequest updatePasswordRequest) {
     updatePasswordRequest.validateRequest();
-    boolean successUpdate =
-        this.authService.updatePassword(
-            updatePasswordRequest.getEmail(),
-            updatePasswordRequest.getVerifyCode(),
-            updatePasswordRequest.getNewPassword());
-    if (successUpdate) {
-      return ResponseEntity.ok().body(Map.of("message", "Password was updated successfully."));
-    } else {
-      return ResponseEntity.status(400)
-          .body(
-              Map.of(
-                  "error",
-                  AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE,
-                  "message",
-                  "Invalid confirmation code."));
-    }
+    this.authService.updatePassword(
+        updatePasswordRequest.getEmail(),
+        updatePasswordRequest.getVerifyCode(),
+        updatePasswordRequest.getNewPassword());
+    return ResponseEntity.ok().body(Map.of("message", "Password was updated successfully."));
   }
 }

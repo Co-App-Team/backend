@@ -81,4 +81,13 @@ public class GlobalExceptionHandler {
     return ResponseEntity.status(401)
         .body(Map.of("error", AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
   }
+
+  @ExceptionHandler(IncorrectCodeException.class)
+  public ResponseEntity<Map<String, Object>> handleIncorrectCodeException(
+      IncorrectCodeException ex) {
+    return ResponseEntity.status(400)
+        .body(
+            Map.of(
+                "error", AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
+  }
 }

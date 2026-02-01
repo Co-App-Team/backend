@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import com.backend.coapp.exception.AuthAccountNotYetActivatedException;
 import com.backend.coapp.exception.AuthEmailAlreadyUsedException;
 import com.backend.coapp.exception.AuthEmailNotRegisteredException;
+import com.backend.coapp.exception.IncorrectCodeException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import java.util.regex.Matcher;
@@ -117,8 +118,9 @@ public class AuthServiceTest {
 
   @Test
   public void verifyUser_whenUserAlreadyRegisteredWithWrongCode_expectFalseVerificationStatus() {
-    boolean verify = this.authService.verifyUser(this.fooUserNotActivated.getEmail(), 000);
-    assertFalse(verify);
+    assertThrows(
+        IncorrectCodeException.class,
+        () -> this.authService.verifyUser(this.fooUserNotActivated.getEmail(), 000));
     assertFalse(
         this.userRepository
             .findUserModelByEmail(this.fooUserNotActivated.getEmail())
@@ -127,8 +129,7 @@ public class AuthServiceTest {
 
   @Test
   public void verifyUser_whenUserAlreadyRegisteredWithCorrectCode_expectTrueVerificationStatus() {
-    boolean verify = this.authService.verifyUser(this.fooUserNotActivated.getEmail(), 123);
-    assertTrue(verify);
+    assertDoesNotThrow(() -> this.authService.verifyUser(this.fooUserNotActivated.getEmail(), 123));
     assertTrue(
         this.userRepository
             .findUserModelByEmail(this.fooUserNotActivated.getEmail())
@@ -140,8 +141,7 @@ public class AuthServiceTest {
     this.fooUserNotActivated.setVerified(true);
     this.userRepository.save(this.fooUserNotActivated);
 
-    boolean verify = this.authService.verifyUser(this.fooUserNotActivated.getEmail(), 000);
-    assertTrue(verify);
+    assertDoesNotThrow(() -> this.authService.verifyUser(this.fooUserNotActivated.getEmail(), 000));
     assertTrue(
         this.userRepository
             .findUserModelByEmail(this.fooUserNotActivated.getEmail())
@@ -249,9 +249,11 @@ public class AuthServiceTest {
 
   @Test
   public void updatePassword_whenUserAlreadyActivatedWithWrongCode_expectFalseVerificationStatus() {
-    boolean update =
-        this.authService.updatePassword(this.fooUserActivated.getEmail(), 000, "newPassword123");
-    assertFalse(update);
+    assertThrows(
+        IncorrectCodeException.class,
+        () ->
+            this.authService.updatePassword(
+                this.fooUserActivated.getEmail(), 000, "newPassword123"));
     UserModel userFromDatabase =
         this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
     assertEquals(this.fooUserActivated.getPassword(), userFromDatabase.getPassword());
@@ -261,12 +263,12 @@ public class AuthServiceTest {
 
   @Test
   public void verifyUser_whenUserAlreadyRegisteredCorrectCode_expectTrueVerificationStatus() {
-    boolean update =
-        this.authService.updatePassword(
-            this.fooUserActivated.getEmail(),
-            this.fooUserActivated.getForgotPasswordCode(),
-            "newPassword123");
-    assertTrue(update);
+    assertDoesNotThrow(
+        () ->
+            this.authService.updatePassword(
+                this.fooUserActivated.getEmail(),
+                this.fooUserActivated.getForgotPasswordCode(),
+                "newPassword123"));
     UserModel userFromDatabase =
         this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
     assertEquals("newPassword123", userFromDatabase.getPassword());

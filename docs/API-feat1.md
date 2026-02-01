@@ -339,7 +339,7 @@ Response body:
 ```json
 {
   "error":"INVALID_CONFIRMATION_CODE",
-  "message":"Invalid confirmation code."
+  "message":"The code provided is incorrect. Please check your email again."
 }
 ```
 

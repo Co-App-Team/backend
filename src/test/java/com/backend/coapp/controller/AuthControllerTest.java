@@ -241,7 +241,7 @@ public class AuthControllerTest {
 
   @Test
   public void verifyEmail_whenCorrectCode_expect200Response() throws Exception {
-    doReturn(true).when(this.authService).verifyUser(anyString(), anyInt());
+    doNothing().when(this.authService).verifyUser(anyString(), anyInt());
     mockMvc
         .perform(
             patch("/api/auth/verify-email")
@@ -256,7 +256,7 @@ public class AuthControllerTest {
 
   @Test
   public void verifyEmail_whenIncorrectCode_expect400Response() throws Exception {
-    doReturn(false).when(this.authService).verifyUser(anyString(), anyInt());
+    doThrow(new IncorrectCodeException()).when(this.authService).verifyUser(anyString(), anyInt());
     mockMvc
         .perform(
             patch("/api/auth/verify-email")
@@ -384,7 +384,7 @@ public class AuthControllerTest {
 
   @Test
   public void updatePassword_whenCorrectCode_expect200Response() throws Exception {
-    doReturn(true).when(this.authService).updatePassword(anyString(), anyInt(), anyString());
+    doNothing().when(this.authService).updatePassword(anyString(), anyInt(), anyString());
     mockMvc
         .perform(
             patch("/api/auth/update-password")
@@ -401,7 +401,9 @@ public class AuthControllerTest {
 
   @Test
   public void updatePassword_whenIncorrectCode_expect400Response() throws Exception {
-    doReturn(false).when(this.authService).updatePassword(anyString(), anyInt(), anyString());
+    doThrow(new IncorrectCodeException())
+        .when(this.authService)
+        .updatePassword(anyString(), anyInt(), anyString());
     mockMvc
         .perform(
             patch("/api/auth/update-password")
