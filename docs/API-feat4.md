@@ -99,6 +99,22 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 }
 ```
 
+**Response 200 OK:** (when there are no companies yet created)
+
+```json
+{
+  "companies": [],
+  "pagination": {
+    "currentPage": 0,
+    "totalPages": 1,
+    "totalItems": 0,
+    "itemsPerPage": 10,
+    "hasNext": false,
+    "hasPrevious": false
+  }
+}
+```
+
 **Response 401 Unauthorized:**
 
 ```json
@@ -179,6 +195,29 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
     "currentPage": 0,
     "totalPages": 1,
     "totalItems": 2,
+    "itemsPerPage": 10,
+    "hasNext": false,
+    "hasPrevious": false
+  }
+}
+```
+
+**Response 200 OK:** (company with no reviews)
+
+```json
+{
+  "company": {
+    "companyId": "1",
+    "companyName": "Niche",
+    "location": "wpg",
+    "website": "linkHere",
+    "avgRating": 4.5,
+  },
+  "reviews": [],
+  "reviewsPagination": {
+    "currentPage": 0,
+    "totalPages": 1,
+    "totalItems": 0,
     "itemsPerPage": 10,
     "hasNext": false,
     "hasPrevious": false
