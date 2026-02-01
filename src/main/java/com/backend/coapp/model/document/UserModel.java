@@ -32,8 +32,6 @@ public class UserModel {
   private Boolean verified;
   private Integer verificationCode = DEFAULT_VERIFICATION_CODE; // -1 by default
 
-  private Integer forgotPasswordCode = DEFAULT_VERIFICATION_CODE;
-
   /**
    * Constructor with all information except for id. This will be helpful for creating account
    *
@@ -68,10 +66,6 @@ public class UserModel {
 
   public void setVerificationCode(int newVerificationCode) {
     this.verificationCode = newVerificationCode;
-  }
-
-  public void setForgotPasswordCode(int forgotPasswordCode) {
-    this.forgotPasswordCode = forgotPasswordCode;
   }
 
   public void setPassword(String newPassword) {

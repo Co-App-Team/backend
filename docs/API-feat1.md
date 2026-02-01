@@ -205,6 +205,16 @@ Response body:
 }
 ```
 
+**Response 405 METHOD_NOT_ALLOWED:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_ALREADY_VERIFIED",
+  "message":"Account has been verified."
+}
+```
+
 3.3 **Path:** `api/auth/reset-confirmation-code`
 
 **Method:** PATCH
@@ -245,6 +255,16 @@ Response body:
 {
   "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
   "message":"Email can NOT be null or empty."
+}
+```
+
+**Response 405 METHOD_NOT_ALLOWED:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_ALREADY_VERIFIED",
+  "message":"Account has been verified."
 }
 ```
 

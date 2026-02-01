@@ -69,24 +69,29 @@ public class AuthService {
    * @param verifyCode verification code
    * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
    *     email.
+   * @throws AuthAccountAlreadyVerifyException if the account has been verified
    */
   public void verifyUser(String email, int verifyCode)
-      throws AuthEmailNotRegisteredException, IncorrectCodeException {
+      throws AuthEmailNotRegisteredException,
+          IncorrectCodeException,
+          AuthAccountAlreadyVerifyException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
 
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
     } else {
       boolean verified = user.getVerified();
-      if (!verified) {
-        user.setVerified(user.getVerificationCode() == verifyCode);
-        verified = user.getVerified();
-        if (verified) {
-          user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
-          this.userRepository.save(user);
-        } else {
-          throw new IncorrectCodeException();
-        }
+      if (verified) {
+        throw new AuthAccountAlreadyVerifyException();
+      }
+
+      user.setVerified(user.getVerificationCode() == verifyCode);
+      verified = user.getVerified();
+      if (verified) {
+        user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
+        this.userRepository.save(user);
+      } else {
+        throw new IncorrectCodeException();
       }
     }
   }
@@ -98,14 +103,20 @@ public class AuthService {
    * @throws EmailServiceException if there is failure with EmailService
    * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
    *     email.
+   * @throws AuthAccountAlreadyVerifyException if the account has been verified
    */
   public void resetVerifyCode(String email)
-      throws EmailServiceException, AuthEmailNotRegisteredException {
+      throws EmailServiceException,
+          AuthEmailNotRegisteredException,
+          AuthAccountAlreadyVerifyException {
     UserModel user = this.userRepository.findUserModelByEmail(email);
 
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
     } else {
+      if (user.getVerified()) {
+        throw new AuthAccountAlreadyVerifyException();
+      }
       int newVerifyCode = this.generateVerificationCode();
 
       String emailSubject = "New verification code";
@@ -135,7 +146,7 @@ public class AuthService {
 
     String emailSubject = "Forgot password? New verification code";
     String emailBody = this.generateEmailBodyWithVerificationCode(newVerifyCode);
-    user.setForgotPasswordCode(newVerifyCode);
+    user.setVerificationCode(newVerifyCode);
     this.userRepository.save(user);
 
     this.emailService.sendEmail(email, emailSubject, emailBody);
@@ -143,7 +154,7 @@ public class AuthService {
 
   /**
    * @param email Email associated to an account that client wants to reset password
-   * @param forgotPasswordCode Forgot password code provided by client
+   * @param verificationCode Forgot password code provided by client
    * @param newPassword New password
    * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
    *     email
@@ -151,7 +162,7 @@ public class AuthService {
    * @return true if forgot password code match the code sent to user and update password
    *     successfully; false otherwise
    */
-  public void updatePassword(String email, Integer forgotPasswordCode, String newPassword)
+  public void updatePassword(String email, Integer verificationCode, String newPassword)
       throws AuthEmailNotRegisteredException,
           AuthAccountNotYetActivatedException,
           IncorrectCodeException {
@@ -162,10 +173,10 @@ public class AuthService {
       throw new AuthAccountNotYetActivatedException();
     }
 
-    boolean updatedPassword = user.getForgotPasswordCode().equals(forgotPasswordCode);
+    boolean updatedPassword = user.getVerificationCode().equals(verificationCode);
     if (updatedPassword) {
       user.setPassword(newPassword);
-      user.setForgotPasswordCode(UserModel.DEFAULT_VERIFICATION_CODE);
+      user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
       this.userRepository.save(user);
     } else {
       throw new IncorrectCodeException();

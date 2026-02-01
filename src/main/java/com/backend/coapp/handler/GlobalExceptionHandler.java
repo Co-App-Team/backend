@@ -90,4 +90,13 @@ public class GlobalExceptionHandler {
             Map.of(
                 "error", AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
   }
+
+  @ExceptionHandler(AuthAccountAlreadyVerifyException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthAccountAlreadyVerifyException(
+      AuthAccountAlreadyVerifyException ex) {
+    return ResponseEntity.status(405)
+        .body(
+            Map.of(
+                "error", AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
+  }
 }

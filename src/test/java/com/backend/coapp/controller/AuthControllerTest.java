@@ -203,6 +203,24 @@ public class AuthControllerTest {
   }
 
   @Test
+  public void verifyEmail_whenAccountAlreadyVerified_expect405Response() throws Exception {
+    doThrow(new AuthAccountAlreadyVerifyException())
+        .when(this.authService)
+        .verifyUser(anyString(), anyInt());
+    mockMvc
+        .perform(
+            patch("/api/auth/verify-email")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
+        .andExpect(status().isMethodNotAllowed())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .verifyUser(
+            this.dummyVerifyEmailRequest.getEmail(), this.dummyVerifyEmailRequest.getVerifyCode());
+  }
+
+  @Test
   public void verifyEmail_whenEmailNotRegistered_expect400Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new AuthEmailNotRegisteredException(errorMessage))
