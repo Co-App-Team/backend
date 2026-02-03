@@ -2,9 +2,12 @@ package com.backend.coapp.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.backend.coapp.config.TestSecurityConfig;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.annotation.Import;
 
+@Import(TestSecurityConfig.class)
 public class WelcomeControllerTest {
   private WelcomeController welcomeController;
 

@@ -2,8 +2,12 @@ package com.backend.coapp.model.document;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.backend.coapp.model.enumeration.UserRolesEnum;
+import java.util.Collection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /** This test is for UserModel without MongoDB. */
 public class UserModelTest {
@@ -98,5 +102,29 @@ public class UserModelTest {
     assert (testLoginUserModel.getLastName().equals("LastName"));
     assert (testLoginUserModel.getVerificationCode() == 123);
     assert (!testLoginUserModel.getVerified());
+  }
+
+  @Test
+  public void getAuthorities_expectUserRoleOnly() {
+    Collection<? extends GrantedAuthority> roles = this.testFullUserModel.getAuthorities();
+    assertNotNull(roles);
+    assertEquals(1, roles.size());
+
+    GrantedAuthority authority = roles.iterator().next();
+    assertTrue(authority instanceof SimpleGrantedAuthority);
+    assertEquals(UserRolesEnum.USER_ROLE.name(), authority.getAuthority());
+  }
+
+  @Test
+  public void getUsername_expectReturnEmail() {
+    assertEquals("user@mail.com", this.testFullUserModel.getUsername());
+  }
+
+  @Test
+  public void accountStatus_expectAllTrue() {
+    assertTrue(this.testFullUserModel.isAccountNonExpired());
+    assertTrue(this.testFullUserModel.isAccountNonLocked());
+    assertTrue(this.testFullUserModel.isCredentialsNonExpired());
+    assertTrue(this.testFullUserModel.isEnabled());
   }
 }
