@@ -1,11 +1,17 @@
 package com.backend.coapp.model.document;
 
+import com.backend.coapp.model.enumeration.UserRolesEnum;
+import java.util.Collection;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /** User model */
 @Getter
@@ -13,7 +19,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "users")
-public class UserModel {
+public class UserModel implements UserDetails {
 
   /** Constants * */
   public static final Integer DEFAULT_VERIFICATION_CODE = -1;
@@ -71,4 +77,38 @@ public class UserModel {
   public void setPassword(String newPassword) {
     this.password = newPassword;
   }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority(UserRolesEnum.USER_ROLE.name()));
+  }
+
+  @Override
+  public String getUsername() {
+    return this.email;
+  }
+
+  /**
+   * The following methods are currently not used but required to be overridden These following
+   * methods are required for Spring Security setup
+   */
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return true;
+  } // @TODO: Consider if we can return verified here
 }
