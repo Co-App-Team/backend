@@ -173,7 +173,7 @@ public class JwtService {
     if (userDetails == null) {
       throw new JwtServiceFailException("UserDetail can NOT be null");
     }
-    if (userDetails.getUsername() == null || userDetails.getUsername().isEmpty()) {
+    if (userDetails.getUsername() == null || userDetails.getUsername().isBlank()) {
       throw new JwtServiceFailException("Username can NOT be null or empty");
     }
   }

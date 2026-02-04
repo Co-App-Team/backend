@@ -114,6 +114,21 @@ public class JwtServiceTest {
   }
 
   @Test
+  void generateToken_whenEmptyUsername_expectException() {
+    Map<String, Object> extraClaims = new HashMap<>();
+    extraClaims.put("role", "USER");
+    extraClaims.put("iss", "Co-App");
+    UserDetails badUser = new UserModel("", "password123", "foo", "woof", 123);
+    JwtServiceFailException ex =
+        assertThrows(
+            JwtServiceFailException.class, () -> jwtService.generateToken(extraClaims, badUser));
+
+    String errMessage = ex.getMessage();
+    assertNotNull(errMessage);
+    assertFalse(errMessage.isBlank());
+  }
+
+  @Test
   void generateToken_whenUserDetailOnly_expectValidToken() {
     String token = jwtService.generateToken(this.userDetails);
 
