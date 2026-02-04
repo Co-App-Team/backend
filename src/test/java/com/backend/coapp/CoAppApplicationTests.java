@@ -15,5 +15,5 @@ class CoAppApplicationTests {
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
   @Test
-  void contextLoads() { }
+  void contextLoads() {}
 }

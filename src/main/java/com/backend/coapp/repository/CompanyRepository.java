@@ -1,10 +1,9 @@
 package com.backend.coapp.repository;
 
 import com.backend.coapp.model.document.CompanyModel;
+import java.util.Optional;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 /** Repository to interact with companies in the database */
 @Repository

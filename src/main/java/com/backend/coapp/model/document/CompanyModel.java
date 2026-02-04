@@ -10,7 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 /** Company Model */
 @Getter
-@SuppressWarnings("LombokSetterMayBeUsed") // ignore this warning when we want to use our own setters
+@SuppressWarnings(
+    "LombokSetterMayBeUsed") // ignore this warning when we want to use our own setters
 @Document(collection = "companies")
 public class CompanyModel {
 
@@ -41,8 +42,8 @@ public class CompanyModel {
   }
 
   /**
-   * Constructor for creating a new company.
-   * Average rating is automatically initialized to 0.0 and must be calculated from reviews.
+   * Constructor for creating a new company. Average rating is automatically initialized to 0.0 and
+   * must be calculated from reviews.
    *
    * @param companyName The company name (will be trimmed and stored) - cannot be null
    * @param location The company location
@@ -62,11 +63,12 @@ public class CompanyModel {
   }
 
   /** Setter methods */
-  public void setId(String id) { this.id = id; }
+  public void setId(String id) {
+    this.id = id;
+  }
 
   /**
-   * Sets the company name and automatically updates the lowercase version
-   * for case-insensitivity.
+   * Sets the company name and automatically updates the lowercase version for case-insensitivity.
    *
    * @param companyName The company name to set. cannot be null
    * @throws IllegalArgumentException if companyName is null
@@ -79,9 +81,15 @@ public class CompanyModel {
     this.companyNameLower = this.companyName.toLowerCase();
   }
 
-  public void setLocation(String location) { this.location = location; }
+  public void setLocation(String location) {
+    this.location = location;
+  }
 
-  public void setWebsite(String website) { this.website = website; }
+  public void setWebsite(String website) {
+    this.website = website;
+  }
 
-  public void setAvgRating(Double avgRating) { this.avgRating = avgRating; }
+  public void setAvgRating(Double avgRating) {
+    this.avgRating = avgRating;
+  }
 }

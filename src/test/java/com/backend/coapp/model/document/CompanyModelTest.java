@@ -12,8 +12,7 @@ public class CompanyModelTest {
 
   @BeforeEach
   public void setUp() {
-    this.testCompanyModel =
-      new CompanyModel("Niche", "Winnipeg", "https://niche.com");
+    this.testCompanyModel = new CompanyModel("Niche", "Winnipeg", "https://niche.com");
   }
 
   @Test
@@ -42,9 +41,9 @@ public class CompanyModelTest {
   @Test
   public void constructor_whenNullCompanyName_expectThrowsException() {
     Exception exception =
-      assertThrows(
-        IllegalArgumentException.class,
-        () -> new CompanyModel(null, "Winnipeg", "https://company.com"));
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new CompanyModel(null, "Winnipeg", "https://company.com"));
     assertEquals("Company name cannot be null", exception.getMessage());
   }
 
@@ -77,9 +76,8 @@ public class CompanyModelTest {
   @Test
   public void setCompanyName_whenNull_expectThrowsException() {
     Exception exception =
-      assertThrows(
-        IllegalArgumentException.class,
-        () -> this.testCompanyModel.setCompanyName(null));
+        assertThrows(
+            IllegalArgumentException.class, () -> this.testCompanyModel.setCompanyName(null));
     assertEquals("Company name cannot be null", exception.getMessage());
   }
 
@@ -125,12 +123,8 @@ public class CompanyModelTest {
     CompanyModel company2 = new CompanyModel("NICHE", "Winnipeg", "https://niche.com");
     CompanyModel company3 = new CompanyModel("NiChE", "Winnipeg", "https://niche.com");
 
-    assertEquals(
-      company1.getCompanyNameLower(),
-      company2.getCompanyNameLower());
-    assertEquals(
-      company1.getCompanyNameLower(),
-      company3.getCompanyNameLower());
+    assertEquals(company1.getCompanyNameLower(), company2.getCompanyNameLower());
+    assertEquals(company1.getCompanyNameLower(), company3.getCompanyNameLower());
   }
 
   @Test

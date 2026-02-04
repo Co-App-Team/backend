@@ -1,8 +1,8 @@
 package com.backend.coapp.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.backend.coapp.model.document.CompanyModel;
 import java.util.List;
@@ -42,14 +42,14 @@ public class CompanyRepositoryTest {
   @Test
   public void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
     CompanyModel company =
-      repository.save(new CompanyModel("Priceline", "Winnipeg", "https://priceline.com"));
+        repository.save(new CompanyModel("Priceline", "Winnipeg", "https://priceline.com"));
     assertThat(company.getId()).isNotNull();
   }
 
   @Test
   public void saveNew_expectAvgRatingDefaultsToZero() {
     CompanyModel company =
-      repository.save(new CompanyModel("Priceline", "Winnipeg", "https://priceline.com"));
+        repository.save(new CompanyModel("Priceline", "Winnipeg", "https://priceline.com"));
     assertThat(company.getAvgRating()).isEqualTo(0.0);
   }
 
@@ -102,17 +102,17 @@ public class CompanyRepositoryTest {
   public void findsAllCompanies_expectReturn3Companies() {
     List<CompanyModel> companies = repository.findAll();
     assertThat(companies)
-      .hasSize(3)
-      .extracting("companyName")
-      .contains("Niche", "Varian", "Payworks");
+        .hasSize(3)
+        .extracting("companyName")
+        .contains("Niche", "Varian", "Payworks");
     assertThat(companies)
-      .hasSize(3)
-      .extracting("companyNameLower")
-      .contains("niche", "varian", "payworks");
+        .hasSize(3)
+        .extracting("companyNameLower")
+        .contains("niche", "varian", "payworks");
     assertThat(companies)
-      .hasSize(3)
-      .extracting("location")
-      .contains("Winnipeg", "Winnipeg", "Winnipeg");
+        .hasSize(3)
+        .extracting("location")
+        .contains("Winnipeg", "Winnipeg", "Winnipeg");
   }
 
   @Test
@@ -155,16 +155,20 @@ public class CompanyRepositoryTest {
     assertThat(repository.findAll()).hasSize(3);
 
     // Try to save a company with duplicate name
-    Exception exception = assertThrows(Exception.class, () -> repository.save(new CompanyModel("NICHE", "Toronto", "https://niche-different.com")));
+    Exception exception =
+        assertThrows(
+            Exception.class,
+            () ->
+                repository.save(
+                    new CompanyModel("NICHE", "Toronto", "https://niche-different.com")));
 
     assertThat(exception.getMessage()).containsAnyOf("duplicate", "unique");
   }
 
   @Test
   public void save_whenCompanyNameWithWhitespace_expectTrimmedAndSaved() {
-    CompanyModel company = repository.save(
-      new CompanyModel("  Priceline Inc  ", "Winnipeg", "https://priceline.com")
-    );
+    CompanyModel company =
+        repository.save(new CompanyModel("  Priceline Inc  ", "Winnipeg", "https://priceline.com"));
 
     assertThat(company.getId()).isNotNull();
     assertThat(company.getCompanyName()).isEqualTo("Priceline Inc");
@@ -176,7 +180,13 @@ public class CompanyRepositoryTest {
     repository.save(new CompanyModel("TestCompany", "Winnipeg", "https://testcompany.com"));
 
     // Try to save duplicate with different case
-    Exception exception = assertThrows(Exception.class, () -> repository.save(new CompanyModel("TESTCOMPANY", "Toronto", "https://testcompany-different.com")));
+    Exception exception =
+        assertThrows(
+            Exception.class,
+            () ->
+                repository.save(
+                    new CompanyModel(
+                        "TESTCOMPANY", "Toronto", "https://testcompany-different.com")));
 
     assertThat(exception.getMessage()).containsAnyOf("duplicate", "unique");
   }
@@ -186,7 +196,12 @@ public class CompanyRepositoryTest {
     repository.save(new CompanyModel("Priceline Inc", "Winnipeg", "https://bold.com"));
 
     // Try to save duplicate with whitespace and different case
-    Exception exception = assertThrows(Exception.class, () -> repository.save(new CompanyModel("  PRICELINE INC  ", "Toronto", "https://bold-toronto.com")));
+    Exception exception =
+        assertThrows(
+            Exception.class,
+            () ->
+                repository.save(
+                    new CompanyModel("  PRICELINE INC  ", "Toronto", "https://bold-toronto.com")));
 
     assertThat(exception.getMessage()).containsAnyOf("duplicate", "unique");
   }
@@ -232,9 +247,7 @@ public class CompanyRepositoryTest {
 
   @Test
   public void findByCompanyNameLower_whenMixedCase_expectFindsRegardless() {
-    repository.save(
-      new CompanyModel("MixedCaseCompany", "Winnipeg", "https://test.com")
-    );
+    repository.save(new CompanyModel("MixedCaseCompany", "Winnipeg", "https://test.com"));
 
     Optional<CompanyModel> found = repository.findByCompanyNameLower("mixedcasecompany");
     assertThat(found).isPresent();
@@ -257,11 +270,7 @@ public class CompanyRepositoryTest {
 
   @Test
   public void save_expectAllFieldsPersist() {
-    CompanyModel company = new CompanyModel(
-      "Test Test",
-      "Winnipeg",
-      "https://test.com"
-    );
+    CompanyModel company = new CompanyModel("Test Test", "Winnipeg", "https://test.com");
     company.setAvgRating(3.75);
 
     CompanyModel saved = repository.save(company);
