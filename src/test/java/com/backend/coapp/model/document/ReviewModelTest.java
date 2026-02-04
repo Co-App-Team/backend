@@ -490,4 +490,104 @@ public class ReviewModelTest {
             WorkTermValidator.getMaxYear());
     assertEquals(ReviewConstants.MAX_RATING, review.getRating());
   }
+
+  @Test
+  public void setComment_whenEmptyString_expectTrimsToEmpty() {
+    this.testReviewModel.setComment("   ");
+    assertEquals("", this.testReviewModel.getComment());
+  }
+
+  @Test
+  public void setId_whenNull_expectNull() {
+    this.testReviewModel.setId(null);
+    assertNull(this.testReviewModel.getId());
+  }
+
+  @Test
+  public void constructor_whenEmptyStringsWithSpaces_expectThrowsException() {
+    Exception exception1 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                new ReviewModel(
+                    "123",
+                    "   ",
+                    "Eric",
+                    ReviewConstants.MAX_RATING,
+                    "Great!",
+                    "Developer",
+                    "Summer",
+                    WorkTermValidator.getMaxYear()));
+    assertEquals("User ID cannot be null or empty", exception1.getMessage());
+
+    Exception exception2 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                new ReviewModel(
+                    "123",
+                    "456",
+                    "   ",
+                    ReviewConstants.MAX_RATING,
+                    "Great!",
+                    "Developer",
+                    "Summer",
+                    WorkTermValidator.getMaxYear()));
+    assertEquals("Author name cannot be null or empty", exception2.getMessage());
+
+    // Test empty jobTitle
+    Exception exception3 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                new ReviewModel(
+                    "123",
+                    "456",
+                    "Eric",
+                    ReviewConstants.MAX_RATING,
+                    "Great!",
+                    "   ",
+                    "Summer",
+                    WorkTermValidator.getMaxYear()));
+    assertEquals("Job title cannot be null or empty", exception3.getMessage());
+  }
+
+  @Test
+  public void setUserId_whenEmptyString_expectThrowsException() {
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setUserId("   "));
+    assertEquals("User ID cannot be null or empty", exception.getMessage());
+  }
+
+  @Test
+  public void setAuthorName_whenEmptyString_expectThrowsException() {
+    Exception exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> this.testReviewModel.setAuthorName("   "));
+    assertEquals("Author name cannot be null or empty", exception.getMessage());
+  }
+
+  @Test
+  public void setJobTitle_whenEmptyString_expectThrowsException() {
+    Exception exception =
+        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setJobTitle("   "));
+    assertEquals("Job title cannot be null or empty", exception.getMessage());
+  }
+
+  @Test
+  public void setCompanyId_whenEmptyString_expectThrowsException() {
+    Exception exception =
+        assertThrows(
+            IllegalArgumentException.class, () -> this.testReviewModel.setCompanyId("   "));
+    assertEquals("Company ID cannot be null or empty", exception.getMessage());
+  }
+
+  @Test
+  public void setRating_whenBelowMin_expectThrowsException() {
+    Exception exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> this.testReviewModel.setRating(ReviewConstants.MIN_RATING - 1));
+    assertTrue(exception.getMessage().contains("Rating must be between"));
+  }
 }

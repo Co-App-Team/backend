@@ -1,5 +1,8 @@
 package com.backend.coapp.util;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 public class ReviewConstants {
 
   public static final int MIN_RATING = 1;

@@ -2,15 +2,13 @@ package com.backend.coapp.util;
 
 import com.backend.coapp.model.enumeration.WorkTermSeasonEnum;
 import java.time.Year;
+import lombok.experimental.UtilityClass;
 
 /** Utility class for validating work term seasons and years */
+@UtilityClass
 public class WorkTermValidator {
 
   private static final int MIN_YEAR = 1950;
-
-  private WorkTermValidator() {
-    throw new IllegalStateException("Cannot call constructor on a utility class");
-  }
 
   /**
    * Validates work term season Throws illegal argument exception if season invalid.
