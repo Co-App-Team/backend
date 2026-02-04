@@ -14,7 +14,7 @@ N/A
 
 # Get Terms
 
-**Path:** `/api/common/terms`
+**Path:** `/api/common/termSeasons`
 
 **Method:** `GET`
 
