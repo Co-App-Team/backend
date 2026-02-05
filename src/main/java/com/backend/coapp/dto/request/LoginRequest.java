@@ -3,7 +3,7 @@ package com.backend.coapp.dto.request;
 import com.backend.coapp.exception.InvalidRequestException;
 import lombok.Getter;
 
-/** DTO Request for log in.*/
+/** DTO Request for log in. */
 @Getter
 public class LoginRequest implements IRequest {
   private String email;

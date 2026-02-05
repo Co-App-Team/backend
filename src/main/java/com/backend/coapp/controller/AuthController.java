@@ -117,7 +117,9 @@ public class AuthController {
   }
 
   /**
-   * This API will handle checking user's credential and grant access token if authentication is successful
+   * This API will handle checking user's credential and grant access token if authentication is
+   * successful
+   *
    * @param loginRequest Login request
    * @return ResponseEntity
    */
