@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -28,6 +29,8 @@ public class AuthServiceTest {
   @Autowired private UserRepository userRepository;
   private EmailService emailService;
   private AuthService authService;
+  private AuthenticationManager authenticationManager;
+  private JwtService jwtService;
   private UserModel fooUserNotActivated;
   private UserModel fooUserActivated;
 
@@ -46,7 +49,11 @@ public class AuthServiceTest {
     this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
     this.emailService = Mockito.mock(EmailService.class);
-    this.authService = new AuthService(this.userRepository, this.emailService);
+    this.authenticationManager = Mockito.mock(AuthenticationManager.class);
+    this.jwtService = Mockito.mock(JwtService.class);
+    this.authService =
+        new AuthService(
+            this.userRepository, this.emailService, this.authenticationManager, this.jwtService);
   }
 
   @Test

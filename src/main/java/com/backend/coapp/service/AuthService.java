@@ -7,6 +7,9 @@ import java.util.Random;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
@@ -26,10 +29,20 @@ public class AuthService {
 
   private final EmailService emailService;
 
+  private final AuthenticationManager authenticationManager;
+
+  private final JwtService jwtService;
+
   @Autowired
-  public AuthService(UserRepository userRepository, EmailService emailService) {
+  public AuthService(
+      UserRepository userRepository,
+      EmailService emailService,
+      AuthenticationManager authenticationManager,
+      JwtService jwtService) {
     this.userRepository = userRepository;
     this.emailService = emailService;
+    this.authenticationManager = authenticationManager;
+    this.jwtService = jwtService;
   }
 
   /**
@@ -193,6 +206,48 @@ public class AuthService {
     } else {
       throw new IncorrectCodeException();
     }
+  }
+
+  /**
+   * Login business logic
+   *
+   * @param email user email
+   * @param password provided password
+   * @return Access token if authentication is successfully
+   * @throws AuthenticationException unknown authentication failure
+   * @throws AuthAccountNotYetActivatedException when users try to log in an account that has not
+   *     been yet activated
+   * @throws AuthBadCredentialException when email or password is incorrect
+   * @throws JwtServiceFailException when JWT service failed
+   */
+  public String login(String email, String password)
+      throws AuthenticationException,
+          AuthAccountNotYetActivatedException,
+          AuthBadCredentialException,
+          JwtServiceFailException {
+
+    try {
+      this.authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(email, password));
+
+    } catch (DisabledException e) {
+      throw new AuthAccountNotYetActivatedException();
+    } catch (BadCredentialsException e) {
+      throw new AuthBadCredentialException();
+    }
+
+    UserDetails user = this.userRepository.findUserModelByEmail(email);
+    String token = this.jwtService.generateToken(user);
+    return token;
+  }
+
+  /**
+   * Get expiration duration of every token issued
+   *
+   * @return expiration duration in milliseconds.
+   */
+  public long getTokenExpireDurationInSeconds() {
+    return this.jwtService.getExpirationDurationInMilliseconds() / 1000;
   }
 
   /**

@@ -7,6 +7,7 @@ import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -56,7 +57,7 @@ public class GlobalExceptionHandler {
                 "error",
                 SystemErrorCodeEnum.INTERNAL_ERROR,
                 "message",
-                "Unable to reset verification code. Please try again later."));
+                "Internal failure. Please try again later."));
   }
 
   @ExceptionHandler(EmailInvalidAddressException.class)
@@ -98,5 +99,40 @@ public class GlobalExceptionHandler {
         .body(
             Map.of(
                 "error", AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthenticationException(
+      AuthenticationException ex) {
+    return ResponseEntity.status(500)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCodeEnum.INTERNAL_ERROR,
+                "message",
+                "Authentication failed. Please try again later."));
+  }
+
+  @ExceptionHandler(AuthBadCredentialException.class)
+  public ResponseEntity<Map<String, Object>> handleAuthBadCredentialException(
+      AuthBadCredentialException ex) {
+    return ResponseEntity.status(401)
+        .body(
+            Map.of(
+                "error", AuthErrorCodeEnum.INVALID_EMAIL_OR_PASSWORD, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(JwtServiceFailException.class)
+  public ResponseEntity<Map<String, Object>> handleJwtServiceFailException(
+      JwtServiceFailException ex) {
+    String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(500)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCodeEnum.INTERNAL_ERROR,
+                "message",
+                "Authentication failed. Please try again."));
   }
 }
