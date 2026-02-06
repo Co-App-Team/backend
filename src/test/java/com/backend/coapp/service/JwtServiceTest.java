@@ -29,7 +29,7 @@ public class JwtServiceTest {
   public void setUp() {
     this.jwtService = new JwtService();
     ReflectionTestUtils.setField(jwtService, "secretKey", TEST_SECRET_KEY);
-    ReflectionTestUtils.setField(jwtService, "jwtExpiration", EXPIRATION_TIME);
+    ReflectionTestUtils.setField(jwtService, "jwtExpirationInMilliseconds", EXPIRATION_TIME);
 
     this.userDetails = new UserModel("foo@mail.com", "password123", "foo", "woof", 123);
     this.validToken = this.jwtService.generateToken(userDetails);
@@ -209,7 +209,7 @@ public class JwtServiceTest {
   @Test
   public void extractUserEmail_whenTokenAlreadyExpired_expectException() {
     ReflectionTestUtils.setField(
-        jwtService, "jwtExpiration", -1000L); // Set expiration date to the past
+        jwtService, "jwtExpirationInMilliseconds", -1000L); // Set expiration date to the past
     String expiredToken = jwtService.generateToken(userDetails);
     JwtExpiredException ex =
         assertThrows(JwtExpiredException.class, () -> jwtService.extractUserEmail(expiredToken));
@@ -298,7 +298,7 @@ public class JwtServiceTest {
   @Test
   public void isTokenValid_whenTokenAlreadyExpired_expectException() {
     ReflectionTestUtils.setField(
-        jwtService, "jwtExpiration", -1000L); // Set expiration date to the past
+        jwtService, "jwtExpirationInMilliseconds", -1000L); // Set expiration date to the past
     String expiredToken = this.jwtService.generateToken(userDetails);
     JwtExpiredException ex =
         assertThrows(
@@ -343,5 +343,10 @@ public class JwtServiceTest {
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
     assertFalse(errMessage.isBlank());
+  }
+
+  @Test
+  public void getExpirationDurationInMilliseconds_expectCorrectExpirationDuration() {
+    assertEquals(EXPIRATION_TIME, this.jwtService.getExpirationDurationInMilliseconds());
   }
 }

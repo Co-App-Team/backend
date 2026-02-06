@@ -59,7 +59,7 @@ Response body:
 ```json
 {
   "error": "INVALID_EMAIL_OR_PASSWORD",
-  "message": "Invalid email or password"
+  "message": "Incorrect email or password."
 }
 ```
 

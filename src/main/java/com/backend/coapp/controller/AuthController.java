@@ -6,6 +6,7 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -113,5 +114,31 @@ public class AuthController {
         updatePasswordRequest.getVerifyCode(),
         updatePasswordRequest.getNewPassword());
     return ResponseEntity.ok().body(Map.of("message", "Password was updated successfully."));
+  }
+
+  /**
+   * This API will handle checking user's credential and grant access token if authentication is
+   * successful
+   *
+   * @param loginRequest Login request
+   * @return ResponseEntity
+   */
+  @PostMapping("/login")
+  public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest loginRequest) {
+    loginRequest.validateRequest();
+    String token = this.authService.login(loginRequest.getEmail(), loginRequest.getPassword());
+
+    ResponseCookie cookie =
+        ResponseCookie.from("Authorization", token)
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Lax")
+            .maxAge(this.authService.getTokenExpireDurationInSeconds())
+            .path("/")
+            .build();
+
+    return ResponseEntity.ok()
+        .header("Set-Cookie", cookie.toString())
+        .body(Map.of("message", "Login successfully.", "token", cookie));
   }
 }

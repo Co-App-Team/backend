@@ -125,6 +125,10 @@ public class UserModelTest {
     assertTrue(this.testFullUserModel.isAccountNonExpired());
     assertTrue(this.testFullUserModel.isAccountNonLocked());
     assertTrue(this.testFullUserModel.isCredentialsNonExpired());
-    assertTrue(this.testFullUserModel.isEnabled());
+  }
+
+  @Test
+  public void isEnabled_expectMatchVerified() {
+    assertEquals(this.testFullUserModel.isEnabled(), this.testFullUserModel.getVerified());
   }
 }

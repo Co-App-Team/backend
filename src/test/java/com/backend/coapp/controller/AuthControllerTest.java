@@ -1,11 +1,11 @@
 package com.backend.coapp.controller;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.backend.coapp.config.TestSecurityConfig;
 import com.backend.coapp.dto.request.*;
@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -40,6 +41,7 @@ public class AuthControllerTest {
   private ResetVerificationRequest dummyResetVerificationRequest;
   private ForgotPasswordRequest dummyForgotPasswordRequest;
   private UpdatePasswordRequest dummyUpdatePasswordRequest;
+  private LoginRequest dummyLoginRequest;
 
   @BeforeEach
   void setUp() {
@@ -50,6 +52,7 @@ public class AuthControllerTest {
     dummyResetVerificationRequest = new ResetVerificationRequest("foo@mail.com");
     dummyForgotPasswordRequest = new ForgotPasswordRequest("foo@mail.com");
     dummyUpdatePasswordRequest = new UpdatePasswordRequest("foo@mail.com", 123, "newPassword");
+    dummyLoginRequest = new LoginRequest("foo@mail.com", "password");
   }
 
   @Test
@@ -438,5 +441,109 @@ public class AuthControllerTest {
             this.dummyUpdatePasswordRequest.getEmail(),
             this.dummyUpdatePasswordRequest.getVerifyCode(),
             this.dummyUpdatePasswordRequest.getNewPassword());
+  }
+
+  @Test
+  public void login_whenBadCredential_expect401Response() throws Exception {
+    doThrow(new AuthBadCredentialException())
+        .when(this.authService)
+        .login(anyString(), anyString());
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_EMAIL_OR_PASSWORD.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
+  }
+
+  @Test
+  public void login_whenAccountNotYetActivated_expect401Response() throws Exception {
+    doThrow(new AuthAccountNotYetActivatedException())
+        .when(this.authService)
+        .login(anyString(), anyString());
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
+  }
+
+  @Test
+  public void login_whenJwtServiceFail_expect500Response() throws Exception {
+    doThrow(new JwtServiceFailException("foo message"))
+        .when(this.authService)
+        .login(anyString(), anyString());
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
+  }
+
+  @Test
+  public void login_whenAuthFail_expect500Response() throws Exception {
+    doThrow(
+            new LockedException(
+                "foo")) // Since we don't support lock user account yet. This should be internal
+        // error if isLocked() return True
+        .when(this.authService)
+        .login(anyString(), anyString());
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.message").isNotEmpty());
+    verify(authService, times(1))
+        .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
+  }
+
+  @Test
+  void login_whenSuccess_expectCookieInHeader() throws Exception {
+    String expectedToken = "jwt-token-12345";
+    long expirationSeconds = 3600L;
+
+    when(authService.login(anyString(), anyString())).thenReturn(expectedToken);
+    when(authService.getTokenExpireDurationInSeconds()).thenReturn(expirationSeconds);
+
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dummyLoginRequest)))
+        .andExpect(status().isOk())
+        .andExpect(header().exists("Set-Cookie"))
+        .andExpect(header().string("Set-Cookie", containsString("Authorization=" + expectedToken)))
+        .andExpect(header().string("Set-Cookie", containsString("HttpOnly")))
+        .andExpect(header().string("Set-Cookie", containsString("Secure")))
+        .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
+        .andExpect(header().string("Set-Cookie", containsString("Max-Age=" + expirationSeconds)))
+        .andExpect(header().string("Set-Cookie", containsString("Path=/")))
+        .andExpect(jsonPath("$.message").value("Login successfully."))
+        .andExpect(jsonPath("$.token").exists());
+
+    verify(authService, times(1))
+        .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
+    verify(authService, times(1)).getTokenExpireDurationInSeconds();
   }
 }

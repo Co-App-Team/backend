@@ -51,6 +51,9 @@ Ensure to follow the structure as described in [ARCHITECTURE.md](../docs/ARCHITE
 We follow [Google Java Style Standard](https://google.github.io/styleguide/javaguide.html)
 for all Java code to ensure consistency and readability across the project.
 
+> \[!TIP\]
+> Make sure to format your code using `./gradlew spotlessApply` before commit.
+
 #### Commit message
 
 Each commit should follow the structure below:

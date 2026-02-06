@@ -24,7 +24,7 @@ public class JwtService {
   private String secretKey;
 
   @Value("${security.jwt.expiration-time}")
-  private long jwtExpiration;
+  private long jwtExpirationInMilliseconds;
 
   /**
    * Generate JWT token with extra claims and user ID
@@ -47,7 +47,7 @@ public class JwtService {
           .setClaims(extraClaims)
           .setSubject(userDetails.getUsername())
           .setIssuedAt(new Date(System.currentTimeMillis()))
-          .setExpiration(new Date(System.currentTimeMillis() + this.jwtExpiration))
+          .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationInMilliseconds))
           .signWith(this.getSignInKey(), SignatureAlgorithm.HS256)
           .compact();
     } catch (JwtException e) {
@@ -105,6 +105,15 @@ public class JwtService {
       throw new JwtInvalidTokenException();
     }
     return extractSpecificClaim(token, Claims::getSubject); // In JWT, the subject is the user email
+  }
+
+  /**
+   * Get expiration duration of a token
+   *
+   * @return expiration duration in milliseconds.
+   */
+  public long getExpirationDurationInMilliseconds() {
+    return this.jwtExpirationInMilliseconds;
   }
 
   /**
