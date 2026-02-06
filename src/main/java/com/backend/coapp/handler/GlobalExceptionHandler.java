@@ -104,6 +104,8 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<Map<String, Object>> handleAuthenticationException(
       AuthenticationException ex) {
+    String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
+    log.error(errorMessage);
     return ResponseEntity.status(500)
         .body(
             Map.of(
@@ -116,6 +118,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AuthBadCredentialException.class)
   public ResponseEntity<Map<String, Object>> handleAuthBadCredentialException(
       AuthBadCredentialException ex) {
+
     return ResponseEntity.status(401)
         .body(
             Map.of(

@@ -27,9 +27,10 @@ public class AuthServiceTest {
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
   @Autowired private UserRepository userRepository;
+
   private EmailService emailService;
   private AuthService authService;
-  private AuthenticationManager authenticationManager;
+  @Autowired private AuthenticationManager authenticationManager;
   private JwtService jwtService;
   private UserModel fooUserNotActivated;
   private UserModel fooUserActivated;
@@ -49,7 +50,8 @@ public class AuthServiceTest {
     this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
     this.emailService = Mockito.mock(EmailService.class);
-    this.authenticationManager = Mockito.mock(AuthenticationManager.class);
+    //    this.authenticationManager = Mockito.mock(AuthenticationManager.class);
+
     this.jwtService = Mockito.mock(JwtService.class);
     this.authService =
         new AuthService(
@@ -290,5 +292,58 @@ public class AuthServiceTest {
         this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
     assertEquals("newPassword123", userFromDatabase.getPassword());
     assertEquals(UserModel.DEFAULT_VERIFICATION_CODE, userFromDatabase.getVerificationCode());
+  }
+
+  @Test
+  public void getTokenExpireDurationInSeconds_expectExpireDurationFromJwtService() {
+    when(this.jwtService.getExpirationDurationInMilliseconds()).thenReturn(100000L);
+
+    assertEquals(100L, this.authService.getTokenExpireDurationInSeconds());
+  }
+
+  @Test
+  public void login_whenSuccess_expectReturToken() {
+
+    when(this.jwtService.generateToken(any())).thenReturn("DummyToken");
+    String token =
+        this.authService.login(
+            this.fooUserActivated.getEmail(), this.fooUserActivated.getPassword());
+
+    assertEquals("DummyToken", token);
+  }
+
+  @Test
+  public void login_whenAccountNotActivate_expectException() {
+    assertThrows(
+        AuthAccountNotYetActivatedException.class,
+        () ->
+            this.authService.login(
+                this.fooUserNotActivated.getEmail(), this.fooUserNotActivated.getPassword()));
+  }
+
+  @Test
+  public void login_whenIncorrectPassword_expectException() {
+    assertThrows(
+        AuthBadCredentialException.class,
+        () -> this.authService.login(this.fooUserActivated.getEmail(), "fooPassword"));
+  }
+
+  @Test
+  public void login_whenAccountNotExist_expectException() {
+    assertThrows(
+        AuthBadCredentialException.class,
+        () -> this.authService.login("user.not.registerd@mail.com", "fooPassword"));
+  }
+
+  @Test
+  public void login_whenUnknownJWTFail_expectException() {
+
+    when(this.jwtService.generateToken(any())).thenThrow(new JwtServiceFailException("Foo fail"));
+
+    assertThrows(
+        JwtServiceFailException.class,
+        () ->
+            this.authService.login(
+                this.fooUserActivated.getEmail(), this.fooUserActivated.getPassword()));
   }
 }

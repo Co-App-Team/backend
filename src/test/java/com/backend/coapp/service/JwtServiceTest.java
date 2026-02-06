@@ -344,4 +344,9 @@ public class JwtServiceTest {
     assertNotNull(errMessage);
     assertFalse(errMessage.isBlank());
   }
+
+  @Test
+  public void getExpirationDurationInMilliseconds_expectCorrectExpirationDuration() {
+    assertEquals(EXPIRATION_TIME, this.jwtService.getExpirationDurationInMilliseconds());
+  }
 }
