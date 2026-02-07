@@ -139,6 +139,6 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .header("Set-Cookie", cookie.toString())
-        .body(Map.of("message", "Login successfully.", "token", cookie));
+        .body(Map.of("message", "Login successfully."));
   }
 }

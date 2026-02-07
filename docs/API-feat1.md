@@ -364,17 +364,7 @@ Response body:
 ```
 
 
-For every API, we can potentially return this response (if something goes wrong) and the message indicating the internal failure
 
-**Response 500 INTERNAL SERVER ERROR:**
-
-Response body:
-```json
-{
-  "error":"INTERNAL_ERROR",
-  "message":"<this message will indicate a specific failure>"
-}
-```
 
 ---
 

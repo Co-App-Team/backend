@@ -6,24 +6,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.backend.coapp.config.TestSecurityConfig;
 import com.backend.coapp.dto.response.UserResponse;
+import com.backend.coapp.service.JwtService;
 import com.backend.coapp.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
-@Import(TestSecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTest {
 
   @Autowired private MockMvc mockMvc;
 
   @MockitoBean private UserService userService;
+
+  @MockitoBean private JwtService jwtService;
 
   @Autowired private UserController userController;
 

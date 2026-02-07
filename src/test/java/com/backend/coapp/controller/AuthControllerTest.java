@@ -7,18 +7,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import com.backend.coapp.config.TestSecurityConfig;
 import com.backend.coapp.dto.request.*;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
 import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
 import com.backend.coapp.service.AuthService;
+import com.backend.coapp.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -26,13 +26,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(AuthController.class)
-@Import(TestSecurityConfig.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class AuthControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ObjectMapper objectMapper;
 
   @MockitoBean private AuthService authService;
+
+  @MockitoBean private JwtService jwtService;
 
   @Autowired private AuthController authController;
 
@@ -539,9 +541,7 @@ public class AuthControllerTest {
         .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
         .andExpect(header().string("Set-Cookie", containsString("Max-Age=" + expirationSeconds)))
         .andExpect(header().string("Set-Cookie", containsString("Path=/")))
-        .andExpect(jsonPath("$.message").value("Login successfully."))
-        .andExpect(jsonPath("$.token").exists());
-
+        .andExpect(jsonPath("$.message").value("Login successfully."));
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
     verify(authService, times(1)).getTokenExpireDurationInSeconds();
