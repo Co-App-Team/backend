@@ -21,6 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -61,13 +62,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     if (authHeader == null) {
       filterChain.doFilter(request, response);
-      return;
+      return; // Return without update SecurityContextHolder
     }
 
     jwt = authHeader;
     try {
       userEmail = jwtService.extractUserEmail(jwt);
-      if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+      if (userEmail == null || userEmail.isBlank()) {
+        throw new JwtInvalidTokenException();
+      }
+      if (SecurityContextHolder.getContext().getAuthentication() == null) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
         if (jwtService.isTokenValid(jwt, userDetails)) {
           UsernamePasswordAuthenticationToken authToken =
@@ -75,6 +79,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                   userDetails, null, userDetails.getAuthorities());
           authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
           SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else {
+          throw new JwtInvalidTokenException();
         }
       }
     } catch (JwtExpiredException ex) {
@@ -89,6 +95,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
           response,
           HttpStatus.UNAUTHORIZED,
           AuthErrorCodeEnum.INVALID_TOKEN.name(),
+          ex.getMessage());
+      return;
+    } catch (UsernameNotFoundException ex) {
+      this.handleException(
+          response,
+          HttpStatus.UNAUTHORIZED,
+          AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name(),
           ex.getMessage());
       return;
     } catch (Exception ex) {

@@ -1,8 +1,8 @@
 # Common response for endpoints
 
-This document provides a comprehensive list of common responses for API call 
-to the backend. Client can expect to potentially receive these responses for
-every API calls, unless exceptions are specified.
+This document provides a comprehensive list of standard API responses that
+may be returned by the backend. Clients should expect to receive any of
+these responses for all API calls, unless otherwise specified.
 
 ## Access token failure.
 

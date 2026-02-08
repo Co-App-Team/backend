@@ -138,10 +138,4 @@ public class GlobalExceptionHandler {
                 "message",
                 "Authentication failed. Please try again."));
   }
-
-  @ExceptionHandler(JwtExpiredException.class)
-  public ResponseEntity<Map<String, Object>> handleJwtExpiredException(JwtExpiredException ex) {
-    return ResponseEntity.status(401)
-        .body(Map.of("error", AuthErrorCodeEnum.TOKEN_EXPIRE, "message", ex.getMessage()));
-  }
 }
