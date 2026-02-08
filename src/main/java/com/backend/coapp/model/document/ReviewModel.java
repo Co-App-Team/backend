@@ -25,15 +25,12 @@ public class ReviewModel {
 
   @Id private String id;
 
-  @NotNull(message = "Company ID cannot be null")
   @NotBlank(message = "Company ID cannot be empty")
   private String companyId;
 
-  @NotNull(message = "User ID cannot be null")
   @NotBlank(message = "User ID cannot be empty")
   private String userId;
 
-  @NotNull(message = "Author name cannot be null")
   @NotBlank(message = "Author name cannot be empty")
   private String authorName;
 
@@ -47,11 +44,9 @@ public class ReviewModel {
       message = ("Comment cannot exceed " + ReviewConstants.MAX_COMMENT_LENGTH + " characters"))
   private String comment;
 
-  @NotNull(message = "Job title cannot be null")
   @NotBlank(message = "Job title cannot be empty")
   private String jobTitle;
 
-  @NotNull(message = "Work term season cannot be null")
   @NotBlank(message = "Work term season cannot be empty")
   private String workTermSeason;
 
