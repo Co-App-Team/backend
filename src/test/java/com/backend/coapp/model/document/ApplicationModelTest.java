@@ -8,7 +8,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +35,9 @@ public class ApplicationModelTest {
         validApplication.setApplicationDeadline(LocalDate.now().plusDays(7));
         validApplication.setSourceLink("https://company.com/careers");
         validApplication.setJobDescription("Free Pizza");
+        validApplication.setNumPositions(3);
+        validApplication.setDateApplied(LocalDate.now());
+        validApplication.setNotes("Referral from John Doe");
     }
 
     @Test
@@ -47,9 +49,7 @@ public class ApplicationModelTest {
     @Test
     public void validate_whenUserIdNull_expectViolation() {
         validApplication.setUserId(null);
-
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertEquals("User ID cannot be empty", violations.iterator().next().getMessage());
     }
@@ -57,9 +57,7 @@ public class ApplicationModelTest {
     @Test
     public void validate_whenCompanyIdBlank_expectViolation() {
         validApplication.setCompanyId("   ");
-
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertEquals("Company ID cannot be empty", violations.iterator().next().getMessage());
     }
@@ -67,69 +65,70 @@ public class ApplicationModelTest {
     @Test
     public void validate_whenJobTitleEmpty_expectViolation() {
         validApplication.setJobTitle("");
-
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertEquals("Job title cannot be empty", violations.iterator().next().getMessage());
     }
 
     @Test
     public void validate_whenStatusNull_expectViolation() {
-        validApplication.setStatus(null); // Invalid Enum!
-
+        validApplication.setStatus(null);
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertEquals("Status cannot be null", violations.iterator().next().getMessage());
     }
 
     @Test
     public void validate_whenDeadlineNull_expectViolation() {
-        validApplication.setApplicationDeadline(null); // Invalid Date!
-
+        validApplication.setApplicationDeadline(null);
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertEquals("Application Deadline cannot be null", violations.iterator().next().getMessage());
     }
 
     @Test
     public void validate_whenInvalidUrl_expectViolation() {
-        validApplication.setSourceLink("invalid-url"); // Not a URL!
-
+        validApplication.setSourceLink("invalid-url");
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertEquals("Website must be a valid URL", violations.iterator().next().getMessage());
-    }
-
-    @Test
-    public void validate_whenValidUrl_expectNoViolation() {
-        validApplication.setSourceLink("https://google.com");
-        Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-        assertTrue(violations.isEmpty());
     }
 
     @Test
     public void validate_whenDescriptionTooLong_expectViolation() {
         String longDescription = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1);
         validApplication.setJobDescription(longDescription);
-
         Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
-
         assertFalse(violations.isEmpty());
         assertTrue(violations.iterator().next().getMessage().contains("Description cannot exceed"));
     }
 
     @Test
+    public void validate_whenNumPositionsIsZero_expectViolation() {
+        validApplication.setNumPositions(0); // Invalid (must be >= 1)
+        Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
+        assertFalse(violations.isEmpty());
+        assertEquals("Number of positions must be at least 1", violations.iterator().next().getMessage());
+    }
+
+    @Test
+    public void validate_whenNotesTooLong_expectViolation() {
+        String longNotes = "a".repeat(2001);
+        validApplication.setNotes(longNotes);
+        Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
+        assertFalse(violations.isEmpty());
+        assertTrue(violations.iterator().next().getMessage().contains("Notes cannot exceed"));
+    }
+
+    @Test
     public void lombokMethods_expectGettersAndSettersWork() {
-
         ApplicationModel app = new ApplicationModel();
-        app.setId("123");
-        app.setDateCreated(Instant.now());
+        app.setNumPositions(5);
+        app.setNotes("Some notes");
+        app.setDateApplied(LocalDate.now());
 
-        assertEquals("123", app.getId());
-        assertNotNull(app.getDateCreated());
+        assertEquals(5, app.getNumPositions());
+        assertEquals("Some notes", app.getNotes());
+        assertNotNull(app.getDateApplied());
     }
 }

@@ -2,6 +2,7 @@ package com.backend.coapp.model.document;
 
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -51,9 +52,20 @@ public class ApplicationModel {
     @URL(message = "Website must be a valid URL")
     private String sourceLink;
 
+    @Min(value = 1, message = "Number of positions must be at least 1")
+    private Integer numPositions;
+
+    private LocalDate dateApplied;
+
     @Size(
             max = ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH,
             message = ("Description cannot exceed " + ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + " characters")
     )
     private String jobDescription;
+
+    @Size(
+            max = ApplicationConstants.MAX_JOB_NOTES_LENGTH,
+            message = ("Description cannot exceed " + ApplicationConstants.MAX_JOB_NOTES_LENGTH + " characters")
+    )
+    private String notes;
 }
