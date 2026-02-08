@@ -31,6 +31,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
@@ -229,6 +230,22 @@ public class JwtAuthFilterTest {
     assertTrue(errorResponse.containsKey("error"));
     assertFalse(errorResponse.get("message").isBlank());
     assertEquals(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name(), errorResponse.get("error"));
+  }
+
+  @Test
+  public void doFilterInternal_whenAlreadyAuth_expect200() throws Exception {
+    request.addHeader("Authorization", JWT_TOKEN);
+    when(jwtService.extractUserEmail(anyString())).thenReturn(USER_EMAIL);
+    UsernamePasswordAuthenticationToken authToken =
+        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+    SecurityContextHolder.getContext().setAuthentication(authToken);
+
+    jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    verify(filterChain, times(1)).doFilter(request, response);
+    verifyNoInteractions(userDetailsService);
+    assertEquals(authToken, SecurityContextHolder.getContext().getAuthentication());
   }
 
   /**
