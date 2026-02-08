@@ -5,8 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-// Config generated using ChatGPT: https://chatgpt.com/share/698123d4-3610-800f-a293-c93885189ae2
-
+/**
+ * Config CORS for the whole application
+ *
+ * <p>Reference: https://chatgpt.com/share/698123d4-3610-800f-a293-c93885189ae2
+ */
 @Configuration
 public class CorsConfig {
 
@@ -21,9 +24,9 @@ public class CorsConfig {
                 "http://localhost:5173", // Vite dev
                 "https://coapp-frontend.onrender.com/" // Production frontend
                 )
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
             .allowedHeaders("*")
-            .exposedHeaders("Authorization")
+            .exposedHeaders("Authorization", "Set-Cookie")
             .allowCredentials(true)
             .maxAge(3600);
       }

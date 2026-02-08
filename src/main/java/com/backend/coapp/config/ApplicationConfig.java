@@ -14,12 +14,18 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/** Configuration of services for the whole application */
 @Configuration
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
   private final UserRepository userRepository;
 
+  /**
+   * UserDetailsService for authentication.
+   *
+   * @return UserDetailsService
+   */
   @Bean
   public UserDetailsService userDetailsService() {
     return username -> {
@@ -33,18 +39,33 @@ public class ApplicationConfig {
     };
   }
 
+  /**
+   * AuthenticationManager for authentication.
+   *
+   * @return AuthenticationManager
+   */
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
       throws Exception {
     return config.getAuthenticationManager();
   }
 
+  /**
+   * Password encoder service.
+   *
+   * @return PasswordEncoder
+   */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return NoOpPasswordEncoder
         .getInstance(); // @TODO: Need to replace this with BCryptPasswordEncoder
   }
 
+  /**
+   * Authentication provider for authentication.
+   *
+   * @return AuthenticationProvider
+   */
   @Bean
   public AuthenticationProvider authenticationProvider() {
     DaoAuthenticationProvider authenticationProvider =

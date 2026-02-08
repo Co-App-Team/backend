@@ -71,5 +71,13 @@ Body    # Optional. Wrap lines at 72 characters
 > \[!IMPORTANT\]
 > All tasks branch need to be merged to `dev`. Please avoid merging task branch directly to `main`.
 
+ ### Authentication for development
+
+For every API call, except from `api/auth/*`, the application will expect `JWT` to be included in the header of the request.
+To obtain the `JWT` token, you will need to log in to the application (if you have not yet created an account, please do so).
+After log in successfully, you can find `JWT` in cookie:
+
+ ![loginFromPostman.png](../docs/img/loginFromPostman.png)
  
- 
+For every API call, you need to include `JWT` token in the request: \
+![tokenExample.png](../docs/img/tokenExample.png)
