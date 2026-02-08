@@ -65,7 +65,7 @@ public class ApplicationModel {
   @Size(
       max = ApplicationConstants.MAX_JOB_NOTES_LENGTH,
       message =
-          ("Description cannot exceed "
+          ("Notes cannot exceed "
               + ApplicationConstants.MAX_JOB_NOTES_LENGTH
               + " characters"))
   private String notes;
