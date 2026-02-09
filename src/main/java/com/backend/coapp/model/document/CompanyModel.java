@@ -63,4 +63,12 @@ public class CompanyModel {
     this.companyName = companyName != null ? companyName.trim() : null;
     this.companyNameLower = this.companyName != null ? this.companyName.toLowerCase() : null;
   }
+
+  public void setWebsite(String website) {
+    this.website = website != null ? website.trim() : null;
+  }
+
+  public void setLocation(String location) {
+    this.location = location != null ? location.trim() : null;
+  }
 }
