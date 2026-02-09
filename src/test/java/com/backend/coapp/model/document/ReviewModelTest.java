@@ -140,6 +140,73 @@ public class ReviewModelTest {
                 WorkTermValidator.getMinYear() - 1));
   }
 
+  @Test
+  public void constructor_whenNullCompanyId_expectNull() {
+    ReviewModel review =
+        new ReviewModel(
+            null,
+            "user1",
+            "Jane",
+            ReviewConstants.MAX_RATING,
+            "Good",
+            "Dev",
+            "Fall",
+            WorkTermValidator.getMaxYear() - 1);
+    assertNull(review.getCompanyId());
+    assertEquals("user1", review.getUserId());
+    assertEquals("Jane", review.getAuthorName());
+  }
+
+  @Test
+  public void constructor_whenNullUserId_expectNull() {
+    ReviewModel review =
+        new ReviewModel(
+            "company1",
+            null,
+            "Jane",
+            ReviewConstants.MAX_RATING,
+            "Good",
+            "Dev",
+            "Fall",
+            WorkTermValidator.getMaxYear() - 1);
+    assertNull(review.getUserId());
+    assertEquals("company1", review.getCompanyId());
+  }
+
+  @Test
+  public void constructor_whenNullAuthorName_expectNull() {
+    ReviewModel review =
+        new ReviewModel(
+            "company1",
+            "user1",
+            null,
+            ReviewConstants.MAX_RATING,
+            "Good",
+            "Dev",
+            "Fall",
+            WorkTermValidator.getMaxYear() - 1);
+    assertNull(review.getAuthorName());
+    assertEquals("company1", review.getCompanyId());
+    assertEquals("user1", review.getUserId());
+  }
+
+  @Test
+  public void constructor_whenNullJobTitle_expectNull() {
+    ReviewModel review =
+        new ReviewModel(
+            "company1",
+            "user1",
+            "Jane",
+            ReviewConstants.MAX_RATING,
+            "Good",
+            null,
+            "Fall",
+            WorkTermValidator.getMaxYear() - 1);
+    assertNull(review.getJobTitle());
+    assertEquals("company1", review.getCompanyId());
+    assertEquals("user1", review.getUserId());
+  }
+
   /* test jakarta validation annotations with a validator */
 
   @Test

@@ -79,6 +79,54 @@ public class CompanyModelTest {
     assertNull(company.getAvgRating());
   }
 
+  @Test
+  public void constructor_whenNullCompanyName_expectBothNull() {
+    CompanyModel company = new CompanyModel(null, "Location", "https://test.com");
+
+    assertNull(company.getCompanyName());
+    assertNull(company.getCompanyNameLower());
+    assertEquals("Location", company.getLocation());
+    assertEquals("https://test.com", company.getWebsite());
+    assertEquals(0.0, company.getAvgRating());
+  }
+
+  @Test
+  public void constructor_whenNullLocation_expectNull() {
+    CompanyModel company = new CompanyModel("Test", null, "https://test.com");
+
+    assertEquals("Test", company.getCompanyName());
+    assertNull(company.getLocation());
+    assertEquals("https://test.com", company.getWebsite());
+  }
+
+  @Test
+  public void constructor_whenNullWebsite_expectNull() {
+    CompanyModel company = new CompanyModel("Test", "Location", null);
+
+    assertEquals("Test", company.getCompanyName());
+    assertEquals("Location", company.getLocation());
+    assertNull(company.getWebsite());
+  }
+
+  @Test
+  public void constructor_whenNullCompanyName_expectHandled() {
+    CompanyModel company = new CompanyModel(null, "Location", "https://test.com");
+    assertNull(company.getCompanyName());
+    assertNull(company.getCompanyNameLower());
+  }
+
+  @Test
+  public void constructor_whenNullLocation_expectHandled() {
+    CompanyModel company = new CompanyModel("Test", null, "https://test.com");
+    assertNull(company.getLocation());
+  }
+
+  @Test
+  public void constructor_whenNullWebsite_expectHandled() {
+    CompanyModel company = new CompanyModel("Test", "Location", null);
+    assertNull(company.getWebsite());
+  }
+
   /* test custom setters */
 
   @Test
