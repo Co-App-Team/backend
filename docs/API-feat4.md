@@ -1,6 +1,7 @@
 # API Documentation - Feature #4: Company Wiki ("Rate My Co-op")
 
 ## Overview
+
 This document outlines the API endpoints for the Company Wiki feature of CoApp. This feature allows co-op students and alumni to create company profiles, write reviews, and read reviews from other students about their co-op experiences. This helps students make informed decisions about where to apply.
 
 ---
@@ -8,6 +9,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 ## Data Models
 
 ### Company DTO
+
 ```json
 {
   "companyId": "string",
@@ -17,7 +19,6 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "avgRating": "float".
 }
 ```
-
 
 ### Review DTO
 
@@ -61,15 +62,55 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description | Example |
-| -- | -- | -- | -- | -- |
-| `search` | string | No | Search term to match against company name (case insensitive, partial match) | `search=Niche` |
-| `page` | integer | No | Page number for pagination (0-indexed). Defaults to `0` | `page=0` |
-| `size` | integer | No | Number of results per page. Defaults to `20`. Max: `100` | `size=50` |
+| Parameter       | Type    | Required                        | Description                                                                 | Example              |
+| --------------- | ------- | ------------------------------- | --------------------------------------------------------------------------- | -------------------- |
+| `search`        | string  | No                              | Search term to match against company name (case insensitive, partial match) | `search=Niche`       |
+| `page`          | integer | No                              | Page number for pagination (0-indexed). Defaults to `0`                     | `page=0`             |
+| `size`          | integer | No                              | Number of results per page. Defaults to `20`. Max: `100`                    | `size=50`            |
+| `usePagination` | boolean | not required (default to false) | enables or disables pagination in the API response                          | `usePagination=true` |
 
 **Request Body:** None
 
-**Response 200 OK:**
+**Response 200 OK (with `usePagination=false` or `usePagination` not present):**
+
+```json
+{
+  "companies": [
+    {
+      "companyId": "1",
+      "companyName": "Niche",
+      "location": "wpg",
+      "website": "linkHere",
+      "avgRating": "4.5"
+    },
+    {
+      "companyId": "2",
+      "companyName": "Varian",
+      "location": "wpg",
+      "website": "linkHere",
+      "avgRating": "4.5"
+    },
+    {
+      "companyId": "3",
+      "companyName": "Amazon",
+      "location": "wpg",
+      "website": "linkHere",
+      "avgRating": "4.5"
+    },
+    {
+      "companyId": "4",
+      "companyName": "NML",
+      "location": "wpg",
+      "website": "linkHere",
+      "avgRating": "4.5"
+    }
+  ]
+}
+```
+
+Note: This would return a list of all companies
+
+**Response 200 OK (with `usePagination=true`):**
 
 ```json
 {
@@ -91,9 +132,9 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   ],
   "pagination": {
     "currentPage": 0,
-    "totalPages": 1,
-    "totalItems": 2,
-    "itemsPerPage": 10,
+    "totalPages": 2,
+    "totalItems": 4,
+    "itemsPerPage": 2,
     "hasNext": false,
     "hasPrevious": false
   }
@@ -152,10 +193,10 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 
 **Query Parameters:**
 
-| Parameter | Type | Required | Description | Example |
-| -- | -- | -- | -- | -- |
-| `page` | integer | No | Page number for reviews pagination (0-indexed). Defaults to `0` | `page=0` |
-| `size` | integer | No | Number of reviews per page. Defaults to `10`. Max: `50` | `size=20` |
+| Parameter | Type    | Required | Description                                                     | Example   |
+| --------- | ------- | -------- | --------------------------------------------------------------- | --------- |
+| `page`    | integer | No       | Page number for reviews pagination (0-indexed). Defaults to `0` | `page=0`  |
+| `size`    | integer | No       | Number of reviews per page. Defaults to `10`. Max: `50`         | `size=20` |
 
 **Request Headers:**
 
@@ -172,7 +213,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
     "companyName": "Niche",
     "location": "wpg",
     "website": "linkHere",
-    "avgRating": 4.5,
+    "avgRating": 4.5
   },
   "reviews": [
     {
@@ -182,7 +223,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
       "comment": "Great work life balance and mentorship opportunities.",
       "workTermSeason": "Summer",
       "workTermYear": 2025,
-      "jobTitle": "Software developer",
+      "jobTitle": "Software developer"
     },
     {
       "reviewId": "2",
@@ -191,7 +232,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
       "comment": "mid work life balance and mentorship opportunities.",
       "workTermSeason": "Summer",
       "workTermYear": 2025,
-      "jobTitle": "Software developer",
+      "jobTitle": "Software developer"
     }
   ],
   "reviewsPagination": {
@@ -214,7 +255,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
     "companyName": "Niche",
     "location": "wpg",
     "website": "linkHere",
-    "avgRating": 4.5,
+    "avgRating": 4.5
   },
   "reviews": [],
   "reviewsPagination": {
@@ -263,7 +304,6 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "message": "An unexpected error occurred while processing your request."
 }
 ```
-
 
 ---
 
@@ -349,7 +389,6 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 }
 ```
 
-
 ---
 
 ### 4. Create Review
@@ -402,7 +441,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "comment": "Great work life balance and excellent mentorship opportunities.",
   "workTermSeason": "Summer",
   "workTermYear": 2025,
-  "jobTitle": "Software developer",
+  "jobTitle": "Software developer"
 }
 ```
 
@@ -425,6 +464,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 ```
 
 **Response 400 Bad Request:**
+
 ```json
 {
   "error": "BAD_REQUEST",
@@ -433,6 +473,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 ```
 
 **Response 400 Bad Request:**
+
 ```json
 {
   "error": "BAD_REQUEST",
@@ -518,7 +559,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 - `workTermYear` (optional): String
 - `jobTitle` (optional): String
 
-*Note: At least one field must be provided to update*
+_Note: At least one field must be provided to update_
 
 **Response 200 OK:**
 
@@ -532,7 +573,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "comment": "Updated comment stuff",
   "workTermSeason": "Summer",
   "workTermYear": 2025,
-  "jobTitle": "Software developer",
+  "jobTitle": "Software developer"
 }
 ```
 
@@ -692,7 +733,6 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 - Enforce maximum comment length (2000 characters)
 - Validate workTermSeason is one of: Fall, Winter, Summer (case-sensitive)
 - Validate workTermYear is between 1950 and current year (get current year from server, never trust client)
-
 
 ### Pagination
 
