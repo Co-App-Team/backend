@@ -540,7 +540,7 @@ public class AuthControllerTest {
         .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
         .andExpect(header().string("Set-Cookie", containsString("Max-Age=" + expirationSeconds)))
         .andExpect(header().string("Set-Cookie", containsString("Path=/")))
-        .andExpect(jsonPath("$.message").value("Log in successfully."));
+        .andExpect(jsonPath("$.message").value("Logged in successfully."));
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
     verify(authService, times(1)).getTokenExpireDurationInSeconds();

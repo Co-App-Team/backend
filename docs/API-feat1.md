@@ -36,7 +36,7 @@ Response body:
 
 ```json
 {
-  "message": "Log in successfully."
+  "message": "Logged in successfully."
 }
 
 ```

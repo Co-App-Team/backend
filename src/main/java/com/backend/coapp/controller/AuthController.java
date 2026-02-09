@@ -139,9 +139,14 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .header("Set-Cookie", cookie.toString())
-        .body(Map.of("message", "Log in successfully."));
+        .body(Map.of("message", "Logged in successfully."));
   }
 
+  /**
+   * This API will unset cookie from client.
+   *
+   * @return nothing
+   */
   @GetMapping("/logout")
   public ResponseEntity<Map<String, Object>> login() {
     ResponseCookie cookie =
