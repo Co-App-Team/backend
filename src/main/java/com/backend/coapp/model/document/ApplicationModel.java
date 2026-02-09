@@ -1,6 +1,6 @@
 package com.backend.coapp.model.document;
 
-import com.backend.coapp.model.enumeration.ApplicationStatus;
+import com.backend.coapp.model.enumeration.ApplicationStatusEnum;
 import com.backend.coapp.util.ApplicationConstants;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -13,10 +13,12 @@ import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data // Generates Getters, Setters, equals(), hashCode(), and toString()
 @NoArgsConstructor
 @AllArgsConstructor
+@Document(collection = "applications")
 public class ApplicationModel {
 
   // Required Fields
@@ -36,7 +38,7 @@ public class ApplicationModel {
   private LocalDate applicationDeadline;
 
   @NotNull(message = "Status cannot be null")
-  private ApplicationStatus status;
+  private ApplicationStatusEnum status;
 
   // Auto-generated Fields
 
