@@ -151,7 +151,7 @@ public class AuthController {
             .sameSite("Lax")
             .path("/")
             .maxAge(0)
-            .build(); // This expires the cookie immediately
+            .build();
 
     return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).build();
   }
