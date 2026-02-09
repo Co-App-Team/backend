@@ -62,30 +62,4 @@ public class CompanyModel {
     this.companyName = companyName != null ? companyName.trim() : null;
     this.companyNameLower = this.companyName != null ? this.companyName.toLowerCase() : null;
   }
-
-  @Component
-  static class CompanyModelListener extends AbstractMongoEventListener<CompanyModel> {
-    @Override
-    public void onBeforeConvert(BeforeConvertEvent<CompanyModel> event) {
-      CompanyModel company = event.getSource();
-
-      // string fields
-      if (company.getLocation() != null) {
-        company.setLocation(company.getLocation().trim());
-      }
-      if (company.getWebsite() != null) {
-        company.setWebsite(company.getWebsite().trim());
-      }
-
-      // average rating
-      if (company.getAvgRating() == null) {
-        company.setAvgRating(0.0);
-      }
-
-      // sync lowercase name for consistency
-      if (company.getCompanyName() != null) {
-        company.setCompanyNameLower(company.getCompanyName().toLowerCase());
-      }
-    }
-  }
 }

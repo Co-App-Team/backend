@@ -106,17 +106,4 @@ public class ReviewModel {
     WorkTermValidator.validateYear(workTermYear);
     this.workTermYear = workTermYear;
   }
-
-  @Component
-  static class ReviewModelListener extends AbstractMongoEventListener<ReviewModel> {
-    @Override
-    public void onBeforeConvert(BeforeConvertEvent<ReviewModel> event) {
-      ReviewModel review = event.getSource();
-      if (review.getCompanyId() != null) review.setCompanyId(review.getCompanyId().trim());
-      if (review.getUserId() != null) review.setUserId(review.getUserId().trim());
-      if (review.getAuthorName() != null) review.setAuthorName(review.getAuthorName().trim());
-      if (review.getComment() != null) review.setComment(review.getComment().trim());
-      if (review.getJobTitle() != null) review.setJobTitle(review.getJobTitle().trim());
-    }
-  }
 }
