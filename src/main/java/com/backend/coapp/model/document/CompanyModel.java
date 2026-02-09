@@ -1,6 +1,8 @@
 package com.backend.coapp.model.document;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import java.time.Instant;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,8 +32,10 @@ public class CompanyModel {
 
   @NotBlank(message = "Website cannot be empty")
   @URL(message = "Website must be a valid URL")
+  @Pattern(regexp = "^(https?://).*", message = "Website must be a valid URL")
   private String website;
 
+  @NotNull(message = "Average rating cannot be null")
   private Double avgRating;
 
   @CreatedDate private Instant dateCreated;
