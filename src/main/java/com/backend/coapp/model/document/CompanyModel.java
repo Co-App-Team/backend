@@ -1,95 +1,91 @@
 package com.backend.coapp.model.document;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
+import java.time.Instant;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.event.AbstractMongoEventListener;
+import org.springframework.data.mongodb.core.mapping.event.BeforeConvertEvent;
+import org.springframework.stereotype.Component;
 
 /** Company Model */
-@Getter
-@SuppressWarnings(
-    "LombokSetterMayBeUsed") // ignore this warning when we want to use our own setters
+@Data
+@NoArgsConstructor
 @Document(collection = "companies")
 public class CompanyModel {
 
   @Id private String id;
 
-  @NotNull(message = "Company name cannot be null")
   @NotBlank(message = "Company name cannot be empty")
-  @Indexed(unique = true)
-  private String companyNameLower; // stored in lowercase for case insensitive uniqueness
+  private String companyName; // display name for case sensitivity
 
-  @NotNull(message = "Company name cannot be null")
-  @NotBlank(message = "Company name cannot be empty")
-  private String companyName; // display name preserving case sensitivity
+  @Indexed(unique = true)
+  private String companyNameLower; // stored in lowercase for case-insensitive uniqueness
 
   @NotBlank(message = "Location cannot be empty")
   private String location;
 
   @NotBlank(message = "Website cannot be empty")
-  @Pattern(regexp = "^(https?://).*", message = "Website must be a valid URL")
+  @URL(message = "Website must be a valid URL")
   private String website;
 
-  @NotNull(message = "Average rating cannot be null")
   private Double avgRating;
 
-  /** Empty constructor initializing average rating to 0.0 */
-  public CompanyModel() {
-    this.avgRating = 0.0;
-  }
+  @CreatedDate private Instant dateCreated;
+
+  @LastModifiedDate private Instant dateModified;
 
   /**
    * Constructor for creating a new company. Average rating is automatically initialized to 0.0 and
    * must be calculated from reviews.
    *
-   * @param companyName The company name (will be trimmed and stored) - cannot be null
+   * @param companyName The company name (will be trimmed)
    * @param location The company location
    * @param website The company website URL
-   * @throws IllegalArgumentException if companyName is null
    */
   public CompanyModel(String companyName, String location, String website) {
-    if (companyName == null) {
-      throw new IllegalArgumentException("Company name cannot be null");
-    }
-
-    this.companyName = companyName.trim();
-    this.companyNameLower = this.companyName.toLowerCase();
-    this.location = location;
-    this.website = website;
-    this.avgRating = 0.0; // initialize to 0.0 then update with reviews
+    this.companyName = companyName != null ? companyName.trim() : null;
+    this.companyNameLower = this.companyName != null ? this.companyName.toLowerCase() : null;
+    this.location = location != null ? location.trim() : null;
+    this.website = website != null ? website.trim() : null;
+    this.avgRating = 0.0; // new companies start with 0.0 rating
   }
 
-  /** Setter methods */
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  /**
-   * Sets the company name and automatically updates the lowercase version for case-insensitivity.
-   *
-   * @param companyName The company name to set. cannot be null
-   * @throws IllegalArgumentException if companyName is null
-   */
+  // must have custom setter here for the case-insensitive field
   public void setCompanyName(String companyName) {
-    if (companyName == null) {
-      throw new IllegalArgumentException("Company name cannot be null");
+    this.companyName = companyName != null ? companyName.trim() : null;
+    this.companyNameLower = this.companyName != null ? this.companyName.toLowerCase() : null;
+  }
+
+  @Component
+  static class CompanyModelListener extends AbstractMongoEventListener<CompanyModel> {
+    @Override
+    public void onBeforeConvert(BeforeConvertEvent<CompanyModel> event) {
+      CompanyModel company = event.getSource();
+
+      // string fields
+      if (company.getLocation() != null) {
+        company.setLocation(company.getLocation().trim());
+      }
+      if (company.getWebsite() != null) {
+        company.setWebsite(company.getWebsite().trim());
+      }
+
+      // average rating
+      if (company.getAvgRating() == null) {
+        company.setAvgRating(0.0);
+      }
+
+      // sync lowercase name for consistency
+      if (company.getCompanyName() != null) {
+        company.setCompanyNameLower(company.getCompanyName().toLowerCase());
+      }
     }
-    this.companyName = companyName.trim();
-    this.companyNameLower = this.companyName.toLowerCase();
-  }
-
-  public void setLocation(String location) {
-    this.location = location;
-  }
-
-  public void setWebsite(String website) {
-    this.website = website;
-  }
-
-  public void setAvgRating(Double avgRating) {
-    this.avgRating = avgRating;
   }
 }

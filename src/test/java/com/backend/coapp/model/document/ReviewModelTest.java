@@ -4,590 +4,325 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.backend.coapp.util.ReviewConstants;
 import com.backend.coapp.util.WorkTermValidator;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import java.util.Set;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/** ReviewModel tests */
+/** Unit tests for ReviewModel */
 public class ReviewModelTest {
 
-  private ReviewModel testReviewModel;
+  private static ValidatorFactory validatorFactory;
+  private static Validator validator;
+  private ReviewModel validReview;
+
+  @BeforeAll
+  public static void setUpValidator() {
+    validatorFactory = Validation.buildDefaultValidatorFactory();
+    validator = validatorFactory.getValidator();
+  }
+
+  @AfterAll
+  public static void tearDownValidator() {
+    if (validatorFactory != null) {
+      validatorFactory.close();
+    }
+  }
 
   @BeforeEach
   public void setUp() {
-    this.testReviewModel =
+    this.validReview =
         new ReviewModel(
-            "123",
-            "456",
-            "Eric Hodgson",
-            5,
-            "Great experience!",
+            "company123",
+            "user456",
+            "John Doe",
+            ReviewConstants.MAX_RATING - 1,
+            "Great company",
             "Software Developer",
-            "Summer",
-            WorkTermValidator.getMaxYear());
+            "Fall",
+            WorkTermValidator.getMaxYear() - 2);
   }
 
-  @Test
-  public void getterMethods_expectInitValues() {
-    assertEquals("123", this.testReviewModel.getCompanyId());
-    assertEquals("456", this.testReviewModel.getUserId());
-    assertEquals("Eric Hodgson", this.testReviewModel.getAuthorName());
-    assertEquals(5, this.testReviewModel.getRating());
-    assertEquals("Great experience!", this.testReviewModel.getComment());
-    assertEquals("Software Developer", this.testReviewModel.getJobTitle());
-    assertEquals("Summer", this.testReviewModel.getWorkTermSeason());
-    assertEquals(WorkTermValidator.getMaxYear(), this.testReviewModel.getWorkTermYear());
-  }
+  /* test constructor */
 
   @Test
-  public void constructor_expectTrimsWhitespace() {
+  public void constructor_whenAllValid_expectSuccess() {
     ReviewModel review =
         new ReviewModel(
-            "  123  ",
-            "  456  ",
-            "  Eric Hodgson  ",
-            ReviewConstants.MAX_RATING,
-            "  Great!  ",
-            "  Developer  ",
-            "Summer",
-            WorkTermValidator.getMaxYear());
+            "company1",
+            "user1",
+            "Jane Doe",
+            ReviewConstants.MAX_RATING - 1,
+            "Excellent",
+            "Engineer",
+            "Winter",
+            WorkTermValidator.getMaxYear() - 1);
 
-    assertEquals("123", review.getCompanyId());
-    assertEquals("456", review.getUserId());
-    assertEquals("Eric Hodgson", review.getAuthorName());
-    assertEquals("Great!", review.getComment());
-    assertEquals("Developer", review.getJobTitle());
+    assertNotNull(review);
+    assertEquals("company1", review.getCompanyId());
+    assertEquals("user1", review.getUserId());
+    assertEquals("Jane Doe", review.getAuthorName());
+    assertEquals(ReviewConstants.MAX_RATING - 1, review.getRating());
+    assertEquals("Winter", review.getWorkTermSeason());
+    assertEquals(WorkTermValidator.getMaxYear() - 1, review.getWorkTermYear());
+  }
+
+  @Test
+  public void constructor_whenTrimsWhitespace_expectTrimmed() {
+    ReviewModel review =
+        new ReviewModel(
+            "  company1  ",
+            "  user1  ",
+            "  Jane  ",
+            ReviewConstants.MAX_RATING,
+            "  Good work  ",
+            "  Dev  ",
+            "Fall",
+            WorkTermValidator.getMaxYear() - 1);
+
+    assertEquals("company1", review.getCompanyId());
+    assertEquals("user1", review.getUserId());
+    assertEquals("Jane", review.getAuthorName());
+    assertEquals("Good work", review.getComment());
+    assertEquals("Dev", review.getJobTitle());
   }
 
   @Test
   public void constructor_whenNullComment_expectNull() {
     ReviewModel review =
         new ReviewModel(
-            "123",
-            "456",
-            "Eric Hodgson",
+            "company1",
+            "user1",
+            "Jane",
             ReviewConstants.MAX_RATING,
             null,
-            "Developer",
-            "Summer",
-            WorkTermValidator.getMaxYear());
+            "Dev",
+            "Fall",
+            WorkTermValidator.getMaxYear() - 1);
+
     assertNull(review.getComment());
   }
 
   @Test
-  public void constructor_whenNullCompanyId_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    null,
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("Company ID cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenEmptyCompanyId_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "   ",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("Company ID cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenNullUserId_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    null,
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("User ID cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenNullAuthorName_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    null,
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("Author name cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenNullRating_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    null,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals(
-        "Rating must be between "
-            + ReviewConstants.MIN_RATING
-            + " and "
-            + ReviewConstants.MAX_RATING,
-        exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenRatingTooLow_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MIN_RATING - 1,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals(
-        "Rating must be between "
-            + ReviewConstants.MIN_RATING
-            + " and "
-            + ReviewConstants.MAX_RATING,
-        exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenRatingTooHigh_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING + 1,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals(
-        "Rating must be between "
-            + ReviewConstants.MIN_RATING
-            + " and "
-            + ReviewConstants.MAX_RATING,
-        exception.getMessage());
-  }
-
-  @Test
-  public void constructor_whenNullJobTitle_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    null,
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("Job title cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
   public void constructor_whenInvalidSeason_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Spring",
-                    WorkTermValidator.getMaxYear()));
-    assertTrue(exception.getMessage().contains("Work term season must be one of"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ReviewModel(
+                "company1",
+                "user1",
+                "Jane",
+                ReviewConstants.MAX_RATING,
+                "Good",
+                "Dev",
+                "Spring",
+                WorkTermValidator.getMaxYear() - 1));
   }
 
   @Test
-  public void constructor_whenYearTooLow_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMinYear() - 1));
-    assertTrue(exception.getMessage().contains("Work term year must be between"));
+  public void constructor_whenInvalidYear_expectThrowsException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new ReviewModel(
+                "company1",
+                "user1",
+                "Jane",
+                ReviewConstants.MAX_RATING,
+                "Good",
+                "Dev",
+                "Fall",
+                WorkTermValidator.getMinYear() - 1));
+  }
+
+  /* test jakarta validation annotations with a validator */
+
+  @Test
+  public void validate_whenAllFieldsValid_expectNoViolations() {
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+    assertTrue(violations.isEmpty());
   }
 
   @Test
-  public void constructor_whenYearTooHigh_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear() + 1));
-    assertTrue(exception.getMessage().contains("Work term year must be between"));
+  public void validate_whenCompanyIdNull_expectViolation() {
+    validReview.setCompanyId(null);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
+    assertTrue(
+        violations.stream()
+            .anyMatch(violation -> violation.getMessage().equals("Company ID cannot be empty")));
   }
 
   @Test
-  public void constructor_whenValidSeasons_expectSuccess() {
-    ReviewModel fall =
-        new ReviewModel(
-            "123",
-            "456",
-            "Eric",
-            ReviewConstants.MAX_RATING,
-            "Great!",
-            "Developer",
-            "Fall",
-            WorkTermValidator.getMaxYear());
-    assertEquals("Fall", fall.getWorkTermSeason());
+  public void validate_whenCompanyIdBlank_expectViolation() {
+    validReview.setCompanyId("   ");
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
-    ReviewModel winter =
-        new ReviewModel(
-            "123",
-            "456",
-            "Eric",
-            ReviewConstants.MAX_RATING,
-            "Great!",
-            "Developer",
-            "Winter",
-            WorkTermValidator.getMaxYear());
-    assertEquals("Winter", winter.getWorkTermSeason());
-
-    ReviewModel summer =
-        new ReviewModel(
-            "123",
-            "456",
-            "Eric",
-            ReviewConstants.MAX_RATING,
-            "Great!",
-            "Developer",
-            "Summer",
-            WorkTermValidator.getMaxYear());
-    assertEquals("Summer", summer.getWorkTermSeason());
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setCompanyId_expectOnlyCompanyIdChange() {
-    this.testReviewModel.setCompanyId("newCompanyId");
-    assertEquals("newCompanyId", this.testReviewModel.getCompanyId());
-    assertEquals("456", this.testReviewModel.getUserId());
-    assertEquals("Eric Hodgson", this.testReviewModel.getAuthorName());
+  public void validate_whenUserIdNull_expectViolation() {
+    validReview.setUserId(null);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
+    assertTrue(
+        violations.stream()
+            .anyMatch(violation -> violation.getMessage().equals("User ID cannot be empty")));
   }
 
   @Test
-  public void setCompanyId_whenNull_expectThrowsException() {
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setCompanyId(null));
-    assertEquals("Company ID cannot be null or empty", exception.getMessage());
+  public void validate_whenUserIdBlank_expectViolation() {
+    validReview.setUserId("");
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setUserId_expectOnlyUserIdChange() {
-    this.testReviewModel.setUserId("newUserId");
-    assertEquals("123", this.testReviewModel.getCompanyId());
-    assertEquals("newUserId", this.testReviewModel.getUserId());
+  public void validate_whenAuthorNameNull_expectViolation() {
+    validReview.setAuthorName(null);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setUserId_whenNull_expectThrowsException() {
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setUserId(null));
-    assertEquals("User ID cannot be null or empty", exception.getMessage());
+  public void validate_whenAuthorNameBlank_expectViolation() {
+    validReview.setAuthorName("");
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setAuthorName_expectOnlyAuthorNameChange() {
-    this.testReviewModel.setAuthorName("Not Eric");
-    assertEquals("Not Eric", this.testReviewModel.getAuthorName());
-    assertEquals("456", this.testReviewModel.getUserId());
+  public void validate_whenRatingNull_expectViolation() {
+    validReview.setRating(null);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
+    assertTrue(
+        violations.stream()
+            .anyMatch(violation -> violation.getMessage().equals("Rating cannot be null")));
   }
 
   @Test
-  public void setAuthorName_whenNull_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> this.testReviewModel.setAuthorName(null));
-    assertEquals("Author name cannot be null or empty", exception.getMessage());
+  public void validate_whenRatingTooLow_expectViolation() {
+    validReview.setRating(ReviewConstants.MIN_RATING - 1);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
+    assertTrue(
+        violations.stream()
+            .anyMatch(violation -> violation.getMessage().contains("Rating must be at least")));
   }
 
   @Test
-  public void setRating_expectOnlyRatingChange() {
-    this.testReviewModel.setRating(ReviewConstants.MAX_RATING - 1);
-    assertEquals(ReviewConstants.MAX_RATING - 1, this.testReviewModel.getRating());
-    assertEquals("Great experience!", this.testReviewModel.getComment());
+  public void validate_whenRatingTooHigh_expectViolation() {
+    validReview.setRating(6);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setRating_whenNull_expectThrowsException() {
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setRating(null));
-    assertTrue(exception.getMessage().contains("Rating must be between"));
+  public void validate_whenJobTitleNull_expectViolation() {
+    validReview.setJobTitle(null);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setRating_whenTooHigh_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> this.testReviewModel.setRating(ReviewConstants.MAX_RATING + 1));
-    assertTrue(exception.getMessage().contains("Rating must be between"));
+  public void validate_whenJobTitleBlank_expectViolation() {
+    validReview.setJobTitle("");
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setComment_expectOnlyCommentChange() {
-    this.testReviewModel.setComment("Updated comment");
-    assertEquals("Updated comment", this.testReviewModel.getComment());
-    assertEquals(ReviewConstants.MAX_RATING, this.testReviewModel.getRating());
+  public void validate_whenCommentTooLong_expectViolation() {
+    String longComment = "a".repeat(ReviewConstants.MAX_COMMENT_LENGTH + 1);
+    validReview.setComment(longComment);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertFalse(violations.isEmpty());
   }
 
   @Test
-  public void setComment_whenNull_expectNull() {
-    this.testReviewModel.setComment(null);
-    assertNull(this.testReviewModel.getComment());
+  public void validate_whenCommentNull_expectNoViolation() {
+    validReview.setComment(null);
+    Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
+
+    assertTrue(violations.isEmpty());
   }
 
-  @Test
-  public void setJobTitle_expectOnlyJobTitleChange() {
-    this.testReviewModel.setJobTitle("Senior Developer");
-    assertEquals("Senior Developer", this.testReviewModel.getJobTitle());
-    assertEquals("Summer", this.testReviewModel.getWorkTermSeason());
-  }
+  /* custom setters */
 
   @Test
-  public void setJobTitle_whenNull_expectThrowsException() {
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setJobTitle(null));
-    assertEquals("Job title cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void setWorkTermSeason_expectOnlySeasonChange() {
-    this.testReviewModel.setWorkTermSeason("Winter");
-    assertEquals("Winter", this.testReviewModel.getWorkTermSeason());
-    assertEquals(WorkTermValidator.getMaxYear(), this.testReviewModel.getWorkTermYear());
+  public void setWorkTermSeason_whenValid_expectSuccess() {
+    validReview.setWorkTermSeason("Summer");
+    assertEquals("Summer", validReview.getWorkTermSeason());
   }
 
   @Test
   public void setWorkTermSeason_whenInvalid_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> this.testReviewModel.setWorkTermSeason("Spring"));
-    assertTrue(exception.getMessage().contains("Work term season must be one of"));
+    assertThrows(IllegalArgumentException.class, () -> validReview.setWorkTermSeason("Spring"));
   }
 
   @Test
-  public void setWorkTermYear_expectOnlyYearChange() {
-    this.testReviewModel.setWorkTermYear(WorkTermValidator.getMaxYear() - 1);
-    assertEquals(WorkTermValidator.getMaxYear() - 1, this.testReviewModel.getWorkTermYear());
-    assertEquals("Summer", this.testReviewModel.getWorkTermSeason());
+  public void setWorkTermYear_whenValid_expectSuccess() {
+    validReview.setWorkTermYear(WorkTermValidator.getMaxYear());
+    assertEquals(WorkTermValidator.getMaxYear(), validReview.getWorkTermYear());
   }
 
   @Test
   public void setWorkTermYear_whenTooLow_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> this.testReviewModel.setWorkTermYear(WorkTermValidator.getMinYear() - 1));
-    assertTrue(exception.getMessage().contains("Work term year must be between"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> validReview.setWorkTermYear(WorkTermValidator.getMinYear() - 1));
   }
 
   @Test
-  public void setId_expectIdChange() {
-    this.testReviewModel.setId("111");
-    assertEquals("111", this.testReviewModel.getId());
+  public void setWorkTermYear_whenTooHigh_expectThrowsException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> validReview.setWorkTermYear(WorkTermValidator.getMaxYear() + 1));
+  }
+
+  /* lombok setters / getters */
+
+  @Test
+  public void lombokSetters_expectWork() {
+    ReviewModel review = new ReviewModel();
+    review.setCompanyId("comp1");
+    review.setUserId("user1");
+    review.setAuthorName("Jane");
+    review.setRating(ReviewConstants.MAX_RATING - 2);
+    review.setComment("Good");
+    review.setJobTitle("Developer");
+
+    assertEquals("comp1", review.getCompanyId());
+    assertEquals("user1", review.getUserId());
+    assertEquals("Jane", review.getAuthorName());
+    assertEquals(ReviewConstants.MAX_RATING - 2, review.getRating());
+    assertEquals("Good", review.getComment());
+    assertEquals("Developer", review.getJobTitle());
   }
 
   @Test
-  public void getId_whenNoIdSet_expectNull() {
-    assertNull(this.testReviewModel.getId());
-  }
-
-  @Test
-  public void constructor_withMinRating_expectSuccess() {
-    ReviewModel review =
-        new ReviewModel(
-            "123",
-            "456",
-            "Eric",
-            ReviewConstants.MIN_RATING,
-            "Okay",
-            "Developer",
-            "Summer",
-            WorkTermValidator.getMaxYear());
-    assertEquals(ReviewConstants.MIN_RATING, review.getRating());
-  }
-
-  @Test
-  public void constructor_withMaxRating_expectSuccess() {
-    ReviewModel review =
-        new ReviewModel(
-            "123",
-            "456",
-            "Eric",
-            ReviewConstants.MAX_RATING,
-            "Excellent!",
-            "Developer",
-            "Summer",
-            WorkTermValidator.getMaxYear());
-    assertEquals(ReviewConstants.MAX_RATING, review.getRating());
-  }
-
-  @Test
-  public void setComment_whenEmptyString_expectTrimsToEmpty() {
-    this.testReviewModel.setComment("   ");
-    assertEquals("", this.testReviewModel.getComment());
-  }
-
-  @Test
-  public void setId_whenNull_expectNull() {
-    this.testReviewModel.setId(null);
-    assertNull(this.testReviewModel.getId());
-  }
-
-  @Test
-  public void constructor_whenEmptyStringsWithSpaces_expectThrowsException() {
-    Exception exception1 =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "   ",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("User ID cannot be null or empty", exception1.getMessage());
-
-    Exception exception2 =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "   ",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("Author name cannot be null or empty", exception2.getMessage());
-
-    // Test empty jobTitle
-    Exception exception3 =
-        assertThrows(
-            IllegalArgumentException.class,
-            () ->
-                new ReviewModel(
-                    "123",
-                    "456",
-                    "Eric",
-                    ReviewConstants.MAX_RATING,
-                    "Great!",
-                    "   ",
-                    "Summer",
-                    WorkTermValidator.getMaxYear()));
-    assertEquals("Job title cannot be null or empty", exception3.getMessage());
-  }
-
-  @Test
-  public void setUserId_whenEmptyString_expectThrowsException() {
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setUserId("   "));
-    assertEquals("User ID cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void setAuthorName_whenEmptyString_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> this.testReviewModel.setAuthorName("   "));
-    assertEquals("Author name cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void setJobTitle_whenEmptyString_expectThrowsException() {
-    Exception exception =
-        assertThrows(IllegalArgumentException.class, () -> this.testReviewModel.setJobTitle("   "));
-    assertEquals("Job title cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void setCompanyId_whenEmptyString_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> this.testReviewModel.setCompanyId("   "));
-    assertEquals("Company ID cannot be null or empty", exception.getMessage());
-  }
-
-  @Test
-  public void setRating_whenBelowMin_expectThrowsException() {
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> this.testReviewModel.setRating(ReviewConstants.MIN_RATING - 1));
-    assertTrue(exception.getMessage().contains("Rating must be between"));
+  public void lombokGetters_expectWork() {
+    assertNotNull(validReview.getCompanyId());
+    assertNotNull(validReview.getUserId());
+    assertNotNull(validReview.getAuthorName());
+    assertNotNull(validReview.getRating());
   }
 }
