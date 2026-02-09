@@ -139,6 +139,20 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .header("Set-Cookie", cookie.toString())
-        .body(Map.of("message", "Login successfully."));
+        .body(Map.of("message", "Log in successfully."));
+  }
+
+  @GetMapping("/logout")
+  public ResponseEntity<Map<String, Object>> login() {
+    ResponseCookie cookie =
+        ResponseCookie.from("Authorization", "")
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Lax")
+            .path("/")
+            .maxAge(0)
+            .build(); // This expires the cookie immediately
+
+    return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).build();
   }
 }
