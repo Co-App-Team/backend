@@ -38,9 +38,9 @@ public class ReviewModelTest {
   public void setUp() {
     this.validReview =
         new ReviewModel(
-            "company123",
-            "user456",
-            "John Doe",
+            "123",
+            "456",
+            "Eric Hodgson",
             ReviewConstants.MAX_RATING - 1,
             "Great company",
             "Software Developer",
@@ -56,7 +56,7 @@ public class ReviewModelTest {
         new ReviewModel(
             "company1",
             "user1",
-            "Jane Doe",
+            "Eric Hodgson",
             ReviewConstants.MAX_RATING - 1,
             "Excellent",
             "Engineer",
@@ -66,7 +66,7 @@ public class ReviewModelTest {
     assertNotNull(review);
     assertEquals("company1", review.getCompanyId());
     assertEquals("user1", review.getUserId());
-    assertEquals("Jane Doe", review.getAuthorName());
+    assertEquals("Eric Hodgson", review.getAuthorName());
     assertEquals(ReviewConstants.MAX_RATING - 1, review.getRating());
     assertEquals("Winter", review.getWorkTermSeason());
     assertEquals(WorkTermValidator.getMaxYear() - 1, review.getWorkTermYear());
@@ -78,7 +78,7 @@ public class ReviewModelTest {
         new ReviewModel(
             "  company1  ",
             "  user1  ",
-            "  Jane  ",
+            "  Eric  ",
             ReviewConstants.MAX_RATING,
             "  Good work  ",
             "  Dev  ",
@@ -87,7 +87,7 @@ public class ReviewModelTest {
 
     assertEquals("company1", review.getCompanyId());
     assertEquals("user1", review.getUserId());
-    assertEquals("Jane", review.getAuthorName());
+    assertEquals("Eric", review.getAuthorName());
     assertEquals("Good work", review.getComment());
     assertEquals("Dev", review.getJobTitle());
   }
@@ -98,7 +98,7 @@ public class ReviewModelTest {
         new ReviewModel(
             "company1",
             "user1",
-            "Jane",
+            "Eric",
             ReviewConstants.MAX_RATING,
             null,
             "Dev",
@@ -116,7 +116,7 @@ public class ReviewModelTest {
             new ReviewModel(
                 "company1",
                 "user1",
-                "Jane",
+                "Eric",
                 ReviewConstants.MAX_RATING,
                 "Good",
                 "Dev",
@@ -132,7 +132,7 @@ public class ReviewModelTest {
             new ReviewModel(
                 "company1",
                 "user1",
-                "Jane",
+                "Eric",
                 ReviewConstants.MAX_RATING,
                 "Good",
                 "Dev",
@@ -146,7 +146,7 @@ public class ReviewModelTest {
         new ReviewModel(
             null,
             "user1",
-            "Jane",
+            "Eric",
             ReviewConstants.MAX_RATING,
             "Good",
             "Dev",
@@ -154,7 +154,7 @@ public class ReviewModelTest {
             WorkTermValidator.getMaxYear() - 1);
     assertNull(review.getCompanyId());
     assertEquals("user1", review.getUserId());
-    assertEquals("Jane", review.getAuthorName());
+    assertEquals("Eric", review.getAuthorName());
   }
 
   @Test
@@ -163,7 +163,7 @@ public class ReviewModelTest {
         new ReviewModel(
             "company1",
             null,
-            "Jane",
+            "Eric",
             ReviewConstants.MAX_RATING,
             "Good",
             "Dev",
@@ -196,7 +196,7 @@ public class ReviewModelTest {
         new ReviewModel(
             "company1",
             "user1",
-            "Jane",
+            "Eric",
             ReviewConstants.MAX_RATING,
             "Good",
             null,
@@ -372,14 +372,14 @@ public class ReviewModelTest {
     ReviewModel review = new ReviewModel();
     review.setCompanyId("comp1");
     review.setUserId("user1");
-    review.setAuthorName("Jane");
+    review.setAuthorName("Eric");
     review.setRating(ReviewConstants.MAX_RATING - 2);
     review.setComment("Good");
     review.setJobTitle("Developer");
 
     assertEquals("comp1", review.getCompanyId());
     assertEquals("user1", review.getUserId());
-    assertEquals("Jane", review.getAuthorName());
+    assertEquals("Eric", review.getAuthorName());
     assertEquals(ReviewConstants.MAX_RATING - 2, review.getRating());
     assertEquals("Good", review.getComment());
     assertEquals("Developer", review.getJobTitle());
