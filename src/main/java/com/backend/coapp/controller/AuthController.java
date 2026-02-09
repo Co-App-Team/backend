@@ -139,6 +139,25 @@ public class AuthController {
 
     return ResponseEntity.ok()
         .header("Set-Cookie", cookie.toString())
-        .body(Map.of("message", "Login successfully."));
+        .body(Map.of("message", "Logged in successfully."));
+  }
+
+  /**
+   * This API will unset cookie from client.
+   *
+   * @return nothing
+   */
+  @GetMapping("/logout")
+  public ResponseEntity<Map<String, Object>> login() {
+    ResponseCookie cookie =
+        ResponseCookie.from("Authorization", "")
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Lax")
+            .path("/")
+            .maxAge(0)
+            .build();
+
+    return ResponseEntity.ok().header("Set-Cookie", cookie.toString()).build();
   }
 }

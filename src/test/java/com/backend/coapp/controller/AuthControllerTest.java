@@ -3,8 +3,7 @@ package com.backend.coapp.controller;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.backend.coapp.dto.request.*;
@@ -541,9 +540,23 @@ public class AuthControllerTest {
         .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
         .andExpect(header().string("Set-Cookie", containsString("Max-Age=" + expirationSeconds)))
         .andExpect(header().string("Set-Cookie", containsString("Path=/")))
-        .andExpect(jsonPath("$.message").value("Login successfully."));
+        .andExpect(jsonPath("$.message").value("Logged in successfully."));
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
     verify(authService, times(1)).getTokenExpireDurationInSeconds();
+  }
+
+  @Test
+  void logout_whenSuccess_expectUnsetCookie() throws Exception {
+    mockMvc
+        .perform(get("/api/auth/logout").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(header().exists("Set-Cookie"))
+        .andExpect(header().string("Set-Cookie", containsString("Authorization=")))
+        .andExpect(header().string("Set-Cookie", containsString("HttpOnly")))
+        .andExpect(header().string("Set-Cookie", containsString("Secure")))
+        .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
+        .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")))
+        .andExpect(header().string("Set-Cookie", containsString("Path=/")));
   }
 }

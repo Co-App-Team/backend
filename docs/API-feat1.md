@@ -36,7 +36,7 @@ Response body:
 
 ```json
 {
-  "message": "Login successfully."
+  "message": "Logged in successfully."
 }
 
 ```
@@ -70,7 +70,7 @@ Response body:
 
 **Method:** `GET`
 
-**Description:** Unset browswer cookie to log out.
+**Description:** Unset browser cookie to log out.
 
 **Request body:**
 
