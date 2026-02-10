@@ -46,3 +46,19 @@ Response body:
   "message":"<this message will indicate a specific failure>"
 }
 ```
+
+### Bad request
+
+### Exception: N/A
+
+Bad request (request has null or empty field)
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message":"The error message will be customized based on the request."
+}
+```

@@ -1,5 +1,6 @@
 package com.backend.coapp.controller;
 
+import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.service.UserService;
 import java.util.Map;
@@ -7,6 +8,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -40,5 +43,17 @@ public class UserController {
     UserResponse dummyUser = this.userService.getDummyUser();
     log.info("INFO: GET dummyUser API is called.");
     return ResponseEntity.ok().body(dummyUser.toMap());
+  }
+
+  @PostMapping("/update-password")
+  public ResponseEntity<Map<String, Object>> updatePassword(
+      @RequestBody UpdatePasswordWithOldPasswordRequest request) {
+    request.validateRequest();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String userEmail = auth.getName();
+    this.userService.udpateUserPassword(
+        userEmail, request.getOldPassword(), request.getNewPassword());
+
+    return ResponseEntity.ok().body(Map.of("message", "Updated password successfully."));
   }
 }

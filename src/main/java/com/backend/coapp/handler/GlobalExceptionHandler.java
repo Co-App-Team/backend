@@ -138,4 +138,18 @@ public class GlobalExceptionHandler {
                 "message",
                 "Authentication failed. Please try again."));
   }
+
+  @ExceptionHandler(UserServiceFailException.class)
+  public ResponseEntity<Map<String, Object>> handleUserServiceFailException(
+      UserServiceFailException ex) {
+    String errorMessage = "ERROR: User Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(500)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCodeEnum.INTERNAL_ERROR,
+                "message",
+                "User service fail. Please try again."));
+  }
 }

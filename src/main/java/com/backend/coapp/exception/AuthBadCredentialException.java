@@ -5,4 +5,8 @@ public class AuthBadCredentialException extends RuntimeException {
   public AuthBadCredentialException() {
     super("Incorrect email or password");
   }
+
+  public AuthBadCredentialException(String message) {
+    super("Bad credential. " + message);
+  }
 }

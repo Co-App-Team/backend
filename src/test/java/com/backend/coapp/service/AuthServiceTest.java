@@ -50,7 +50,6 @@ public class AuthServiceTest {
     this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
     this.emailService = Mockito.mock(EmailService.class);
-    //    this.authenticationManager = Mockito.mock(AuthenticationManager.class);
 
     this.jwtService = Mockito.mock(JwtService.class);
     this.authService =
