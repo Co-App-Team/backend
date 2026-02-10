@@ -363,8 +363,70 @@ Response body:
 }
 ```
 
+5. Update password after login
 
+5.1. **Path:** `api/user/update-password`
 
+**Description**: After login, client can update password if client can provide old correctly password.
+
+**Method:** `GET`
+
+**Request Body**
+
+```json
+{
+  "oldPassword" : "old password",
+  "newPassword": "new password"
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "message":"Updated password successfully."
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "message":"Updated password successfully."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"EMAIL_NOT_REGISTERED",
+  "message":"Email is not yet registered."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_NOT_ACTIVATED",
+  "message":"The account has not yet been activated."
+}
+```
+
+**Response 401 Unauthorized:**
+Response body:
+
+```json
+{
+  "error": "INVALID_EMAIL_OR_PASSWORD",
+  "message": "Incorrect email or password."
+}
+```
 
 ---
 
