@@ -41,7 +41,7 @@ Response body:
 
 ```
 
-**Response 400 BAD REQUEST:**
+**Response 401 UNAUTHORIZED:**
 
 Response body:
 ```json
@@ -408,7 +408,7 @@ Response body:
 }
 ```
 
-**Response 400 BAD REQUEST:**
+**Response 401 UNAUTHORIZED:**
 
 Response body:
 ```json
