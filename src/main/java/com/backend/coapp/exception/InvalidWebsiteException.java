@@ -4,10 +4,6 @@ package com.backend.coapp.exception;
 public class InvalidWebsiteException extends RuntimeException {
 
   public InvalidWebsiteException() {
-    super("The provided website URL is not valid.");
-  }
-
-  public InvalidWebsiteException(String message) {
-    super(message);
+    super("The website URL is not valid.");
   }
 }
