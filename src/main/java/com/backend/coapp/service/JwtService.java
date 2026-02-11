@@ -85,7 +85,7 @@ public class JwtService {
     }
     validateUserDetail(userDetails);
 
-    String userEmail = this.extractUserEmail(token);
+    String userEmail = this.extractUserIdentity(token);
     return (userEmail.equals(userDetails.getUsername()));
   }
 
@@ -98,7 +98,7 @@ public class JwtService {
    * @throws JwtInvalidTokenException when bad JWT token
    * @throws JwtServiceFailException for unknown exception or bad input parameters
    */
-  public String extractUserEmail(String token)
+  public String extractUserIdentity(String token)
       throws JwtExpiredException, JwtInvalidTokenException, JwtServiceFailException {
 
     if (token == null || token.isBlank()) {

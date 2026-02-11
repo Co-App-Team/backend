@@ -28,8 +28,8 @@ public class ApplicationConfig {
    */
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> {
-      UserModel user = userRepository.findUserModelByEmail(username);
+    return userIdentity -> {
+      UserModel user = userRepository.findUserModelById(userIdentity);
 
       if (user == null) {
         throw new AuthEmailNotRegisteredException();

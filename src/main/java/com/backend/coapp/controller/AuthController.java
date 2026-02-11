@@ -148,7 +148,7 @@ public class AuthController {
    * @return nothing
    */
   @GetMapping("/logout")
-  public ResponseEntity<Map<String, Object>> login() {
+  public ResponseEntity<Map<String, Object>> logout() {
     ResponseCookie cookie =
         ResponseCookie.from("Authorization", "")
             .httpOnly(true)

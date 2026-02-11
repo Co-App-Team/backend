@@ -85,7 +85,12 @@ public class UserModel implements UserDetails {
 
   @Override
   public String getUsername() {
-    return this.email;
+    return this.id;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return this.verified;
   }
 
   /**
@@ -95,10 +100,5 @@ public class UserModel implements UserDetails {
   @Override
   public boolean isAccountNonExpired() {
     return true;
-  }
-
-  @Override
-  public boolean isEnabled() {
-    return this.verified;
   }
 }

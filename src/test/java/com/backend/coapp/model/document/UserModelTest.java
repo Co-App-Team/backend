@@ -117,7 +117,7 @@ public class UserModelTest {
 
   @Test
   public void getUsername_expectReturnEmail() {
-    assertEquals("user@mail.com", this.testFullUserModel.getUsername());
+    assertEquals("1", this.testFullUserModel.getUsername());
   }
 
   @Test

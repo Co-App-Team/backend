@@ -32,14 +32,17 @@ public class UserServiceTest {
   @BeforeEach
   public void setUp() {
     this.userRepository.deleteAll();
-    this.fooUserNotActivated = new UserModel("foo@mail.com", "password123", "foo", "woof", 123);
+    this.fooUserNotActivated =
+        new UserModel("123", "foo@mail.com", "password123", "foo", "woof", false, 123);
     this.userRepository.save(fooUserNotActivated);
     this.fooUserActivated =
         new UserModel(
+            "789",
             "fooActivated@mail.com",
             "password123",
             "fooActivated",
             "woof",
+            true,
             UserModel.DEFAULT_VERIFICATION_CODE);
     this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
@@ -67,10 +70,8 @@ public class UserServiceTest {
     assertDoesNotThrow(
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserActivated.getEmail(),
-                this.fooUserActivated.getPassword(),
-                "newPassword"));
-    UserModel user = this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
+                this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
+    UserModel user = this.userRepository.findUserModelById(this.fooUserActivated.getId());
     assertNotNull(user);
     assertEquals("newPassword", user.getPassword());
   }
@@ -79,7 +80,7 @@ public class UserServiceTest {
   public void updatePassword_whenNoAccountFound_expectException() {
     assertThrows(
         AuthEmailNotRegisteredException.class,
-        () -> this.userService.udpateUserPassword("notExistUser@mail.com", "1", "2"));
+        () -> this.userService.udpateUserPassword("notExistUser", "1", "2"));
   }
 
   @Test
@@ -88,7 +89,7 @@ public class UserServiceTest {
         AuthAccountNotYetActivatedException.class,
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserNotActivated.getEmail(),
+                this.fooUserNotActivated.getId(),
                 this.fooUserNotActivated.getPassword(),
                 "newPassword"));
   }
@@ -99,7 +100,7 @@ public class UserServiceTest {
         AuthBadCredentialException.class,
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserActivated.getEmail(), "fooEmail", "newPassword"));
+                this.fooUserActivated.getId(), "fooEmail", "newPassword"));
   }
 
   @Test
@@ -107,16 +108,13 @@ public class UserServiceTest {
     this.userService = new UserService(this.mockUserRepository);
 
     when(this.mockUserRepository.save(any(UserModel.class))).thenThrow(new RuntimeException());
-    when(this.mockUserRepository.findUserModelByEmail(anyString()))
-        .thenReturn(this.fooUserActivated);
+    when(this.mockUserRepository.findUserModelById(anyString())).thenReturn(this.fooUserActivated);
 
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserActivated.getEmail(),
-                this.fooUserActivated.getPassword(),
-                "newPassword"));
+                this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
 
     verify(this.mockUserRepository, times(1)).save(any(UserModel.class));
   }
@@ -125,15 +123,13 @@ public class UserServiceTest {
   public void udpatePassword_whenDatabaseFindOperationFail_expectException() {
     this.userService = new UserService(this.mockUserRepository);
 
-    when(this.mockUserRepository.findUserModelByEmail(any())).thenThrow(new RuntimeException());
+    when(this.mockUserRepository.findUserModelById(any())).thenThrow(new RuntimeException());
 
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserActivated.getEmail(),
-                this.fooUserActivated.getPassword(),
-                "newPassword"));
+                this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
 
     verify(this.mockUserRepository, never()).save(any(UserModel.class));
   }
