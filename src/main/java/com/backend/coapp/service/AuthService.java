@@ -230,7 +230,7 @@ public class AuthService {
     try {
       user = this.userRepository.findUserModelByEmail(email);
     } catch (Exception e) {
-      throw new AuthenticationServiceException("Database operation failed: ß" + e.getMessage());
+      throw new AuthenticationServiceException("Database operation failed:" + e.getMessage());
     }
 
     if (user == null || !user.getPassword().equals(password)) {
