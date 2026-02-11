@@ -4,6 +4,7 @@ import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.service.CompanyService;
+import com.backend.coapp.util.PaginationConstants;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,20 +46,19 @@ public class CompanyController {
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAllCompanies(
     @RequestParam(required = false) String search,
-    @RequestParam(defaultValue = "0") int page,
-    @RequestParam(defaultValue = "20") int size,
-    @RequestParam(defaultValue = "false") boolean usePagination) {
+    @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR) int page,
+    @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR) int size,
+    @RequestParam(defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR) boolean usePagination) {
 
-    //! TODO: remove this or add constants
     // Validate and cap page size
-    if (size > 100) {
-      size = 100;
+    if (size > PaginationConstants.COMPANY_MAX_SIZE) {
+      size = PaginationConstants.COMPANY_MAX_SIZE;
     }
-    if (size < 1) {
-      size = 20;
+    if (size < PaginationConstants.COMPANY_MIN_SIZE) {
+      size = PaginationConstants.COMPANY_DEFAULT_SIZE;
     }
-    if (page < 0) {
-      page = 0;
+    if (page < PaginationConstants.COMPANY_DEFAULT_PAGE) {
+      page = PaginationConstants.COMPANY_DEFAULT_PAGE;
     }
 
     Map<String, Object> response = new HashMap<>();
@@ -104,7 +104,7 @@ public class CompanyController {
     Map<String, Object> response = new HashMap<>();
     response.put("company", company.toMap());
 
-    // TODO: Add reviews and reviewsPagination when ReviewService is implemented
+    //! TODO: Add reviews and reviewsPagination when ReviewService is implemented
 
     return ResponseEntity.ok(response);
   }
