@@ -20,13 +20,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+//! TODO: are we doing JWT auth right now?
+
 @RestController
 @Slf4j
-@Getter // For testing
+@Getter
 @RequestMapping("/api/companies")
 public class CompanyController {
 
-  /** Singleton service */
   private final CompanyService companyService;
 
   @Autowired
@@ -37,7 +38,7 @@ public class CompanyController {
   /**
    * Get all companies with optional search and pagination
    *
-   * @param search Optional search term for company name
+   * @param searchString Optional search term for company name
    * @param page Page number (0-indexed, default: 0)
    * @param size Items per page (default: 20, max: 100)
    * @param usePagination Whether to use pagination (default: false)
@@ -45,7 +46,7 @@ public class CompanyController {
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAllCompanies(
-    @RequestParam(required = false) String search,
+    @RequestParam(required = false) String searchString,
     @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR) int page,
     @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR) int size,
     @RequestParam(defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR) boolean usePagination) {
@@ -65,9 +66,8 @@ public class CompanyController {
 
     if (usePagination) {
       Pageable pageable = PageRequest.of(page, size);
-      Page<CompanyResponse> companiesPage = this.companyService.getAllCompanies(search, pageable);
+      Page<CompanyResponse> companiesPage = this.companyService.getAllCompanies(searchString, pageable);
 
-      // Convert CompanyResponse objects to Maps
       List<Map<String, Object>> companiesMaps = companiesPage.getContent().stream()
         .map(CompanyResponse::toMap)
         .collect(Collectors.toList());
@@ -77,9 +77,8 @@ public class CompanyController {
       response.put("companies", companiesMaps);
       response.put("pagination", paginationResponse.toMap());
     } else {
-      List<CompanyResponse> companies = this.companyService.getAllCompaniesNoPagination(search);
+      List<CompanyResponse> companies = this.companyService.getAllCompanies(searchString);
 
-      // Convert CompanyResponse objects to Maps
       List<Map<String, Object>> companiesMaps = companies.stream()
         .map(CompanyResponse::toMap)
         .collect(Collectors.toList());
@@ -101,6 +100,7 @@ public class CompanyController {
   public ResponseEntity<Map<String, Object>> getCompanyById(@PathVariable String companyId) {
     CompanyResponse company = this.companyService.getCompanyById(companyId);
 
+    //! TODO: verify this is how we want to do our responses.
     Map<String, Object> response = new HashMap<>();
     response.put("company", company.toMap());
 

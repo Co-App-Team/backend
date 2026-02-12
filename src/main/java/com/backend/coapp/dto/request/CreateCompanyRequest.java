@@ -1,6 +1,7 @@
 package com.backend.coapp.dto.request;
 
 import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.util.UrlValidator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,8 +24,7 @@ public class CreateCompanyRequest implements IRequest {
       throw new InvalidRequestException("Fields (companyName, location, website) cannot be null or empty."); //! TODO: should i be throwing here?
     }
 
-    // Validate URL format
-    if (!this.website.matches("^(https?://).*")) {
+    if (!UrlValidator.isValidUrl(this.website)) {
       throw new InvalidRequestException("Website must be a valid URL starting with http:// or https://"); //! TODO: should i be throwing here?
     }
   }

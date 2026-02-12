@@ -1,5 +1,6 @@
 package com.backend.coapp.model.document;
 
+import com.backend.coapp.util.UrlValidator;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -32,7 +33,7 @@ public class CompanyModel {
 
   @NotBlank(message = "Website cannot be empty")
   @URL(message = "Website must be a valid URL")
-  @Pattern(regexp = "^(https?://).*", message = "Website must be a valid URL")
+  @Pattern(regexp = UrlValidator.URL_REGEX, message = "Website must be a valid URL")
   private String website;
 
   @NotNull(message = "Average rating cannot be null")
