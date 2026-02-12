@@ -4,8 +4,10 @@ import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
 import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -151,5 +153,42 @@ public class GlobalExceptionHandler {
                 SystemErrorCodeEnum.INTERNAL_ERROR,
                 "message",
                 "User service fail. Please try again."));
+  }
+
+  @ExceptionHandler(CompanyAlreadyExistsException.class)
+  public ResponseEntity<Map<String, Object>> handleCompanyAlreadyExistsException(
+      CompanyAlreadyExistsException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("error", "COMPANY_ALREADY_EXISTS");
+    response.put("message", ex.getMessage());
+    response.put("existingCompanyId", ex.getExistingCompanyId());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
+
+  @ExceptionHandler(CompanyNotFoundException.class)
+  public ResponseEntity<Map<String, String>> handleCompanyNotFoundException(
+      CompanyNotFoundException ex) {
+    Map<String, String> response = new HashMap<>();
+    response.put("error", "NOT_FOUND");
+    response.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+  }
+
+  @ExceptionHandler(InvalidWebsiteException.class)
+  public ResponseEntity<Map<String, String>> handleInvalidWebsiteException(
+      InvalidWebsiteException ex) {
+    Map<String, String> response = new HashMap<>();
+    response.put("error", "INVALID_WEBSITE");
+    response.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
+
+  @ExceptionHandler(CompanyServiceFailException.class)
+  public ResponseEntity<Map<String, String>> handleCompanyServiceFailException(
+      CompanyServiceFailException ex) {
+    Map<String, String> response = new HashMap<>();
+    response.put("error", "INTERNAL_SERVER_ERROR");
+    response.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
   }
 }

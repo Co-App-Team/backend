@@ -25,14 +25,12 @@ public class CreateCompanyRequest implements IRequest {
         || this.website == null
         || this.website.isBlank()) {
       throw new InvalidRequestException(
-          "Fields (companyName, location, website) cannot be null or empty."); // ! TODO: should i
-      // be throwing here?
+          "Fields (companyName, location, website) cannot be null or empty.");
     }
 
     if (!UrlValidator.isValidUrl(this.website)) {
       throw new InvalidRequestException(
-          "Website must be a valid URL starting with http:// or https://"); // ! TODO: should i be
-      // throwing here?
+          "Website must be a valid URL starting with http:// or https://");
     }
   }
 }
