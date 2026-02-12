@@ -2,8 +2,6 @@ package com.backend.coapp.util;
 
 import lombok.experimental.UtilityClass;
 
-import java.util.regex.Pattern;
-
 /**
  * Utility class for URL validation
  */
