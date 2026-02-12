@@ -11,7 +11,7 @@ public class CompanyResponseTest {
   @Test
   public void getterMethod_expectInitValues() {
     CompanyResponse response =
-      new CompanyResponse("1", "Niche", "Winnipeg", "https://niche.com", 4.5);
+        new CompanyResponse("1", "Niche", "Winnipeg", "https://niche.com", 4.5);
     assertEquals("1", response.getCompanyId());
     assertEquals("Niche", response.getCompanyName());
     assertEquals("Winnipeg", response.getLocation());
@@ -22,14 +22,14 @@ public class CompanyResponseTest {
   @Test
   public void toMap_expectMapWithInitValues() {
     CompanyResponse response =
-      new CompanyResponse("1", "Niche", "Winnipeg", "https://niche.com", 4.5);
-    Map<String, Object> expectedMap = Map.of(
-      "companyId", "1",
-      "companyName", "Niche",
-      "location", "Winnipeg",
-      "website", "https://niche.com",
-      "avgRating", 4.5
-    );
+        new CompanyResponse("1", "Niche", "Winnipeg", "https://niche.com", 4.5);
+    Map<String, Object> expectedMap =
+        Map.of(
+            "companyId", "1",
+            "companyName", "Niche",
+            "location", "Winnipeg",
+            "website", "https://niche.com",
+            "avgRating", 4.5);
     assertEquals(expectedMap, response.toMap());
   }
 

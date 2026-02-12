@@ -2,9 +2,7 @@ package com.backend.coapp.util;
 
 import lombok.experimental.UtilityClass;
 
-/**
- * Utility class for URL validation
- */
+/** Utility class for URL validation */
 @UtilityClass
 public class UrlValidator {
 

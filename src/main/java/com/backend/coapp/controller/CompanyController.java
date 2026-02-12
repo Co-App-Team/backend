@@ -5,6 +5,10 @@ import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.util.PaginationConstants;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @Slf4j
@@ -44,10 +43,11 @@ public class CompanyController {
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAllCompanies(
-    @RequestParam(required = false) String searchString,
-    @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR) int page,
-    @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR) int size,
-    @RequestParam(defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR) boolean usePagination) {
+      @RequestParam(required = false) String searchString,
+      @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR) int page,
+      @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR) int size,
+      @RequestParam(defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR)
+          boolean usePagination) {
 
     // Validate and cap page size
     if (size > PaginationConstants.COMPANY_MAX_SIZE) {
@@ -64,11 +64,13 @@ public class CompanyController {
 
     if (usePagination) {
       Pageable pageable = PageRequest.of(page, size);
-      Page<CompanyResponse> companiesPage = this.companyService.getAllCompanies(searchString, pageable);
+      Page<CompanyResponse> companiesPage =
+          this.companyService.getAllCompanies(searchString, pageable);
 
-      List<Map<String, Object>> companiesMaps = companiesPage.getContent().stream()
-        .map(CompanyResponse::toMap)
-        .collect(Collectors.toList());
+      List<Map<String, Object>> companiesMaps =
+          companiesPage.getContent().stream()
+              .map(CompanyResponse::toMap)
+              .collect(Collectors.toList());
 
       PaginationResponse paginationResponse = PaginationResponse.fromPage(companiesPage);
 
@@ -77,9 +79,8 @@ public class CompanyController {
     } else {
       List<CompanyResponse> companies = this.companyService.getAllCompanies(searchString);
 
-      List<Map<String, Object>> companiesMaps = companies.stream()
-        .map(CompanyResponse::toMap)
-        .collect(Collectors.toList());
+      List<Map<String, Object>> companiesMaps =
+          companies.stream().map(CompanyResponse::toMap).collect(Collectors.toList());
 
       response.put("companies", companiesMaps);
     }
@@ -88,8 +89,8 @@ public class CompanyController {
   }
 
   /**
-   * Get company profile by ID
-   * Note: This endpoint will be extended to include reviews in a future implementation
+   * Get company profile by ID Note: This endpoint will be extended to include reviews in a future
+   * implementation
    *
    * @param companyId The company ID
    * @return ResponseEntity with company information
@@ -113,14 +114,15 @@ public class CompanyController {
    * @return ResponseEntity with created company information
    */
   @PostMapping
-  public ResponseEntity<Map<String, Object>> createCompany(@RequestBody CreateCompanyRequest createRequest) {
+  public ResponseEntity<Map<String, Object>> createCompany(
+      @RequestBody CreateCompanyRequest createRequest) {
     createRequest.validateRequest();
 
-    CompanyResponse company = this.companyService.createCompany(
-      createRequest.getCompanyName(),
-      createRequest.getLocation(),
-      createRequest.getWebsite()
-    );
+    CompanyResponse company =
+        this.companyService.createCompany(
+            createRequest.getCompanyName(),
+            createRequest.getLocation(),
+            createRequest.getWebsite());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(company.toMap());
   }

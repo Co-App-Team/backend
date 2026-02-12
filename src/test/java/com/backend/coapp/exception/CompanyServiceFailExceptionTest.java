@@ -9,7 +9,7 @@ public class CompanyServiceFailExceptionTest {
   @Test
   public void constructor_whenInitMessage_expectWithMessage() {
     CompanyServiceFailException exception =
-      new CompanyServiceFailException("Database connection failed");
+        new CompanyServiceFailException("Database connection failed");
     assertNotNull(exception);
     assertEquals("Database connection failed", exception.getMessage());
     assertNull(exception.getCause());

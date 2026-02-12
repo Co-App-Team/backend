@@ -1,9 +1,9 @@
 package com.backend.coapp.dto.response;
 
 import com.backend.coapp.model.document.CompanyModel;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import java.util.Map;
 
 /** DTO response for returning company information. */
 @Getter
@@ -24,12 +24,11 @@ public class CompanyResponse implements IResponse {
   @Override
   public Map<String, Object> toMap() {
     return Map.of(
-      "companyId", this.companyId,
-      "companyName", this.companyName,
-      "location", this.location,
-      "website", this.website,
-      "avgRating", this.avgRating
-    );
+        "companyId", this.companyId,
+        "companyName", this.companyName,
+        "location", this.location,
+        "website", this.website,
+        "avgRating", this.avgRating);
   }
 
   /**
@@ -40,11 +39,10 @@ public class CompanyResponse implements IResponse {
    */
   public static CompanyResponse fromModel(CompanyModel company) {
     return new CompanyResponse(
-      company.getId(),
-      company.getCompanyName(),
-      company.getLocation(),
-      company.getWebsite(),
-      company.getAvgRating()
-    );
+        company.getId(),
+        company.getCompanyName(),
+        company.getLocation(),
+        company.getWebsite(),
+        company.getAvgRating());
   }
 }

@@ -7,18 +7,15 @@ import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.ReviewRepository;
 import com.backend.coapp.util.UrlValidator;
+import java.util.List;
+import java.util.Optional;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Company Service
- */
+/** Company Service */
 @Slf4j
 @Service
 @Getter
@@ -44,13 +41,14 @@ public class CompanyService {
    * @throws CompanyServiceFailException if database operation fails
    */
   public CompanyResponse createCompany(String companyName, String location, String website)
-    throws CompanyAlreadyExistsException, InvalidWebsiteException, CompanyServiceFailException {
+      throws CompanyAlreadyExistsException, InvalidWebsiteException, CompanyServiceFailException {
 
     String trimmedName = companyName.trim();
     String nameLower = trimmedName.toLowerCase();
 
     // Check if company already exists
-    CompanyModel existingCompany = this.companyRepository.findByCompanyNameLower(nameLower).orElse(null);
+    CompanyModel existingCompany =
+        this.companyRepository.findByCompanyNameLower(nameLower).orElse(null);
     if (existingCompany != null) {
       throw new CompanyAlreadyExistsException(existingCompany.getId());
     }
@@ -80,12 +78,14 @@ public class CompanyService {
    * @throws CompanyServiceFailException if database operation fails
    */
   public Page<CompanyResponse> getAllCompanies(String searchString, Pageable pageable)
-    throws CompanyServiceFailException {
+      throws CompanyServiceFailException {
     try {
       Page<CompanyModel> companies;
 
       if (searchString != null && !searchString.isBlank()) {
-        companies = this.companyRepository.findByCompanyNameLowerContaining(searchString.toLowerCase(), pageable);
+        companies =
+            this.companyRepository.findByCompanyNameLowerContaining(
+                searchString.toLowerCase(), pageable);
       } else {
         companies = this.companyRepository.findAll(pageable);
       }
@@ -94,7 +94,8 @@ public class CompanyService {
 
     } catch (Exception e) {
       log.error("Failed to retrieve companies: {}", e.getMessage());
-      throw new CompanyServiceFailException("Failed to retrieve companies. Please try again later.");
+      throw new CompanyServiceFailException(
+          "Failed to retrieve companies. Please try again later.");
     }
   }
 
@@ -105,8 +106,7 @@ public class CompanyService {
    * @return List of CompanyResponse DTOs
    * @throws CompanyServiceFailException if database operation fails
    */
-  public List<CompanyResponse> getAllCompanies(String search)
-    throws CompanyServiceFailException {
+  public List<CompanyResponse> getAllCompanies(String search) throws CompanyServiceFailException {
     // unpaged allows us to just do the above method without any pagination
     Page<CompanyResponse> page = getAllCompanies(search, Pageable.unpaged());
     return page.getContent();
@@ -121,7 +121,7 @@ public class CompanyService {
    * @throws CompanyServiceFailException if database operation fails
    */
   public CompanyResponse getCompanyById(String companyId)
-    throws CompanyNotFoundException, CompanyServiceFailException {
+      throws CompanyNotFoundException, CompanyServiceFailException {
 
     try {
       Optional<CompanyModel> company = this.companyRepository.findById(companyId);
@@ -138,20 +138,20 @@ public class CompanyService {
     } catch (Exception e) {
       log.error("Failed to retrieve company: {}", e.getMessage());
       throw new CompanyServiceFailException("Failed to retrieve company. Please try again later.");
-
     }
   }
+
   /**
-   * Update company average rating based on all reviews for this company.
-   * This method should be called whenever a review is created, updated, or deleted.
-   * It fetches all reviews for the company and recalculates the average rating.
+   * Update company average rating based on all reviews for this company. This method should be
+   * called whenever a review is created, updated, or deleted. It fetches all reviews for the
+   * company and recalculates the average rating.
    *
    * @param companyId The company ID
    * @throws CompanyNotFoundException if company not found
    * @throws CompanyServiceFailException if database operation fails
    */
   public void updateAvgRating(String companyId)
-    throws CompanyNotFoundException, CompanyServiceFailException {
+      throws CompanyNotFoundException, CompanyServiceFailException {
     try {
       Optional<CompanyModel> companyCheck = this.companyRepository.findById(companyId);
 
@@ -181,7 +181,8 @@ public class CompanyService {
 
     } catch (Exception e) {
       log.error("Failed to update company average rating: {}", e.getMessage());
-      throw new CompanyServiceFailException("Failed to update company rating. Please try again later.");
+      throw new CompanyServiceFailException(
+          "Failed to update company rating. Please try again later.");
     }
   }
 }

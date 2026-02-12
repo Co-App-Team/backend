@@ -26,14 +26,20 @@ public class PaginationResponseTest {
   @Test
   public void toMap_expectMapWithInitValues() {
     PaginationResponse response = new PaginationResponse(0, 5, 100L, 20, true, false);
-    Map<String, Object> expectedMap = Map.of(
-      "currentPage", 0,
-      "totalPages", 5,
-      "totalItems", 100L,
-      "itemsPerPage", 20,
-      "hasNext", true,
-      "hasPrevious", false
-    );
+    Map<String, Object> expectedMap =
+        Map.of(
+            "currentPage",
+            0,
+            "totalPages",
+            5,
+            "totalItems",
+            100L,
+            "itemsPerPage",
+            20,
+            "hasNext",
+            true,
+            "hasPrevious",
+            false);
     assertEquals(expectedMap, response.toMap());
   }
 
