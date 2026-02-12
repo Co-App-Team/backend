@@ -15,7 +15,7 @@ public class PaginationResponse implements IResponse {
 
   private int currentPage;
   private int totalPages;
-  private long totalItems;
+  private long totalItems; // has to be a long to work with Page class totalItems call
   private int itemsPerPage;
   private boolean hasNext;
   private boolean hasPrevious;

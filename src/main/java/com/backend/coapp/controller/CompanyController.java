@@ -20,8 +20,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-//! TODO: are we doing JWT auth right now?
-
 @RestController
 @Slf4j
 @Getter
@@ -100,11 +98,10 @@ public class CompanyController {
   public ResponseEntity<Map<String, Object>> getCompanyById(@PathVariable String companyId) {
     CompanyResponse company = this.companyService.getCompanyById(companyId);
 
-    //! TODO: verify this is how we want to do our responses.
     Map<String, Object> response = new HashMap<>();
     response.put("company", company.toMap());
 
-    //! TODO: Add reviews and reviewsPagination when ReviewService is implemented
+    // TODO: Add reviews and reviewsPagination when ReviewService is implemented
 
     return ResponseEntity.ok(response);
   }
