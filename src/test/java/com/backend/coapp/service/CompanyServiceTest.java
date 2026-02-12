@@ -273,4 +273,19 @@ public class CompanyServiceTest {
         () -> this.companyService.updateAvgRating(this.nicheCompany.getId()));
     verify(this.mockCompanyRepository, times(1)).save(any(CompanyModel.class));
   }
+
+  @Test
+  public void getAllCompanies_withBlankSearch_expectAllResults() {
+    Pageable pageable = PageRequest.of(0, 10);
+
+    // Test with empty string
+    Page<CompanyResponse> page1 = this.companyService.getAllCompanies("", pageable);
+    assertNotNull(page1);
+    assertEquals(2, page1.getTotalElements());
+
+    // Test with whitespace
+    Page<CompanyResponse> page2 = this.companyService.getAllCompanies("   ", pageable);
+    assertNotNull(page2);
+    assertEquals(2, page2.getTotalElements());
+  }
 }
