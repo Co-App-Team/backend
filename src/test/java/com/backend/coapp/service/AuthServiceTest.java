@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -38,16 +39,19 @@ public class AuthServiceTest {
   @BeforeEach
   public void setUp() {
     this.userRepository.deleteAll();
-    this.fooUserNotActivated = new UserModel("foo@mail.com", "password123", "foo", "woof", 123);
+    this.fooUserNotActivated =
+        new UserModel("123", "foo@mail.com", "password123", "foo", "woof", false, 123);
     this.userRepository.save(fooUserNotActivated);
     this.fooUserActivated =
         new UserModel(
+            "789",
             "fooActivated@mail.com",
             "password123",
             "fooActivated",
             "woof",
+            true,
             UserModel.DEFAULT_VERIFICATION_CODE);
-    this.fooUserActivated.setVerified(true);
+    //    this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
     this.emailService = Mockito.mock(EmailService.class);
 
@@ -301,7 +305,7 @@ public class AuthServiceTest {
   }
 
   @Test
-  public void login_whenSuccess_expectReturToken() {
+  public void login_whenSuccess_expectReturnToken() {
 
     when(this.jwtService.generateToken(any())).thenReturn("DummyToken");
     String token =
@@ -341,6 +345,20 @@ public class AuthServiceTest {
 
     assertThrows(
         JwtServiceFailException.class,
+        () ->
+            this.authService.login(
+                this.fooUserActivated.getEmail(), this.fooUserActivated.getPassword()));
+  }
+
+  @Test
+  public void login_whenUnknownDBFailure_expectException() {
+    UserRepository mockUserRepo = Mockito.mock(UserRepository.class);
+    when(mockUserRepo.findUserModelByEmail(anyString())).thenThrow(new RuntimeException());
+    this.authService =
+        new AuthService(
+            mockUserRepo, this.emailService, this.authenticationManager, this.jwtService);
+    assertThrows(
+        AuthenticationServiceException.class,
         () ->
             this.authService.login(
                 this.fooUserActivated.getEmail(), this.fooUserActivated.getPassword()));

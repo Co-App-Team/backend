@@ -67,7 +67,7 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "test@mail.com")
+  @WithMockUser(username = "testUserID")
   public void updatePassword_whenSuccess_expectNoException() throws Exception {
     doNothing().when(this.userService).udpateUserPassword(anyString(), anyString(), anyString());
     mockMvc
@@ -78,11 +78,11 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").isNotEmpty());
 
-    verify(userService, times(1)).udpateUserPassword("test@mail.com", "oldPassword", "newPassword");
+    verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
   }
 
   @Test
-  @WithMockUser(username = "test@mail.com")
+  @WithMockUser(username = "testUserID")
   public void updatePassword_whenIncorrectOldPassword_expect401() throws Exception {
     doThrow(new AuthBadCredentialException())
         .when(this.userService)
@@ -97,11 +97,11 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_EMAIL_OR_PASSWORD.name()));
     ;
 
-    verify(userService, times(1)).udpateUserPassword("test@mail.com", "oldPassword", "newPassword");
+    verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
   }
 
   @Test
-  @WithMockUser(username = "test@mail.com")
+  @WithMockUser(username = "testUserID")
   public void updatePassword_whenUserServiceFail_expect500() throws Exception {
     doThrow(new UserServiceFailException("foo"))
         .when(this.userService)
@@ -116,6 +116,6 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()));
     ;
 
-    verify(userService, times(1)).udpateUserPassword("test@mail.com", "oldPassword", "newPassword");
+    verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
   }
 }

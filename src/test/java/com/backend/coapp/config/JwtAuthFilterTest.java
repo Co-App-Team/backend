@@ -45,7 +45,7 @@ public class JwtAuthFilterTest {
   @InjectMocks private JwtAuthFilter jwtAuthFilter;
 
   private final String JWT_TOKEN = "dummyToken";
-  private final String USER_EMAIL = "foo@mail.com";
+  private final String USER_EMAIL = "dummyId";
   private UserDetails userDetails;
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
@@ -66,13 +66,13 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenEverythingSuccess() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenReturn(USER_EMAIL);
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
     when(jwtService.isTokenValid(anyString(), any())).thenReturn(true);
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, atLeastOnce()).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, atLeastOnce()).extractUserIdentity(JWT_TOKEN);
     verify(userDetailsService, times(1)).loadUserByUsername(USER_EMAIL);
     verify(jwtService, times(1)).isTokenValid(JWT_TOKEN, this.userDetails);
     verify(filterChain).doFilter(request, response);
@@ -96,11 +96,11 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenJwtExpire_expect401() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenThrow(new JwtExpiredException());
+    when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtExpiredException());
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verifyNoInteractions(userDetailsService);
     verifyNoInteractions(filterChain);
 
@@ -117,11 +117,11 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenJwtInvalid_expect401() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenThrow(new JwtInvalidTokenException());
+    when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtInvalidTokenException());
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verifyNoInteractions(userDetailsService);
     verifyNoInteractions(filterChain);
 
@@ -138,11 +138,11 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenJwtServiceFail_expect500() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenThrow(new JwtServiceFailException("foo"));
+    when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtServiceFailException("foo"));
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verifyNoInteractions(userDetailsService);
     verifyNoInteractions(filterChain);
 
@@ -159,11 +159,11 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenExtractUserEmailNull_expect401() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenReturn(null);
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(null);
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verifyNoInteractions(userDetailsService);
     verifyNoInteractions(filterChain);
 
@@ -174,11 +174,11 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenExtractUserEmailBlank_expect401() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenReturn("");
+    when(jwtService.extractUserIdentity(anyString())).thenReturn("");
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verifyNoInteractions(userDetailsService);
     verifyNoInteractions(filterChain);
 
@@ -189,13 +189,13 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenJwtInvalidFromIsTokenValid_expect401() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenReturn(USER_EMAIL);
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
     when(jwtService.isTokenValid(anyString(), any())).thenReturn(false);
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verify(userDetailsService).loadUserByUsername(USER_EMAIL);
     verifyNoInteractions(filterChain);
 
@@ -212,13 +212,13 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenUserEmailNotFound_expect401() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenReturn(USER_EMAIL);
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString()))
         .thenThrow(new UsernameNotFoundException("foo"));
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
 
-    verify(jwtService, times(1)).extractUserEmail(JWT_TOKEN);
+    verify(jwtService, times(1)).extractUserIdentity(JWT_TOKEN);
     verify(userDetailsService).loadUserByUsername(USER_EMAIL);
     verifyNoInteractions(filterChain);
 
@@ -235,7 +235,7 @@ public class JwtAuthFilterTest {
   @Test
   public void doFilterInternal_whenAlreadyAuth_expect200() throws Exception {
     request.addHeader("Authorization", JWT_TOKEN);
-    when(jwtService.extractUserEmail(anyString())).thenReturn(USER_EMAIL);
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     UsernamePasswordAuthenticationToken authToken =
         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

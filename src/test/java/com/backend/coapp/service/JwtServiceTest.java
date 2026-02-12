@@ -31,7 +31,8 @@ public class JwtServiceTest {
     ReflectionTestUtils.setField(jwtService, "secretKey", TEST_SECRET_KEY);
     ReflectionTestUtils.setField(jwtService, "jwtExpirationInMilliseconds", EXPIRATION_TIME);
 
-    this.userDetails = new UserModel("foo@mail.com", "password123", "foo", "woof", 123);
+    this.userDetails =
+        new UserModel("123", "foo@mail.com", "password123", "foo", "woof", true, 123);
     this.validToken = this.jwtService.generateToken(userDetails);
   }
 
@@ -103,7 +104,8 @@ public class JwtServiceTest {
     Map<String, Object> extraClaims = new HashMap<>();
     extraClaims.put("role", "USER");
     extraClaims.put("iss", "Co-App");
-    UserDetails badUser = new UserModel(null, "password123", "foo", "woof", 123);
+    UserDetails badUser =
+        new UserModel(null, "foo@mail.com", "password123", "foo", "woof", true, 123);
     JwtServiceFailException ex =
         assertThrows(
             JwtServiceFailException.class, () -> jwtService.generateToken(extraClaims, badUser));
@@ -118,7 +120,8 @@ public class JwtServiceTest {
     Map<String, Object> extraClaims = new HashMap<>();
     extraClaims.put("role", "USER");
     extraClaims.put("iss", "Co-App");
-    UserDetails badUser = new UserModel("", "password123", "foo", "woof", 123);
+    UserDetails badUser =
+        new UserModel("", "foo@mail.com", "password123", "foo", "woof", true, 123);
     JwtServiceFailException ex =
         assertThrows(
             JwtServiceFailException.class, () -> jwtService.generateToken(extraClaims, badUser));
@@ -149,7 +152,8 @@ public class JwtServiceTest {
 
   @Test
   void generateToken_whenNullUsernameUserDetailOnly_expectException() {
-    UserDetails badUser = new UserModel(null, "password123", "foo", "woof", 123);
+    UserDetails badUser =
+        new UserModel(null, "foo@mail.com", "password123", "foo", "woof", true, 123);
     JwtServiceFailException ex =
         assertThrows(JwtServiceFailException.class, () -> jwtService.generateToken(badUser));
 
@@ -182,14 +186,15 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_expectMatchEmail() {
-    assertEquals(this.userDetails.getUsername(), this.jwtService.extractUserEmail(this.validToken));
+  public void extractUserIdentity_expectMatchIdentity() {
+    assertEquals(
+        this.userDetails.getUsername(), this.jwtService.extractUserIdentity(this.validToken));
   }
 
   @Test
-  public void extractUserEmail_whenTokenNull_expectException() {
+  public void extractUserIdentity_whenTokenNull_expectException() {
     JwtInvalidTokenException ex =
-        assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserEmail(null));
+        assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(null));
 
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
@@ -197,9 +202,9 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_whenTokenBlank_expectException() {
+  public void extractUserIdentity_whenTokenBlank_expectException() {
     JwtInvalidTokenException ex =
-        assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserEmail(""));
+        assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(""));
 
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
@@ -207,12 +212,12 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_whenTokenAlreadyExpired_expectException() {
+  public void extractUserIdentity_whenTokenAlreadyExpired_expectException() {
     ReflectionTestUtils.setField(
         jwtService, "jwtExpirationInMilliseconds", -1000L); // Set expiration date to the past
     String expiredToken = jwtService.generateToken(userDetails);
     JwtExpiredException ex =
-        assertThrows(JwtExpiredException.class, () -> jwtService.extractUserEmail(expiredToken));
+        assertThrows(JwtExpiredException.class, () -> jwtService.extractUserIdentity(expiredToken));
 
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
@@ -220,10 +225,11 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_whenBadToken_expectException() {
+  public void extractUserIdentity_whenBadToken_expectException() {
     String badToken = "this.is.not.a.valid.jwt";
     JwtInvalidTokenException ex =
-        assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserEmail(badToken));
+        assertThrows(
+            JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(badToken));
 
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
@@ -231,10 +237,11 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_whenUnsupportedToken_expectException() {
+  public void extractUserIdentity_whenUnsupportedToken_expectException() {
     String badToken = "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ0ZXN0In0.";
     JwtInvalidTokenException ex =
-        assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserEmail(badToken));
+        assertThrows(
+            JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(badToken));
 
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
@@ -242,13 +249,13 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_whenDifferentSignature_expectException() {
+  public void extractUserIdentity_whenDifferentSignature_expectException() {
     ReflectionTestUtils.setField(
         jwtService, "secretKey", "9CSl1rBlVaK0rugrqEH1YcdMeFAITc4a87wK5tgLR3a");
 
     JwtInvalidTokenException ex =
         assertThrows(
-            JwtInvalidTokenException.class, () -> jwtService.extractUserEmail(this.validToken));
+            JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(this.validToken));
 
     String errMessage = ex.getMessage();
     assertNotNull(errMessage);
@@ -256,7 +263,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserEmail_whenUnexpectedException_expectException() {
+  public void extractUserIdentity_whenUnexpectedException_expectException() {
     // This test is written with MockedStatic suggested by Claude
     try (MockedStatic<Jwts> jwtsMock = mockStatic(Jwts.class)) {
       JwtParserBuilder mockParserBuilder = mock(JwtParserBuilder.class);
@@ -275,7 +282,7 @@ public class JwtServiceTest {
           assertThrows(
               JwtServiceFailException.class,
               () -> {
-                jwtService.extractUserEmail(this.validToken);
+                jwtService.extractUserIdentity(this.validToken);
               });
 
       assertTrue(ex.getMessage().contains("Unexpected JWT error"));
@@ -290,7 +297,8 @@ public class JwtServiceTest {
 
   @Test
   public void isTokenValid_whenUserDetailNotMatch_expectFalse() {
-    UserDetails fooUser = new UserModel("notFoo@mail.com", "password123", "foo", "woof", 123);
+    UserDetails fooUser =
+        new UserModel("789", "notFoo@mail.com", "password123", "foo", "woof", true, 123);
     boolean isValid = this.jwtService.isTokenValid(this.validToken, fooUser);
     assertFalse(isValid);
   }

@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 /**
@@ -226,17 +225,22 @@ public class AuthService {
           AuthBadCredentialException,
           JwtServiceFailException {
 
-    try {
-      this.authenticationManager.authenticate(
-          new UsernamePasswordAuthenticationToken(email, password));
+    UserModel user;
 
-    } catch (DisabledException e) {
-      throw new AuthAccountNotYetActivatedException();
-    } catch (BadCredentialsException e) {
+    try {
+      user = this.userRepository.findUserModelByEmail(email);
+    } catch (Exception e) {
+      throw new AuthenticationServiceException("Database operation failed:" + e.getMessage());
+    }
+
+    if (user == null || !user.getPassword().equals(password)) {
       throw new AuthBadCredentialException();
     }
 
-    UserDetails user = this.userRepository.findUserModelByEmail(email);
+    if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+
     String token = this.jwtService.generateToken(user);
     return token;
   }

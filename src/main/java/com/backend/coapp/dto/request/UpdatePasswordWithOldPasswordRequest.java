@@ -4,6 +4,11 @@ import com.backend.coapp.exception.InvalidRequestException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * DTO for update password request
+ *
+ * <p>This update is applicable after login
+ */
 @AllArgsConstructor
 @Getter
 public class UpdatePasswordWithOldPasswordRequest implements IRequest {

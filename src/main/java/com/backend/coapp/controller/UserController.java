@@ -50,9 +50,8 @@ public class UserController {
       @RequestBody UpdatePasswordWithOldPasswordRequest request) {
     request.validateRequest();
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userEmail = auth.getName();
-    this.userService.udpateUserPassword(
-        userEmail, request.getOldPassword(), request.getNewPassword());
+    String userID = auth.getName();
+    this.userService.udpateUserPassword(userID, request.getOldPassword(), request.getNewPassword());
 
     return ResponseEntity.ok().body(Map.of("message", "Updated password successfully."));
   }

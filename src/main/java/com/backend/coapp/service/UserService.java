@@ -36,7 +36,7 @@ public class UserService {
   /**
    * Update user password
    *
-   * @param email user's email
+   * @param userID user's ID
    * @param oldPassword old password. Only update password if old password is correctly provided
    * @param newPassword new password to update
    * @throws UserServiceFailException if database fail to perform operation
@@ -44,14 +44,14 @@ public class UserService {
    * @throws AuthEmailNotRegisteredException if account not yet activated.
    * @throws AuthBadCredentialException if old password is incorrect.
    */
-  public void udpateUserPassword(String email, String oldPassword, String newPassword)
+  public void udpateUserPassword(String userID, String oldPassword, String newPassword)
       throws UserServiceFailException,
           AuthEmailNotRegisteredException,
           AuthAccountNotYetActivatedException,
           AuthBadCredentialException {
     UserModel user;
     try {
-      user = this.userRepository.findUserModelByEmail(email);
+      user = this.userRepository.findUserModelById(userID);
 
     } catch (Exception e) {
       throw new UserServiceFailException("Fail to update your password. Please try again later");
