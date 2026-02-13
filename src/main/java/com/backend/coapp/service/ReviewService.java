@@ -237,14 +237,12 @@ public class ReviewService {
    * @throws InvalidRequestException if review doesn't belong to company
    */
   public void verifyReviewBelongsToCompany(String reviewId, String companyId)
-    throws ReviewNotFoundException, InvalidRequestException {
-    ReviewModel review = this.reviewRepository.findById(reviewId)
-      .orElseThrow(ReviewNotFoundException::new);
+      throws ReviewNotFoundException, InvalidRequestException {
+    ReviewModel review =
+        this.reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
 
     if (!review.getCompanyId().equals(companyId)) {
-      throw new InvalidRequestException(
-        "Review does not belong to the specified company.");
+      throw new InvalidRequestException("Review does not belong to the specified company.");
     }
   }
-
 }
