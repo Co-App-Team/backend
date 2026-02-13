@@ -361,14 +361,8 @@ public class ReviewServiceTest {
     String originalComment = this.testReview.getComment();
 
     ReviewModel updated =
-      this.reviewService.updateReview(
-        this.testReview.getId(),
-        "user1",
-        4,
-        null,
-        "New Job Title",
-        null,
-        null);
+        this.reviewService.updateReview(
+            this.testReview.getId(), "user1", 4, null, "New Job Title", null, null);
 
     assertNotNull(updated);
     assertEquals(4, updated.getRating());

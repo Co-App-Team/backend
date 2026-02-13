@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 /**
- * Temporary test file to cover GlobalExceptionHandler review exception handlers.
- * TODO: Replace with proper ReviewController integration tests when controller is implemented.
+ * Temporary test file to cover GlobalExceptionHandler review exception handlers. TODO: Replace with
+ * proper ReviewController integration tests when controller is implemented.
  */
 public class ReviewControllerTest {
 
@@ -30,7 +30,7 @@ public class ReviewControllerTest {
     ReviewAlreadyExistsException ex = new ReviewAlreadyExistsException();
 
     ResponseEntity<Map<String, Object>> response =
-      this.exceptionHandler.handleReviewAlreadyExistsException(ex);
+        this.exceptionHandler.handleReviewAlreadyExistsException(ex);
 
     assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -43,7 +43,7 @@ public class ReviewControllerTest {
     ReviewNotFoundException ex = new ReviewNotFoundException();
 
     ResponseEntity<Map<String, Object>> response =
-      this.exceptionHandler.handleReviewNotFoundException(ex);
+        this.exceptionHandler.handleReviewNotFoundException(ex);
 
     assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -56,7 +56,7 @@ public class ReviewControllerTest {
     ReviewNotOwnedException ex = new ReviewNotOwnedException("update");
 
     ResponseEntity<Map<String, Object>> response =
-      this.exceptionHandler.handleReviewNotOwnedException(ex);
+        this.exceptionHandler.handleReviewNotOwnedException(ex);
 
     assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
     assertNotNull(response.getBody());
@@ -69,12 +69,11 @@ public class ReviewControllerTest {
     ReviewServiceFailException ex = new ReviewServiceFailException("Database connection failed");
 
     ResponseEntity<Map<String, Object>> response =
-      this.exceptionHandler.handleReviewServiceFailException(ex);
+        this.exceptionHandler.handleReviewServiceFailException(ex);
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     assertNotNull(response.getBody());
     assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
-    assertTrue(
-      response.getBody().get("message").toString().contains("unexpected error occurred"));
+    assertTrue(response.getBody().get("message").toString().contains("unexpected error occurred"));
   }
 }
