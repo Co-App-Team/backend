@@ -1,6 +1,7 @@
 package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.CreateCompanyRequest;
+import com.backend.coapp.dto.request.GetAllCompaniesRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.service.CompanyService;
@@ -44,27 +45,23 @@ public class CompanyController {
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAllCompanies(
       @RequestParam(required = false) String search,
-      @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR) int page,
-      @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR) int size,
-      @RequestParam(defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR)
-          boolean usePagination) {
+      @RequestParam(required = false, defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR)
+          Integer page,
+      @RequestParam(required = false, defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR)
+          Integer size,
+      @RequestParam(required = false, defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR)
+          Boolean usePagination) {
 
-    if (size > PaginationConstants.COMPANY_MAX_SIZE) {
-      size = PaginationConstants.COMPANY_MAX_SIZE;
-    }
-    if (size < PaginationConstants.COMPANY_MIN_SIZE) {
-      size = PaginationConstants.COMPANY_DEFAULT_SIZE;
-    }
-    if (page < PaginationConstants.COMPANY_DEFAULT_PAGE) {
-      page = PaginationConstants.COMPANY_DEFAULT_PAGE;
-    }
+    GetAllCompaniesRequest request = new GetAllCompaniesRequest(search, page, size, usePagination);
+    request.validateRequest();
 
     Map<String, Object> response = new HashMap<>();
     List<Map<String, Object>> companiesMaps = new ArrayList<>();
 
-    if (usePagination) {
-      Pageable pageable = PageRequest.of(page, size);
-      Page<CompanyResponse> companiesPage = this.companyService.getAllCompanies(search, pageable);
+    if (request.getUsePagination()) {
+      Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+      Page<CompanyResponse> companiesPage =
+          this.companyService.getAllCompanies(request.getSearch(), pageable);
 
       for (CompanyResponse company : companiesPage.getContent()) {
         companiesMaps.add(company.toMap());
@@ -72,13 +69,10 @@ public class CompanyController {
 
       Map<String, Object> paginationResponseMap =
           PaginationResponse.fromPage(companiesPage).toMap();
-
       response.put("companies", companiesMaps);
       response.put("pagination", paginationResponseMap);
-
     } else { // no pagination
-
-      List<CompanyResponse> companies = this.companyService.getAllCompanies(search);
+      List<CompanyResponse> companies = this.companyService.getAllCompanies(request.getSearch());
 
       for (CompanyResponse company : companies) {
         companiesMaps.add(company.toMap());

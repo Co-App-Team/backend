@@ -367,7 +367,6 @@ Note: This would return a list of all companies
 {
   "error": "COMPANY_ALREADY_EXISTS",
   "message": "A company with this name already exists.",
-  "existingCompanyId": "1"
 }
 ```
 

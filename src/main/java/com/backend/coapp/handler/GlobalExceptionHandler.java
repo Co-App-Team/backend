@@ -2,6 +2,7 @@ package com.backend.coapp.handler;
 
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
+import com.backend.coapp.model.enumeration.CompanyErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
 import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
 import java.util.HashMap;
@@ -159,36 +160,36 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleCompanyAlreadyExistsException(
       CompanyAlreadyExistsException ex) {
     Map<String, Object> response = new HashMap<>();
-    response.put("error", "COMPANY_ALREADY_EXISTS");
+    response.put("error", CompanyErrorCodeEnum.COMPANY_ALREADY_EXISTS);
     response.put("message", ex.getMessage());
-    response.put("existingCompanyId", ex.getExistingCompanyId());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
   }
 
   @ExceptionHandler(CompanyNotFoundException.class)
-  public ResponseEntity<Map<String, String>> handleCompanyNotFoundException(
+  public ResponseEntity<Map<String, Object>> handleCompanyNotFoundException(
       CompanyNotFoundException ex) {
-    Map<String, String> response = new HashMap<>();
-    response.put("error", "NOT_FOUND");
-    response.put("message", ex.getMessage());
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(Map.of("error", CompanyErrorCodeEnum.COMPANY_NOT_FOUND, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(InvalidWebsiteException.class)
-  public ResponseEntity<Map<String, String>> handleInvalidWebsiteException(
+  public ResponseEntity<Map<String, Object>> handleInvalidWebsiteException(
       InvalidWebsiteException ex) {
-    Map<String, String> response = new HashMap<>();
-    response.put("error", "INVALID_WEBSITE");
-    response.put("message", ex.getMessage());
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", CompanyErrorCodeEnum.INVALID_WEBSITE, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(CompanyServiceFailException.class)
-  public ResponseEntity<Map<String, String>> handleCompanyServiceFailException(
+  public ResponseEntity<Map<String, Object>> handleCompanyServiceFailException(
       CompanyServiceFailException ex) {
-    Map<String, String> response = new HashMap<>();
-    response.put("error", "INTERNAL_SERVER_ERROR");
-    response.put("message", ex.getMessage());
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    String errorMessage = "ERROR: Company Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCodeEnum.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your request."));
   }
 }

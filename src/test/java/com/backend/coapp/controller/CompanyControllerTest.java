@@ -196,7 +196,7 @@ public class CompanyControllerTest {
     mockMvc
         .perform(get("/api/companies/999").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound())
-        .andExpect(jsonPath("$.error").value("NOT_FOUND"))
+        .andExpect(jsonPath("$.error").value("COMPANY_NOT_FOUND"))
         .andExpect(jsonPath("$.message").exists());
 
     verify(this.companyService, times(1)).getCompanyById("999");
@@ -210,7 +210,7 @@ public class CompanyControllerTest {
     mockMvc
         .perform(get("/api/companies/1").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("INTERNAL_SERVER_ERROR"))
+        .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
         .andExpect(jsonPath("$.message").exists());
 
     verify(this.companyService, times(1)).getCompanyById("1");
@@ -222,7 +222,7 @@ public class CompanyControllerTest {
   public void createCompany_whenValid_expect201AndCompany() throws Exception {
     CompanyResponse response =
         new CompanyResponse("3", "Amazon", "Seattle", "https://amazon.com", 0.0);
-    when(this.companyService.createCompany(anyString(), anyString(), anyString()))
+    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
         .thenReturn(response);
 
     mockMvc
@@ -234,14 +234,16 @@ public class CompanyControllerTest {
         .andExpect(jsonPath("$.companyId").value("3"))
         .andExpect(jsonPath("$.companyName").value("Amazon"))
         .andExpect(jsonPath("$.location").value("Seattle"))
+        .andExpect(jsonPath("$.website").value("https://amazon.com"))
         .andExpect(jsonPath("$.avgRating").value(0.0));
 
-    verify(this.companyService, times(1)).createCompany("Amazon", "Seattle", "https://amazon.com");
+    verify(this.companyService, times(1))
+        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
   }
 
   @Test
   public void createCompany_whenAlreadyExists_expect409() throws Exception {
-    when(this.companyService.createCompany(anyString(), anyString(), anyString()))
+    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
         .thenThrow(new CompanyAlreadyExistsException("1"));
 
     mockMvc
@@ -251,15 +253,15 @@ public class CompanyControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.createRequest)))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.error").value("COMPANY_ALREADY_EXISTS"))
-        .andExpect(jsonPath("$.message").exists())
-        .andExpect(jsonPath("$.existingCompanyId").value("1"));
+        .andExpect(jsonPath("$.message").exists());
 
-    verify(this.companyService, times(1)).createCompany(anyString(), anyString(), anyString());
+    verify(this.companyService, times(1))
+        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
   }
 
   @Test
   public void createCompany_whenInvalidWebsite_expect400() throws Exception {
-    when(this.companyService.createCompany(anyString(), anyString(), anyString()))
+    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
         .thenThrow(new InvalidWebsiteException());
 
     mockMvc
@@ -271,7 +273,8 @@ public class CompanyControllerTest {
         .andExpect(jsonPath("$.error").value("INVALID_WEBSITE"))
         .andExpect(jsonPath("$.message").exists());
 
-    verify(this.companyService, times(1)).createCompany(anyString(), anyString(), anyString());
+    verify(this.companyService, times(1))
+        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
   }
 
   @Test
@@ -291,7 +294,7 @@ public class CompanyControllerTest {
 
   @Test
   public void createCompany_whenServiceFails_expect500() throws Exception {
-    when(this.companyService.createCompany(anyString(), anyString(), anyString()))
+    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
         .thenThrow(new CompanyServiceFailException("Database error"));
 
     mockMvc
@@ -300,9 +303,10 @@ public class CompanyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.createRequest)))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("INTERNAL_SERVER_ERROR"))
+        .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
         .andExpect(jsonPath("$.message").exists());
 
-    verify(this.companyService, times(1)).createCompany(anyString(), anyString(), anyString());
+    verify(this.companyService, times(1))
+        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
   }
 }
