@@ -16,7 +16,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
   "companyName": "string",
   "location": "string",
   "website": "string",
-  "avgRating": "float".
+  "avgRating": "float"
 }
 ```
 
@@ -63,7 +63,7 @@ This document outlines the API endpoints for the Company Wiki feature of CoApp. 
 **Query Parameters:**
 
 | Parameter       | Type    | Required                        | Description                                                                 | Example              |
-| --------------- | ------- | ------------------------------- | --------------------------------------------------------------------------- | -------------------- |
+|-----------------|---------|---------------------------------|-----------------------------------------------------------------------------|----------------------|
 | `search`        | string  | No                              | Search term to match against company name (case insensitive, partial match) | `search=Niche`       |
 | `page`          | integer | No                              | Page number for pagination (0-indexed). Defaults to `0`                     | `page=0`             |
 | `size`          | integer | No                              | Number of results per page. Defaults to `20`. Max: `100`                    | `size=50`            |
@@ -366,7 +366,7 @@ Note: This would return a list of all companies
 ```json
 {
   "error": "COMPANY_ALREADY_EXISTS",
-  "message": "A company with this name already exists.",
+  "message": "A company with this name already exists."
 }
 ```
 
@@ -495,7 +495,6 @@ Note: This would return a list of all companies
 {
   "error": "REVIEW_ALREADY_EXISTS",
   "message": "You have already submitted a review for this company.",
-  "existingReviewId": "1"
 }
 ```
 
@@ -546,7 +545,7 @@ Note: This would return a list of all companies
   "comment": "Updated comment stuff",
   "workTermSeason": "Summer",
   "workTermYear": 2025,
-  "jobTitle": "Software develpoer"
+  "jobTitle": "Software developer"
 }
 ```
 
@@ -704,7 +703,7 @@ _Note: At least one field must be provided to update_
 
 ### Company Name Uniqueness
 
-- Company names should be case insensitive unique (e.g. "niche" and "Niche" are the same)
+- Company names should be case-insensitive unique (e.g. "niche" and "Niche" are the same)
 - Normalize company names by trimming whitespace before checking uniqueness
 
 ### Review Ownership
@@ -720,13 +719,13 @@ _Note: At least one field must be provided to update_
 
 ### Search Implementation
 
-- Search should be case insensitive
+- Search should be case-insensitive
 - Support partial matching for company names
 
 ### Validation
 
 - Validate all required fields before processing
-- Sanitize comment in case of injection (idk how much of a concern this is)
+- Sanitize comment in case of injection (IDK how much of a concern this is)
 - Validate URL format for company websites
 - Enforce rating range (1-5)
 - Enforce maximum comment length (2000 characters)
@@ -760,7 +759,7 @@ _Note: At least one field must be provided to update_
 - [ ] Create company with missing required fields returns 400
 - [ ] Create company with invalid website URL returns 400
 - [ ] Get all companies returns paginated results
-- [ ] Search companies by name (case insensitive, partial match)
+- [ ] Search companies by name (case-insensitive, partial match)
 - [ ] Get company profile by valid ID returns company with reviews
 - [ ] Get company profile by invalid ID returns 404
 
