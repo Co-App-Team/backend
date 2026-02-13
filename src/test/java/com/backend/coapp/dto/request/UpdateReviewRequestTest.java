@@ -79,4 +79,30 @@ public class UpdateReviewRequestTest {
     UpdateReviewRequest request = new UpdateReviewRequest(null, null, null, null, 2030);
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
+
+  @Test
+  public void validateRequest_whenOnlyJobTitleProvided_expectNoException() {
+    UpdateReviewRequest request = new UpdateReviewRequest(null, null, "Engineer", null, null);
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlySeasonProvided_expectNoException() {
+    UpdateReviewRequest request = new UpdateReviewRequest(null, null, null, "Fall", null);
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlyYearProvided_expectNoException() {
+    UpdateReviewRequest request = new UpdateReviewRequest(null, null, null, null, 2024);
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenSeasonBlank_expectNoException() {
+    // Blank season should be treated as "no update" for this field
+    UpdateReviewRequest request = new UpdateReviewRequest(4, null, null, "   ", null);
+    assertDoesNotThrow(request::validateRequest);
+  }
+
 }

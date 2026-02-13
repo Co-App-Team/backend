@@ -100,4 +100,10 @@ public class CreateReviewRequestTest {
     CreateReviewRequest request = new CreateReviewRequest(5, "Great", "Developer", "Summer", 2030);
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
+
+  @Test
+  public void validateRequest_whenSeasonBlank_expectException() {
+    CreateReviewRequest request = new CreateReviewRequest(5, "Great", "Developer", "   ", 2024);
+    assertThrows(InvalidRequestException.class, request::validateRequest);
+  }
 }
