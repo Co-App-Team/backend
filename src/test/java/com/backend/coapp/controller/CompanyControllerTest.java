@@ -11,8 +11,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.exception.*;
+import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.service.JwtService;
+import com.backend.coapp.service.ReviewService;
 import com.backend.coapp.util.PaginationConstants;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,23 +37,37 @@ public class CompanyControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
   @MockitoBean private CompanyService companyService;
+  @MockitoBean private ReviewService reviewService;
   @MockitoBean private JwtService jwtService;
   @Autowired private CompanyController companyController;
 
   private CompanyResponse nicheResponse;
   private CompanyResponse varianResponse;
   private CreateCompanyRequest createRequest;
+  private ReviewModel review1;
+  private ReviewModel review2;
 
   @BeforeEach
   public void setUp() {
     this.nicheResponse = new CompanyResponse("1", "Niche", "Winnipeg", "https://niche.com", 4.5);
     this.varianResponse = new CompanyResponse("2", "Varian", "Winnipeg", "https://varian.com", 3.5);
     this.createRequest = new CreateCompanyRequest("Amazon", "Seattle", "https://amazon.com");
+
+    this.review1 =
+        new ReviewModel(
+            "1", "user1", "John Doe", 5, "Great company", "Software Developer", "Summer", 2024);
+    this.review1.setId("review1");
+
+    this.review2 =
+        new ReviewModel(
+            "1", "user2", "Jane Smith", 4, "Good experience", "QA Engineer", "Fall", 2023);
+    this.review2.setId("review2");
   }
 
   @Test
   public void constructor_expectSameInitInstance() {
     assertEquals(this.companyController.getCompanyService(), this.companyService);
+    assertEquals(this.companyController.getReviewService(), this.reviewService);
   }
 
   // test get all companies
@@ -176,17 +192,88 @@ public class CompanyControllerTest {
   // test get company by id
 
   @Test
-  public void getCompanyById_whenExists_expect200AndCompany() throws Exception {
+  public void getCompanyById_whenExists_expect200WithCompanyAndReviews() throws Exception {
     when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
+
+    Page<ReviewModel> reviewsPage =
+        new PageImpl<>(List.of(this.review1, this.review2), PageRequest.of(0, 10), 2);
+    when(this.reviewService.getReviewsByCompanyId(eq("1"), any())).thenReturn(reviewsPage);
 
     mockMvc
         .perform(get("/api/companies/1").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.company.companyId").value("1"))
         .andExpect(jsonPath("$.company.companyName").value("Niche"))
-        .andExpect(jsonPath("$.company.location").value("Winnipeg"));
+        .andExpect(jsonPath("$.company.location").value("Winnipeg"))
+        .andExpect(jsonPath("$.reviews").isArray())
+        .andExpect(jsonPath("$.reviews[0].authorName").value("John Doe"))
+        .andExpect(jsonPath("$.reviews[1].authorName").value("Jane Smith"))
+        .andExpect(jsonPath("$.reviewsPagination").exists())
+        .andExpect(jsonPath("$.reviewsPagination.currentPage").value(0))
+        .andExpect(jsonPath("$.reviewsPagination.totalItems").value(2));
 
     verify(this.companyService, times(1)).getCompanyById("1");
+    verify(this.reviewService, times(1)).getReviewsByCompanyId(eq("1"), any());
+  }
+
+  @Test
+  public void getCompanyById_withNoReviews_expect200WithEmptyReviews() throws Exception {
+    when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
+
+    Page<ReviewModel> emptyReviewsPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
+    when(this.reviewService.getReviewsByCompanyId(eq("1"), any())).thenReturn(emptyReviewsPage);
+
+    mockMvc
+        .perform(get("/api/companies/1").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.company.companyId").value("1"))
+        .andExpect(jsonPath("$.reviews").isArray())
+        .andExpect(jsonPath("$.reviews").isEmpty())
+        .andExpect(jsonPath("$.reviewsPagination.totalItems").value(0));
+
+    verify(this.companyService, times(1)).getCompanyById("1");
+    verify(this.reviewService, times(1)).getReviewsByCompanyId(eq("1"), any());
+  }
+
+  @Test
+  public void getCompanyById_withCustomPaginationParams_expectCorrectPageable() throws Exception {
+    when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
+
+    Page<ReviewModel> reviewsPage = new PageImpl<>(List.of(this.review1), PageRequest.of(1, 5), 10);
+    when(this.reviewService.getReviewsByCompanyId(eq("1"), any())).thenReturn(reviewsPage);
+
+    mockMvc
+        .perform(
+            get("/api/companies/1")
+                .param("page", "1")
+                .param("size", "5")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.reviewsPagination.currentPage").value(1))
+        .andExpect(jsonPath("$.reviewsPagination.itemsPerPage").value(5));
+
+    verify(this.reviewService, times(1))
+        .getReviewsByCompanyId(
+            eq("1"), argThat(p -> p.getPageNumber() == 1 && p.getPageSize() == 5));
+  }
+
+  @Test
+  public void getCompanyById_withInvalidPageSize_expectCappedToMax() throws Exception {
+    when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
+
+    Page<ReviewModel> reviewsPage = new PageImpl<>(List.of(), PageRequest.of(0, 50), 0);
+    when(this.reviewService.getReviewsByCompanyId(eq("1"), any())).thenReturn(reviewsPage);
+
+    mockMvc
+        .perform(
+            get("/api/companies/1")
+                .param("size", "100") // Above max of 50
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk());
+
+    verify(this.reviewService, times(1))
+        .getReviewsByCompanyId(
+            eq("1"), argThat(p -> p.getPageSize() == PaginationConstants.REVIEW_MAX_SIZE));
   }
 
   @Test
@@ -308,5 +395,36 @@ public class CompanyControllerTest {
 
     verify(this.companyService, times(1))
         .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
+  }
+
+  @Test
+  public void getAllCompanies_whenNoCompanies_expectEmptyList() throws Exception {
+    when(this.companyService.getAllCompanies(isNull())).thenReturn(List.of());
+
+    mockMvc
+        .perform(get("/api/companies").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.companies").isArray())
+        .andExpect(jsonPath("$.companies").isEmpty())
+        .andExpect(jsonPath("$.pagination").doesNotExist());
+
+    verify(this.companyService, times(1)).getAllCompanies(isNull());
+  }
+
+  @Test
+  public void getAllCompanies_whenNoCompaniesWithPagination_expectEmptyWithPagination()
+      throws Exception {
+    Page<CompanyResponse> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
+    when(this.companyService.getAllCompanies(isNull(), any())).thenReturn(emptyPage);
+
+    mockMvc
+        .perform(
+            get("/api/companies")
+                .param("usePagination", "true")
+                .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.companies").isEmpty())
+        .andExpect(jsonPath("$.pagination.totalItems").value(0))
+        .andExpect(jsonPath("$.pagination.totalPages").value(0));
   }
 }

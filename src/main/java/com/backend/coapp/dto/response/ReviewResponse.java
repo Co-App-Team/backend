@@ -1,6 +1,7 @@
 package com.backend.coapp.dto.response;
 
 import com.backend.coapp.model.document.ReviewModel;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,16 +28,19 @@ public class ReviewResponse implements IResponse {
    */
   @Override
   public Map<String, Object> toMap() {
-    return Map.of(
-        "reviewId", this.reviewId,
-        "companyId", this.companyId,
-        "userId", this.userId,
-        "authorName", this.authorName,
-        "rating", this.rating,
-        "comment", this.comment,
-        "jobTitle", this.jobTitle,
-        "workTermSeason", this.workTermSeason,
-        "workTermYear", this.workTermYear);
+    // needs to be done with hash map to have a null comment since that is an optional field
+    // previous toMap strategy didn't allow for null comments
+    Map<String, Object> map = new HashMap<>();
+    map.put("reviewId", this.reviewId);
+    map.put("companyId", this.companyId);
+    map.put("userId", this.userId);
+    map.put("authorName", this.authorName);
+    map.put("rating", this.rating);
+    map.put("comment", this.comment); // Now null is allowed
+    map.put("jobTitle", this.jobTitle);
+    map.put("workTermSeason", this.workTermSeason);
+    map.put("workTermYear", this.workTermYear);
+    return map;
   }
 
   /**

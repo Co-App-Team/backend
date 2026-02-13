@@ -2,9 +2,13 @@ package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.request.GetAllCompaniesRequest;
+import com.backend.coapp.dto.request.GetCompanyByIdRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
+import com.backend.coapp.dto.response.ReviewResponse;
+import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.service.CompanyService;
+import com.backend.coapp.service.ReviewService;
 import com.backend.coapp.util.PaginationConstants;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,10 +31,12 @@ import org.springframework.web.bind.annotation.*;
 public class CompanyController {
 
   private final CompanyService companyService;
+  private final ReviewService reviewService;
 
   @Autowired
-  public CompanyController(CompanyService companyService) {
+  public CompanyController(CompanyService companyService, ReviewService reviewService) {
     this.companyService = companyService;
+    this.reviewService = reviewService;
   }
 
   /**
@@ -91,13 +97,31 @@ public class CompanyController {
    * @return ResponseEntity with company info
    */
   @GetMapping("/{companyId}")
-  public ResponseEntity<Map<String, Object>> getCompanyById(@PathVariable String companyId) {
-    CompanyResponse company = this.companyService.getCompanyById(companyId);
+  public ResponseEntity<Map<String, Object>> getCompanyById(
+      @PathVariable String companyId,
+      @RequestParam(required = false, defaultValue = PaginationConstants.REVIEW_DEFAULT_PAGE_STR)
+          Integer page,
+      @RequestParam(required = false, defaultValue = PaginationConstants.REVIEW_DEFAULT_SIZE_STR)
+          Integer size) {
+
+    GetCompanyByIdRequest request = new GetCompanyByIdRequest(companyId, page, size);
+    request.validateRequest();
+
+    CompanyResponse company = this.companyService.getCompanyById(request.getCompanyId());
+
+    Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+    Page<ReviewModel> reviewsPage =
+        this.reviewService.getReviewsByCompanyId(request.getCompanyId(), pageable);
+
+    List<Map<String, Object>> reviewsMaps = new ArrayList<>();
+    for (ReviewModel review : reviewsPage.getContent()) {
+      reviewsMaps.add(ReviewResponse.fromModel(review).toMap());
+    }
 
     Map<String, Object> response = new HashMap<>();
     response.put("company", company.toMap());
-
-    // TODO: Add reviews and reviewsPagination when ReviewService is implemented
+    response.put("reviews", reviewsMaps);
+    response.put("reviewsPagination", PaginationResponse.fromPage(reviewsPage).toMap());
 
     return ResponseEntity.ok(response);
   }

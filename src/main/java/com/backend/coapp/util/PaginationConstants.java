@@ -13,4 +13,10 @@ public class PaginationConstants {
   public static final String COMPANY_DEFAULT_PAGE_STR = "0";
   public static final String COMPANY_DEFAULT_SIZE_STR = "20";
   public static final String DEFAULT_USE_PAGINATION_STR = "false";
+  // review constants
+  public static final int REVIEW_DEFAULT_PAGE = 0;
+  public static final int REVIEW_DEFAULT_SIZE = 10;
+  public static final int REVIEW_MAX_SIZE = 50;
+  public static final String REVIEW_DEFAULT_PAGE_STR = "0";
+  public static final String REVIEW_DEFAULT_SIZE_STR = "10";
 }

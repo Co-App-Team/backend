@@ -12,6 +12,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -209,6 +211,24 @@ public class ReviewService {
     } catch (Exception ex) {
       log.error("Error deleting review: {}", reviewId, ex);
       throw new ReviewServiceFailException("Failed to delete review: " + ex.getMessage());
+    }
+  }
+
+  /**
+   * get all reviews for a company with pagination
+   *
+   * @param companyId ID of the company
+   * @param pageable pagination parameters
+   * @return page of ReviewModel
+   * @throws ReviewServiceFailException if database operation fails
+   */
+  public Page<ReviewModel> getReviewsByCompanyId(String companyId, Pageable pageable)
+      throws ReviewServiceFailException {
+    try {
+      return this.reviewRepository.findByCompanyId(companyId, pageable);
+    } catch (Exception ex) {
+      log.error("Error retrieving reviews for company: {}", companyId, ex);
+      throw new ReviewServiceFailException("Failed to retrieve reviews: " + ex.getMessage());
     }
   }
 }
