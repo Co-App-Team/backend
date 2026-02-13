@@ -3,7 +3,6 @@ package com.backend.coapp.service;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.CompanyModel;
-import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.ReviewRepository;
 import com.backend.coapp.util.UrlValidator;
@@ -160,21 +159,13 @@ public class CompanyService {
       }
       CompanyModel company = companyCheck.get();
 
-      List<ReviewModel> reviews = this.reviewRepository.findByCompanyId(companyId);
-
-      double avgRating = 0.0;
-      if (!reviews.isEmpty()) {
-        int totalRating = 0;
-        for (ReviewModel review : reviews) {
-          totalRating += review.getRating();
-        }
-        avgRating = (double) totalRating / reviews.size();
+      Double avgRating = this.reviewRepository.getAverageRatingByCompanyId(companyId);
+      if (avgRating == null) {
+        avgRating = 0.0;
       }
 
       company.setAvgRating(avgRating);
       this.companyRepository.save(company);
-
-      log.info("Company average rating updated: {} to {}", companyId, avgRating);
 
     } catch (CompanyNotFoundException e) {
       throw e; // do this so we can also catch other types of errors separately
