@@ -37,3 +37,6 @@ out/
 
 ### Secret env variable file ###
 local.properties
+
+### DS_Store files (for eric)
+.DS_Store
