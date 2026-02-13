@@ -104,5 +104,4 @@ public class UpdateReviewRequestTest {
     UpdateReviewRequest request = new UpdateReviewRequest(4, null, null, "   ", null);
     assertDoesNotThrow(request::validateRequest);
   }
-
 }
