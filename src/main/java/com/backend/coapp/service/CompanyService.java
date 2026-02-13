@@ -47,13 +47,10 @@ public class CompanyService {
     String nameLower = trimmedName.toLowerCase();
 
     // Check if company already exists
-    if (this.companyRepository.existsByCompanyNameLower(nameLower)) {
-      CompanyModel existingCompany =
-          this.companyRepository.findByCompanyNameLower(nameLower).orElse(null);
-
-      if (existingCompany != null) {
-        throw new CompanyAlreadyExistsException(existingCompany.getId());
-      }
+    CompanyModel existingCompany;
+    existingCompany = this.companyRepository.findByCompanyNameLower(nameLower).orElse(null);
+    if (existingCompany != null) {
+      throw new CompanyAlreadyExistsException(existingCompany.getId());
     }
 
     if (!UrlValidator.isValidUrl(website.trim())) {
