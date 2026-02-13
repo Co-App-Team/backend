@@ -1,10 +1,6 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.CompanyNotFoundException;
-import com.backend.coapp.exception.ReviewAlreadyExistsException;
-import com.backend.coapp.exception.ReviewNotFoundException;
-import com.backend.coapp.exception.ReviewNotOwnedException;
-import com.backend.coapp.exception.ReviewServiceFailException;
+import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.ReviewRepository;
@@ -231,4 +227,24 @@ public class ReviewService {
       throw new ReviewServiceFailException("Failed to retrieve reviews: " + ex.getMessage());
     }
   }
+
+  /**
+   * Verify that a review belongs to a specific company
+   *
+   * @param reviewId The review ID
+   * @param companyId The company ID to verify against
+   * @throws ReviewNotFoundException if review doesn't exist
+   * @throws InvalidRequestException if review doesn't belong to company
+   */
+  public void verifyReviewBelongsToCompany(String reviewId, String companyId)
+    throws ReviewNotFoundException, InvalidRequestException {
+    ReviewModel review = this.reviewRepository.findById(reviewId)
+      .orElseThrow(ReviewNotFoundException::new);
+
+    if (!review.getCompanyId().equals(companyId)) {
+      throw new InvalidRequestException(
+        "Review does not belong to the specified company.");
+    }
+  }
+
 }

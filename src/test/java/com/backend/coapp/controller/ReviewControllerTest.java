@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -412,7 +411,6 @@ public class ReviewControllerTest {
                 .content(this.objectMapper.writeValueAsString(requestWithoutComment))
                 .principal(this.authentication))
         .andExpect(status().isCreated())
-        .andDo(print()) // TODO: remove the anddoprint
         .andExpect(jsonPath("$.reviewId").value("review1"))
         .andExpect(jsonPath("$.rating").value(5))
         .andExpect(jsonPath("$.jobTitle").value("Software Developer"));

@@ -3,6 +3,7 @@ package com.backend.coapp.controller;
 import com.backend.coapp.dto.request.CreateReviewRequest;
 import com.backend.coapp.dto.request.UpdateReviewRequest;
 import com.backend.coapp.dto.response.ReviewResponse;
+import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ReviewService;
@@ -32,9 +33,9 @@ public class ReviewController {
   /**
    * Create a new review for a company
    *
-   * @param companyId The company ID from path parameter
+   * @param companyId company ID from path parameter
    * @param createRequest CreateReviewRequest DTO
-   * @param authentication Spring Security authentication object
+   * @param authentication authentication object
    * @return ResponseEntity with created review info
    */
   @PostMapping
@@ -45,8 +46,11 @@ public class ReviewController {
 
     createRequest.validateRequest();
 
-    // Extract user information from authentication
     UserModel user = (UserModel) authentication.getPrincipal();
+    if (user == null) {
+      throw new InvalidRequestException("User authentication is required.");
+    }
+
     String userId = user.getId();
     String authorName = user.getFirstName() + " " + user.getLastName();
 
@@ -68,10 +72,10 @@ public class ReviewController {
   /**
    * Update an existing review
    *
-   * @param companyId The company ID from path parameter
-   * @param reviewId The review ID from path parameter
+   * @param companyId company ID from path parameter
+   * @param reviewId review ID from path parameter
    * @param updateRequest UpdateReviewRequest DTO
-   * @param authentication Spring Security authentication object
+   * @param authentication authentication object
    * @return ResponseEntity with updated review info
    */
   @PutMapping("/{reviewId}")
@@ -83,9 +87,13 @@ public class ReviewController {
 
     updateRequest.validateRequest();
 
-    // Extract user ID from authentication
     UserModel user = (UserModel) authentication.getPrincipal();
+    if (user == null) {
+      throw new InvalidRequestException("User authentication is required.");
+    }
+
     String userId = user.getId();
+    this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId);
 
     ReviewModel review =
         this.reviewService.updateReview(
@@ -104,9 +112,9 @@ public class ReviewController {
   /**
    * Delete a review
    *
-   * @param companyId The company ID from path parameter
-   * @param reviewId The review ID from path parameter
-   * @param authentication Spring Security authentication object
+   * @param companyId company ID from path parameter
+   * @param reviewId review ID from path parameter
+   * @param authentication authentication object
    * @return ResponseEntity with success message
    */
   @DeleteMapping("/{reviewId}")
@@ -115,10 +123,13 @@ public class ReviewController {
       @PathVariable String reviewId,
       Authentication authentication) {
 
-    // Extract user ID from authentication
     UserModel user = (UserModel) authentication.getPrincipal();
-    assert user != null;
+    if (user == null) {
+      throw new InvalidRequestException("User authentication is required.");
+    }
+
     String userId = user.getId();
+    this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId);
 
     this.reviewService.deleteReview(reviewId, userId);
 
