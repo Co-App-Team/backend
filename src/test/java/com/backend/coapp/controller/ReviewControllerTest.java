@@ -36,17 +36,16 @@ public class ReviewControllerTest {
   @MockitoBean private Authentication authentication;
   @Autowired private ReviewController reviewController;
 
-  private UserModel mockUser;
   private ReviewModel mockReview;
   private CreateReviewRequest createRequest;
   private UpdateReviewRequest updateRequest;
 
   @BeforeEach
   public void setUp() {
-    this.mockUser = mock(UserModel.class);
-    when(this.mockUser.getId()).thenReturn("user1");
-    when(this.mockUser.getFirstName()).thenReturn("John");
-    when(this.mockUser.getLastName()).thenReturn("Doe");
+    UserModel mockUser = mock(UserModel.class);
+    when(mockUser.getId()).thenReturn("user1");
+    when(mockUser.getFirstName()).thenReturn("John");
+    when(mockUser.getLastName()).thenReturn("Doe");
 
     this.mockReview =
         new ReviewModel(
@@ -65,7 +64,7 @@ public class ReviewControllerTest {
 
     this.updateRequest = new UpdateReviewRequest(4, "Updated comment", null, null, null);
 
-    when(this.authentication.getPrincipal()).thenReturn(this.mockUser);
+    when(this.authentication.getPrincipal()).thenReturn(mockUser);
   }
 
   @Test
