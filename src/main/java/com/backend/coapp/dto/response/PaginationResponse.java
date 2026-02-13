@@ -36,9 +36,9 @@ public class PaginationResponse implements IResponse {
   }
 
   /**
-   * Creates PaginationResponse from Spring Data Page object
+   * maps spring data page object to PaginationResponse DTO
    *
-   * @param page The Spring Data Page object
+   * @param page Spring Data Page object
    * @return PaginationResponse DTO
    */
   public static PaginationResponse fromPage(Page<?> page) {

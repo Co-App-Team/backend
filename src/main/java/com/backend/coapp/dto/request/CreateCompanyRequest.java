@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/** DTO request for creating a new company. */
+/** DTO request for creating a new company */
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,8 +29,7 @@ public class CreateCompanyRequest implements IRequest {
     }
 
     if (!UrlValidator.isValidUrl(this.website)) {
-      throw new InvalidRequestException(
-          "Website must be a valid URL starting with http:// or https://");
+      throw new InvalidRequestException("The provided website URL is not valid.");
     }
   }
 }

@@ -10,6 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CompanyResponse implements IResponse {
 
+  // JSON keys
   private String companyId;
   private String companyName;
   private String location;
@@ -32,7 +33,7 @@ public class CompanyResponse implements IResponse {
   }
 
   /**
-   * Maps CompanyModel to CompanyResponse DTO
+   * Map CompanyModel to CompanyResponse DTO
    *
    * @param company The company model to map
    * @return CompanyResponse DTO

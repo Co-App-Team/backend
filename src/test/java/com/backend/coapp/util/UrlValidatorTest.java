@@ -21,8 +21,8 @@ public class UrlValidatorTest {
   }
 
   @Test
-  public void isValidUrl_whenUrlWithWhitespace_expectTrue() {
-    assertTrue(UrlValidator.isValidUrl("  https://example.com  "));
+  public void isValidUrl_whenUrlWithWhitespace_expectFalse() {
+    assertFalse(UrlValidator.isValidUrl("  https://example.com  "));
   }
 
   @Test

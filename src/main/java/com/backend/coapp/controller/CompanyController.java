@@ -5,10 +5,10 @@ import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.util.PaginationConstants;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,21 +35,20 @@ public class CompanyController {
   /**
    * Get all companies with optional search and pagination
    *
-   * @param searchString Optional search term for company name
-   * @param page Page number (0-indexed, default: 0)
-   * @param size Items per page (default: 20, max: 100)
-   * @param usePagination Whether to use pagination (default: false)
-   * @return ResponseEntity with companies list and optional pagination metadata
+   * @param search Optional search term for company name
+   * @param page Page number (default 0)
+   * @param size Items per page (default 20, max 100)
+   * @param usePagination Whether to use pagination (default false)
+   * @return ResponseEntity with companies list and optional pagination data
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAllCompanies(
-      @RequestParam(required = false) String searchString,
+      @RequestParam(required = false) String search,
       @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR) int page,
       @RequestParam(defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR) int size,
       @RequestParam(defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR)
           boolean usePagination) {
 
-    // Validate and cap page size
     if (size > PaginationConstants.COMPANY_MAX_SIZE) {
       size = PaginationConstants.COMPANY_MAX_SIZE;
     }
@@ -61,26 +60,29 @@ public class CompanyController {
     }
 
     Map<String, Object> response = new HashMap<>();
+    List<Map<String, Object>> companiesMaps = new ArrayList<>();
 
     if (usePagination) {
       Pageable pageable = PageRequest.of(page, size);
-      Page<CompanyResponse> companiesPage =
-          this.companyService.getAllCompanies(searchString, pageable);
+      Page<CompanyResponse> companiesPage = this.companyService.getAllCompanies(search, pageable);
 
-      List<Map<String, Object>> companiesMaps =
-          companiesPage.getContent().stream()
-              .map(CompanyResponse::toMap)
-              .collect(Collectors.toList());
+      for (CompanyResponse company : companiesPage.getContent()) {
+        companiesMaps.add(company.toMap());
+      }
 
-      PaginationResponse paginationResponse = PaginationResponse.fromPage(companiesPage);
+      Map<String, Object> paginationResponseMap =
+          PaginationResponse.fromPage(companiesPage).toMap();
 
       response.put("companies", companiesMaps);
-      response.put("pagination", paginationResponse.toMap());
-    } else {
-      List<CompanyResponse> companies = this.companyService.getAllCompanies(searchString);
+      response.put("pagination", paginationResponseMap);
 
-      List<Map<String, Object>> companiesMaps =
-          companies.stream().map(CompanyResponse::toMap).collect(Collectors.toList());
+    } else { // no pagination
+
+      List<CompanyResponse> companies = this.companyService.getAllCompanies(search);
+
+      for (CompanyResponse company : companies) {
+        companiesMaps.add(company.toMap());
+      }
 
       response.put("companies", companiesMaps);
     }
@@ -89,11 +91,10 @@ public class CompanyController {
   }
 
   /**
-   * Get company profile by ID Note: This endpoint will be extended to include reviews in a future
-   * implementation
+   * Get company profile with ID
    *
-   * @param companyId The company ID
-   * @return ResponseEntity with company information
+   * @param companyId company ID
+   * @return ResponseEntity with company info
    */
   @GetMapping("/{companyId}")
   public ResponseEntity<Map<String, Object>> getCompanyById(@PathVariable String companyId) {
@@ -111,11 +112,12 @@ public class CompanyController {
    * Create a new company
    *
    * @param createRequest CreateCompanyRequest DTO
-   * @return ResponseEntity with created company information
+   * @return ResponseEntity with created company info
    */
   @PostMapping
   public ResponseEntity<Map<String, Object>> createCompany(
       @RequestBody CreateCompanyRequest createRequest) {
+
     createRequest.validateRequest();
 
     CompanyResponse company =

@@ -1,6 +1,6 @@
 package com.backend.coapp.exception;
 
-/** This exception will be thrown when a company is not found. */
+/** thrown when a company is not found */
 public class CompanyNotFoundException extends RuntimeException {
 
   public CompanyNotFoundException() {

@@ -40,7 +40,6 @@ public class CompanyServiceTest {
   private CompanyService companyService;
 
   private CompanyModel nicheCompany;
-  private CompanyModel varianCompany;
 
   @BeforeEach
   public void setUp() {
@@ -50,8 +49,9 @@ public class CompanyServiceTest {
     this.nicheCompany = new CompanyModel("Niche", "Winnipeg", "https://niche.com");
     this.companyRepository.save(this.nicheCompany);
 
-    this.varianCompany = new CompanyModel("Varian", "Winnipeg", "https://varian.com");
-    this.companyRepository.save(this.varianCompany);
+    // use for pagination related tests (e.g. see if count == 2 in some cases below)
+    CompanyModel varianCompany = new CompanyModel("Varian", "Winnipeg", "https://varian.com");
+    this.companyRepository.save(varianCompany);
 
     this.companyService = new CompanyService(this.companyRepository, this.reviewRepository);
     this.mockCompanyRepository = Mockito.mock(CompanyRepository.class);
@@ -64,7 +64,7 @@ public class CompanyServiceTest {
     assertSame(this.reviewRepository, this.companyService.getReviewRepository());
   }
 
-  // ===== CREATE COMPANY TESTS =====
+  // test creating companies
 
   @Test
   public void createCompany_whenValidData_expectSuccess() {
@@ -116,7 +116,7 @@ public class CompanyServiceTest {
     verify(this.mockCompanyRepository, times(1)).save(any(CompanyModel.class));
   }
 
-  // ===== GET ALL COMPANIES TESTS =====
+  // test get all companies
 
   @Test
   public void getAllCompanies_withPagination_expectSuccess() {
@@ -163,7 +163,7 @@ public class CompanyServiceTest {
         () -> this.companyService.getAllCompanies(null, pageable));
   }
 
-  // ===== GET COMPANY BY ID TESTS =====
+  // test get company by id
 
   @Test
   public void getCompanyById_whenExists_expectSuccess() {
@@ -189,7 +189,7 @@ public class CompanyServiceTest {
         CompanyServiceFailException.class, () -> this.companyService.getCompanyById("someid"));
   }
 
-  // ===== UPDATE AVG RATING TESTS =====
+  // test updating average rating
 
   @Test
   public void updateAvgRating_whenNoReviews_expectZeroRating() {
@@ -234,13 +234,16 @@ public class CompanyServiceTest {
     ReviewModel review2 =
         new ReviewModel(
             this.nicheCompany.getId(), "user2", "Jane Smith", 3, "Good", "Engineer", "Fall", 2024);
+
     this.reviewRepository.save(review1);
-    this.reviewRepository.save(review2);
-
     assertDoesNotThrow(() -> this.companyService.updateAvgRating(this.nicheCompany.getId()));
-
     CompanyModel updated = this.companyRepository.findById(this.nicheCompany.getId()).get();
-    assertEquals(4.0, updated.getAvgRating()); // (5 + 3) / 2 = 4.0
+    assertEquals(5.0, updated.getAvgRating());
+
+    this.reviewRepository.save(review2);
+    assertDoesNotThrow(() -> this.companyService.updateAvgRating(this.nicheCompany.getId()));
+    updated = this.companyRepository.findById(this.nicheCompany.getId()).get();
+    assertEquals(4.0, updated.getAvgRating());
   }
 
   @Test
@@ -278,12 +281,10 @@ public class CompanyServiceTest {
   public void getAllCompanies_withBlankSearch_expectAllResults() {
     Pageable pageable = PageRequest.of(0, 10);
 
-    // Test with empty string
     Page<CompanyResponse> page1 = this.companyService.getAllCompanies("", pageable);
     assertNotNull(page1);
     assertEquals(2, page1.getTotalElements());
 
-    // Test with whitespace
     Page<CompanyResponse> page2 = this.companyService.getAllCompanies("   ", pageable);
     assertNotNull(page2);
     assertEquals(2, page2.getTotalElements());

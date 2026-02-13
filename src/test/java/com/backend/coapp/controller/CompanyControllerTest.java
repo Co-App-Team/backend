@@ -13,6 +13,7 @@ import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.service.JwtService;
+import com.backend.coapp.util.PaginationConstants;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ public class CompanyControllerTest {
     assertEquals(this.companyController.getCompanyService(), this.companyService);
   }
 
-  // ===== GET ALL COMPANIES TESTS =====
+  // test get all companies
 
   @Test
   public void getAllCompanies_withoutPagination_expect200AndCompaniesList() throws Exception {
@@ -101,9 +102,7 @@ public class CompanyControllerTest {
 
     mockMvc
         .perform(
-            get("/api/companies")
-                .param("searchString", "niche")
-                .contentType(MediaType.APPLICATION_JSON))
+            get("/api/companies").param("search", "niche").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.companies").isArray())
         .andExpect(jsonPath("$.companies[0].companyName").value("Niche"));
@@ -114,7 +113,10 @@ public class CompanyControllerTest {
   @Test
   public void getAllCompanies_withCustomPageSize_expectCappedSize() throws Exception {
     Page<CompanyResponse> page =
-        new PageImpl<>(List.of(this.nicheResponse), PageRequest.of(0, 100), 1);
+        new PageImpl<>(
+            List.of(this.nicheResponse),
+            PageRequest.of(0, PaginationConstants.COMPANY_MAX_SIZE),
+            1);
     when(this.companyService.getAllCompanies(isNull(), any())).thenReturn(page);
 
     mockMvc
@@ -125,15 +127,18 @@ public class CompanyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    // Verify that size was capped to 100 (max)
     verify(this.companyService, times(1))
-        .getAllCompanies(isNull(), argThat(p -> p.getPageSize() == 100));
+        .getAllCompanies(
+            isNull(), argThat(p -> p.getPageSize() == PaginationConstants.COMPANY_MAX_SIZE));
   }
 
   @Test
   public void getAllCompanies_withInvalidSize_expectDefaultSize() throws Exception {
     Page<CompanyResponse> page =
-        new PageImpl<>(List.of(this.nicheResponse), PageRequest.of(0, 20), 1);
+        new PageImpl<>(
+            List.of(this.nicheResponse),
+            PageRequest.of(0, PaginationConstants.COMPANY_DEFAULT_SIZE),
+            1);
     when(this.companyService.getAllCompanies(isNull(), any())).thenReturn(page);
 
     mockMvc
@@ -146,7 +151,8 @@ public class CompanyControllerTest {
 
     // Verify that size was set to default (20)
     verify(this.companyService, times(1))
-        .getAllCompanies(isNull(), argThat(p -> p.getPageSize() == 20));
+        .getAllCompanies(
+            isNull(), argThat(p -> p.getPageSize() == PaginationConstants.COMPANY_DEFAULT_SIZE));
   }
 
   @Test
@@ -163,12 +169,11 @@ public class CompanyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    // Verify that page was set to 0
     verify(this.companyService, times(1))
         .getAllCompanies(isNull(), argThat(p -> p.getPageNumber() == 0));
   }
 
-  // ===== GET COMPANY BY ID TESTS =====
+  // test get company by id
 
   @Test
   public void getCompanyById_whenExists_expect200AndCompany() throws Exception {
@@ -211,7 +216,7 @@ public class CompanyControllerTest {
     verify(this.companyService, times(1)).getCompanyById("1");
   }
 
-  // ===== CREATE COMPANY TESTS =====
+  // test creation of companies
 
   @Test
   public void createCompany_whenValid_expect201AndCompany() throws Exception {

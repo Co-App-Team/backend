@@ -2,7 +2,7 @@ package com.backend.coapp.exception;
 
 import lombok.Getter;
 
-/** This exception will be thrown when attempting to create a company that already exists. */
+/** thrown when attempting to create a company that already exists */
 @Getter
 public class CompanyAlreadyExistsException extends RuntimeException {
 

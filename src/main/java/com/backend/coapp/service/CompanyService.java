@@ -32,9 +32,9 @@ public class CompanyService {
   /**
    * Create a new company
    *
-   * @param companyName The company name
-   * @param location The company location
-   * @param website The company website URL
+   * @param companyName company name
+   * @param location company location
+   * @param website company website URL
    * @return CompanyResponse DTO
    * @throws CompanyAlreadyExistsException if company with this name already exists
    * @throws InvalidWebsiteException if website URL is invalid
@@ -53,28 +53,28 @@ public class CompanyService {
       throw new CompanyAlreadyExistsException(existingCompany.getId());
     }
 
-    if (!UrlValidator.isValidUrl(website)) {
+    if (!UrlValidator.isValidUrl(website.trim())) {
       throw new InvalidWebsiteException();
     }
 
     try {
       CompanyModel company = new CompanyModel(trimmedName, location.trim(), website.trim());
       CompanyModel savedCompany = this.companyRepository.save(company);
-      log.info("Company created successfully: {}", savedCompany.getId());
+      log.info("company created successfully: {}", savedCompany.getId());
       return CompanyResponse.fromModel(savedCompany);
 
     } catch (Exception e) {
-      log.error("Failed to create company: {}", e.getMessage());
-      throw new CompanyServiceFailException("Failed to create company. Please try again.");
+      log.error("failed to create company: {}", e.getMessage());
+      throw new CompanyServiceFailException("failed to create company. Please try again.");
     }
   }
 
   /**
-   * Get all companies with optional search and pagination
+   * Get all companies with optional search and with pagination
    *
-   * @param searchString Optional search term for company name (case-insensitive, partial match)
-   * @param pageable Pagination parameters
-   * @return Page of CompanyResponse DTOs
+   * @param searchString search term for company name: optional, case-insensitive, partial match
+   * @param pageable pagination parameters
+   * @return page of CompanyResponse DTOs
    * @throws CompanyServiceFailException if database operation fails
    */
   public Page<CompanyResponse> getAllCompanies(String searchString, Pageable pageable)
@@ -93,9 +93,9 @@ public class CompanyService {
       return companies.map(CompanyResponse::fromModel);
 
     } catch (Exception e) {
-      log.error("Failed to retrieve companies: {}", e.getMessage());
+      log.error("failed to retrieve companies: {}", e.getMessage());
       throw new CompanyServiceFailException(
-          "Failed to retrieve companies. Please try again later.");
+          "failed to retrieve companies. Please try again later.");
     }
   }
 
@@ -108,14 +108,13 @@ public class CompanyService {
    */
   public List<CompanyResponse> getAllCompanies(String search) throws CompanyServiceFailException {
     // unpaged allows us to just do the above method without any pagination
-    Page<CompanyResponse> page = getAllCompanies(search, Pageable.unpaged());
-    return page.getContent();
+    return getAllCompanies(search, Pageable.unpaged()).getContent();
   }
 
   /**
-   * Get company by ID
+   * Get company using ID
    *
-   * @param companyId The company ID
+   * @param companyId company ID
    * @return CompanyResponse DTO
    * @throws CompanyNotFoundException if company not found
    * @throws CompanyServiceFailException if database operation fails
@@ -142,11 +141,13 @@ public class CompanyService {
   }
 
   /**
-   * Update company average rating based on all reviews for this company. This method should be
-   * called whenever a review is created, updated, or deleted. It fetches all reviews for the
-   * company and recalculates the average rating.
+   * Update company average rating based on all reviews for this company.
    *
-   * @param companyId The company ID
+   * <p>This method should be called whenever a review is created, updated, or deleted.
+   *
+   * <p>All reviews are fetched and used to recalculate average
+   *
+   * @param companyId company ID
    * @throws CompanyNotFoundException if company not found
    * @throws CompanyServiceFailException if database operation fails
    */
