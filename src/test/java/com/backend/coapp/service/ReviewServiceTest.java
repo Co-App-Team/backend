@@ -355,4 +355,24 @@ public class ReviewServiceTest {
     assertEquals("Comment with spaces", updated.getComment());
     assertEquals("Job with spaces", updated.getJobTitle());
   }
+
+  @Test
+  public void updateReview_whenCommentIsNull_expectNoCommentUpdate() {
+    String originalComment = this.testReview.getComment();
+
+    ReviewModel updated =
+      this.reviewService.updateReview(
+        this.testReview.getId(),
+        "user1",
+        4,
+        null,
+        "New Job Title",
+        null,
+        null);
+
+    assertNotNull(updated);
+    assertEquals(4, updated.getRating());
+    assertEquals(originalComment, updated.getComment()); // comment unchanged
+    assertEquals("New Job Title", updated.getJobTitle());
+  }
 }
