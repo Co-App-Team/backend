@@ -2,10 +2,13 @@ package com.backend.coapp.handler;
 
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
+import com.backend.coapp.model.enumeration.CompanyErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
 import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -151,5 +154,42 @@ public class GlobalExceptionHandler {
                 SystemErrorCodeEnum.INTERNAL_ERROR,
                 "message",
                 "User service fail. Please try again."));
+  }
+
+  @ExceptionHandler(CompanyAlreadyExistsException.class)
+  public ResponseEntity<Map<String, Object>> handleCompanyAlreadyExistsException(
+      CompanyAlreadyExistsException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("error", CompanyErrorCodeEnum.COMPANY_ALREADY_EXISTS);
+    response.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
+
+  @ExceptionHandler(CompanyNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleCompanyNotFoundException(
+      CompanyNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(Map.of("error", CompanyErrorCodeEnum.COMPANY_NOT_FOUND, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(InvalidWebsiteException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidWebsiteException(
+      InvalidWebsiteException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", CompanyErrorCodeEnum.INVALID_WEBSITE, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(CompanyServiceFailException.class)
+  public ResponseEntity<Map<String, Object>> handleCompanyServiceFailException(
+      CompanyServiceFailException ex) {
+    String errorMessage = "ERROR: Company Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCodeEnum.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your request."));
   }
 }
