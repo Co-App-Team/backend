@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/common")
 public class CommonController {
 
-  private static final List<String> TERM_SEASONS = List.of("Winter", "Summer", "Fall");
-
   /**
    * Get all term seasons
    *
