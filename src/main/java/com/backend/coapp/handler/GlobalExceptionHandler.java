@@ -4,6 +4,7 @@ import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.CompanyErrorCodeEnum;
 import com.backend.coapp.model.enumeration.RequestErrorCode;
+import com.backend.coapp.model.enumeration.ReviewErrorCodeEnum;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
 import java.util.HashMap;
 import java.util.Map;
@@ -183,5 +184,42 @@ public class GlobalExceptionHandler {
                 SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "An unexpected error occurred while processing your request."));
+  }
+
+  @ExceptionHandler(ReviewAlreadyExistsException.class)
+  public ResponseEntity<Map<String, Object>> handleReviewAlreadyExistsException(
+      ReviewAlreadyExistsException ex) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("error", ReviewErrorCodeEnum.REVIEW_ALREADY_EXISTS);
+    response.put("message", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+  }
+
+  @ExceptionHandler(ReviewNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleReviewNotFoundException(
+      ReviewNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(Map.of("error", ReviewErrorCodeEnum.REVIEW_NOT_FOUND, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ReviewNotOwnedException.class)
+  public ResponseEntity<Map<String, Object>> handleReviewNotOwnedException(
+      ReviewNotOwnedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(Map.of("error", ReviewErrorCodeEnum.REVIEW_NOT_OWNED, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ReviewServiceFailException.class)
+  public ResponseEntity<Map<String, Object>> handleReviewServiceFailException(
+      ReviewServiceFailException ex) {
+    String errorMessage = "ERROR: Review Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your review."));
   }
 }

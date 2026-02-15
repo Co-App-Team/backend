@@ -6,10 +6,7 @@ import lombok.Getter;
 @Getter
 public class ReviewAlreadyExistsException extends RuntimeException {
 
-  private final String existingReviewId;
-
-  public ReviewAlreadyExistsException(String existingReviewId) {
+  public ReviewAlreadyExistsException() {
     super("You have already submitted a review for this company.");
-    this.existingReviewId = existingReviewId;
   }
 }
