@@ -450,4 +450,70 @@ public class ReviewServiceTest {
     assertEquals(2, reviewsPage.getContent().size());
     assertEquals(3, reviewsPage.getTotalPages());
   }
+
+  @Test
+  public void verifyReviewBelongsToCompany_withNullReviewId_expectException() {
+    assertThrows(
+        Exception.class, () -> this.reviewService.verifyReviewBelongsToCompany(null, "companyId"));
+  }
+
+  @Test
+  public void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
+    assertDoesNotThrow(
+        () ->
+            this.reviewService.verifyReviewBelongsToCompany(
+                this.testReview.getId(), this.nicheCompany.getId()));
+  }
+
+  @Test
+  public void verifyReviewBelongsToCompany_whenReviewNotFound_expectReviewNotFoundException() {
+    assertThrows(
+        ReviewNotFoundException.class,
+        () -> this.reviewService.verifyReviewBelongsToCompany("nonexistent-id", "company1"));
+  }
+
+  @Test
+  public void
+      verifyReviewBelongsToCompany_whenReviewBelongsToDifferentCompany_expectInvalidRequestException() {
+    // Create a second company
+    CompanyModel otherCompany = new CompanyModel("Other Company", "Toronto", "https://other.com");
+    this.companyRepository.save(otherCompany);
+
+    // testReview belongs to nicheCompany, not otherCompany
+    InvalidRequestException exception =
+        assertThrows(
+            InvalidRequestException.class,
+            () ->
+                this.reviewService.verifyReviewBelongsToCompany(
+                    this.testReview.getId(), otherCompany.getId()));
+
+    assertTrue(exception.getMessage().contains("does not belong to the specified company"));
+  }
+
+  @Test
+  public void verifyReviewBelongsToCompany_whenMultipleReviewsForCompany_expectNoException() {
+    // Create another review for the same company
+    ReviewModel review2 =
+        new ReviewModel(
+            this.nicheCompany.getId(),
+            "user2",
+            "Jane Smith",
+            4,
+            "Good place",
+            "Developer",
+            "Fall",
+            2023);
+    this.reviewRepository.save(review2);
+
+    // Verify both reviews belong to nicheCompany
+    assertDoesNotThrow(
+        () ->
+            this.reviewService.verifyReviewBelongsToCompany(
+                this.testReview.getId(), this.nicheCompany.getId()));
+
+    assertDoesNotThrow(
+        () ->
+            this.reviewService.verifyReviewBelongsToCompany(
+                review2.getId(), this.nicheCompany.getId()));
+  }
 }
