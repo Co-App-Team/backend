@@ -8,10 +8,9 @@ public class ReviewAlreadyExistsExceptionTest {
 
   @Test
   public void constructor_whenInitWithId_expectMessageAndId() {
-    ReviewAlreadyExistsException exception = new ReviewAlreadyExistsException("review123");
+    ReviewAlreadyExistsException exception = new ReviewAlreadyExistsException();
     assertNotNull(exception);
     assertEquals("You have already submitted a review for this company.", exception.getMessage());
-    assertEquals("review123", exception.getExistingReviewId());
     assertNull(exception.getCause());
   }
 }
