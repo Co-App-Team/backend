@@ -11,7 +11,7 @@ public class GetCompanyByIdRequestTest {
   @Test
   public void validateRequest_withValidData_expectNoException() {
     GetCompanyByIdRequest request =
-      new GetCompanyByIdRequest("company1", 0, PaginationConstants.REVIEW_DEFAULT_SIZE);
+        new GetCompanyByIdRequest("company1", 0, PaginationConstants.REVIEW_DEFAULT_SIZE);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals("company1", request.getCompanyId());
@@ -24,7 +24,7 @@ public class GetCompanyByIdRequestTest {
     GetCompanyByIdRequest request = new GetCompanyByIdRequest(null, 0, 10);
 
     InvalidRequestException exception =
-      assertThrows(InvalidRequestException.class, request::validateRequest);
+        assertThrows(InvalidRequestException.class, request::validateRequest);
     assertTrue(exception.getMessage().contains("Company ID cannot be null or empty"));
   }
 
@@ -33,7 +33,7 @@ public class GetCompanyByIdRequestTest {
     GetCompanyByIdRequest request = new GetCompanyByIdRequest("   ", 0, 10);
 
     InvalidRequestException exception =
-      assertThrows(InvalidRequestException.class, request::validateRequest);
+        assertThrows(InvalidRequestException.class, request::validateRequest);
     assertTrue(exception.getMessage().contains("Company ID cannot be null or empty"));
   }
 
@@ -72,7 +72,7 @@ public class GetCompanyByIdRequestTest {
   @Test
   public void validateRequest_withSizeAboveMax_expectCappedSize() {
     GetCompanyByIdRequest request =
-      new GetCompanyByIdRequest("company1", 0, PaginationConstants.REVIEW_MAX_SIZE + 10);
+        new GetCompanyByIdRequest("company1", 0, PaginationConstants.REVIEW_MAX_SIZE + 10);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_MAX_SIZE, request.getSize());
@@ -81,7 +81,7 @@ public class GetCompanyByIdRequestTest {
   @Test
   public void validateRequest_withValidMaxSize_expectNoChange() {
     GetCompanyByIdRequest request =
-      new GetCompanyByIdRequest("company1", 0, PaginationConstants.REVIEW_MAX_SIZE);
+        new GetCompanyByIdRequest("company1", 0, PaginationConstants.REVIEW_MAX_SIZE);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_MAX_SIZE, request.getSize());
