@@ -36,7 +36,7 @@ public class CommonControllerTest {
   @Test
   public void getTermSeasons_expectArrayOfSeasons() throws Exception {
     mockMvc
-        .perform(get("/api/common/termSeasons").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/common/term-seasons").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$[0]").isString())
@@ -48,7 +48,7 @@ public class CommonControllerTest {
   public void getTermSeasons_expectNonEmptyArray() throws Exception {
     MvcResult result =
         mockMvc
-            .perform(get("/api/common/termSeasons").contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/common/term-seasons").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
             .andReturn();
@@ -66,7 +66,7 @@ public class CommonControllerTest {
   @Test
   public void getTermSeasons_expectValidSeasonNames() throws Exception {
     mockMvc
-        .perform(get("/api/common/termSeasons").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/common/term-seasons").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray())
         .andExpect(jsonPath("$.length()").value(3));
@@ -77,7 +77,7 @@ public class CommonControllerTest {
   @Test
   public void getTermYearRange_expectLowerAndUpperBoundFields() throws Exception {
     mockMvc
-        .perform(get("/api/common/termYearRange").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/common/term-year-range").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.lowerBound").exists())
         .andExpect(jsonPath("$.upperBound").exists());
@@ -87,7 +87,7 @@ public class CommonControllerTest {
   public void getTermYearRange_expectValidYearValues() throws Exception {
     MvcResult result =
         mockMvc
-            .perform(get("/api/common/termYearRange").contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/common/term-year-range").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -111,7 +111,7 @@ public class CommonControllerTest {
     int maxYear = WorkTermValidator.getMaxYear();
 
     mockMvc
-        .perform(get("/api/common/termYearRange").contentType(MediaType.APPLICATION_JSON))
+        .perform(get("/api/common/term-year-range").contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.lowerBound").value(String.valueOf(minYear)))
         .andExpect(jsonPath("$.upperBound").value(String.valueOf(maxYear)));
@@ -123,7 +123,7 @@ public class CommonControllerTest {
 
     MvcResult result =
         mockMvc
-            .perform(get("/api/common/termYearRange").contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/common/term-year-range").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -142,7 +142,7 @@ public class CommonControllerTest {
   public void getTermYearRange_expectLowerBoundLessThanUpperBound() throws Exception {
     MvcResult result =
         mockMvc
-            .perform(get("/api/common/termYearRange").contentType(MediaType.APPLICATION_JSON))
+            .perform(get("/api/common/term-year-range").contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 

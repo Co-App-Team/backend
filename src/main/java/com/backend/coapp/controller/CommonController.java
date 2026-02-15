@@ -23,7 +23,7 @@ public class CommonController {
    *
    * @return ResponseEntity with list of term seasons
    */
-  @GetMapping("/termSeasons")
+  @GetMapping("/term-seasons")
   public ResponseEntity<List<String>> getTermSeasons() {
     List<String> seasons = new ArrayList<>();
     for (WorkTermSeasonEnum season : WorkTermSeasonEnum.values()) {
@@ -38,7 +38,7 @@ public class CommonController {
    *
    * @return ResponseEntity with year range bounds
    */
-  @GetMapping("/termYearRange")
+  @GetMapping("/term-year-range")
   public ResponseEntity<Map<String, String>> getTermYearRange() {
 
     Map<String, String> yearRange =
