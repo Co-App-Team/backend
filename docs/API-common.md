@@ -14,7 +14,7 @@ N/A
 
 # Get Terms
 
-**Path:** `/api/common/termSeasons`
+**Path:** `/api/common/term-seasons`
 
 **Method:** `GET`
 
@@ -45,7 +45,7 @@ N/A
 
 # Get Term Year Range
 
-**Path:** `/api/common/termYearRange`
+**Path:** `/api/common/term-year-range`
 
 **Method:** `GET`
 
