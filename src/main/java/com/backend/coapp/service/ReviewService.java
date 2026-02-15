@@ -96,8 +96,6 @@ public class ReviewService {
       throw new ReviewServiceFailException("Failed to create review: " + ex.getMessage());
 
     } catch (Exception ex) {
-
-      log.error("Error creating review for company: {}", companyId, ex);
       throw new ReviewServiceFailException("Failed to create review: " + ex.getMessage());
     }
   }
