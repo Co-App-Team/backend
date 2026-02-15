@@ -3,7 +3,6 @@ package com.backend.coapp.controller;
 import com.backend.coapp.dto.request.CreateReviewRequest;
 import com.backend.coapp.dto.request.UpdateReviewRequest;
 import com.backend.coapp.dto.response.ReviewResponse;
-import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ReviewService;

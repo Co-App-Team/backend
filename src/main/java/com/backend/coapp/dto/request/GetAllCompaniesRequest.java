@@ -17,6 +17,7 @@ public class GetAllCompaniesRequest {
   private Integer page = PaginationConstants.COMPANY_DEFAULT_PAGE;
   private Integer size = PaginationConstants.COMPANY_DEFAULT_SIZE;
   private Boolean usePagination = PaginationConstants.DEFAULT_USE_PAGINATION;
+
   /* Validates and sanitizes the query parameters for getting all companies */
   public void validateRequest() {
     if (this.page == null) {

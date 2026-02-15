@@ -9,7 +9,6 @@ import com.backend.coapp.dto.response.ReviewResponse;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.service.ReviewService;
-import com.backend.coapp.util.PaginationConstants;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +45,8 @@ public class CompanyController {
    * @return ResponseEntity with companies list and optional pagination data
    */
   @GetMapping
-  public ResponseEntity<Map<String, Object>> getAllCompanies(@ModelAttribute GetAllCompaniesRequest request) {
+  public ResponseEntity<Map<String, Object>> getAllCompanies(
+      @ModelAttribute GetAllCompaniesRequest request) {
 
     request.validateRequest();
 
@@ -87,8 +87,9 @@ public class CompanyController {
    */
   @GetMapping("/{companyId}")
   public ResponseEntity<Map<String, Object>> getCompanyById(
-    @PathVariable String companyId, // since ModelAttribute only binds query params, we need this here
-    @ModelAttribute GetCompanyByIdRequest request) {
+      @PathVariable
+          String companyId, // since ModelAttribute only binds query params, we need this here
+      @ModelAttribute GetCompanyByIdRequest request) {
 
     request.setCompanyId(companyId);
     request.validateRequest();
