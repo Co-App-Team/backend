@@ -12,8 +12,8 @@ import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.AuthBadCredentialException;
 import com.backend.coapp.exception.UserServiceFailException;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
-import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import com.backend.coapp.model.enumeration.AuthErrorCode;
+import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.service.JwtService;
 import com.backend.coapp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,7 +94,7 @@ public class UserControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.message").isNotEmpty())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_EMAIL_OR_PASSWORD.name()));
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_EMAIL_OR_PASSWORD.name()));
     ;
 
     verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
@@ -113,7 +113,7 @@ public class UserControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.message").isNotEmpty())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()));
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
     ;
 
     verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");

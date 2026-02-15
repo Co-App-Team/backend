@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.handler.GlobalExceptionHandler;
 import com.backend.coapp.model.enumeration.ReviewErrorCodeEnum;
-import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import com.backend.coapp.model.enumeration.SystemErrorCode;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,7 +73,7 @@ public class ReviewControllerTest {
 
     assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     assertNotNull(response.getBody());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR, response.getBody().get("error"));
+    assertEquals(SystemErrorCode.INTERNAL_ERROR, response.getBody().get("error"));
     assertTrue(response.getBody().get("message").toString().contains("unexpected error occurred"));
   }
 }

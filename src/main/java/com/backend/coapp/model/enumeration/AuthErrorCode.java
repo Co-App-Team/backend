@@ -1,7 +1,7 @@
 package com.backend.coapp.model.enumeration;
 
 /** All possible error codes returned from Authentication Service. */
-public enum AuthErrorCodeEnum {
+public enum AuthErrorCode {
   INVALID_EMAIL,
   EMAIL_NOT_REGISTERED,
   EXIST_ACCOUNT_WITH_EMAIL,

@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,29 +25,39 @@ public class UserServiceTest {
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
   @Autowired private UserRepository userRepository;
+  @Autowired private PasswordEncoder passwordEncoder;
+
   private UserRepository mockUserRepository;
   private UserService userService;
   private UserModel fooUserNotActivated;
   private UserModel fooUserActivated;
+  private final String rawPassword = "password123";
 
   @BeforeEach
   public void setUp() {
     this.userRepository.deleteAll();
     this.fooUserNotActivated =
-        new UserModel("123", "foo@mail.com", "password123", "foo", "woof", false, 123);
+        new UserModel(
+            "123",
+            "foo@mail.com",
+            this.passwordEncoder.encode(rawPassword),
+            "foo",
+            "woof",
+            false,
+            123);
     this.userRepository.save(fooUserNotActivated);
     this.fooUserActivated =
         new UserModel(
             "789",
             "fooActivated@mail.com",
-            "password123",
+            this.passwordEncoder.encode(rawPassword),
             "fooActivated",
             "woof",
             true,
             UserModel.DEFAULT_VERIFICATION_CODE);
     this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
-    this.userService = new UserService(this.userRepository);
+    this.userService = new UserService(this.userRepository, this.passwordEncoder);
     this.mockUserRepository = Mockito.mock(UserRepository.class);
   }
 
@@ -70,10 +81,10 @@ public class UserServiceTest {
     assertDoesNotThrow(
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
+                this.fooUserActivated.getId(), this.rawPassword, "newPassword"));
     UserModel user = this.userRepository.findUserModelById(this.fooUserActivated.getId());
     assertNotNull(user);
-    assertEquals("newPassword", user.getPassword());
+    assertTrue(this.passwordEncoder.matches("newPassword", user.getPassword()));
   }
 
   @Test
@@ -105,7 +116,7 @@ public class UserServiceTest {
 
   @Test
   public void udpatePassword_whenDatabaseSaveOperationFail_expectException() {
-    this.userService = new UserService(this.mockUserRepository);
+    this.userService = new UserService(this.mockUserRepository, this.passwordEncoder);
 
     when(this.mockUserRepository.save(any(UserModel.class))).thenThrow(new RuntimeException());
     when(this.mockUserRepository.findUserModelById(anyString())).thenReturn(this.fooUserActivated);
@@ -114,14 +125,14 @@ public class UserServiceTest {
         UserServiceFailException.class,
         () ->
             this.userService.udpateUserPassword(
-                this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
+                this.fooUserActivated.getId(), this.rawPassword, "newPassword"));
 
     verify(this.mockUserRepository, times(1)).save(any(UserModel.class));
   }
 
   @Test
   public void udpatePassword_whenDatabaseFindOperationFail_expectException() {
-    this.userService = new UserService(this.mockUserRepository);
+    this.userService = new UserService(this.mockUserRepository, this.passwordEncoder);
 
     when(this.mockUserRepository.findUserModelById(any())).thenThrow(new RuntimeException());
 

@@ -1,11 +1,11 @@
 package com.backend.coapp.handler;
 
 import com.backend.coapp.exception.*;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
+import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.CompanyErrorCodeEnum;
-import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
+import com.backend.coapp.model.enumeration.RequestErrorCode;
 import com.backend.coapp.model.enumeration.ReviewErrorCodeEnum;
-import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import com.backend.coapp.model.enumeration.SystemErrorCode;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -22,11 +22,11 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(InvalidRequestException.class)
   public ResponseEntity<Map<String, Object>> handleInvalidRequest(InvalidRequestException ex) {
-    return ResponseEntity.status(400)
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
             Map.of(
                 "error",
-                RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
+                RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
                 "message",
                 ex.getMessage()));
   }
@@ -34,19 +34,19 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AuthEmailNotRegisteredException.class)
   public ResponseEntity<Map<String, Object>> handleEmailNotRegistered(
       AuthEmailNotRegisteredException ex) {
-    return ResponseEntity.status(400)
-        .body(Map.of("error", AuthErrorCodeEnum.EMAIL_NOT_REGISTERED, "message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", AuthErrorCode.EMAIL_NOT_REGISTERED, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(EmailServiceException.class)
   public ResponseEntity<Map<String, Object>> handleEmailServiceException(EmailServiceException ex) {
     String errorMessage = "ERROR: Email service failed: " + ex.getMessage();
     log.error(errorMessage);
-    return ResponseEntity.status(500)
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "Unable to send verification email. Please try again later."));
   }
@@ -55,11 +55,11 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
     String errorMessage = "ERROR: Reset verification code service failed: " + ex.getMessage();
     log.error(errorMessage);
-    return ResponseEntity.status(500)
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "Internal failure. Please try again later."));
   }
@@ -67,42 +67,36 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(EmailInvalidAddressException.class)
   public ResponseEntity<Map<String, Object>> handleEmailInvalidAddressException(
       EmailInvalidAddressException ex) {
-    return ResponseEntity.status(400)
-        .body(Map.of("error", AuthErrorCodeEnum.INVALID_EMAIL, "message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", AuthErrorCode.INVALID_EMAIL, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(AuthEmailAlreadyUsedException.class)
   public ResponseEntity<Map<String, Object>> handleAuthEmailAlreadyUsedException(
       AuthEmailAlreadyUsedException ex) {
     return ResponseEntity.status(409)
-        .body(
-            Map.of(
-                "error", AuthErrorCodeEnum.EXIST_ACCOUNT_WITH_EMAIL, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.EXIST_ACCOUNT_WITH_EMAIL, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(AuthAccountNotYetActivatedException.class)
   public ResponseEntity<Map<String, Object>> handleAuthAccountNotYetActivatedException(
       AuthAccountNotYetActivatedException ex) {
-    return ResponseEntity.status(401)
-        .body(Map.of("error", AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(Map.of("error", AuthErrorCode.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(IncorrectCodeException.class)
   public ResponseEntity<Map<String, Object>> handleIncorrectCodeException(
       IncorrectCodeException ex) {
-    return ResponseEntity.status(400)
-        .body(
-            Map.of(
-                "error", AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", AuthErrorCode.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(AuthAccountAlreadyVerifyException.class)
   public ResponseEntity<Map<String, Object>> handleAuthAccountAlreadyVerifyException(
       AuthAccountAlreadyVerifyException ex) {
-    return ResponseEntity.status(405)
-        .body(
-            Map.of(
-                "error", AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+        .body(Map.of("error", AuthErrorCode.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(AuthenticationException.class)
@@ -110,11 +104,11 @@ public class GlobalExceptionHandler {
       AuthenticationException ex) {
     String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
     log.error(errorMessage);
-    return ResponseEntity.status(500)
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "Authentication failed. Please try again later."));
   }
@@ -123,10 +117,8 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleAuthBadCredentialException(
       AuthBadCredentialException ex) {
 
-    return ResponseEntity.status(401)
-        .body(
-            Map.of(
-                "error", AuthErrorCodeEnum.INVALID_EMAIL_OR_PASSWORD, "message", ex.getMessage()));
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(Map.of("error", AuthErrorCode.INVALID_EMAIL_OR_PASSWORD, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(JwtServiceFailException.class)
@@ -134,11 +126,11 @@ public class GlobalExceptionHandler {
       JwtServiceFailException ex) {
     String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
     log.error(errorMessage);
-    return ResponseEntity.status(500)
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "Authentication failed. Please try again."));
   }
@@ -148,11 +140,11 @@ public class GlobalExceptionHandler {
       UserServiceFailException ex) {
     String errorMessage = "ERROR: User Service failed: " + ex.getMessage();
     log.error(errorMessage);
-    return ResponseEntity.status(500)
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "User service fail. Please try again."));
   }
@@ -189,7 +181,7 @@ public class GlobalExceptionHandler {
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "An unexpected error occurred while processing your request."));
   }
@@ -226,7 +218,7 @@ public class GlobalExceptionHandler {
         .body(
             Map.of(
                 "error",
-                SystemErrorCodeEnum.INTERNAL_ERROR,
+                SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "An unexpected error occurred while processing your review."));
   }

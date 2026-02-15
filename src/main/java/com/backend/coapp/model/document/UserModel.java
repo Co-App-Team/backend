@@ -1,6 +1,7 @@
 package com.backend.coapp.model.document;
 
-import com.backend.coapp.model.enumeration.UserRolesEnum;
+import com.backend.coapp.model.enumeration.UserRoles;
+import jakarta.validation.constraints.NotBlank;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,9 +31,13 @@ public class UserModel implements UserDetails {
   @Indexed(unique = true)
   private String email;
 
-  private String password; // @TODO: we need to hash this to enhance security.
+  @NotBlank(message = "Password cannot be empty")
+  private String password;
 
+  @NotBlank(message = "First name cannot be empty")
   private String firstName;
+
+  @NotBlank(message = "Last name cannot be empty")
   private String lastName;
 
   private Boolean verified;
@@ -80,7 +85,7 @@ public class UserModel implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(UserRolesEnum.USER_ROLE.name()));
+    return List.of(new SimpleGrantedAuthority(UserRoles.USER_ROLE.name()));
   }
 
   @Override

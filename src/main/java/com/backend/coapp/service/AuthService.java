@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,16 +33,20 @@ public class AuthService {
 
   private final JwtService jwtService;
 
+  private final PasswordEncoder passwordEncoder;
+
   @Autowired
   public AuthService(
       UserRepository userRepository,
       EmailService emailService,
       AuthenticationManager authenticationManager,
-      JwtService jwtService) {
+      JwtService jwtService,
+      PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
     this.emailService = emailService;
     this.authenticationManager = authenticationManager;
     this.jwtService = jwtService;
+    this.passwordEncoder = passwordEncoder;
   }
 
   /**
@@ -67,7 +72,9 @@ public class AuthService {
       String emailSubject = "Verification code for your new account";
       String emailBody = this.generateEmailBodyWithVerificationCode(verificationCode);
 
-      UserModel newUser = new UserModel(email, password, firstName, lastName, verificationCode);
+      UserModel newUser =
+          new UserModel(
+              email, this.passwordEncoder.encode(password), firstName, lastName, verificationCode);
       this.userRepository.save(newUser);
 
       this.emailService.sendEmail(email, emailSubject, emailBody);
@@ -199,7 +206,7 @@ public class AuthService {
 
     boolean updatedPassword = user.getVerificationCode().equals(verificationCode);
     if (updatedPassword) {
-      user.setPassword(newPassword);
+      user.setPassword(this.passwordEncoder.encode(newPassword));
       user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
       this.userRepository.save(user);
     } else {
@@ -232,8 +239,7 @@ public class AuthService {
     } catch (Exception e) {
       throw new AuthenticationServiceException("Database operation failed:" + e.getMessage());
     }
-
-    if (user == null || !user.getPassword().equals(password)) {
+    if (user == null || !this.passwordEncoder.matches(password, user.getPassword())) {
       throw new AuthBadCredentialException();
     }
 
