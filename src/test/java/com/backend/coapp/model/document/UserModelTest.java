@@ -2,7 +2,7 @@ package com.backend.coapp.model.document;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.model.enumeration.UserRolesEnum;
+import com.backend.coapp.model.enumeration.UserRoles;
 import java.util.Collection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -112,7 +112,7 @@ public class UserModelTest {
 
     GrantedAuthority authority = roles.iterator().next();
     assertTrue(authority instanceof SimpleGrantedAuthority);
-    assertEquals(UserRolesEnum.USER_ROLE.name(), authority.getAuthority());
+    assertEquals(UserRoles.USER_ROLE.name(), authority.getAuthority());
   }
 
   @Test

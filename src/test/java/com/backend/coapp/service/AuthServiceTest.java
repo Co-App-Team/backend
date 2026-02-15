@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -28,37 +29,49 @@ public class AuthServiceTest {
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
   @Autowired private UserRepository userRepository;
+  @Autowired private PasswordEncoder passwordEncoder;
+  @Autowired private AuthenticationManager authenticationManager;
 
   private EmailService emailService;
   private AuthService authService;
-  @Autowired private AuthenticationManager authenticationManager;
   private JwtService jwtService;
   private UserModel fooUserNotActivated;
   private UserModel fooUserActivated;
+  private String rawPassword = "password123";
 
   @BeforeEach
   public void setUp() {
     this.userRepository.deleteAll();
     this.fooUserNotActivated =
-        new UserModel("123", "foo@mail.com", "password123", "foo", "woof", false, 123);
+        new UserModel(
+            "123",
+            "foo@mail.com",
+            this.passwordEncoder.encode(rawPassword),
+            "foo",
+            "woof",
+            false,
+            123);
     this.userRepository.save(fooUserNotActivated);
     this.fooUserActivated =
         new UserModel(
             "789",
             "fooActivated@mail.com",
-            "password123",
+            this.passwordEncoder.encode(rawPassword),
             "fooActivated",
             "woof",
             true,
             UserModel.DEFAULT_VERIFICATION_CODE);
-    //    this.fooUserActivated.setVerified(true);
     this.userRepository.save(this.fooUserActivated);
     this.emailService = Mockito.mock(EmailService.class);
 
     this.jwtService = Mockito.mock(JwtService.class);
     this.authService =
         new AuthService(
-            this.userRepository, this.emailService, this.authenticationManager, this.jwtService);
+            this.userRepository,
+            this.emailService,
+            this.authenticationManager,
+            this.jwtService,
+            this.passwordEncoder);
   }
 
   @Test
@@ -83,7 +96,7 @@ public class AuthServiceTest {
 
     assertNotNull(newUser);
     assertEquals("newUser@mail.com", newUser.getEmail());
-    assertEquals("newPassword", newUser.getPassword());
+    assertTrue(this.passwordEncoder.matches("newPassword", newUser.getPassword()));
     assertEquals("user", newUser.getFirstName());
     assertEquals("new", newUser.getLastName());
     assertNotEquals(UserModel.DEFAULT_VERIFICATION_CODE, newUser.getVerificationCode());
@@ -293,7 +306,7 @@ public class AuthServiceTest {
                 "newPassword123"));
     UserModel userFromDatabase =
         this.userRepository.findUserModelByEmail(this.fooUserActivated.getEmail());
-    assertEquals("newPassword123", userFromDatabase.getPassword());
+    assertTrue(this.passwordEncoder.matches("newPassword123", userFromDatabase.getPassword()));
     assertEquals(UserModel.DEFAULT_VERIFICATION_CODE, userFromDatabase.getVerificationCode());
   }
 
@@ -308,9 +321,7 @@ public class AuthServiceTest {
   public void login_whenSuccess_expectReturnToken() {
 
     when(this.jwtService.generateToken(any())).thenReturn("DummyToken");
-    String token =
-        this.authService.login(
-            this.fooUserActivated.getEmail(), this.fooUserActivated.getPassword());
+    String token = this.authService.login(this.fooUserActivated.getEmail(), this.rawPassword);
 
     assertEquals("DummyToken", token);
   }
@@ -319,9 +330,7 @@ public class AuthServiceTest {
   public void login_whenAccountNotActivate_expectException() {
     assertThrows(
         AuthAccountNotYetActivatedException.class,
-        () ->
-            this.authService.login(
-                this.fooUserNotActivated.getEmail(), this.fooUserNotActivated.getPassword()));
+        () -> this.authService.login(this.fooUserNotActivated.getEmail(), this.rawPassword));
   }
 
   @Test
@@ -345,9 +354,7 @@ public class AuthServiceTest {
 
     assertThrows(
         JwtServiceFailException.class,
-        () ->
-            this.authService.login(
-                this.fooUserActivated.getEmail(), this.fooUserActivated.getPassword()));
+        () -> this.authService.login(this.fooUserActivated.getEmail(), this.rawPassword));
   }
 
   @Test
@@ -356,7 +363,11 @@ public class AuthServiceTest {
     when(mockUserRepo.findUserModelByEmail(anyString())).thenThrow(new RuntimeException());
     this.authService =
         new AuthService(
-            mockUserRepo, this.emailService, this.authenticationManager, this.jwtService);
+            mockUserRepo,
+            this.emailService,
+            this.authenticationManager,
+            this.jwtService,
+            this.passwordEncoder);
     assertThrows(
         AuthenticationServiceException.class,
         () ->

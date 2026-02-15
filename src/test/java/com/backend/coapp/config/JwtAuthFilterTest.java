@@ -7,9 +7,9 @@ import static org.mockito.Mockito.*;
 import com.backend.coapp.exception.JwtExpiredException;
 import com.backend.coapp.exception.JwtInvalidTokenException;
 import com.backend.coapp.exception.JwtServiceFailException;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
-import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
-import com.backend.coapp.model.enumeration.UserRolesEnum;
+import com.backend.coapp.model.enumeration.AuthErrorCode;
+import com.backend.coapp.model.enumeration.SystemErrorCode;
+import com.backend.coapp.model.enumeration.UserRoles;
 import com.backend.coapp.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletResponse;
@@ -59,7 +59,7 @@ public class JwtAuthFilterTest {
         User.builder()
             .username(USER_EMAIL)
             .password("dummyPassword")
-            .authorities(new SimpleGrantedAuthority(UserRolesEnum.USER_ROLE.name()))
+            .authorities(new SimpleGrantedAuthority(UserRoles.USER_ROLE.name()))
             .build();
   }
 
@@ -111,7 +111,7 @@ public class JwtAuthFilterTest {
     assertTrue(errorResponse.containsKey("message"));
     assertTrue(errorResponse.containsKey("error"));
     assertFalse(errorResponse.get("message").isBlank());
-    assertEquals(AuthErrorCodeEnum.TOKEN_EXPIRE.name(), errorResponse.get("error"));
+    assertEquals(AuthErrorCode.TOKEN_EXPIRE.name(), errorResponse.get("error"));
   }
 
   @Test
@@ -132,7 +132,7 @@ public class JwtAuthFilterTest {
     assertTrue(errorResponse.containsKey("message"));
     assertTrue(errorResponse.containsKey("error"));
     assertFalse(errorResponse.get("message").isBlank());
-    assertEquals(AuthErrorCodeEnum.INVALID_TOKEN.name(), errorResponse.get("error"));
+    assertEquals(AuthErrorCode.INVALID_TOKEN.name(), errorResponse.get("error"));
   }
 
   @Test
@@ -153,7 +153,7 @@ public class JwtAuthFilterTest {
     assertTrue(errorResponse.containsKey("message"));
     assertTrue(errorResponse.containsKey("error"));
     assertFalse(errorResponse.get("message").isBlank());
-    assertEquals(SystemErrorCodeEnum.INTERNAL_ERROR.name(), errorResponse.get("error"));
+    assertEquals(SystemErrorCode.INTERNAL_ERROR.name(), errorResponse.get("error"));
   }
 
   @Test
@@ -206,7 +206,7 @@ public class JwtAuthFilterTest {
     assertTrue(errorResponse.containsKey("message"));
     assertTrue(errorResponse.containsKey("error"));
     assertFalse(errorResponse.get("message").isBlank());
-    assertEquals(AuthErrorCodeEnum.INVALID_TOKEN.name(), errorResponse.get("error"));
+    assertEquals(AuthErrorCode.INVALID_TOKEN.name(), errorResponse.get("error"));
   }
 
   @Test
@@ -229,7 +229,7 @@ public class JwtAuthFilterTest {
     assertTrue(errorResponse.containsKey("message"));
     assertTrue(errorResponse.containsKey("error"));
     assertFalse(errorResponse.get("message").isBlank());
-    assertEquals(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name(), errorResponse.get("error"));
+    assertEquals(AuthErrorCode.EMAIL_NOT_REGISTERED.name(), errorResponse.get("error"));
   }
 
   @Test

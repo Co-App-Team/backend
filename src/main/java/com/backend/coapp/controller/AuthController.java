@@ -57,7 +57,6 @@ public class AuthController {
   @PatchMapping("/verify-email")
   public ResponseEntity<Map<String, Object>> verifyEmail(
       @RequestBody VerifyEmailRequest verifyEmailRequest) {
-    boolean successVerify = false;
 
     verifyEmailRequest.validateRequest();
     this.authService.verifyUser(verifyEmailRequest.getEmail(), verifyEmailRequest.getVerifyCode());

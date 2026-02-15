@@ -6,6 +6,8 @@ import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,8 +22,12 @@ public class UserService {
   /** Singleton service and repository * */
   private final UserRepository userRepository;
 
-  public UserService(UserRepository userRepository) {
+  private final PasswordEncoder passwordEncoder;
+
+  @Autowired
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   /**
@@ -64,12 +70,12 @@ public class UserService {
       throw new AuthAccountNotYetActivatedException();
     }
 
-    if (!user.getPassword().equals(oldPassword)) {
+    if (!this.passwordEncoder.matches(oldPassword, user.getPassword())) {
       throw new AuthBadCredentialException("Incorrect password.");
     }
 
     try {
-      user.setPassword(newPassword);
+      user.setPassword(this.passwordEncoder.encode(newPassword));
       this.userRepository.save(user);
 
     } catch (Exception e) {

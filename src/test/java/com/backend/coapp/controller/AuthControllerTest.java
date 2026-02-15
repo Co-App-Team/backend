@@ -8,9 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.backend.coapp.dto.request.*;
 import com.backend.coapp.exception.*;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
-import com.backend.coapp.model.enumeration.RequestErrorCodeEnum;
-import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import com.backend.coapp.model.enumeration.AuthErrorCode;
+import com.backend.coapp.model.enumeration.RequestErrorCode;
+import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.service.AuthService;
 import com.backend.coapp.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,7 +75,7 @@ public class AuthControllerTest {
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(
-            jsonPath("$.error").value(RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()));
+            jsonPath("$.error").value(RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()));
 
     verifyNoInteractions(authService);
   }
@@ -93,7 +93,7 @@ public class AuthControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").isNotEmpty())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_EMAIL.name()));
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_EMAIL.name()));
 
     verify(authService, times(1))
         .createNewUser(
@@ -116,7 +116,7 @@ public class AuthControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.message").isNotEmpty())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()));
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
 
     verify(authService, times(1))
         .createNewUser(
@@ -140,7 +140,7 @@ public class AuthControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
         .andExpect(status().isConflict())
         .andExpect(jsonPath("$.message").isNotEmpty())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.EXIST_ACCOUNT_WITH_EMAIL.name()));
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.EXIST_ACCOUNT_WITH_EMAIL.name()));
 
     verify(authService, times(1))
         .createNewUser(
@@ -164,7 +164,7 @@ public class AuthControllerTest {
                 .content(this.objectMapper.writeValueAsString(this.dummyUserRegisterRequest)))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.message").isNotEmpty())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()));
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
 
     verify(authService, times(1))
         .createNewUser(
@@ -204,7 +204,7 @@ public class AuthControllerTest {
                 .content(this.objectMapper.writeValueAsString(invalidRequest)))
         .andExpect(status().isBadRequest())
         .andExpect(
-            jsonPath("$.error").value(RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()))
+            jsonPath("$.error").value(RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verifyNoInteractions(authService);
   }
@@ -220,7 +220,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
         .andExpect(status().isMethodNotAllowed())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_ALREADY_VERIFIED.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.ACCOUNT_ALREADY_VERIFIED.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .verifyUser(
@@ -240,7 +240,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.EMAIL_NOT_REGISTERED.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .verifyUser(
@@ -257,7 +257,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .verifyUser(
@@ -288,7 +288,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyVerifyEmailRequest)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_CONFIRMATION_CODE.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .verifyUser(
@@ -305,7 +305,7 @@ public class AuthControllerTest {
                 .content(this.objectMapper.writeValueAsString(invalidRequest)))
         .andExpect(status().isBadRequest())
         .andExpect(
-            jsonPath("$.error").value(RequestErrorCodeEnum.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()))
+            jsonPath("$.error").value(RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verifyNoInteractions(authService);
   }
@@ -322,7 +322,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.EMAIL_NOT_REGISTERED.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
 
     verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
@@ -338,7 +338,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
 
     verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
@@ -354,7 +354,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyResetVerificationRequest)))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1)).resetVerifyCode(this.dummyResetVerificationRequest.getEmail());
   }
@@ -386,7 +386,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyForgotPasswordRequest)))
         .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.ACCOUNT_NOT_ACTIVATED.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
 
     verify(authService, times(1)).forgotPassword(this.dummyForgotPasswordRequest.getEmail());
@@ -435,7 +435,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyUpdatePasswordRequest)))
         .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_CONFIRMATION_CODE.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_CONFIRMATION_CODE.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .updatePassword(
@@ -456,7 +456,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
         .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.INVALID_EMAIL_OR_PASSWORD.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_EMAIL_OR_PASSWORD.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
@@ -474,7 +474,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
         .andExpect(status().isUnauthorized())
-        .andExpect(jsonPath("$.error").value(AuthErrorCodeEnum.ACCOUNT_NOT_ACTIVATED.name()))
+        .andExpect(jsonPath("$.error").value(AuthErrorCode.ACCOUNT_NOT_ACTIVATED.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
@@ -492,7 +492,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());
@@ -513,7 +513,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyLoginRequest)))
         .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value(SystemErrorCodeEnum.INTERNAL_ERROR.name()))
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()))
         .andExpect(jsonPath("$.message").isNotEmpty());
     verify(authService, times(1))
         .login(this.dummyLoginRequest.getEmail(), this.dummyLoginRequest.getPassword());

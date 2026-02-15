@@ -2,8 +2,8 @@ package com.backend.coapp.config;
 
 import com.backend.coapp.exception.JwtExpiredException;
 import com.backend.coapp.exception.JwtInvalidTokenException;
-import com.backend.coapp.model.enumeration.AuthErrorCodeEnum;
-import com.backend.coapp.model.enumeration.SystemErrorCodeEnum;
+import com.backend.coapp.model.enumeration.AuthErrorCode;
+import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -85,23 +85,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       }
     } catch (JwtExpiredException ex) {
       this.handleException(
-          response,
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorCodeEnum.TOKEN_EXPIRE.name(),
-          ex.getMessage());
+          response, HttpStatus.UNAUTHORIZED, AuthErrorCode.TOKEN_EXPIRE.name(), ex.getMessage());
       return;
     } catch (JwtInvalidTokenException ex) {
       this.handleException(
-          response,
-          HttpStatus.UNAUTHORIZED,
-          AuthErrorCodeEnum.INVALID_TOKEN.name(),
-          ex.getMessage());
+          response, HttpStatus.UNAUTHORIZED, AuthErrorCode.INVALID_TOKEN.name(), ex.getMessage());
       return;
     } catch (UsernameNotFoundException ex) {
       this.handleException(
           response,
           HttpStatus.UNAUTHORIZED,
-          AuthErrorCodeEnum.EMAIL_NOT_REGISTERED.name(),
+          AuthErrorCode.EMAIL_NOT_REGISTERED.name(),
           ex.getMessage());
       return;
     } catch (Exception ex) {
@@ -110,7 +104,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       this.handleException(
           response,
           HttpStatus.INTERNAL_SERVER_ERROR,
-          SystemErrorCodeEnum.INTERNAL_ERROR.name(),
+          SystemErrorCode.INTERNAL_ERROR.name(),
           "Can NOT authorize. Please try again");
       return;
     }

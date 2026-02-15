@@ -1,6 +1,6 @@
 package com.backend.coapp.model.document;
 
-import com.backend.coapp.model.enumeration.UserRolesEnum;
+import com.backend.coapp.model.enumeration.UserRoles;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -80,7 +80,7 @@ public class UserModel implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(UserRolesEnum.USER_ROLE.name()));
+    return List.of(new SimpleGrantedAuthority(UserRoles.USER_ROLE.name()));
   }
 
   @Override
