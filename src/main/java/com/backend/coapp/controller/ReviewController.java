@@ -47,10 +47,6 @@ public class ReviewController {
     createRequest.validateRequest();
 
     UserModel user = (UserModel) authentication.getPrincipal();
-    if (user == null) {
-      throw new InvalidRequestException("User authentication is required.");
-    }
-
     String userId = user.getId();
     String authorName = user.getFirstName() + " " + user.getLastName();
 
@@ -88,10 +84,6 @@ public class ReviewController {
     updateRequest.validateRequest();
 
     UserModel user = (UserModel) authentication.getPrincipal();
-    if (user == null) {
-      throw new InvalidRequestException("User authentication is required.");
-    }
-
     String userId = user.getId();
     this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId);
 
@@ -124,10 +116,6 @@ public class ReviewController {
       Authentication authentication) {
 
     UserModel user = (UserModel) authentication.getPrincipal();
-    if (user == null) {
-      throw new InvalidRequestException("User authentication is required.");
-    }
-
     String userId = user.getId();
     this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId);
 
@@ -135,7 +123,6 @@ public class ReviewController {
 
     Map<String, Object> response = new HashMap<>();
     response.put("message", "Review deleted successfully.");
-    response.put("reviewId", reviewId);
 
     return ResponseEntity.ok(response);
   }

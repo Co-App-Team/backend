@@ -42,23 +42,12 @@ public class CompanyController {
   /**
    * Get all companies with optional search and pagination
    *
-   * @param search Optional search term for company name
-   * @param page Page number (default 0)
-   * @param size Items per page (default 20, max 100)
-   * @param usePagination Whether to use pagination (default false)
+   * @param request GetAllCompaniesRequest DTO
    * @return ResponseEntity with companies list and optional pagination data
    */
   @GetMapping
-  public ResponseEntity<Map<String, Object>> getAllCompanies(
-      @RequestParam(required = false) String search,
-      @RequestParam(required = false, defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR)
-          Integer page,
-      @RequestParam(required = false, defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR)
-          Integer size,
-      @RequestParam(required = false, defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR)
-          Boolean usePagination) {
+  public ResponseEntity<Map<String, Object>> getAllCompanies(@ModelAttribute GetAllCompaniesRequest request) {
 
-    GetAllCompaniesRequest request = new GetAllCompaniesRequest(search, page, size, usePagination);
     request.validateRequest();
 
     Map<String, Object> response = new HashMap<>();
@@ -93,18 +82,15 @@ public class CompanyController {
   /**
    * Get company profile with ID
    *
-   * @param companyId company ID
+   * @param request GetCompanyByIdRequest DTO
    * @return ResponseEntity with company info
    */
   @GetMapping("/{companyId}")
   public ResponseEntity<Map<String, Object>> getCompanyById(
-      @PathVariable String companyId,
-      @RequestParam(required = false, defaultValue = PaginationConstants.REVIEW_DEFAULT_PAGE_STR)
-          Integer page,
-      @RequestParam(required = false, defaultValue = PaginationConstants.REVIEW_DEFAULT_SIZE_STR)
-          Integer size) {
+    @PathVariable String companyId, // since ModelAttribute only binds query params, we need this here
+    @ModelAttribute GetCompanyByIdRequest request) {
 
-    GetCompanyByIdRequest request = new GetCompanyByIdRequest(companyId, page, size);
+    request.setCompanyId(companyId);
     request.validateRequest();
 
     CompanyResponse company = this.companyService.getCompanyById(request.getCompanyId());

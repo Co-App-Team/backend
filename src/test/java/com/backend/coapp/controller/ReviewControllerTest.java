@@ -328,8 +328,7 @@ public class ReviewControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .principal(this.authentication))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value("Review deleted successfully."))
-        .andExpect(jsonPath("$.reviewId").value("review1"));
+        .andExpect(jsonPath("$.message").value("Review deleted successfully."));
 
     verify(this.reviewService, times(1)).deleteReview(eq("review1"), eq("user1"));
   }

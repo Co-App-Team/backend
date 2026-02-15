@@ -5,15 +5,17 @@ import com.backend.coapp.util.PaginationConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetCompanyByIdRequest implements IRequest {
 
   private String companyId;
-  private Integer page;
-  private Integer size;
+  private Integer page = PaginationConstants.REVIEW_DEFAULT_PAGE;
+  private Integer size = PaginationConstants.REVIEW_DEFAULT_SIZE;
 
   @Override
   public void validateRequest() throws InvalidRequestException {

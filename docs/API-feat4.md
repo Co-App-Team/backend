@@ -494,7 +494,7 @@ Note: This would return a list of all companies
 ```json
 {
   "error": "REVIEW_ALREADY_EXISTS",
-  "message": "You have already submitted a review for this company.",
+  "message": "You have already submitted a review for this company."
 }
 ```
 
@@ -656,8 +656,7 @@ _Note: At least one field must be provided to update_
 
 ```json
 {
-  "message": "Review deleted successfully.",
-  "reviewId": "1"
+  "message": "Review deleted successfully."
 }
 ```
 

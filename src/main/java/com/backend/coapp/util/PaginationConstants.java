@@ -9,6 +9,8 @@ public class PaginationConstants {
   public static final int COMPANY_DEFAULT_SIZE = 20;
   public static final int COMPANY_MAX_SIZE = 100;
   public static final int COMPANY_MIN_SIZE = 1;
+  public static final Boolean DEFAULT_USE_PAGINATION = false;
+
   // for @RequestParam strings to not be hardcoded
   public static final String COMPANY_DEFAULT_PAGE_STR = "0";
   public static final String COMPANY_DEFAULT_SIZE_STR = "20";
