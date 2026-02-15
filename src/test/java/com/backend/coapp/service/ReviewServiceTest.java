@@ -16,6 +16,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -369,4 +372,83 @@ public class ReviewServiceTest {
     assertEquals(originalComment, updated.getComment()); // comment unchanged
     assertEquals("New Job Title", updated.getJobTitle());
   }
+
+  @Test
+  public void getReviewsByCompanyId_whenReviewsExist_expectPageOfReviews() {
+    ReviewModel review2 =
+      new ReviewModel(
+        this.nicheCompany.getId(),
+        "user2",
+        "Jane Doe",
+        4,
+        "Good experience",
+        "QA Engineer",
+        "Winter",
+        2024);
+    this.reviewRepository.save(review2);
+
+    Pageable pageable = PageRequest.of(0, 10);
+    Page<ReviewModel> reviewsPage =
+      this.reviewService.getReviewsByCompanyId(this.nicheCompany.getId(), pageable);
+
+    assertNotNull(reviewsPage);
+    assertEquals(2, reviewsPage.getTotalElements());
+    assertEquals(2, reviewsPage.getContent().size());
+  }
+
+  @Test
+  public void getReviewsByCompanyId_whenNoReviews_expectEmptyPage() {
+    CompanyModel emptyCompany = new CompanyModel("Empty Co", "Toronto", "https://empty.com");
+    this.companyRepository.save(emptyCompany);
+
+    Pageable pageable = PageRequest.of(0, 10);
+    Page<ReviewModel> reviewsPage =
+      this.reviewService.getReviewsByCompanyId(emptyCompany.getId(), pageable);
+
+    assertNotNull(reviewsPage);
+    assertEquals(0, reviewsPage.getTotalElements());
+    assertTrue(reviewsPage.getContent().isEmpty());
+  }
+
+  @Test
+  public void getReviewsByCompanyId_whenDatabaseFails_expectException() {
+    this.reviewService =
+      new ReviewService(
+        this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
+
+    when(this.mockReviewRepository.findByCompanyId(anyString(), any()))
+      .thenThrow(new RuntimeException("Database error"));
+
+    Pageable pageable = PageRequest.of(0, 10);
+    assertThrows(
+      ReviewServiceFailException.class,
+      () -> this.reviewService.getReviewsByCompanyId("companyId", pageable));
+  }
+
+  @Test
+  public void getReviewsByCompanyId_withPagination_expectCorrectPage() {
+    for (int i = 2; i <= 5; i++) {
+      ReviewModel review =
+        new ReviewModel(
+          this.nicheCompany.getId(),
+          "user" + i,
+          "User " + i,
+          4,
+          "Comment " + i,
+          "Job " + i,
+          "Summer",
+          2024);
+      this.reviewRepository.save(review);
+    }
+
+    Pageable pageable = PageRequest.of(0, 2);
+    Page<ReviewModel> reviewsPage =
+      this.reviewService.getReviewsByCompanyId(this.nicheCompany.getId(), pageable);
+
+    assertNotNull(reviewsPage);
+    assertEquals(5, reviewsPage.getTotalElements());
+    assertEquals(2, reviewsPage.getContent().size());
+    assertEquals(3, reviewsPage.getTotalPages());
+  }
+
 }
