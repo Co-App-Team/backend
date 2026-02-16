@@ -1,6 +1,6 @@
 package com.backend.coapp.controller;
 
-import com.backend.coapp.model.enumeration.WorkTermSeasonEnum;
+import com.backend.coapp.model.enumeration.WorkTermSeason;
 import com.backend.coapp.util.WorkTermValidator;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class CommonController {
   @GetMapping("/term-seasons")
   public ResponseEntity<List<String>> getTermSeasons() {
     List<String> seasons = new ArrayList<>();
-    for (WorkTermSeasonEnum season : WorkTermSeasonEnum.values()) {
+    for (WorkTermSeason season : WorkTermSeason.values()) {
       seasons.add(season.name());
     }
 

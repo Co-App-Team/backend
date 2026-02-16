@@ -3,14 +3,14 @@ package com.backend.coapp.model.enumeration;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 /** Enum for valid work term seasons. Allowed: Fall, Winter, or Summer. */
-public enum WorkTermSeasonEnum {
+public enum WorkTermSeason {
   FALL("Fall"),
   WINTER("Winter"),
   SUMMER("Summer");
 
   private final String displayName;
 
-  WorkTermSeasonEnum(String displayName) {
+  WorkTermSeason(String displayName) {
     this.displayName = displayName;
   }
 
@@ -26,12 +26,12 @@ public enum WorkTermSeasonEnum {
    * @return The matching WorkTermSeason enum value
    * @throws IllegalArgumentException if the value is not valid
    */
-  public static WorkTermSeasonEnum fromString(String value) {
+  public static WorkTermSeason fromString(String value) {
     if (value == null) {
       throw new IllegalArgumentException("Work term season cannot be null");
     }
 
-    for (WorkTermSeasonEnum season : WorkTermSeasonEnum.values()) {
+    for (WorkTermSeason season : WorkTermSeason.values()) {
       if (season.displayName.equals(value)) {
         return season;
       }
@@ -52,7 +52,7 @@ public enum WorkTermSeasonEnum {
       return false;
     }
 
-    for (WorkTermSeasonEnum season : WorkTermSeasonEnum.values()) {
+    for (WorkTermSeason season : WorkTermSeason.values()) {
       if (season.displayName.equals(value)) {
         return true;
       }

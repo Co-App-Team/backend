@@ -2,7 +2,7 @@ package com.backend.coapp.model.document;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.model.enumeration.ApplicationStatusEnum;
+import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -34,7 +34,7 @@ public class ApplicationModelTest {
     validApplication.setUserId("user123");
     validApplication.setCompanyId("company456");
     validApplication.setJobTitle("Software Engineer");
-    validApplication.setStatus(ApplicationStatusEnum.APPLIED);
+    validApplication.setStatus(ApplicationStatus.APPLIED);
     validApplication.setApplicationDeadline(LocalDate.now().plusDays(7));
     validApplication.setSourceLink("https://company.com/careers");
     validApplication.setJobDescription("Free Pizza");
