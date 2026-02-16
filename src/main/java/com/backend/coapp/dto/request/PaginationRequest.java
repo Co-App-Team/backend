@@ -11,18 +11,13 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetCompanyByIdRequest implements IRequest {
+public class PaginationRequest implements IRequest {
 
-  private String companyId;
   private Integer page = PaginationConstants.REVIEW_DEFAULT_PAGE;
   private Integer size = PaginationConstants.REVIEW_DEFAULT_SIZE;
 
   @Override
   public void validateRequest() throws InvalidRequestException {
-    if (this.companyId == null || this.companyId.isBlank()) {
-      throw new InvalidRequestException("Company ID cannot be null or empty.");
-    }
-
     if (this.page == null || this.page < 0) {
       this.page = PaginationConstants.REVIEW_DEFAULT_PAGE;
     }

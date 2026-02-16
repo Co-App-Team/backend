@@ -2,7 +2,7 @@ package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.request.GetAllCompaniesRequest;
-import com.backend.coapp.dto.request.GetCompanyByIdRequest;
+import com.backend.coapp.dto.request.PaginationRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.dto.response.ReviewResponse;
@@ -87,18 +87,14 @@ public class CompanyController {
    */
   @GetMapping("/{companyId}")
   public ResponseEntity<Map<String, Object>> getCompanyById(
-      @PathVariable
-          String companyId, // since ModelAttribute only binds query params, we need this here
-      @ModelAttribute GetCompanyByIdRequest request) {
+      @PathVariable String companyId, @ModelAttribute PaginationRequest request) {
 
-    request.setCompanyId(companyId);
     request.validateRequest();
 
-    CompanyResponse company = this.companyService.getCompanyById(request.getCompanyId());
+    CompanyResponse company = this.companyService.getCompanyById(companyId);
 
     Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
-    Page<ReviewModel> reviewsPage =
-        this.reviewService.getReviewsByCompanyId(request.getCompanyId(), pageable);
+    Page<ReviewModel> reviewsPage = this.reviewService.getReviewsByCompanyId(companyId, pageable);
 
     List<Map<String, Object>> reviewsMaps = new ArrayList<>();
     for (ReviewModel review : reviewsPage.getContent()) {
