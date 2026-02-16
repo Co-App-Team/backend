@@ -4,17 +4,19 @@ import com.backend.coapp.util.PaginationConstants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /** DTO for query parameters when getting all companies */
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class GetAllCompaniesRequest {
 
   private String search;
-  private Integer page;
-  private Integer size;
-  private Boolean usePagination;
+  private Integer page = PaginationConstants.COMPANY_DEFAULT_PAGE;
+  private Integer size = PaginationConstants.COMPANY_DEFAULT_SIZE;
+  private Boolean usePagination = PaginationConstants.DEFAULT_USE_PAGINATION;
 
   /* Validates and sanitizes the query parameters for getting all companies */
   public void validateRequest() {

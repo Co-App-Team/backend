@@ -282,7 +282,7 @@ Note: This would return a list of all companies
 
 ```json
 {
-  "error": "NOT_FOUND",
+  "error": "COMPANY_NOT_FOUND",
   "message": "Company with this companyId does not exist."
 }
 ```
@@ -484,7 +484,7 @@ Note: This would return a list of all companies
 
 ```json
 {
-  "error": "NOT_FOUND",
+  "error": "REVIEW_NOT_FOUND",
   "message": "Company with the provided companyId does not exist."
 }
 ```
@@ -494,7 +494,7 @@ Note: This would return a list of all companies
 ```json
 {
   "error": "REVIEW_ALREADY_EXISTS",
-  "message": "You have already submitted a review for this company.",
+  "message": "You have already submitted a review for this company."
 }
 ```
 
@@ -597,7 +597,7 @@ _Note: At least one field must be provided to update_
 
 ```json
 {
-  "error": "FORBIDDEN",
+  "error": "REVIEW_NOT_OWNED",
   "message": "You can only update your own reviews."
 }
 ```
@@ -606,7 +606,7 @@ _Note: At least one field must be provided to update_
 
 ```json
 {
-  "error": "NOT_FOUND",
+  "error": "REVIEW_NOT_FOUND",
   "message": "Review with the provided id does not exist for this company."
 }
 ```
@@ -656,8 +656,7 @@ _Note: At least one field must be provided to update_
 
 ```json
 {
-  "message": "Review deleted successfully.",
-  "reviewId": "1"
+  "message": "Review deleted successfully."
 }
 ```
 
@@ -665,7 +664,7 @@ _Note: At least one field must be provided to update_
 
 ```json
 {
-  "error": "FORBIDDEN",
+  "error": "REVIEW_NOT_OWNED",
   "message": "You can only delete your own reviews."
 }
 ```
@@ -674,7 +673,7 @@ _Note: At least one field must be provided to update_
 
 ```json
 {
-  "error": "NOT_FOUND",
+  "error": "REVIEW_NOT_FOUND",
   "message": "Review with the provided ix does not exist for this company."
 }
 ```

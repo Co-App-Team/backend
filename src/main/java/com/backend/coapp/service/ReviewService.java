@@ -1,10 +1,6 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.CompanyNotFoundException;
-import com.backend.coapp.exception.ReviewAlreadyExistsException;
-import com.backend.coapp.exception.ReviewNotFoundException;
-import com.backend.coapp.exception.ReviewNotOwnedException;
-import com.backend.coapp.exception.ReviewServiceFailException;
+import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.ReviewRepository;
@@ -12,6 +8,8 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -98,8 +96,6 @@ public class ReviewService {
       throw new ReviewServiceFailException("Failed to create review: " + ex.getMessage());
 
     } catch (Exception ex) {
-
-      log.error("Error creating review for company: {}", companyId, ex);
       throw new ReviewServiceFailException("Failed to create review: " + ex.getMessage());
     }
   }
@@ -209,6 +205,42 @@ public class ReviewService {
     } catch (Exception ex) {
       log.error("Error deleting review: {}", reviewId, ex);
       throw new ReviewServiceFailException("Failed to delete review: " + ex.getMessage());
+    }
+  }
+
+  /**
+   * get all reviews for a company with pagination
+   *
+   * @param companyId ID of the company
+   * @param pageable pagination parameters
+   * @return page of ReviewModel
+   * @throws ReviewServiceFailException if database operation fails
+   */
+  public Page<ReviewModel> getReviewsByCompanyId(String companyId, Pageable pageable)
+      throws ReviewServiceFailException {
+    try {
+      return this.reviewRepository.findByCompanyId(companyId, pageable);
+    } catch (Exception ex) {
+      log.error("Error retrieving reviews for company: {}", companyId, ex);
+      throw new ReviewServiceFailException("Failed to retrieve reviews: " + ex.getMessage());
+    }
+  }
+
+  /**
+   * Verify that a review belongs to a specific company
+   *
+   * @param reviewId The review ID
+   * @param companyId The company ID to verify against
+   * @throws ReviewNotFoundException if review doesn't exist
+   * @throws InvalidRequestException if review doesn't belong to company
+   */
+  public void verifyReviewBelongsToCompany(String reviewId, String companyId)
+      throws ReviewNotFoundException, InvalidRequestException {
+    ReviewModel review =
+        this.reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
+
+    if (!review.getCompanyId().equals(companyId)) {
+      throw new InvalidRequestException("Review does not belong to the specified company.");
     }
   }
 }

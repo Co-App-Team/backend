@@ -2,10 +2,13 @@ package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.request.GetAllCompaniesRequest;
+import com.backend.coapp.dto.request.PaginationRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
+import com.backend.coapp.dto.response.ReviewResponse;
+import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.service.CompanyService;
-import com.backend.coapp.util.PaginationConstants;
+import com.backend.coapp.service.ReviewService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,32 +30,24 @@ import org.springframework.web.bind.annotation.*;
 public class CompanyController {
 
   private final CompanyService companyService;
+  private final ReviewService reviewService;
 
   @Autowired
-  public CompanyController(CompanyService companyService) {
+  public CompanyController(CompanyService companyService, ReviewService reviewService) {
     this.companyService = companyService;
+    this.reviewService = reviewService;
   }
 
   /**
    * Get all companies with optional search and pagination
    *
-   * @param search Optional search term for company name
-   * @param page Page number (default 0)
-   * @param size Items per page (default 20, max 100)
-   * @param usePagination Whether to use pagination (default false)
+   * @param request GetAllCompaniesRequest DTO
    * @return ResponseEntity with companies list and optional pagination data
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getAllCompanies(
-      @RequestParam(required = false) String search,
-      @RequestParam(required = false, defaultValue = PaginationConstants.COMPANY_DEFAULT_PAGE_STR)
-          Integer page,
-      @RequestParam(required = false, defaultValue = PaginationConstants.COMPANY_DEFAULT_SIZE_STR)
-          Integer size,
-      @RequestParam(required = false, defaultValue = PaginationConstants.DEFAULT_USE_PAGINATION_STR)
-          Boolean usePagination) {
+      @ModelAttribute GetAllCompaniesRequest request) {
 
-    GetAllCompaniesRequest request = new GetAllCompaniesRequest(search, page, size, usePagination);
     request.validateRequest();
 
     Map<String, Object> response = new HashMap<>();
@@ -87,17 +82,29 @@ public class CompanyController {
   /**
    * Get company profile with ID
    *
-   * @param companyId company ID
+   * @param request GetCompanyByIdRequest DTO
    * @return ResponseEntity with company info
    */
   @GetMapping("/{companyId}")
-  public ResponseEntity<Map<String, Object>> getCompanyById(@PathVariable String companyId) {
+  public ResponseEntity<Map<String, Object>> getCompanyById(
+      @PathVariable String companyId, @ModelAttribute PaginationRequest request) {
+
+    request.validateRequest();
+
     CompanyResponse company = this.companyService.getCompanyById(companyId);
+
+    Pageable pageable = PageRequest.of(request.getPage(), request.getSize());
+    Page<ReviewModel> reviewsPage = this.reviewService.getReviewsByCompanyId(companyId, pageable);
+
+    List<Map<String, Object>> reviewsMaps = new ArrayList<>();
+    for (ReviewModel review : reviewsPage.getContent()) {
+      reviewsMaps.add(ReviewResponse.fromModel(review).toMap());
+    }
 
     Map<String, Object> response = new HashMap<>();
     response.put("company", company.toMap());
-
-    // TODO: Add reviews and reviewsPagination when ReviewService is implemented
+    response.put("reviews", reviewsMaps);
+    response.put("reviewsPagination", PaginationResponse.fromPage(reviewsPage).toMap());
 
     return ResponseEntity.ok(response);
   }
