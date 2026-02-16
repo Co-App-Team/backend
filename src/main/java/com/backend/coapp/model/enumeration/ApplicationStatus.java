@@ -1,6 +1,6 @@
 package com.backend.coapp.model.enumeration;
 
-public enum ApplicationStatusEnum {
+public enum ApplicationStatus {
   NOT_APPLIED,
   APPLIED,
   INTERVIEW_SCHEDULED,

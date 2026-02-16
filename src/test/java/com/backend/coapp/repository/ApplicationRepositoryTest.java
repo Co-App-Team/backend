@@ -3,7 +3,7 @@ package com.backend.coapp.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.backend.coapp.model.document.ApplicationModel;
-import com.backend.coapp.model.enumeration.ApplicationStatusEnum;
+import com.backend.coapp.model.enumeration.ApplicationStatus;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +38,7 @@ public class ApplicationRepositoryTest {
     app1.setUserId("user1");
     app1.setCompanyId("companyA");
     app1.setJobTitle("Software Engineer");
-    app1.setStatus(ApplicationStatusEnum.APPLIED);
+    app1.setStatus(ApplicationStatus.APPLIED);
     app1.setApplicationDeadline(LocalDate.now().plusDays(10));
     app1.setNumPositions(1);
 
@@ -46,7 +46,7 @@ public class ApplicationRepositoryTest {
     app2.setUserId("user1"); // same user as app1
     app2.setCompanyId("companyB");
     app2.setJobTitle("Product Manager");
-    app2.setStatus(ApplicationStatusEnum.INTERVIEWING);
+    app2.setStatus(ApplicationStatus.INTERVIEWING);
     app2.setApplicationDeadline(LocalDate.now().plusDays(5));
     app2.setNumPositions(1);
 
@@ -54,7 +54,7 @@ public class ApplicationRepositoryTest {
     app3.setUserId("user2"); // different user
     app3.setCompanyId("companyA"); // same company as app1
     app3.setJobTitle("Data Scientist");
-    app3.setStatus(ApplicationStatusEnum.APPLIED);
+    app3.setStatus(ApplicationStatus.APPLIED);
     app3.setApplicationDeadline(LocalDate.now().plusDays(20));
     app3.setNumPositions(1);
 
@@ -96,7 +96,7 @@ public class ApplicationRepositoryTest {
   @Test
   public void findByUserIdAndStatus_whenMatchExists_expectReturnOne() {
     List<ApplicationModel> found =
-        repository.findByUserIdAndStatus("user1", ApplicationStatusEnum.INTERVIEWING);
+        repository.findByUserIdAndStatus("user1", ApplicationStatus.INTERVIEWING);
 
     assertThat(found).hasSize(1);
     assertThat(found.get(0).getJobTitle()).isEqualTo("Product Manager");
@@ -105,7 +105,7 @@ public class ApplicationRepositoryTest {
   @Test
   public void findByUserIdAndStatus_whenNoMatch_expectEmpty() {
     List<ApplicationModel> found =
-        repository.findByUserIdAndStatus("user1", ApplicationStatusEnum.REJECTED);
+        repository.findByUserIdAndStatus("user1", ApplicationStatus.REJECTED);
 
     assertThat(found).isEmpty();
   }
@@ -123,11 +123,11 @@ public class ApplicationRepositoryTest {
 
   @Test
   public void updateStatus_expectStatusChanged() {
-    app1.setStatus(ApplicationStatusEnum.ACCEPTED);
+    app1.setStatus(ApplicationStatus.ACCEPTED);
     repository.save(app1);
 
     Optional<ApplicationModel> updated = repository.findById(app1.getId());
     assertThat(updated).isPresent();
-    assertThat(updated.get().getStatus()).isEqualTo(ApplicationStatusEnum.ACCEPTED);
+    assertThat(updated.get().getStatus()).isEqualTo(ApplicationStatus.ACCEPTED);
   }
 }

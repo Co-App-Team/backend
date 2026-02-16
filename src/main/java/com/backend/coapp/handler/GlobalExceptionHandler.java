@@ -2,9 +2,9 @@ package com.backend.coapp.handler;
 
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
-import com.backend.coapp.model.enumeration.CompanyErrorCodeEnum;
+import com.backend.coapp.model.enumeration.CompanyErrorCode;
 import com.backend.coapp.model.enumeration.RequestErrorCode;
-import com.backend.coapp.model.enumeration.ReviewErrorCodeEnum;
+import com.backend.coapp.model.enumeration.ReviewErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
 import java.util.HashMap;
 import java.util.Map;
@@ -153,7 +153,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleCompanyAlreadyExistsException(
       CompanyAlreadyExistsException ex) {
     Map<String, Object> response = new HashMap<>();
-    response.put("error", CompanyErrorCodeEnum.COMPANY_ALREADY_EXISTS);
+    response.put("error", CompanyErrorCode.COMPANY_ALREADY_EXISTS);
     response.put("message", ex.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
   }
@@ -162,14 +162,14 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleCompanyNotFoundException(
       CompanyNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(Map.of("error", CompanyErrorCodeEnum.COMPANY_NOT_FOUND, "message", ex.getMessage()));
+        .body(Map.of("error", CompanyErrorCode.COMPANY_NOT_FOUND, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(InvalidWebsiteException.class)
   public ResponseEntity<Map<String, Object>> handleInvalidWebsiteException(
       InvalidWebsiteException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(Map.of("error", CompanyErrorCodeEnum.INVALID_WEBSITE, "message", ex.getMessage()));
+        .body(Map.of("error", CompanyErrorCode.INVALID_WEBSITE, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(CompanyServiceFailException.class)
@@ -190,7 +190,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleReviewAlreadyExistsException(
       ReviewAlreadyExistsException ex) {
     Map<String, Object> response = new HashMap<>();
-    response.put("error", ReviewErrorCodeEnum.REVIEW_ALREADY_EXISTS);
+    response.put("error", ReviewErrorCode.REVIEW_ALREADY_EXISTS);
     response.put("message", ex.getMessage());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
   }
@@ -199,14 +199,14 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleReviewNotFoundException(
       ReviewNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(Map.of("error", ReviewErrorCodeEnum.REVIEW_NOT_FOUND, "message", ex.getMessage()));
+        .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_FOUND, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(ReviewNotOwnedException.class)
   public ResponseEntity<Map<String, Object>> handleReviewNotOwnedException(
       ReviewNotOwnedException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(Map.of("error", ReviewErrorCodeEnum.REVIEW_NOT_OWNED, "message", ex.getMessage()));
+        .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_OWNED, "message", ex.getMessage()));
   }
 
   @ExceptionHandler(ReviewServiceFailException.class)

@@ -1,6 +1,6 @@
 package com.backend.coapp.model.document;
 
-import com.backend.coapp.model.enumeration.ApplicationStatusEnum;
+import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -38,7 +38,7 @@ public class ApplicationModel {
   private LocalDate applicationDeadline;
 
   @NotNull(message = "Status cannot be null")
-  private ApplicationStatusEnum status;
+  private ApplicationStatus status;
 
   // Auto-generated Fields
 

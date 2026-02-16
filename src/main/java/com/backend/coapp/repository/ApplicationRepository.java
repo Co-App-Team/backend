@@ -1,7 +1,7 @@
 package com.backend.coapp.repository;
 
 import com.backend.coapp.model.document.ApplicationModel;
-import com.backend.coapp.model.enumeration.ApplicationStatusEnum;
+import com.backend.coapp.model.enumeration.ApplicationStatus;
 import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -33,5 +33,5 @@ public interface ApplicationRepository extends MongoRepository<ApplicationModel,
    * @param status The status to filter by (e.g., INTERVIEWING)
    * @return A filtered list of applications
    */
-  List<ApplicationModel> findByUserIdAndStatus(String userId, ApplicationStatusEnum status);
+  List<ApplicationModel> findByUserIdAndStatus(String userId, ApplicationStatus status);
 }

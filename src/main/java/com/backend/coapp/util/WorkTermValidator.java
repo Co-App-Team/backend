@@ -1,6 +1,6 @@
 package com.backend.coapp.util;
 
-import com.backend.coapp.model.enumeration.WorkTermSeasonEnum;
+import com.backend.coapp.model.enumeration.WorkTermSeason;
 import java.time.Year;
 import lombok.experimental.UtilityClass;
 
@@ -21,7 +21,7 @@ public class WorkTermValidator {
       throw new IllegalArgumentException("Work term season cannot be null or empty");
     }
 
-    if (!WorkTermSeasonEnum.isValid(season)) {
+    if (!WorkTermSeason.isValid(season)) {
       throw new IllegalArgumentException("Work term season must be one of: Fall, Winter, Summer");
     }
   }
