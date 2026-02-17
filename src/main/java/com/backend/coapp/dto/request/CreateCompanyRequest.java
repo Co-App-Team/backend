@@ -1,6 +1,7 @@
 package com.backend.coapp.dto.request;
 
 import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.InvalidWebsiteException;
 import com.backend.coapp.util.UrlValidator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class CreateCompanyRequest implements IRequest {
     }
 
     if (!UrlValidator.isValidUrl(this.website)) {
-      throw new InvalidRequestException("The provided website URL is not valid.");
+      throw new InvalidWebsiteException();
     }
   }
 }
