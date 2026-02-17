@@ -3,6 +3,7 @@ package com.backend.coapp.dto.request;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.InvalidWebsiteException;
 import org.junit.jupiter.api.Test;
 
 public class CreateCompanyRequestTest {
@@ -55,6 +56,6 @@ public class CreateCompanyRequestTest {
 
     CreateCompanyRequest requestWebsiteInvalid =
         new CreateCompanyRequest("Niche", "Winnipeg", "niche.com");
-    assertThrows(InvalidRequestException.class, requestWebsiteInvalid::validateRequest);
+    assertThrows(InvalidWebsiteException.class, requestWebsiteInvalid::validateRequest);
   }
 }
