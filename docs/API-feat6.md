@@ -9,17 +9,25 @@ This document outlines the API endpoints for the AI resume builder feature of Co
 
 **Path:** `api/resume-ai-builder/`
 
-**Method:** `POST`
+**Method:** `GET`
 
-**Description**: Take user email and password, then check if password is correct. If yes, return JWT token; return authetication error if the password is incorrect
+**Description**: Prompt to chatbot 
 
 **Request Body** 
 
 ```json
 {
     "userPrompt": "question from user",
+    "applicationId" : "applicationID",
+    "experienceId": ["experienceId1","experienceId2"]
 }
 ```
+
+*Note: `applicationId` and `experienceId` are optional context.*
+
+> \[!IMPORTANT\]
+> Since we only allow users to select up to 2 experience to stay within context window limit.
+
 
 **Response 200 OK:**
 
@@ -45,13 +53,28 @@ Response body:
 Response body:
 ```json
 {
-  "error":"OVER_LIMIT_PROMPT_CHARACTER",
-  "message":"Your prompt is too long. Please shorten it and try again.."
+  "error":"OVER_LIMIT_CHARACTER",
+  "message":"Your prompt is too long. Please shorten it and try again..."
+}
+```
+
+**Response 400 BAD REQUESTS:**
+
+Response body:
+```json
+{
+  "error":"OVER_LIMIT_EXPERIENCE",
+  "message":"Only allow to select up to 2 experience. Please try again."
 }
 ```
 
 
 ### 2. Update users' profiles for GenAI context
+
+#### 2.1 View user information
+
+
+This is an updated of the same endpoint from `API-feat1.md`
 
 **Path:** `api/user/about-me`
 
@@ -62,7 +85,6 @@ Response body:
 Response body:
 ```json
 {
-    "userId": "user ID",
     "firstName":"user first name",
     "lastName": "user last name",
     "email": "user email",
@@ -81,6 +103,129 @@ Response body:
     ]
 }
 ```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error": "USER_NOT_EXIST",
+  "message": "User does NOT exist."
+}
+```
+
+#### 2.2 Add/update/delete experience
+
+**Path:** `api/user/past-experience`
+
+**Method:** `POST`
+
+**Description**: Create a new experience for the user
+
+**Request Body**
+
+```json
+{
+    "company": "Company A", 
+    "summary": "Summary of your role"
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "response":"Added successfully."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"OVER_LIMIT_CHARACTER",
+  "message":"Your description about your role is too long. Please short it and try again."
+}
+```
+
+**Method:** `PATCH`
+
+**Description**: Update the existing experience for the user
+
+**Request Body**
+
+```json
+{
+    "experienceId": "ID of the experience",
+    "company": "Company A", 
+    "summary": "Summary of your role"
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "response":"Updated successfully."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"OVER_LIMIT_CHARACTER",
+  "message":"Your description about your role is too long. Please short it and try again."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"EXPERIENCE_NOT_EXIST",
+  "message":"The experience doesn't exist or belong to the user."
+}
+```
+
+**Method:** `DELETE`
+
+**Description**: Delete the existing experience for the user
+
+**Request Body**
+
+```json
+{
+    "experienceId": "ID of the experience"
+}
+```
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "response":"Deleted successfully."
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"EXPERIENCE_NOT_EXIST",
+  "message":"The experience does not exist or not belong to the user."
+}
+```
+
+
+
 
 
 
