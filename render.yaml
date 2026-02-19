@@ -1,0 +1,31 @@
+version: "1"
+projects:
+  - name: CO-APP Project
+    environments:
+      - name: Development
+        services:
+          - type: web
+            name: coapp-backend-dev
+            runtime: docker
+            repo: https://github.com/Co-App-Team/backend
+            branch: dev
+            plan: free
+            envVars:
+              - key: JWT_SECRET_KEY
+                sync: false
+              - key: SPRING_DATA_MONGODB_URI
+                sync: false
+
+      - name: Production
+        services:
+          - type: web
+            name: coapp-backend-prod
+            runtime: docker
+            repo: https://github.com/Co-App-Team/backend
+            branch: main
+            plan: free
+            envVars:
+              - key: JWT_SECRET_KEY
+                sync: false
+              - key: SPRING_DATA_MONGODB_URI
+                sync: false
