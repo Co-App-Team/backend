@@ -27,7 +27,7 @@ We will use JSON Web Token (JWT) for managing users authentication and users ses
 **Response 200 OK:**
 Response header:
 ```
-Set-Cookie: Authorization=Bearer <token>; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
+Set-Cookie: Authorization=<token>; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
 ```
 
 *Each cookie is assumed to be expired in 2 hours.*
@@ -80,7 +80,7 @@ N/A
 
 Response header:
 ```
-Set-Cookie: Authorization=; HttpOnly; Secure; SameSite=Lax
+Set-Cookie: Authorization=; HttpOnly; Secure; SameSite=Lax; Max-Age=0
 ``` 
 
 Response body:
@@ -137,16 +137,6 @@ Response body:
 Response body:
 ```json
 {
-  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
-  "message":"Email, password, firstname and lastname can NOT be null or empty."
-}
-```
-
-**Response 400 BAD REQUEST:**
-
-Response body:
-```json
-{
   "error":"INVALID_EMAIL",
   "message":"Invalid provided email: <provided email.>"
 }
@@ -182,16 +172,6 @@ Response body:
 {
   "error":"INVALID_CONFIRMATION_CODE",
   "message":"Invalid confirmation code."
-}
-```
-
-**Response 400 BAD REQUEST:**
-
-Response body:
-```json
-{
-  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
-  "message":"Email can NOT be null or empty."
 }
 ```
 
@@ -248,16 +228,6 @@ Response body:
 }
 ```
 
-**Response 400 BAD REQUEST:**
-
-Response body:
-```json
-{
-  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
-  "message":"Email can NOT be null or empty."
-}
-```
-
 **Response 405 METHOD_NOT_ALLOWED:**
 
 Response body:
@@ -278,7 +248,7 @@ To change password, we will follow the process:
 
 **Description**: Take the email, and check if an account associated with the email exist and send confirmation code to the email.
 
-**Method:** `POST`
+**Method:** `PATCH`
 
 **Request Body** 
 
@@ -294,14 +264,6 @@ Response body:
 ```json
 {
   "message":"A confirmation code will be sent to your email. Please provide the code to reset your password."
-}
-```
-
-Response body:
-```json
-{
-  "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
-  "message":"Email can NOT be null or empty."
 }
 ```
 
@@ -332,7 +294,7 @@ Response body:
 
 **Description**: Check the confirmation code is correct, we let user to update the password
 
-**Method:** `POST`
+**Method:** `PATCH`
 
 **Request Body** 
 
@@ -363,13 +325,33 @@ Response body:
 }
 ```
 
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_DOES_NOT_EXIST",
+  "message":"No account with the provided email."
+}
+```
+
+**Response 401 UNAUTHORIZED:**
+
+Response body:
+```json
+{
+  "error":"ACCOUNT_NOT_ACTIVATED",
+  "message":"The account has not yet activated."
+}
+```
+
 5. Update password after login
 
 5.1. **Path:** `api/user/update-password`
 
-**Description**: After login, client can update password if client can provide old correctly password.
+**Description**: After login, client can update password if client can provide correct old password.
 
-**Method:** `GET`
+**Method:** `PATCH`
 
 **Request Body**
 

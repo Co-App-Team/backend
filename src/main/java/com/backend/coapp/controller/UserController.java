@@ -46,7 +46,7 @@ public class UserController {
     return ResponseEntity.ok().body(dummyUser.toMap());
   }
 
-  @PostMapping("/update-password")
+  @PatchMapping("/update-password")
   public ResponseEntity<Map<String, Object>> updatePassword(
       @RequestBody UpdatePasswordWithOldPasswordRequest request) {
     request.validateRequest();

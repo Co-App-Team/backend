@@ -29,8 +29,11 @@ public class EmailService {
    * @param targetEmail String email address to send to
    * @param subject String subject of the email
    * @param body String body of the email
+   * @throws EmailInvalidAddressException when provided email is invalid
+   * @throws EmailServiceException when internal logic goes wrong
    */
-  public void sendEmail(String targetEmail, String subject, String body) {
+  public void sendEmail(String targetEmail, String subject, String body)
+      throws EmailServiceException, EmailInvalidAddressException {
     if (subject == null || subject.isBlank()) {
       throw new EmailServiceException("Email subject is null or empty.");
     }

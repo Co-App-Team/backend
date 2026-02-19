@@ -3,8 +3,7 @@ package com.backend.coapp.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -75,7 +74,7 @@ public class UserControllerTest {
     doNothing().when(this.userService).udpateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
-            post("/api/user/update-password")
+            patch("/api/user/update-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
         .andExpect(status().isOk())
@@ -92,7 +91,7 @@ public class UserControllerTest {
         .udpateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
-            post("/api/user/update-password")
+            patch("/api/user/update-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
         .andExpect(status().isUnauthorized())
@@ -111,7 +110,7 @@ public class UserControllerTest {
         .udpateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
-            post("/api/user/update-password")
+            patch("/api/user/update-password")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
         .andExpect(status().isInternalServerError())

@@ -7,6 +7,7 @@ import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.service.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -56,7 +57,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       @NonNull HttpServletResponse response,
       @NonNull FilterChain filterChain)
       throws ServletException, IOException {
-    String authHeader = request.getHeader("Authorization");
+    String authHeader = null;
+    if (request.getCookies() != null) {
+      for (Cookie cookie : request.getCookies()) {
+        if ("Authorization".equals(cookie.getName())) {
+          authHeader = cookie.getValue();
+          break;
+        }
+      }
+    }
     String jwt;
     String userIdentity;
 
