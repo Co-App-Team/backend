@@ -219,8 +219,8 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred while processing your review."));
   }
 
-  @ExceptionHandler(UserNotExitException.class)
-  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExitException ex) {
+  @ExceptionHandler(UserNotExistException.class)
+  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExistException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
   }

@@ -156,7 +156,7 @@ public class UserServiceTest {
   @Test
   public void getUserInformationFromUserID_whenUserNotExit_expectException() {
     assertThrows(
-        UserNotExitException.class, () -> this.userService.getUserInformationFromUserID("999"));
+        UserNotExistException.class, () -> this.userService.getUserInformationFromUserID("999"));
   }
 
   @Test

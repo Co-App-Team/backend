@@ -89,10 +89,10 @@ public class UserService {
    * @param userID ID of an user
    * @return UserModel
    * @throws UserServiceFailException when DB fails to search for the user
-   * @throws UserNotExitException when user not exist
+   * @throws UserNotExistException when user not exist
    */
   public UserModel getUserInformationFromUserID(String userID)
-      throws UserServiceFailException, UserNotExitException {
+      throws UserServiceFailException, UserNotExistException {
     UserModel user;
     try {
       user = this.userRepository.findUserModelById(userID);
@@ -102,7 +102,7 @@ public class UserService {
           "Fail to retrieve user information. Please try again later");
     }
     if (user == null) {
-      throw new UserNotExitException();
+      throw new UserNotExistException();
     }
     return user;
   }

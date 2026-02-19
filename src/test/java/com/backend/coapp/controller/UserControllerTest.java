@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.AuthBadCredentialException;
-import com.backend.coapp.exception.UserNotExitException;
+import com.backend.coapp.exception.UserNotExistException;
 import com.backend.coapp.exception.UserServiceFailException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
@@ -140,7 +140,7 @@ public class UserControllerTest {
   @Test
   @WithMockUser(username = "testUserID")
   public void aboutMe_whenNoUserExist_expectException() throws Exception {
-    doThrow(new UserNotExitException())
+    doThrow(new UserNotExistException())
         .when(this.userService)
         .getUserInformationFromUserID(anyString());
     mockMvc
