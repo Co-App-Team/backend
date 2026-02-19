@@ -16,7 +16,8 @@ projects:
                 sync: false
               - key: SPRING_DATA_MONGODB_URI
                 sync: false
-
+              - key: NO_REPLY_EMAIL_PASSWORD
+                sync: false
           - type: web
             name: coapp-frontend-dev
             runtime: static
@@ -44,6 +45,8 @@ projects:
               - key: JWT_SECRET_KEY
                 sync: false
               - key: SPRING_DATA_MONGODB_URI
+                sync: false
+              - key: NO_REPLY_EMAIL_PASSWORD
                 sync: false
 
           - type: web
