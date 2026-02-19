@@ -36,7 +36,7 @@ projects:
       - name: Production
         services:
           - type: web
-            name: coapp-backend-prod
+            name: coapp-backend
             runtime: docker
             repo: https://github.com/Co-App-Team/backend
             branch: main
@@ -50,7 +50,7 @@ projects:
                 sync: false
 
           - type: web
-            name: coapp-frontend-prod
+            name: coapp
             runtime: static
             repo: https://github.com/Co-App-Team/frontend
             branch: main
