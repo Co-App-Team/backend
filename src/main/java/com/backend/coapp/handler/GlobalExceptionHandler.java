@@ -1,11 +1,7 @@
 package com.backend.coapp.handler;
 
 import com.backend.coapp.exception.*;
-import com.backend.coapp.model.enumeration.AuthErrorCode;
-import com.backend.coapp.model.enumeration.CompanyErrorCode;
-import com.backend.coapp.model.enumeration.RequestErrorCode;
-import com.backend.coapp.model.enumeration.ReviewErrorCode;
-import com.backend.coapp.model.enumeration.SystemErrorCode;
+import com.backend.coapp.model.enumeration.*;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -221,5 +217,11 @@ public class GlobalExceptionHandler {
                 SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "An unexpected error occurred while processing your review."));
+  }
+
+  @ExceptionHandler(UserNotExistException.class)
+  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExistException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
   }
 }

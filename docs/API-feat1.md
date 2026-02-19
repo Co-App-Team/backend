@@ -410,6 +410,39 @@ Response body:
 }
 ```
 
+6. Information of current user
+
+**Description**: After login, client can get information about user.
+
+**Method:** `GET`
+
+**Path:** `/api/user/about-me`
+
+**Request Body**
+
+N/A
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "lastName": "User last name",
+  "email": "user@mail.com",
+  "firstName": "User first name"
+}
+```
+
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+  "error": "USER_NOT_EXIST",
+  "message": "User does NOT exist."
+}
+```
+
 ---
 
 ### Preamble on JWT

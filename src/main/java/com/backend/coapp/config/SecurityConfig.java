@@ -41,6 +41,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers("/api/auth/**")
                     .permitAll()
+                    .requestMatchers("/api/common/**")
+                    .permitAll()
                     .anyRequest()
                     .authenticated())
         .sessionManagement(

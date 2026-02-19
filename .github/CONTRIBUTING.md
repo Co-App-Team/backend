@@ -79,5 +79,7 @@ After log in successfully, you can find `JWT` in cookie:
 
  ![loginFromPostman.png](../docs/img/loginFromPostman.png)
  
-For every API call, you need to include `JWT` token in the request: \
+Postman will also cache your cookie here: \
 ![tokenExample.png](../docs/img/tokenExample.png)
+
+If you need to clean cookie and login against, please select `Cookies` and remove `Authorization` cookie

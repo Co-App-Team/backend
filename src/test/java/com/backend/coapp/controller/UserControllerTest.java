@@ -10,9 +10,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.AuthBadCredentialException;
+import com.backend.coapp.exception.UserNotExistException;
 import com.backend.coapp.exception.UserServiceFailException;
+import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
+import com.backend.coapp.model.enumeration.UserErrorCode;
 import com.backend.coapp.service.JwtService;
 import com.backend.coapp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -116,5 +119,51 @@ public class UserControllerTest {
     ;
 
     verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
+  }
+
+  @Test
+  @WithMockUser(username = "testUserID")
+  public void aboutMe_whenSuccess_expectNoException() throws Exception {
+    UserModel dummyUser =
+        new UserModel("123", "foo@mail.com", "dummyPassword", "foo", "woof", true, 123);
+    doReturn(dummyUser).when(this.userService).getUserInformationFromUserID(anyString());
+    mockMvc
+        .perform(get("/api/user/about-me").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.email").value("foo@mail.com"))
+        .andExpect(jsonPath("$.firstName").value("foo"))
+        .andExpect(jsonPath("$.lastName").value("woof"));
+
+    verify(userService, times(1)).getUserInformationFromUserID("testUserID");
+  }
+
+  @Test
+  @WithMockUser(username = "testUserID")
+  public void aboutMe_whenNoUserExist_expectException() throws Exception {
+    doThrow(new UserNotExistException())
+        .when(this.userService)
+        .getUserInformationFromUserID(anyString());
+    mockMvc
+        .perform(get("/api/user/about-me").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.error").value(UserErrorCode.USER_NOT_EXIST.name()));
+
+    verify(userService, times(1)).getUserInformationFromUserID("testUserID");
+  }
+
+  @Test
+  @WithMockUser(username = "testUserID")
+  public void aboutMe_whenUserServiceFail_expectException() throws Exception {
+    doThrow(new UserServiceFailException("foo"))
+        .when(this.userService)
+        .getUserInformationFromUserID(anyString());
+    mockMvc
+        .perform(get("/api/user/about-me").contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
+
+    verify(userService, times(1)).getUserInformationFromUserID("testUserID");
   }
 }
