@@ -60,5 +60,5 @@ projects:
               - key: VITE_API_URL
                 fromService:
                   type: web
-                  name: coapp-backend-prod
+                  name: coapp-backend
                   property: host
