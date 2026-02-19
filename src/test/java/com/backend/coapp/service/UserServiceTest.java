@@ -1,5 +1,6 @@
 package com.backend.coapp.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -143,5 +144,29 @@ public class UserServiceTest {
                 this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
 
     verify(this.mockUserRepository, never()).save(any(UserModel.class));
+  }
+
+  @Test
+  public void getUserInformationFromUserID_whenUserExit_expectReturnUser() {
+    UserModel user = this.userService.getUserInformationFromUserID(this.fooUserActivated.getId());
+
+    assertThat(this.fooUserActivated).usingRecursiveComparison().isEqualTo(user);
+  }
+
+  @Test
+  public void getUserInformationFromUserID_whenUserNotExit_expectException() {
+    assertThrows(
+        UserNotExitException.class, () -> this.userService.getUserInformationFromUserID("999"));
+  }
+
+  @Test
+  public void getUserInformationFromUserID_whenUserRepoFail_expectException() {
+    this.userService = new UserService(this.mockUserRepository, this.passwordEncoder);
+
+    when(this.mockUserRepository.findUserModelById(any())).thenThrow(new RuntimeException());
+
+    assertThrows(
+        UserServiceFailException.class,
+        () -> this.userService.getUserInformationFromUserID(this.fooUserActivated.getId()));
   }
 }

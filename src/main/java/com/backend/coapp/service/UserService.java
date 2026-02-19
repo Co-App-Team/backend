@@ -82,4 +82,28 @@ public class UserService {
       throw new UserServiceFailException("Fail to update your password. Please try again later");
     }
   }
+
+  /**
+   * Get user model by user ID
+   *
+   * @param userID ID of an user
+   * @return UserModel
+   * @throws UserServiceFailException when DB fails to search for the user
+   * @throws UserNotExitException when user not exist
+   */
+  public UserModel getUserInformationFromUserID(String userID)
+      throws UserServiceFailException, UserNotExitException {
+    UserModel user;
+    try {
+      user = this.userRepository.findUserModelById(userID);
+
+    } catch (Exception e) {
+      throw new UserServiceFailException(
+          "Fail to retrieve user information. Please try again later");
+    }
+    if (user == null) {
+      throw new UserNotExitException();
+    }
+    return user;
+  }
 }
