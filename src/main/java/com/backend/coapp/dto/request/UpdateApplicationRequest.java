@@ -1,0 +1,40 @@
+package com.backend.coapp.dto.request;
+
+import com.backend.coapp.util.ApplicationConstants;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+import org.hibernate.validator.constraints.URL;
+
+@Data
+public class UpdateApplicationRequest {
+
+  // Fields that can be updated
+  private String companyId;
+  private String jobTitle;
+
+  @Size(
+      max = ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH,
+      message = "Description cannot exceed 2000 characters")
+  private String jobDescription;
+
+  @Size(
+      max = ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH,
+      message = "Notes cannot exceed 2000 characters")
+  private String notes;
+
+  @URL(message = "Source link must be a valid URL")
+  private String sourceLink;
+
+  /**
+   * Manually validates the request payload before hitting the service layer. Throws an exception if
+   * required fields are missing.
+   */
+  public void validateRequest() {
+    if (this.companyId == null || this.companyId.isBlank()) {
+      throw new IllegalArgumentException("Company ID cannot be blank.");
+    }
+    if (this.jobTitle == null || this.jobTitle.isBlank()) {
+      throw new IllegalArgumentException("Job Title cannot be blank.");
+    }
+  }
+}

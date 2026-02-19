@@ -7,6 +7,7 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -223,5 +224,23 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExistException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(HttpMessageNotReadableException.class)
+  public ResponseEntity<Map<String, Object>> handleMessageNotReadable(
+      HttpMessageNotReadableException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            Map.of(
+                "error",
+                RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
+                "message",
+                "Request body is missing or malformed."));
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", "BAD_REQUEST", "message", ex.getMessage()));
   }
 }
