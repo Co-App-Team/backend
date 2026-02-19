@@ -249,6 +249,38 @@ public class JwtAuthFilterTest {
     assertEquals(authToken, SecurityContextHolder.getContext().getAuthentication());
   }
 
+  @Test
+  public void doFilterInternal_whenMultipleCookiesButNoAuthCookie_shouldSkipAuth()
+      throws Exception {
+    request.setCookies(
+        new Cookie("session", "abc"), new Cookie("theme", "dark"), new Cookie("lang", "en"));
+
+    this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    verify(jwtService, never()).extractUserIdentity(any());
+    verify(filterChain).doFilter(request, response);
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+  }
+
+  @Test
+  public void doFilterInternal_whenAuthCookieAmongMultipleCookies_shouldAuthenticate()
+      throws Exception {
+    request.setCookies(
+        new Cookie("session", "abc"),
+        new Cookie("Authorization", JWT_TOKEN),
+        new Cookie("lang", "en"));
+
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
+    when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
+    when(jwtService.isTokenValid(anyString(), any())).thenReturn(true);
+
+    this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    verify(jwtService, atLeastOnce()).extractUserIdentity(JWT_TOKEN);
+    verify(filterChain).doFilter(request, response);
+    assertNotNull(SecurityContextHolder.getContext().getAuthentication());
+  }
+
   /**
    * Parse MockHttpServletResponse to Map<String,String>
    *
