@@ -12,6 +12,7 @@ import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.model.enumeration.UserRoles;
 import com.backend.coapp.service.JwtService;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
@@ -65,7 +66,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenEverythingSuccess() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
     when(jwtService.isTokenValid(anyString(), any())).thenReturn(true);
@@ -95,7 +96,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenJwtExpire_expect401() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtExpiredException());
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -116,7 +117,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenJwtInvalid_expect401() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtInvalidTokenException());
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -137,7 +138,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenJwtServiceFail_expect500() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtServiceFailException("foo"));
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -158,7 +159,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenExtractUserEmailNull_expect401() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(null);
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -173,7 +174,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenExtractUserEmailBlank_expect401() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn("");
 
     this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
@@ -188,7 +189,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenJwtInvalidFromIsTokenValid_expect401() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
     when(jwtService.isTokenValid(anyString(), any())).thenReturn(false);
@@ -211,7 +212,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenUserEmailNotFound_expect401() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString()))
         .thenThrow(new UsernameNotFoundException("foo"));
@@ -234,7 +235,7 @@ public class JwtAuthFilterTest {
 
   @Test
   public void doFilterInternal_whenAlreadyAuth_expect200() throws Exception {
-    request.addHeader("Authorization", JWT_TOKEN);
+    request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     UsernamePasswordAuthenticationToken authToken =
         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -246,6 +247,38 @@ public class JwtAuthFilterTest {
     verify(filterChain, times(1)).doFilter(request, response);
     verifyNoInteractions(userDetailsService);
     assertEquals(authToken, SecurityContextHolder.getContext().getAuthentication());
+  }
+
+  @Test
+  public void doFilterInternal_whenMultipleCookiesButNoAuthCookie_shouldSkipAuth()
+      throws Exception {
+    request.setCookies(
+        new Cookie("session", "abc"), new Cookie("theme", "dark"), new Cookie("lang", "en"));
+
+    this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    verify(jwtService, never()).extractUserIdentity(any());
+    verify(filterChain).doFilter(request, response);
+    assertNull(SecurityContextHolder.getContext().getAuthentication());
+  }
+
+  @Test
+  public void doFilterInternal_whenAuthCookieAmongMultipleCookies_shouldAuthenticate()
+      throws Exception {
+    request.setCookies(
+        new Cookie("session", "abc"),
+        new Cookie("Authorization", JWT_TOKEN),
+        new Cookie("lang", "en"));
+
+    when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
+    when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
+    when(jwtService.isTokenValid(anyString(), any())).thenReturn(true);
+
+    this.jwtAuthFilter.doFilterInternal(request, response, filterChain);
+
+    verify(jwtService, atLeastOnce()).extractUserIdentity(JWT_TOKEN);
+    verify(filterChain).doFilter(request, response);
+    assertNotNull(SecurityContextHolder.getContext().getAuthentication());
   }
 
   /**
