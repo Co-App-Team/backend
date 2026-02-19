@@ -2,13 +2,14 @@ version: "1"
 projects:
   - name: CO-APP Project
     environments:
+      # dev
       - name: Development
         services:
           - type: web
             name: coapp-backend-dev
             runtime: docker
-            repo: https://github.com/Co-App-Team/backend
-            branch: dev
+            repo: https://github.com/Co-App-Team/backend # Explicitly pointed
+            branch: develop
             plan: free
             envVars:
               - key: JWT_SECRET_KEY
@@ -16,6 +17,21 @@ projects:
               - key: SPRING_DATA_MONGODB_URI
                 sync: false
 
+          - type: web
+            name: coapp-frontend-dev
+            runtime: static
+            repo: https://github.com/Co-App-Team/frontend # Pointed to the other repo
+            branch: develop
+            buildCommand: npm run build
+            staticPublishPath: dist
+            envVars:
+              - key: VITE_API_URL
+                fromService:
+                  type: web
+                  name: coapp-backend-dev
+                  property: host
+
+      # prod
       - name: Production
         services:
           - type: web
@@ -29,3 +45,17 @@ projects:
                 sync: false
               - key: SPRING_DATA_MONGODB_URI
                 sync: false
+
+          - type: web
+            name: coapp-frontend-prod
+            runtime: static
+            repo: https://github.com/Co-App-Team/frontend
+            branch: main
+            buildCommand: npm run build
+            staticPublishPath: dist
+            envVars:
+              - key: VITE_API_URL
+                fromService:
+                  type: web
+                  name: coapp-backend-prod
+                  property: host
