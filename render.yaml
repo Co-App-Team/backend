@@ -8,7 +8,7 @@ projects:
           - type: web
             name: coapp-backend-dev
             runtime: docker
-            repo: https://github.com/Co-App-Team/backend # Explicitly pointed
+            repo: https://github.com/Co-App-Team/backend
             branch: develop
             plan: free
             envVars:
@@ -21,7 +21,7 @@ projects:
           - type: web
             name: coapp-frontend-dev
             runtime: static
-            repo: https://github.com/Co-App-Team/frontend # Pointed to the other repo
+            repo: https://github.com/Co-App-Team/frontend
             branch: develop
             buildCommand: npm run build
             staticPublishPath: dist
