@@ -1,0 +1,103 @@
+package com.backend.coapp.repository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.backend.coapp.model.document.UserGenAIUsageModel;
+import java.time.LocalDateTime;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+
+@SpringBootTest
+@Testcontainers
+public class UserGenAIUsageRepositoryTest {
+
+  @Container @ServiceConnection
+  static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
+
+  @Autowired UserGenAIUsageRepository repository;
+
+  private final LocalDateTime NOW = LocalDateTime.now();
+
+  UserGenAIUsageModel fooUser;
+  UserGenAIUsageModel notFooUser;
+
+  @BeforeEach
+  public void setUp() {
+    repository.deleteAll();
+    fooUser = repository.save(new UserGenAIUsageModel(null, "fooUserId", 5, 100, NOW));
+    notFooUser = repository.save(new UserGenAIUsageModel(null, "notFooUserId", 10, 100, NOW));
+  }
+
+  @Test
+  public void save_whenNoIdDefined_expectSetsIdOnSave() {
+    UserGenAIUsageModel model =
+        repository.save(new UserGenAIUsageModel(null, "newUserId", 0, 100, NOW));
+
+    assertNotNull(model.getId());
+  }
+
+  @Test
+  public void findUserGenAIUsageModelByUserId_whenUserExists_expectReturnCorrectModel() {
+    UserGenAIUsageModel found = repository.findUserGenAIUsageModelByUserId(fooUser.getUserId());
+
+    assertNotNull(found);
+    assertEquals(fooUser.getUserId(), found.getUserId());
+    assertEquals(fooUser.getRequestCount(), found.getRequestCount());
+    assertEquals(fooUser.getMonthlyLimit(), found.getMonthlyLimit());
+    assertNotNull(found.getId());
+  }
+
+  @Test
+  public void findUserGenAIUsageModelByUserId_whenUserDoesNotExist_expectReturnNull() {
+    UserGenAIUsageModel found = repository.findUserGenAIUsageModelByUserId("nonExistentUserId");
+
+    assertNull(found);
+  }
+
+  @Test
+  public void findUserGenAIUsageModelByUserId_whenMultipleUsersExist_expectReturnCorrectOne() {
+    UserGenAIUsageModel found = repository.findUserGenAIUsageModelByUserId(fooUser.getUserId());
+
+    assertNotNull(found);
+    assertEquals(fooUser.getUserId(), found.getUserId());
+    assertNotEquals(found.getUserId(), notFooUser.getUserId());
+  }
+
+  @Test
+  public void findAll_expectReturnAllModels() {
+    List<UserGenAIUsageModel> models = repository.findAll();
+
+    assertThat(models)
+        .hasSize(2)
+        .extracting("userId")
+        .contains(fooUser.getUserId(), notFooUser.getUserId());
+  }
+
+  @Test
+  public void deleteById_whenDeleteAlice_expectAliceRemoved() {
+    repository.deleteById(fooUser.getId());
+
+    List<UserGenAIUsageModel> models = repository.findAll();
+    assertThat(models).hasSize(1);
+
+    UserGenAIUsageModel deleted = repository.findUserGenAIUsageModelByUserId(fooUser.getUserId());
+    assertNull(deleted);
+  }
+
+  @Test
+  public void save_whenUpdateRequestCount_expectRequestCountUpdated() {
+    fooUser.setRequestCount(50);
+    repository.save(fooUser);
+
+    UserGenAIUsageModel updated = repository.findUserGenAIUsageModelByUserId(fooUser.getUserId());
+    assertEquals(50, updated.getRequestCount());
+  }
+}
