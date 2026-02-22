@@ -13,6 +13,7 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/** Business logic relate to manage users' GenAI usage */
 @Service
 @Getter
 public class GenAIUsageManagementService {
@@ -26,6 +27,14 @@ public class GenAIUsageManagementService {
     this.userRepository = userRepository;
   }
 
+  /**
+   * Check if user exceed GenAI usage limit. If not, increase by one for the current request.
+   *
+   * @param userId ID of user request using GenAI
+   * @throws GenAIUsageManagementServiceException when something goes wrong (Internal)
+   * @throws UserNotExistException when the ID of the user doesn't exist in the database
+   * @throws GenAIQuotaExceededException when the user exceeds GenAI usage limit
+   */
   public void checkAndIncrementUsage(String userId)
       throws GenAIUsageManagementServiceException,
           UserNotExistException,

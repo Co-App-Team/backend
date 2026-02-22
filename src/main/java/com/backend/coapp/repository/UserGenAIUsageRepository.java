@@ -3,6 +3,7 @@ package com.backend.coapp.repository;
 import com.backend.coapp.model.document.UserGenAIUsageModel;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
+/** Repository for tracking GenAI usage of each user */
 public interface UserGenAIUsageRepository extends MongoRepository<UserGenAIUsageModel, String> {
 
   /**

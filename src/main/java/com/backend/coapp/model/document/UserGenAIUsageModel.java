@@ -11,6 +11,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+/** Record for tracking users' GenAI usage */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,6 +33,13 @@ public class UserGenAIUsageModel {
   @NotNull(message = "Last reset timestamp cannot be null")
   private LocalDateTime lastReset;
 
+  /**
+   * New record for tracking users' GenAI usage
+   *
+   * @param userId ID of the existing user
+   * @param monthlyLimit GenAI usage limit for this user
+   * @param lastReset the last time when request count is reset
+   */
   public UserGenAIUsageModel(
       @NotNull String userId, @PositiveOrZero int monthlyLimit, @NotNull LocalDateTime lastReset) {
     this.userId = userId;
