@@ -1,6 +1,6 @@
 package com.backend.coapp.model.document;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
@@ -131,5 +131,17 @@ public class UserGenAIUsageModelTest {
     UserGenAIUsageModel model = buildValidModel();
     model.setLastReset(LocalDateTime.now());
     assertNoViolations(model);
+  }
+
+  @Test
+  public void constructor_whenUsingThreeArg_shouldSetFieldsCorrectly() {
+    UserGenAIUsageModel model =
+        new UserGenAIUsageModel(VALID_USER_ID, VALID_MONTHLY_LIMIT, VALID_LAST_RESET);
+
+    assertEquals(VALID_USER_ID, model.getUserId());
+    assertEquals(VALID_MONTHLY_LIMIT, model.getMonthlyLimit());
+    assertEquals(VALID_LAST_RESET, model.getLastReset());
+    assertEquals(0, model.getRequestCount());
+    assertNull(model.getId());
   }
 }

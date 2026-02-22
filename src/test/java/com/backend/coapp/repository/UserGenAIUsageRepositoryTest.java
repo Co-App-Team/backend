@@ -100,4 +100,20 @@ public class UserGenAIUsageRepositoryTest {
     UserGenAIUsageModel updated = repository.findUserGenAIUsageModelByUserId(fooUser.getUserId());
     assertEquals(50, updated.getRequestCount());
   }
+
+  @Test
+  public void save_whenInitWithThreeArg_expectAutoGenerateIdAndZeroForCount() {
+    UserGenAIUsageModel newUser = new UserGenAIUsageModel("newFooUserId", 100, NOW);
+
+    repository.save(newUser);
+
+    UserGenAIUsageModel foundUser = repository.findUserGenAIUsageModelByUserId(newUser.getUserId());
+
+    assertNotNull(foundUser);
+    assertNotNull(foundUser.getId());
+    assertEquals(0, foundUser.getRequestCount());
+    assertEquals(newUser.getUserId(), foundUser.getUserId());
+    assertEquals(newUser.getMonthlyLimit(), foundUser.getMonthlyLimit());
+    assertNotNull(foundUser.getLastReset());
+  }
 }

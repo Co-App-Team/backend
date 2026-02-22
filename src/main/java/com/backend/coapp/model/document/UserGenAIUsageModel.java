@@ -31,4 +31,12 @@ public class UserGenAIUsageModel {
 
   @NotNull(message = "Last reset timestamp cannot be null")
   private LocalDateTime lastReset;
+
+  public UserGenAIUsageModel(
+      @NotNull String userId, @PositiveOrZero int monthlyLimit, @NotNull LocalDateTime lastReset) {
+    this.userId = userId;
+    this.monthlyLimit = monthlyLimit;
+    this.lastReset = lastReset;
+    this.requestCount = 0;
+  }
 }
