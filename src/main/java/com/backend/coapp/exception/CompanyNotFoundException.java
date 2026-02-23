@@ -10,6 +10,6 @@ public class CompanyNotFoundException extends RuntimeException {
   }
 
   public CompanyNotFoundException() {
-    super("Company with the provided id does not exist.");
+    super("Company with this companyId does not exist.");
   }
 }
