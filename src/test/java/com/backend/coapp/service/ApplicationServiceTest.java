@@ -1,6 +1,8 @@
 package com.backend.coapp.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
@@ -37,7 +39,6 @@ public class ApplicationServiceTest {
 
   private ApplicationService applicationService;
 
-  // Mocks for failure testing
   private ApplicationRepository mockAppRepo;
   private CompanyRepository mockCompRepo;
   private UserRepository mockUserRepo;
@@ -48,13 +49,15 @@ public class ApplicationServiceTest {
 
   @BeforeEach
   public void setUp() {
+    // Clear DB for Integration Tests
     this.applicationRepository.deleteAll();
     this.companyRepository.deleteAll();
     this.userRepository.deleteAll();
 
-    // Setup Real Data
+    // Setup Real Data for Integration Tests
     this.testCompany = new CompanyModel("Google", "Mountain View", "https://google.com");
     this.companyRepository.save(testCompany);
+
     this.testUser =
         new UserModel("user_001", "test@example.com", "password123", "John", "Doe", true, 1234);
     this.userRepository.save(testUser);
@@ -69,14 +72,17 @@ public class ApplicationServiceTest {
             .build();
     this.applicationRepository.save(existingApp);
 
+    // Service with real repositories for Integration Tests
     this.applicationService =
         new ApplicationService(applicationRepository, companyRepository, userRepository);
 
-    // Setup Mocks
+    // Mocks for Unit Tests
     this.mockAppRepo = Mockito.mock(ApplicationRepository.class);
     this.mockCompRepo = Mockito.mock(CompanyRepository.class);
     this.mockUserRepo = Mockito.mock(UserRepository.class);
   }
+
+  // INTEGRATION TESTS (Using Testcontainers)
 
   @Test
   public void constructor_expectSameInitInstance() {
@@ -84,7 +90,7 @@ public class ApplicationServiceTest {
     assertSame(this.companyRepository, this.applicationService.getCompanyRepository());
   }
 
-  // --- Create Application Tests ---
+  // --- Create Application Integration Tests ---
 
   @Test
   public void createApplication_whenValid_expectSuccess() {
@@ -144,7 +150,6 @@ public class ApplicationServiceTest {
 
   @Test
   public void createApplication_whenDuplicate_expectException() {
-    // Attempting to create exactly what was saved in setUp
     assertThrows(
         DuplicateApplicationException.class,
         () ->
@@ -161,33 +166,7 @@ public class ApplicationServiceTest {
                 null));
   }
 
-  @Test
-  public void createApplication_whenDatabaseFails_expectServiceFailException() {
-    ApplicationService serviceWithMocks =
-        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo);
-
-    when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
-    when(mockUserRepo.findById(anyString())).thenReturn(Optional.of(testUser));
-    when(mockAppRepo.existsByUserIdAndCompanyIdAndJobTitle(any(), any(), any())).thenReturn(false);
-    when(mockAppRepo.save(any())).thenThrow(new RuntimeException("DB Crash"));
-
-    assertThrows(
-        ApplicationServiceFailException.class,
-        () ->
-            serviceWithMocks.createApplication(
-                "u1",
-                "c1",
-                "t1",
-                ApplicationStatus.APPLIED,
-                LocalDate.now(),
-                null,
-                1,
-                null,
-                null,
-                null));
-  }
-
-  // --- Update Application Tests ---
+  // --- Update Application Integration Tests ---
 
   @Test
   public void updateApplication_whenValid_expectSuccess() {
@@ -198,11 +177,12 @@ public class ApplicationServiceTest {
             testCompany.getId(),
             "Senior SE",
             "New Desc",
-            null,
+            "https://new.link",
             "New Notes");
 
     assertEquals("Senior SE", response.getJobTitle());
     assertEquals("New Desc", response.getJobDescription());
+    assertEquals("New Notes", response.getNotes());
   }
 
   @Test
@@ -241,10 +221,25 @@ public class ApplicationServiceTest {
         ApplicationNotFoundException.class,
         () ->
             this.applicationService.updateApplication(
-                "invalid_app", "u1", "c1", "t", "d", "l", "n"));
+                "invalid_app_id", "user_001", "c1", "t", "d", "l", "n"));
   }
 
-  // --- Delete Application Tests ---
+  @Test
+  public void updateApplication_whenNewCompanyNotFound_expectException() {
+    assertThrows(
+        CompanyNotFoundException.class,
+        () ->
+            this.applicationService.updateApplication(
+                existingApp.getId(),
+                "user_001",
+                "non_existent_company",
+                "Title",
+                "Desc",
+                null,
+                null));
+  }
+
+  // --- Delete Application Integration Tests ---
 
   @Test
   public void deleteApplication_whenValid_expectDeleted() {
@@ -258,5 +253,65 @@ public class ApplicationServiceTest {
     assertThrows(
         UnauthorizedApplicationAccessException.class,
         () -> this.applicationService.deleteApplication(existingApp.getId(), "malicious_user"));
+  }
+
+  @Test
+  public void deleteApplication_whenApplicationNotFound_expectException() {
+    assertThrows(
+        ApplicationNotFoundException.class,
+        () -> this.applicationService.deleteApplication("non_existent_id", "user_001"));
+  }
+
+  // UNIT TESTS
+
+  @Test
+  public void createApplication_whenDatabaseFails_expectServiceFailException() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo);
+
+    when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
+    when(mockUserRepo.findById(anyString())).thenReturn(Optional.of(testUser));
+    when(mockAppRepo.existsByUserIdAndCompanyIdAndJobTitle(anyString(), anyString(), anyString()))
+        .thenReturn(false);
+    when(mockAppRepo.save(any())).thenThrow(new RuntimeException("DB Crash"));
+
+    assertThrows(
+        ApplicationServiceFailException.class,
+        () ->
+            serviceWithMocks.createApplication(
+                "u1",
+                "c1",
+                "t1",
+                ApplicationStatus.APPLIED,
+                LocalDate.now(),
+                null,
+                1,
+                null,
+                null,
+                null));
+  }
+
+  @Test
+  public void updateApplication_whenDbFails_expectRuntimeException() {
+
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo);
+
+    ApplicationModel mockApp = mock(ApplicationModel.class);
+    when(mockApp.getUserId()).thenReturn("user_001");
+    when(mockApp.getCompanyId()).thenReturn("c1");
+    when(mockApp.getJobTitle()).thenReturn("Old Title");
+    when(mockApp.getJobDescription()).thenReturn("Old Desc");
+    when(mockApp.getSourceLink()).thenReturn("http://old.com");
+
+    when(mockAppRepo.findById(anyString())).thenReturn(Optional.of(mockApp));
+    when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenThrow(new RuntimeException("Update DB Crash"));
+
+    assertThrows(
+        RuntimeException.class,
+        () ->
+            serviceWithMocks.updateApplication(
+                "app1", "user_001", "c1", "New Title", "Desc", "Link", "Notes"));
   }
 }

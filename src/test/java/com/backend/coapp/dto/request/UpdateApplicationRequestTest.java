@@ -76,7 +76,6 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenOptionalFieldsAreNull_expectSuccess() {
-    // Ensuring that the manual validation doesn't care about the optional fields
     request.setJobDescription(null);
     request.setNotes(null);
     request.setSourceLink(null);

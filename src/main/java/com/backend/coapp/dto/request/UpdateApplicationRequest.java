@@ -8,7 +8,6 @@ import org.hibernate.validator.constraints.URL;
 @Data
 public class UpdateApplicationRequest {
 
-  // Fields that can be updated
   private String companyId;
   private String jobTitle;
 
@@ -25,10 +24,6 @@ public class UpdateApplicationRequest {
   @URL(message = "Source link must be a valid URL")
   private String sourceLink;
 
-  /**
-   * Manually validates the request payload before hitting the service layer. Throws an exception if
-   * required fields are missing.
-   */
   public void validateRequest() {
     if (this.companyId == null || this.companyId.isBlank()) {
       throw new IllegalArgumentException("Company ID cannot be blank.");

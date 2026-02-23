@@ -19,17 +19,13 @@ public class ApplicationResponse implements IResponse {
   private ApplicationStatus status;
   private LocalDate applicationDeadline;
 
+  // optional fields
   private String jobDescription;
   private Integer numPositions;
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
 
-  /**
-   * Create a map, where keys are object attributes name and values are attributes' values
-   *
-   * @return Map<String, Object>
-   */
   @Override
   public Map<String, Object> toMap() {
     Map<String, Object> map = new HashMap<>();
@@ -46,12 +42,6 @@ public class ApplicationResponse implements IResponse {
     return map;
   }
 
-  /**
-   * Map CompanyModel to CompanyResponse DTO
-   *
-   * @param application The company model to map
-   * @return ApplicationResponse DTO
-   */
   public static ApplicationResponse fromModel(ApplicationModel application) {
     return new ApplicationResponse(
         application.getUserId(),

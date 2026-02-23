@@ -1,7 +1,6 @@
 package com.backend.coapp.dto.response;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
@@ -51,25 +50,28 @@ public class ApplicationResponseTest {
 
   @Test
   public void fromModel_whenValidModel_expectCorrectMapping() {
-    // Mock the model to isolate mapping logic
-    ApplicationModel model = mock(ApplicationModel.class);
-    when(model.getUserId()).thenReturn(userId);
-    when(model.getCompanyId()).thenReturn(companyId);
-    when(model.getJobTitle()).thenReturn(jobTitle);
-    when(model.getStatus()).thenReturn(status);
-    when(model.getApplicationDeadline()).thenReturn(deadline);
-    when(model.getJobDescription()).thenReturn(description);
-    when(model.getNumPositions()).thenReturn(numPositions);
-    when(model.getSourceLink()).thenReturn(source);
-    when(model.getDateApplied()).thenReturn(appliedDate);
-    when(model.getNotes()).thenReturn(notes);
+    ApplicationModel model =
+        ApplicationModel.builder()
+            .userId(userId)
+            .companyId(companyId)
+            .jobTitle(jobTitle)
+            .status(status)
+            .applicationDeadline(deadline)
+            .jobDescription(description)
+            .numPositions(numPositions)
+            .sourceLink(source)
+            .dateApplied(appliedDate)
+            .notes(notes)
+            .build();
 
     ApplicationResponse response = ApplicationResponse.fromModel(model);
 
     assertNotNull(response);
     assertEquals(userId, response.getUserId());
+    assertEquals(companyId, response.getCompanyId());
+    assertEquals(jobTitle, response.getJobTitle());
     assertEquals(notes, response.getNotes());
-    verify(model, times(1)).getUserId();
+    assertEquals(status, response.getStatus());
   }
 
   @Test
@@ -90,6 +92,7 @@ public class ApplicationResponseTest {
     Map<String, Object> map = response.toMap();
 
     assertNotNull(map);
+    assertEquals(10, map.size());
     assertEquals(userId, map.get("userId"));
     assertEquals(companyId, map.get("companyId"));
     assertEquals(jobTitle, map.get("jobTitle"));
@@ -99,9 +102,6 @@ public class ApplicationResponseTest {
     assertEquals(numPositions, map.get("numPositions"));
     assertEquals(source, map.get("sourceLink"));
     assertEquals(appliedDate, map.get("dateApplied"));
-
-    // This test might fail based on your current implementation:
-    // map.put("notes", this.jobDescription); <--- Bug in your code!
     assertEquals(notes, map.get("notes"), "The notes key in the map should match the notes field");
   }
 
@@ -115,6 +115,8 @@ public class ApplicationResponseTest {
 
     assertTrue(map.containsKey("jobDescription"));
     assertNull(map.get("jobDescription"));
+    assertTrue(map.containsKey("notes"));
+    assertNull(map.get("notes"));
     assertEquals(userId, map.get("userId"));
   }
 }

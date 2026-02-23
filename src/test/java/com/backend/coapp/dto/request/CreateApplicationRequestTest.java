@@ -15,7 +15,6 @@ public class CreateApplicationRequestTest {
   private final LocalDate validDeadline = LocalDate.of(2025, 12, 31);
   private final String validUrl = "https://careers.google.com";
 
-  // The prefix being added by your InvalidRequestException class
   private final String EXCEPTION_PREFIX = "Invalid inputs of the request. ";
 
   @Test
@@ -57,33 +56,82 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
+  public void validateRequest_whenCompanyIdIsNull_expectException() {
+    CreateApplicationRequest request =
+        new CreateApplicationRequest(
+            null, validJobTitle, validStatus, validDeadline, null, null, null, null, null);
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(EXCEPTION_PREFIX + "Company id cannot be null or empty.", exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenCompanyIdIsBlank_expectException() {
+    CreateApplicationRequest request =
+        new CreateApplicationRequest(
+            " ", validJobTitle, validStatus, validDeadline, null, null, null, null, null);
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(EXCEPTION_PREFIX + "Company id cannot be null or empty.", exception.getMessage());
+  }
+
+  // --- Job Title Validation ---
+
+  @Test
+  public void validateRequest_whenJobTitleIsNull_expectException() {
+    CreateApplicationRequest request =
+        new CreateApplicationRequest(
+            validCompanyId, null, validStatus, validDeadline, null, null, null, null, null);
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(EXCEPTION_PREFIX + "Job title cannot be null or empty.", exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenJobTitleIsBlank_expectException() {
+    CreateApplicationRequest request =
+        new CreateApplicationRequest(
+            validCompanyId, " ", validStatus, validDeadline, null, null, null, null, null);
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(EXCEPTION_PREFIX + "Job title cannot be null or empty.", exception.getMessage());
+  }
+
+  @Test
   public void validateRequest_whenStatusIsNull_expectException() {
-    CreateApplicationRequest nullStatus =
+    CreateApplicationRequest request =
         new CreateApplicationRequest(
             validCompanyId, validJobTitle, null, validDeadline, null, null, null, null, null);
 
     InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, nullStatus::validateRequest);
+        assertThrows(InvalidRequestException.class, request::validateRequest);
 
-    // Updated to match your custom exception's prefixing logic
     assertEquals(EXCEPTION_PREFIX + "Status cannot be null.", exception.getMessage());
   }
 
   @Test
   public void validateRequest_whenDeadlineIsNull_expectException() {
-    CreateApplicationRequest nullDeadline =
+    CreateApplicationRequest request =
         new CreateApplicationRequest(
             validCompanyId, validJobTitle, validStatus, null, null, null, null, null, null);
 
     InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, nullDeadline::validateRequest);
+        assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(EXCEPTION_PREFIX + "Application deadline cannot be null.", exception.getMessage());
   }
 
   @Test
   public void validateRequest_whenSourceLinkIsInvalid_expectException() {
-    CreateApplicationRequest invalidUrl =
+    CreateApplicationRequest request =
         new CreateApplicationRequest(
             validCompanyId,
             validJobTitle,
@@ -95,8 +143,10 @@ public class CreateApplicationRequestTest {
             null,
             null);
 
-    Exception ex = assertThrows(InvalidRequestException.class, invalidUrl::validateRequest);
-    assertEquals(EXCEPTION_PREFIX + "Source link is not a valid URL.", ex.getMessage());
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(EXCEPTION_PREFIX + "Source link is not a valid URL.", exception.getMessage());
   }
 
   @Test

@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-@Getter // For testing only
+@Getter
 public class ApplicationService {
 
   private final ApplicationRepository applicationRepository;
@@ -32,19 +32,23 @@ public class ApplicationService {
   }
 
   /**
-   * Create a new application
+   * Create a new job application
    *
-   * @param userId userId of the user applying for the job
-   * @param companyId companyId of the company applying for
-   * @param jobTitle job title of the position
-   * @param status status of the application (e.g., INTERVIEWING)
-   * @param applicationDeadline deadline for the application
-   * @param jobDescription information about the job
-   * @param numPositions number of positions available
-   * @param sourceLink link to the job posting
-   * @param dateApplied date the application was submitted
-   * @param notes notes regarding the application/job
-   * @return ApplicationResponse DTO
+   * @param userId ID of the applying user (must exist)
+   * @param companyId ID of the target company (must exist)
+   * @param jobTitle Title of the job position (non-null)
+   * @param status Application status (e.g., INTERVIEWING)
+   * @param applicationDeadline Deadline for application submission (nullable)
+   * @param jobDescription Job description details (nullable)
+   * @param numPositions Number of available positions (nullable)
+   * @param sourceLink URL to job posting (nullable)
+   * @param dateApplied Date application was submitted (non-null)
+   * @param notes Additional notes (nullable)
+   * @return ApplicationResponse DTO containing created application data
+   * @throws CompanyNotFoundException If company doesn't exist
+   * @throws UserNotFoundException If user doesn't exist
+   * @throws DuplicateApplicationException If identical application exists
+   * @throws ApplicationServiceFailException If persistence fails
    */
   public ApplicationResponse createApplication(
       String userId,
@@ -97,6 +101,22 @@ public class ApplicationService {
     }
   }
 
+  /**
+   * Update an existing job application
+   *
+   * @param applicationId ID of the application to update (must exist)
+   * @param userId ID of the requesting user (must own application)
+   * @param newCompanyId Updated company ID (must exist if changed)
+   * @param newJobTitle Updated job title
+   * @param newJobDescription Updated job description (nullable)
+   * @param newSourceLink Updated source link (nullable)
+   * @param newNotes Updated notes (nullable)
+   * @return ApplicationResponse DTO containing updated application data
+   * @throws ApplicationNotFoundException If application doesn't exist
+   * @throws UnauthorizedApplicationAccessException If user doesn't own application
+   * @throws NoChangesDetectedException If no modification fields changed
+   * @throws CompanyNotFoundException If new company ID doesn't exist
+   */
   public ApplicationResponse updateApplication(
       String applicationId,
       String userId,
@@ -105,19 +125,17 @@ public class ApplicationService {
       String newJobDescription,
       String newSourceLink,
       String newNotes) {
-    // 1. Find Application
+
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
             .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
 
-    // 2. Verify Ownership
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
           "You do not have permission to edit this application.");
     }
 
-    // 3. Check for Changes
     boolean companyChanged = !Objects.equals(existingApp.getCompanyId(), newCompanyId);
     boolean titleChanged = !Objects.equals(existingApp.getJobTitle(), newJobTitle);
     boolean descChanged = !Objects.equals(existingApp.getJobDescription(), newJobDescription);
@@ -127,12 +145,10 @@ public class ApplicationService {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
-    // 4. Validate new company exists (if it changed)
     if (companyChanged && this.companyRepository.findById(newCompanyId).isEmpty()) {
       throw new CompanyNotFoundException(newCompanyId);
     }
 
-    // 5. Apply Updates
     existingApp.setCompanyId(newCompanyId);
     existingApp.setJobTitle(newJobTitle);
     existingApp.setJobDescription(newJobDescription);
@@ -143,7 +159,14 @@ public class ApplicationService {
     return ApplicationResponse.fromModel(updatedApp);
   }
 
-  /** Deletes an application after verifying ownership. */
+  /**
+   * Delete a job application
+   *
+   * @param applicationId ID of application to delete (must exist)
+   * @param userId ID of requesting user (must own application)
+   * @throws ApplicationNotFoundException If application doesn't exist
+   * @throws UnauthorizedApplicationAccessException If ownership validation fails
+   */
   public void deleteApplication(String applicationId, String userId) {
     ApplicationModel existingApp =
         this.applicationRepository
