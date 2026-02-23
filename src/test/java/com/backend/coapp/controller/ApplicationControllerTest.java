@@ -270,7 +270,7 @@ public class ApplicationControllerTest {
     mockMvc
         .perform(
             delete("/api/application/app789")
-                .with(anonymous())) // <--- THIS FIXES THE SUITE FAILURE
+                .with(anonymous())) // fix for the test pollution
         .andExpect(status().isForbidden());
 
     verifyNoInteractions(this.applicationService);

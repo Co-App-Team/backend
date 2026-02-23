@@ -140,8 +140,9 @@ public class ApplicationService {
     boolean titleChanged = !Objects.equals(existingApp.getJobTitle(), newJobTitle);
     boolean descChanged = !Objects.equals(existingApp.getJobDescription(), newJobDescription);
     boolean linkChanged = !Objects.equals(existingApp.getSourceLink(), newSourceLink);
+    boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
 
-    if (!companyChanged && !titleChanged && !descChanged && !linkChanged) {
+    if (!companyChanged && !titleChanged && !descChanged && !linkChanged && !notesChanged) {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
