@@ -9,6 +9,6 @@ public class ExperienceConstantsTest {
   @Test
   public void testConstants() {
     assertEquals(2000, ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH);
-    assertNotNull(new ApplicationConstants());
+    assertNotNull(new ExperienceConstants());
   }
 }
