@@ -19,7 +19,8 @@ public class UserExperienceModelTest {
   private final String VALID_ID = "fooUserId";
   private final String VALID_USER_ID = "fooUserId";
   private final String VALID_COMPANY_ID = "fooCompanyId";
-  private final String VALID_ROLE_DESCRIPTION = "Foo role";
+  private final String VALID_ROLE_TITLE = "Foo role";
+  private final String VALID_ROLE_DESCRIPTION = "Doing foo tasks: do nothing, sleeping";
   private final LocalDate VALID_START_DATE = LocalDate.now().minusYears(1);
   private final LocalDate VALID_END_DATE = LocalDate.now();
 
@@ -34,6 +35,7 @@ public class UserExperienceModelTest {
         VALID_ID,
         VALID_USER_ID,
         VALID_COMPANY_ID,
+        VALID_ROLE_TITLE,
         VALID_ROLE_DESCRIPTION,
         VALID_START_DATE,
         VALID_END_DATE);
@@ -145,5 +147,46 @@ public class UserExperienceModelTest {
     model.setStartDate(null);
     Set<ConstraintViolation<UserExperienceModel>> violations = validator.validate(model);
     assertFalse(violations.isEmpty());
+  }
+
+  // --- roleTitle ---
+
+  @Test
+  public void model_whenRoleTitleIsNull_shouldFailValidation() {
+    UserExperienceModel model = buildValidModel();
+    model.setRoleTitle(null);
+    assertHasViolation(model, "Job title cannot be empty");
+  }
+
+  @Test
+  public void model_whenRoleTitleIsBlank_shouldFailValidation() {
+    UserExperienceModel model = buildValidModel();
+    model.setRoleTitle("   ");
+    assertHasViolation(model, "Job title cannot be empty");
+  }
+
+  @Test
+  public void model_whenRoleTitleIsEmpty_shouldFailValidation() {
+    UserExperienceModel model = buildValidModel();
+    model.setRoleTitle("");
+    assertHasViolation(model, "Job title cannot be empty");
+  }
+
+  @Test
+  public void model_whenRoleTitleExceedsMaxLength_shouldFailValidation() {
+    UserExperienceModel model = buildValidModel();
+    model.setRoleTitle("a".repeat(ExperienceConstants.MAX_JOB_TITLE_LENGTH + 1));
+    assertHasViolation(
+        model,
+        "Job title description cannot exceed "
+            + ExperienceConstants.MAX_JOB_TITLE_LENGTH
+            + " characters");
+  }
+
+  @Test
+  public void model_whenRoleTitleIsExactlyMaxLength_shouldPassValidation() {
+    UserExperienceModel model = buildValidModel();
+    model.setRoleTitle("a".repeat(ExperienceConstants.MAX_JOB_TITLE_LENGTH));
+    assertNoViolations(model);
   }
 }

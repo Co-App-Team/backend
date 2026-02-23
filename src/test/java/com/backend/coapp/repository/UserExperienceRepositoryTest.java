@@ -37,14 +37,33 @@ public class UserExperienceRepositoryTest {
     fooExp1 =
         repository.save(
             new UserExperienceModel(
-                null, "fooId", "companyA", "Software Engineer", START_DATE, END_DATE));
+                null,
+                "fooId",
+                "companyA",
+                "Software Engineer",
+                "Building co-app application",
+                START_DATE,
+                END_DATE));
     fooExp2 =
         repository.save(
-            new UserExperienceModel(null, "fooId", "companyB", "Tech Lead", START_DATE, null));
+            new UserExperienceModel(
+                null,
+                "fooId",
+                "companyB",
+                "Tech Lead",
+                "leading development of co-app application",
+                START_DATE,
+                null));
     woofExp1 =
         repository.save(
             new UserExperienceModel(
-                null, "woofId", "companyC", "Product Manager", START_DATE, END_DATE));
+                null,
+                "woofId",
+                "companyC",
+                "Product Manager",
+                "Manage Co-App application team",
+                START_DATE,
+                END_DATE));
   }
 
   @Test
@@ -52,7 +71,13 @@ public class UserExperienceRepositoryTest {
     UserExperienceModel model =
         repository.save(
             new UserExperienceModel(
-                null, "newUserId", "companyD", "Designer", START_DATE, END_DATE));
+                null,
+                "newUserId",
+                "companyD",
+                "Designer",
+                "design something cool",
+                START_DATE,
+                END_DATE));
 
     assertNotNull(model.getId());
   }
@@ -61,7 +86,10 @@ public class UserExperienceRepositoryTest {
   public void findAllByUserId_whenUserHasMultipleExperiences_expectReturnAll() {
     List<UserExperienceModel> results = repository.findAllByUserId(fooExp1.getUserId());
 
-    assertThat(results).hasSize(2).extracting("companyId").contains("companyA", "companyB");
+    assertThat(results)
+        .hasSize(2)
+        .extracting("companyId")
+        .contains(fooExp1.getCompanyId(), fooExp2.getCompanyId());
   }
 
   @Test
@@ -69,8 +97,8 @@ public class UserExperienceRepositoryTest {
     List<UserExperienceModel> results = repository.findAllByUserId(woofExp1.getUserId());
 
     assertThat(results).hasSize(1);
-    assertThat(results.get(0).getCompanyId()).isEqualTo("companyC");
-    assertThat(results.get(0).getRoleDescription()).isEqualTo("Product Manager");
+    assertThat(results.get(0).getCompanyId()).isEqualTo(woofExp1.getCompanyId());
+    assertThat(results.get(0).getRoleDescription()).isEqualTo(woofExp1.getRoleDescription());
   }
 
   @Test
@@ -88,7 +116,7 @@ public class UserExperienceRepositoryTest {
         .filteredOn(exp -> exp.getEndDate() == null)
         .hasSize(1)
         .extracting("companyId")
-        .contains("companyB");
+        .contains(fooExp2.getCompanyId());
   }
 
   @Test
@@ -103,12 +131,12 @@ public class UserExperienceRepositoryTest {
 
   @Test
   public void save_whenUpdateRoleDescription_expectRoleDescriptionUpdated() {
-    fooExp1.setRoleDescription("Senior Software Engineer");
+    fooExp1.setRoleDescription("Developing new application");
     repository.save(fooExp1);
 
     UserExperienceModel updated = repository.findById(fooExp1.getId()).orElse(null);
     assertNotNull(updated);
-    assertEquals("Senior Software Engineer", updated.getRoleDescription());
+    assertEquals("Developing new application", updated.getRoleDescription());
   }
 
   @Test
@@ -190,5 +218,24 @@ public class UserExperienceRepositoryTest {
     List<UserExperienceModel> fooRemaining = repository.findAllByUserId(fooExp1.getUserId());
     assertThat(fooRemaining).hasSize(1);
     assertThat(fooRemaining.get(0).getId()).isEqualTo(fooExp2.getId());
+  }
+
+  @Test
+  public void save_whenUpdateRoleTitle_expectRoleTitleUpdated() {
+    fooExp1.setRoleTitle("Senior Software Engineer");
+    repository.save(fooExp1);
+
+    UserExperienceModel updated = repository.findUserExperienceModelById(fooExp1.getId());
+    assertThat(updated).isNotNull();
+    assertThat(updated.getRoleTitle()).isEqualTo("Senior Software Engineer");
+  }
+
+  @Test
+  public void findAllByUserId_whenUserHasMultipleExperiences_expectCorrectRoleTitles() {
+    List<UserExperienceModel> results = repository.findAllByUserId(fooExp1.getUserId());
+
+    assertThat(results)
+        .extracting("roleTitle")
+        .contains(fooExp1.getRoleTitle(), fooExp2.getRoleTitle());
   }
 }

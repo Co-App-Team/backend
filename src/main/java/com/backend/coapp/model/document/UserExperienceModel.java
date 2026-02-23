@@ -27,7 +27,16 @@ public class UserExperienceModel {
   @NotBlank(message = "Company ID cannot be empty")
   private String companyId;
 
-  @NotBlank
+  @NotBlank(message = "Job title cannot be empty")
+  @Size(
+      max = ExperienceConstants.MAX_JOB_TITLE_LENGTH,
+      message =
+          "Job title description cannot exceed "
+              + ExperienceConstants.MAX_JOB_TITLE_LENGTH
+              + " characters")
+  private String roleTitle;
+
+  @NotBlank(message = "Experience description cannot be empty")
   @Size(
       max = ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH,
       message =
@@ -36,7 +45,8 @@ public class UserExperienceModel {
               + " characters")
   private String roleDescription;
 
-  @NotNull private LocalDate startDate;
+  @NotNull(message = "Start date cannot be null")
+  private LocalDate startDate;
 
   private LocalDate endDate;
 }
