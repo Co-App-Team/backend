@@ -268,9 +268,7 @@ public class ApplicationControllerTest {
   @Test
   public void deleteApplication_whenUnauthenticated_expectForbidden() throws Exception {
     mockMvc
-        .perform(
-            delete("/api/application/app789")
-                .with(anonymous())) // fix for the test pollution
+        .perform(delete("/api/application/app789").with(anonymous())) // fix for the test pollution
         .andExpect(status().isForbidden());
 
     verifyNoInteractions(this.applicationService);

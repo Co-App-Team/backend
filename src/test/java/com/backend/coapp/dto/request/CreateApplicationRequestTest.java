@@ -49,7 +49,7 @@ public class CreateApplicationRequestTest {
             null,
             null,
             validUrl,
-            null,
+            LocalDate.now(),
             null);
 
     assertDoesNotThrow(request::validateRequest);
@@ -59,7 +59,15 @@ public class CreateApplicationRequestTest {
   public void validateRequest_whenCompanyIdIsNull_expectException() {
     CreateApplicationRequest request =
         new CreateApplicationRequest(
-            null, validJobTitle, validStatus, validDeadline, null, null, null, null, null);
+            null,
+            validJobTitle,
+            validStatus,
+            validDeadline,
+            null,
+            null,
+            null,
+            LocalDate.now(),
+            null);
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
@@ -71,7 +79,15 @@ public class CreateApplicationRequestTest {
   public void validateRequest_whenCompanyIdIsBlank_expectException() {
     CreateApplicationRequest request =
         new CreateApplicationRequest(
-            " ", validJobTitle, validStatus, validDeadline, null, null, null, null, null);
+            " ",
+            validJobTitle,
+            validStatus,
+            validDeadline,
+            null,
+            null,
+            null,
+            LocalDate.now(),
+            null);
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
@@ -80,12 +96,19 @@ public class CreateApplicationRequestTest {
   }
 
   // --- Job Title Validation ---
-
   @Test
   public void validateRequest_whenJobTitleIsNull_expectException() {
     CreateApplicationRequest request =
         new CreateApplicationRequest(
-            validCompanyId, null, validStatus, validDeadline, null, null, null, null, null);
+            validCompanyId,
+            null,
+            validStatus,
+            validDeadline,
+            null,
+            null,
+            null,
+            LocalDate.now(),
+            null);
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
@@ -97,7 +120,15 @@ public class CreateApplicationRequestTest {
   public void validateRequest_whenJobTitleIsBlank_expectException() {
     CreateApplicationRequest request =
         new CreateApplicationRequest(
-            validCompanyId, " ", validStatus, validDeadline, null, null, null, null, null);
+            validCompanyId,
+            " ",
+            validStatus,
+            validDeadline,
+            null,
+            null,
+            null,
+            LocalDate.now(),
+            null);
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
@@ -109,7 +140,15 @@ public class CreateApplicationRequestTest {
   public void validateRequest_whenStatusIsNull_expectException() {
     CreateApplicationRequest request =
         new CreateApplicationRequest(
-            validCompanyId, validJobTitle, null, validDeadline, null, null, null, null, null);
+            validCompanyId,
+            validJobTitle,
+            null,
+            validDeadline,
+            null,
+            null,
+            null,
+            LocalDate.now(),
+            null);
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
@@ -121,12 +160,41 @@ public class CreateApplicationRequestTest {
   public void validateRequest_whenDeadlineIsNull_expectException() {
     CreateApplicationRequest request =
         new CreateApplicationRequest(
-            validCompanyId, validJobTitle, validStatus, null, null, null, null, null, null);
+            validCompanyId,
+            validJobTitle,
+            validStatus,
+            null,
+            null,
+            null,
+            null,
+            LocalDate.now(),
+            null);
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(EXCEPTION_PREFIX + "Application deadline cannot be null.", exception.getMessage());
+  }
+
+  // --- NEW: Date Applied Validation ---
+  @Test
+  public void validateRequest_whenDateAppliedIsNull_expectException() {
+    CreateApplicationRequest request =
+        new CreateApplicationRequest(
+            validCompanyId,
+            validJobTitle,
+            validStatus,
+            validDeadline,
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(EXCEPTION_PREFIX + "Date applied cannot be null.", exception.getMessage());
   }
 
   @Test
@@ -140,7 +208,7 @@ public class CreateApplicationRequestTest {
             null,
             null,
             "not-a-url",
-            null,
+            LocalDate.now(),
             null);
 
     InvalidRequestException exception =
@@ -160,7 +228,7 @@ public class CreateApplicationRequestTest {
             null,
             null,
             "   ",
-            null,
+            LocalDate.now(),
             null);
 
     assertDoesNotThrow(request::validateRequest);

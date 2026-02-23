@@ -35,6 +35,8 @@ public class CreateApplicationRequest implements IRequest {
       throw new InvalidRequestException("Status cannot be null.");
     } else if (this.applicationDeadline == null) {
       throw new InvalidRequestException("Application deadline cannot be null.");
+    } else if (this.dateApplied == null) {
+      throw new InvalidRequestException("Date applied cannot be null.");
     }
 
     if (sourceLink != null && !sourceLink.isBlank() && !UrlValidator.isValidUrl(this.sourceLink)) {
