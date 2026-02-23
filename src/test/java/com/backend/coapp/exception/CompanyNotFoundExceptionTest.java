@@ -20,6 +20,6 @@ public class CompanyNotFoundExceptionTest {
     CompanyNotFoundException exception = new CompanyNotFoundException();
 
     assertNotNull(exception);
-    assertEquals("Company with the provided id does not exist.", exception.getMessage());
+    assertEquals("Company with this companyId does not exist.", exception.getMessage());
   }
 }
