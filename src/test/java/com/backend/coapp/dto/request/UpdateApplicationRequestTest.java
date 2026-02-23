@@ -2,6 +2,7 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.backend.coapp.exception.InvalidRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,7 @@ public class UpdateApplicationRequestTest {
   private UpdateApplicationRequest request;
   private final String validCompanyId = "comp-456";
   private final String validJobTitle = "Senior Software Engineer";
+  private final String EXCEPTION_PREFIX = "Invalid inputs of the request. ";
 
   @BeforeEach
   public void setUp() {
@@ -41,17 +43,17 @@ public class UpdateApplicationRequestTest {
   @Test
   public void validateRequest_whenCompanyIdIsNull_expectException() {
     request.setCompanyId(null);
-    IllegalArgumentException ex =
-        assertThrows(IllegalArgumentException.class, () -> request.validateRequest());
-    assertEquals("Company ID cannot be blank.", ex.getMessage());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, () -> request.validateRequest());
+    assertEquals(EXCEPTION_PREFIX + "Company ID cannot be blank.", ex.getMessage());
   }
 
   @Test
   public void validateRequest_whenCompanyIdIsEmpty_expectException() {
     request.setCompanyId("");
-    IllegalArgumentException ex =
-        assertThrows(IllegalArgumentException.class, () -> request.validateRequest());
-    assertEquals("Company ID cannot be blank.", ex.getMessage());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, () -> request.validateRequest());
+    assertEquals(EXCEPTION_PREFIX + "Company ID cannot be blank.", ex.getMessage());
   }
 
   // --- Job Title Validation ---
@@ -59,17 +61,17 @@ public class UpdateApplicationRequestTest {
   @Test
   public void validateRequest_whenJobTitleIsNull_expectException() {
     request.setJobTitle(null);
-    IllegalArgumentException ex =
-        assertThrows(IllegalArgumentException.class, () -> request.validateRequest());
-    assertEquals("Job Title cannot be blank.", ex.getMessage());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, () -> request.validateRequest());
+    assertEquals(EXCEPTION_PREFIX + "Job Title cannot be blank.", ex.getMessage());
   }
 
   @Test
   public void validateRequest_whenJobTitleIsBlank_expectException() {
     request.setJobTitle(" ");
-    IllegalArgumentException ex =
-        assertThrows(IllegalArgumentException.class, () -> request.validateRequest());
-    assertEquals("Job Title cannot be blank.", ex.getMessage());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, () -> request.validateRequest());
+    assertEquals(EXCEPTION_PREFIX + "Job Title cannot be blank.", ex.getMessage());
   }
 
   // --- Optional Fields ---

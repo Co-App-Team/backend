@@ -6,7 +6,6 @@ import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ApplicationService;
 import java.util.Map;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
-@Getter
 @RequestMapping("/api/application")
 public class ApplicationController {
 

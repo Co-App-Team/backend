@@ -1,5 +1,6 @@
 package com.backend.coapp.dto.request;
 
+import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.util.ApplicationConstants;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -26,10 +27,10 @@ public class UpdateApplicationRequest {
 
   public void validateRequest() {
     if (this.companyId == null || this.companyId.isBlank()) {
-      throw new IllegalArgumentException("Company ID cannot be blank.");
+      throw new InvalidRequestException("Company ID cannot be blank.");
     }
     if (this.jobTitle == null || this.jobTitle.isBlank()) {
-      throw new IllegalArgumentException("Job Title cannot be blank.");
+      throw new InvalidRequestException("Job Title cannot be blank.");
     }
   }
 }
