@@ -1,0 +1,42 @@
+package com.backend.coapp.model.document;
+
+import com.backend.coapp.util.ExperienceConstants;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+/** Model to keep track of user experience */
+@Document(collection = "user_experience")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class UserExperienceModel {
+  @Id private String id;
+
+  @NotBlank(message = "User ID cannot be empty")
+  @Indexed
+  private String userId;
+
+  @NotBlank(message = "Company ID cannot be empty")
+  private String companyId;
+
+  @NotBlank
+  @Size(
+      max = ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH,
+      message =
+          "Experience description cannot exceed "
+              + ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH
+              + " characters")
+  private String roleDescription;
+
+  @NotNull private LocalDate startDate;
+
+  private LocalDate endDate;
+}
