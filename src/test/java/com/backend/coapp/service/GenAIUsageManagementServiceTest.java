@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.ConcurrencyException;
 import com.backend.coapp.exception.GenAIQuotaExceededException;
 import com.backend.coapp.exception.GenAIUsageManagementServiceException;
 import com.backend.coapp.exception.UserNotExistException;
@@ -14,9 +13,7 @@ import com.backend.coapp.repository.UserGenAIUsageRepository;
 import com.backend.coapp.repository.UserRepository;
 import com.backend.coapp.util.GenAIUsageConstants;
 import java.time.LocalDateTime;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -200,9 +197,8 @@ public class GenAIUsageManagementServiceTest {
   @Test
   public void checkAndIncrementUsage_whenTwoConcurrentRequests_expectOneSuccessOneFailure()
       throws InterruptedException {
-    // This test is generated with help from Claude
-    CountDownLatch startLatch = new CountDownLatch(1); // forces both threads to start at same time
-    CountDownLatch doneLatch = new CountDownLatch(2); // waits for both threads to finish
+    CyclicBarrier barrier = new CyclicBarrier(2); // forces both threads to meet before proceeding
+    CountDownLatch doneLatch = new CountDownLatch(2);
 
     AtomicInteger successCount = new AtomicInteger(0);
     AtomicInteger failureCount = new AtomicInteger(0);
@@ -213,11 +209,10 @@ public class GenAIUsageManagementServiceTest {
       executor.submit(
           () -> {
             try {
-              startLatch.await(); // both threads wait here until released simultaneously
-              GenAIUsageManagementService genAIUsageService;
+              barrier.await(); // both threads must reach here before either proceeds
               genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId());
               successCount.incrementAndGet();
-            } catch (ConcurrencyException e) {
+            } catch (GenAIUsageManagementServiceException e) {
               failureCount.incrementAndGet();
             } catch (Exception e) {
               failureCount.incrementAndGet();
@@ -227,8 +222,7 @@ public class GenAIUsageManagementServiceTest {
           });
     }
 
-    startLatch.countDown();
-    doneLatch.await();
+    doneLatch.await(10, TimeUnit.SECONDS); // timeout to avoid hanging forever
     executor.shutdown();
 
     assertEquals(1, successCount.get());

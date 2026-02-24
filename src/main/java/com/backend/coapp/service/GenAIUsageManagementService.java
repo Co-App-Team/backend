@@ -37,6 +37,7 @@ public class GenAIUsageManagementService {
    * @throws UserNotExistException when the ID of the user doesn't exist in the database
    * @throws GenAIQuotaExceededException when the user exceeds GenAI usage limit
    * @throws GenAIQuotaExceededException when the user makes more than one request a time
+   * @throws ConcurrencyException when the user request at the same time
    */
   public void checkAndIncrementUsage(String userId)
       throws GenAIUsageManagementServiceException,
