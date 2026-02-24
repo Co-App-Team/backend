@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import com.backend.coapp.exception.ConcurrencyException;
 import com.backend.coapp.exception.GenAIQuotaExceededException;
 import com.backend.coapp.exception.GenAIUsageManagementServiceException;
 import com.backend.coapp.exception.UserNotExistException;
@@ -13,6 +14,10 @@ import com.backend.coapp.repository.UserGenAIUsageRepository;
 import com.backend.coapp.repository.UserRepository;
 import com.backend.coapp.util.GenAIUsageConstants;
 import java.time.LocalDateTime;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -190,5 +195,43 @@ public class GenAIUsageManagementServiceTest {
     verify(userRepositoryMock, times(1)).findUserModelById(this.fooUser.getId());
     verify(userGenAIUsageRepositoryMock, times(1))
         .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+  }
+
+  @Test
+  public void checkAndIncrementUsage_whenTwoConcurrentRequests_expectOneSuccessOneFailure()
+      throws InterruptedException {
+    // This test is generated with help from Claude
+    CountDownLatch startLatch = new CountDownLatch(1); // forces both threads to start at same time
+    CountDownLatch doneLatch = new CountDownLatch(2); // waits for both threads to finish
+
+    AtomicInteger successCount = new AtomicInteger(0);
+    AtomicInteger failureCount = new AtomicInteger(0);
+
+    ExecutorService executor = Executors.newFixedThreadPool(2);
+
+    for (int i = 0; i < 2; i++) {
+      executor.submit(
+          () -> {
+            try {
+              startLatch.await(); // both threads wait here until released simultaneously
+              GenAIUsageManagementService genAIUsageService;
+              genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId());
+              successCount.incrementAndGet();
+            } catch (ConcurrencyException e) {
+              failureCount.incrementAndGet();
+            } catch (Exception e) {
+              failureCount.incrementAndGet();
+            } finally {
+              doneLatch.countDown();
+            }
+          });
+    }
+
+    startLatch.countDown();
+    doneLatch.await();
+    executor.shutdown();
+
+    assertEquals(1, successCount.get());
+    assertEquals(1, failureCount.get());
   }
 }

@@ -20,6 +20,7 @@ public class UserGenAIUsageModelTest {
   private final int VALID_REQUEST_COUNT = 0;
   private final int VALID_MONTHLY_LIMIT = 100;
   private final LocalDateTime VALID_LAST_RESET = LocalDateTime.now();
+  private final Long VALID_VERSION = 1L;
 
   @BeforeEach
   public void setUp() {
@@ -29,7 +30,12 @@ public class UserGenAIUsageModelTest {
 
   private UserGenAIUsageModel buildValidModel() {
     return new UserGenAIUsageModel(
-        VALID_ID, VALID_USER_ID, VALID_REQUEST_COUNT, VALID_MONTHLY_LIMIT, VALID_LAST_RESET);
+        VALID_ID,
+        VALID_USER_ID,
+        VALID_REQUEST_COUNT,
+        VALID_MONTHLY_LIMIT,
+        VALID_LAST_RESET,
+        VALID_VERSION);
   }
 
   private void assertHasViolation(UserGenAIUsageModel model, String expectedMessage) {

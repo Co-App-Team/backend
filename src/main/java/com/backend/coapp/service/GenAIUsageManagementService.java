@@ -1,5 +1,6 @@
 package com.backend.coapp.service;
 
+import com.backend.coapp.exception.ConcurrencyException;
 import com.backend.coapp.exception.GenAIQuotaExceededException;
 import com.backend.coapp.exception.GenAIUsageManagementServiceException;
 import com.backend.coapp.exception.UserNotExistException;
@@ -11,6 +12,7 @@ import com.backend.coapp.util.GenAIUsageConstants;
 import java.time.LocalDateTime;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 /** Business logic relate to manage users' GenAI usage */
@@ -34,11 +36,13 @@ public class GenAIUsageManagementService {
    * @throws GenAIUsageManagementServiceException when something goes wrong (Internal)
    * @throws UserNotExistException when the ID of the user doesn't exist in the database
    * @throws GenAIQuotaExceededException when the user exceeds GenAI usage limit
+   * @throws GenAIQuotaExceededException when the user makes more than one request a time
    */
   public void checkAndIncrementUsage(String userId)
       throws GenAIUsageManagementServiceException,
           UserNotExistException,
-          GenAIQuotaExceededException {
+          GenAIQuotaExceededException,
+          ConcurrencyException {
     try {
       UserGenAIUsageModel userUsageRecord =
           this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(userId);
@@ -69,6 +73,8 @@ public class GenAIUsageManagementService {
       userGenAIUsageRepository.save(userUsageRecord);
     } catch (UserNotExistException | GenAIQuotaExceededException e) {
       throw e;
+    } catch (OptimisticLockingFailureException e) {
+      throw new ConcurrencyException("Another request is in progress, please try again.");
     } catch (Exception e) {
       throw new GenAIUsageManagementServiceException(e.getMessage());
     }

@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Version;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -32,6 +33,8 @@ public class UserGenAIUsageModel {
 
   @NotNull(message = "Last reset timestamp cannot be null")
   private LocalDateTime lastReset;
+
+  @Version private Long version;
 
   /**
    * New record for tracking users' GenAI usage
