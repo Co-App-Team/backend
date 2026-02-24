@@ -37,7 +37,6 @@ public class UserExperienceRepositoryTest {
     fooExp1 =
         repository.save(
             new UserExperienceModel(
-                null,
                 "fooId",
                 "companyA",
                 "Software Engineer",
@@ -47,7 +46,6 @@ public class UserExperienceRepositoryTest {
     fooExp2 =
         repository.save(
             new UserExperienceModel(
-                null,
                 "fooId",
                 "companyB",
                 "Tech Lead",
@@ -57,7 +55,6 @@ public class UserExperienceRepositoryTest {
     woofExp1 =
         repository.save(
             new UserExperienceModel(
-                null,
                 "woofId",
                 "companyC",
                 "Product Manager",
