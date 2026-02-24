@@ -23,6 +23,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 @SpringBootTest
 @Testcontainers
 public class ReviewServiceTest {
