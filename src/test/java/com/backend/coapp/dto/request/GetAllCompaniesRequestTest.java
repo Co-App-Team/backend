@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.backend.coapp.util.PaginationConstants;
 import org.junit.jupiter.api.Test;
 
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 public class GetAllCompaniesRequestTest {
 
   @Test
