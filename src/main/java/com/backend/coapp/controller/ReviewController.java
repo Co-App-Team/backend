@@ -74,9 +74,9 @@ public class ReviewController {
    */
   @PutMapping
   public ResponseEntity<Map<String, Object>> updateReview(
-    @PathVariable String companyId,
-    @RequestBody UpdateReviewRequest updateRequest,
-    Authentication authentication) {
+      @PathVariable String companyId,
+      @RequestBody UpdateReviewRequest updateRequest,
+      Authentication authentication) {
 
     updateRequest.validateRequest();
 
@@ -84,14 +84,14 @@ public class ReviewController {
     String userId = user.getId();
 
     ReviewModel review =
-      this.reviewService.updateReview(
-        companyId,
-        userId,
-        updateRequest.getRating(),
-        updateRequest.getComment(),
-        updateRequest.getJobTitle(),
-        updateRequest.getWorkTermSeason(),
-        updateRequest.getWorkTermYear());
+        this.reviewService.updateReview(
+            companyId,
+            userId,
+            updateRequest.getRating(),
+            updateRequest.getComment(),
+            updateRequest.getJobTitle(),
+            updateRequest.getWorkTermSeason(),
+            updateRequest.getWorkTermYear());
 
     ReviewResponse response = ReviewResponse.fromModel(review);
     return ResponseEntity.ok(response.toMap());
@@ -106,8 +106,7 @@ public class ReviewController {
    */
   @DeleteMapping
   public ResponseEntity<Map<String, Object>> deleteReview(
-    @PathVariable String companyId,
-    Authentication authentication) {
+      @PathVariable String companyId, Authentication authentication) {
 
     UserModel user = (UserModel) authentication.getPrincipal();
     String userId = user.getId();

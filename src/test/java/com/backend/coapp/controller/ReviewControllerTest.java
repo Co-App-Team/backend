@@ -231,7 +231,13 @@ public class ReviewControllerTest {
     updatedReview.setId("review1");
 
     when(this.reviewService.updateReview(
-            eq("company1"), eq("user1"), eq(4), eq("Updated comment"), isNull(), isNull(), isNull()))
+            eq("company1"),
+            eq("user1"),
+            eq(4),
+            eq("Updated comment"),
+            isNull(),
+            isNull(),
+            isNull()))
         .thenReturn(updatedReview);
 
     mockMvc
@@ -247,7 +253,13 @@ public class ReviewControllerTest {
 
     verify(this.reviewService, times(1))
         .updateReview(
-            eq("company1"), eq("user1"), eq(4), eq("Updated comment"), isNull(), isNull(), isNull());
+            eq("company1"),
+            eq("user1"),
+            eq(4),
+            eq("Updated comment"),
+            isNull(),
+            isNull(),
+            isNull());
   }
 
   @Test

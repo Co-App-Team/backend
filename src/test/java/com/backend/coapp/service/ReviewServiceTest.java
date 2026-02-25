@@ -214,7 +214,13 @@ public class ReviewServiceTest {
   public void updateReview_whenAllFieldsUpdated_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getCompanyId(), "user1", 4, "New comment", "Senior Developer", "Winter", 2025);
+            this.testReview.getCompanyId(),
+            "user1",
+            4,
+            "New comment",
+            "Senior Developer",
+            "Winter",
+            2025);
 
     assertNotNull(updated);
     assertEquals(4, updated.getRating());
@@ -259,11 +265,11 @@ public class ReviewServiceTest {
 
   @Test
   public void updateReview_whenUserNotOwner_expectException() {
-        assertThrows(
-          ReviewNotFoundException.class,
-            () ->
-                this.reviewService.updateReview(
-                    this.testReview.getCompanyId(), "user2", 4, "Comment", null, null, null));
+    assertThrows(
+        ReviewNotFoundException.class,
+        () ->
+            this.reviewService.updateReview(
+                this.testReview.getCompanyId(), "user2", 4, "Comment", null, null, null));
   }
 
   @Test
@@ -271,7 +277,8 @@ public class ReviewServiceTest {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
-    when(this.mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString())).thenReturn(Optional.of(this.testReview));
+    when(this.mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString()))
+        .thenReturn(Optional.of(this.testReview));
     when(this.mockReviewRepository.save(any(ReviewModel.class)))
         .thenThrow(new RuntimeException("Database error"));
 
@@ -319,7 +326,8 @@ public class ReviewServiceTest {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
-    when(this.mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString())).thenReturn(Optional.of(this.testReview));
+    when(this.mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString()))
+        .thenReturn(Optional.of(this.testReview));
     doThrow(new RuntimeException("Database error"))
         .when(this.mockReviewRepository)
         .deleteById(anyString());
@@ -334,7 +342,7 @@ public class ReviewServiceTest {
   public void updateReview_whenOnlyCommentUpdated_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
-          this.nicheCompany.getId(), "user1", null, "Only comment changed", null, null, null);
+            this.nicheCompany.getId(), "user1", null, "Only comment changed", null, null, null);
 
     assertNotNull(updated);
     assertEquals(5, updated.getRating()); // unchanged
@@ -345,7 +353,7 @@ public class ReviewServiceTest {
   public void updateReview_whenCommentHasWhitespace_expectTrimmed() {
     ReviewModel updated =
         this.reviewService.updateReview(
-          this.nicheCompany.getId(),
+            this.nicheCompany.getId(),
             "user1",
             null,
             "  Comment with spaces  ",

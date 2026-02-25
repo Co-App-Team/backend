@@ -116,19 +116,19 @@ public class ReviewService {
    */
   @Transactional
   public ReviewModel updateReview(
-    String companyId,
-    String userId,
-    Integer rating,
-    String comment,
-    String jobTitle,
-    String workTermSeason,
-    Integer workTermYear) {
+      String companyId,
+      String userId,
+      Integer rating,
+      String comment,
+      String jobTitle,
+      String workTermSeason,
+      Integer workTermYear) {
 
     try {
       ReviewModel review =
-        this.reviewRepository
-          .findByUserIdAndCompanyId(userId, companyId)
-          .orElseThrow(ReviewNotFoundException::new);
+          this.reviewRepository
+              .findByUserIdAndCompanyId(userId, companyId)
+              .orElseThrow(ReviewNotFoundException::new);
 
       boolean ratingChanged = false;
       if (rating != null && !rating.equals(review.getRating())) {
@@ -179,9 +179,9 @@ public class ReviewService {
 
     try {
       ReviewModel review =
-        this.reviewRepository
-          .findByUserIdAndCompanyId(userId, companyId)
-          .orElseThrow(ReviewNotFoundException::new);
+          this.reviewRepository
+              .findByUserIdAndCompanyId(userId, companyId)
+              .orElseThrow(ReviewNotFoundException::new);
 
       this.reviewRepository.deleteById(review.getId());
 
