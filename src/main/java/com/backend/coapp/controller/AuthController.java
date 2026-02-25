@@ -132,7 +132,7 @@ public class AuthController {
             .httpOnly(true)
             .secure(true)
             .sameSite("None") // Required for cross-subdomain
-            .domain("onrender.com") // Shared parent domain
+            //            .domain("onrender.com") // Shared parent domain
             .maxAge(this.authService.getTokenExpireDurationInSeconds())
             .path("/")
             .build();
