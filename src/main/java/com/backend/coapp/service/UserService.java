@@ -153,6 +153,14 @@ public class UserService {
       LocalDate startDate,
       LocalDate endDate) {
     try {
+      if (companyId == null) throw new UserServiceFailException("Company ID cannot be null.");
+      if (roleTitle == null) throw new UserServiceFailException("Role title cannot be null.");
+      if (roleDescription == null)
+        throw new UserServiceFailException("Role description cannot be null.");
+      if (startDate == null) throw new UserServiceFailException("Start date cannot be null.");
+      if (endDate != null && endDate.isBefore(startDate)) {
+        throw new UserServiceFailException("End date must be after start date.");
+      }
       if (!this.companyRepository.existsById(companyId)) {
         throw new CompanyNotFoundException();
       }
@@ -217,6 +225,9 @@ public class UserService {
       if (roleDescription == null)
         throw new UserServiceFailException("Role description cannot be null.");
       if (startDate == null) throw new UserServiceFailException("Start date cannot be null.");
+      if (endDate != null && endDate.isBefore(startDate)) {
+        throw new UserServiceFailException("End date must be after start date.");
+      }
 
       UserExperienceModel experience =
           this.userExperienceRepository

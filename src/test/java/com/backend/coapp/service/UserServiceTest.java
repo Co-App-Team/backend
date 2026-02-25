@@ -25,6 +25,7 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/** Parts of the unit test are generated with help of Claude (Sonnet 4.6) and revised by Bao Ngo */
 @SpringBootTest
 @Testcontainers
 public class UserServiceTest {
@@ -375,6 +376,111 @@ public class UserServiceTest {
   }
 
   @Test
+  public void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+    assertThrows(
+        UserServiceFailException.class,
+        () ->
+            this.userService.createNewUserExperience(
+                fooUserActivated.getId(),
+                null, // companyId null
+                "Software Engineer",
+                "Some description",
+                START_DATE,
+                END_DATE));
+  }
+
+  @Test
+  public void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+    assertThrows(
+        UserServiceFailException.class,
+        () ->
+            this.userService.createNewUserExperience(
+                fooUserActivated.getId(),
+                "someCompanyId",
+                null, // roleTitle null
+                "Some description",
+                START_DATE,
+                END_DATE));
+  }
+
+  @Test
+  public void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+    assertThrows(
+        UserServiceFailException.class,
+        () ->
+            this.userService.createNewUserExperience(
+                fooUserActivated.getId(),
+                "someCompanyId",
+                "Software Engineer",
+                null, // roleDescription null
+                START_DATE,
+                END_DATE));
+  }
+
+  @Test
+  public void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+    assertThrows(
+        UserServiceFailException.class,
+        () ->
+            this.userService.createNewUserExperience(
+                fooUserActivated.getId(),
+                "someCompanyId",
+                "Software Engineer",
+                "Some description",
+                null, // startDate null
+                END_DATE));
+  }
+
+  @Test
+  public void
+      createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+    assertThrows(
+        UserServiceFailException.class,
+        () ->
+            this.userService.createNewUserExperience(
+                fooUserActivated.getId(),
+                "someCompanyId",
+                "Software Engineer",
+                "Some description",
+                START_DATE,
+                START_DATE.minusDays(1))); // endDate before startDate
+  }
+
+  @Test
+  public void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
+    setUpCompany();
+
+    UserExperienceModel result =
+        this.userService.createNewUserExperience(
+            fooUserActivated.getId(),
+            fooCompany.getId(),
+            "Software Engineer",
+            "Some description",
+            START_DATE,
+            END_DATE); // endDate after startDate — valid
+
+    assertThat(result).isNotNull();
+    assertThat(result.getId()).isNotNull();
+  }
+
+  @Test
+  public void createNewUserExperience_whenEndDateIsNull_expectSuccess() {
+    setUpCompany();
+
+    UserExperienceModel result =
+        this.userService.createNewUserExperience(
+            fooUserActivated.getId(),
+            fooCompany.getId(),
+            "Software Engineer",
+            "Some description",
+            START_DATE,
+            null); // null endDate is valid — current job
+
+    assertThat(result).isNotNull();
+    assertThat(result.getEndDate()).isNull();
+  }
+
+  @Test
   public void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
     setUpExperiences();
 
@@ -559,6 +665,23 @@ public class UserServiceTest {
                 "Some description",
                 null, // startDate null
                 END_DATE));
+  }
+
+  @Test
+  public void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
+    setUpExperiences();
+
+    assertThrows(
+        UserServiceFailException.class,
+        () ->
+            this.userService.updateUserExperience(
+                fooExperience1.getId(),
+                fooUserActivated.getId(),
+                "someCompanyId",
+                "Software Engineer",
+                "Some description",
+                START_DATE,
+                START_DATE.minusDays(1)));
   }
 
   @Test
