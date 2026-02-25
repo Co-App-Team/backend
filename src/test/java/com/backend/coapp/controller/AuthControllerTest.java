@@ -555,7 +555,7 @@ public class AuthControllerTest {
         .andExpect(header().string("Set-Cookie", containsString("Authorization=")))
         .andExpect(header().string("Set-Cookie", containsString("HttpOnly")))
         .andExpect(header().string("Set-Cookie", containsString("Secure")))
-        .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
+        .andExpect(header().string("Set-Cookie", containsString("SameSite=None")))
         .andExpect(header().string("Set-Cookie", containsString("Max-Age=0")))
         .andExpect(header().string("Set-Cookie", containsString("Path=/")));
   }
