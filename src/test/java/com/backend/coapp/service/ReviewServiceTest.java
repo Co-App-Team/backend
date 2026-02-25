@@ -197,7 +197,7 @@ public class ReviewServiceTest {
   public void updateReview_whenValidDataWithRatingChange_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getId(), "user1", 3, "Updated comment", null, null, null);
+            this.testReview.getCompanyId(), "user1", 3, "Updated comment", null, null, null);
 
     assertNotNull(updated);
     assertEquals(3, updated.getRating());
@@ -214,7 +214,13 @@ public class ReviewServiceTest {
   public void updateReview_whenAllFieldsUpdated_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getId(), "user1", 4, "New comment", "Senior Developer", "Winter", 2025);
+            this.testReview.getCompanyId(),
+            "user1",
+            4,
+            "New comment",
+            "Senior Developer",
+            "Winter",
+            2025);
 
     assertNotNull(updated);
     assertEquals(4, updated.getRating());
@@ -231,7 +237,7 @@ public class ReviewServiceTest {
 
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getId(),
+            this.testReview.getCompanyId(),
             "user1",
             5, // same rating
             "New comment",
@@ -259,13 +265,11 @@ public class ReviewServiceTest {
 
   @Test
   public void updateReview_whenUserNotOwner_expectException() {
-    Exception exception =
-        assertThrows(
-            ReviewNotOwnedException.class,
-            () ->
-                this.reviewService.updateReview(
-                    this.testReview.getId(), "user2", 4, "Comment", null, null, null));
-    assertTrue(exception.getMessage().contains("update"));
+    assertThrows(
+        ReviewNotFoundException.class,
+        () ->
+            this.reviewService.updateReview(
+                this.testReview.getCompanyId(), "user2", 4, "Comment", null, null, null));
   }
 
   @Test
@@ -273,7 +277,8 @@ public class ReviewServiceTest {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
-    when(this.mockReviewRepository.findById(anyString())).thenReturn(Optional.of(this.testReview));
+    when(this.mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString()))
+        .thenReturn(Optional.of(this.testReview));
     when(this.mockReviewRepository.save(any(ReviewModel.class)))
         .thenThrow(new RuntimeException("Database error"));
 
@@ -281,7 +286,7 @@ public class ReviewServiceTest {
         ReviewServiceFailException.class,
         () ->
             this.reviewService.updateReview(
-                this.testReview.getId(), "user1", 4, "Comment", null, null, null));
+                this.testReview.getCompanyId(), "user1", 4, "Comment", null, null, null));
     verify(this.mockReviewRepository, times(1)).save(any(ReviewModel.class));
   }
 
@@ -289,12 +294,12 @@ public class ReviewServiceTest {
 
   @Test
   public void deleteReview_whenValidData_expectSuccess() {
-    String reviewId = this.testReview.getId();
+    String reviewCompanyId = this.testReview.getCompanyId();
 
-    assertDoesNotThrow(() -> this.reviewService.deleteReview(reviewId, "user1"));
+    assertDoesNotThrow(() -> this.reviewService.deleteReview(reviewCompanyId, "user1"));
 
     // verify review is deleted
-    assertFalse(this.reviewRepository.findById(reviewId).isPresent());
+    assertFalse(this.reviewRepository.findById(reviewCompanyId).isPresent());
 
     // verify company avg rating was updated
     CompanyModel company = this.companyRepository.findById(this.nicheCompany.getId()).orElseThrow();
@@ -312,9 +317,8 @@ public class ReviewServiceTest {
   public void deleteReview_whenUserNotOwner_expectException() {
     Exception exception =
         assertThrows(
-            ReviewNotOwnedException.class,
-            () -> this.reviewService.deleteReview(this.testReview.getId(), "user2"));
-    assertTrue(exception.getMessage().contains("delete"));
+            ReviewNotFoundException.class,
+            () -> this.reviewService.deleteReview(this.nicheCompany.getId(), "user2"));
   }
 
   @Test
@@ -322,14 +326,15 @@ public class ReviewServiceTest {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
-    when(this.mockReviewRepository.findById(anyString())).thenReturn(Optional.of(this.testReview));
+    when(this.mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString()))
+        .thenReturn(Optional.of(this.testReview));
     doThrow(new RuntimeException("Database error"))
         .when(this.mockReviewRepository)
         .deleteById(anyString());
 
     assertThrows(
         ReviewServiceFailException.class,
-        () -> this.reviewService.deleteReview(this.testReview.getId(), "user1"));
+        () -> this.reviewService.deleteReview(this.nicheCompany.getId(), "user1"));
     verify(this.mockReviewRepository, times(1)).deleteById(anyString());
   }
 
@@ -337,7 +342,7 @@ public class ReviewServiceTest {
   public void updateReview_whenOnlyCommentUpdated_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getId(), "user1", null, "Only comment changed", null, null, null);
+            this.nicheCompany.getId(), "user1", null, "Only comment changed", null, null, null);
 
     assertNotNull(updated);
     assertEquals(5, updated.getRating()); // unchanged
@@ -348,7 +353,7 @@ public class ReviewServiceTest {
   public void updateReview_whenCommentHasWhitespace_expectTrimmed() {
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getId(),
+            this.nicheCompany.getId(),
             "user1",
             null,
             "  Comment with spaces  ",
@@ -366,7 +371,7 @@ public class ReviewServiceTest {
 
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getId(), "user1", 4, null, "New Job Title", null, null);
+            this.nicheCompany.getId(), "user1", 4, null, "New Job Title", null, null);
 
     assertNotNull(updated);
     assertEquals(4, updated.getRating());

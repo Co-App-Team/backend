@@ -231,12 +231,18 @@ public class ReviewControllerTest {
     updatedReview.setId("review1");
 
     when(this.reviewService.updateReview(
-            eq("review1"), eq("user1"), eq(4), eq("Updated comment"), isNull(), isNull(), isNull()))
+            eq("company1"),
+            eq("user1"),
+            eq(4),
+            eq("Updated comment"),
+            isNull(),
+            isNull(),
+            isNull()))
         .thenReturn(updatedReview);
 
     mockMvc
         .perform(
-            put("/api/companies/company1/reviews/review1")
+            put("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.updateRequest))
                 .principal(this.authentication))
@@ -247,7 +253,13 @@ public class ReviewControllerTest {
 
     verify(this.reviewService, times(1))
         .updateReview(
-            eq("review1"), eq("user1"), eq(4), eq("Updated comment"), isNull(), isNull(), isNull());
+            eq("company1"),
+            eq("user1"),
+            eq(4),
+            eq("Updated comment"),
+            isNull(),
+            isNull(),
+            isNull());
   }
 
   @Test
@@ -258,7 +270,7 @@ public class ReviewControllerTest {
 
     mockMvc
         .perform(
-            put("/api/companies/company1/reviews/nonexistent")
+            put("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.updateRequest))
                 .principal(this.authentication))
@@ -268,29 +280,12 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void updateReview_whenNotOwned_expect403() throws Exception {
-    when(this.reviewService.updateReview(
-            anyString(), anyString(), any(), any(), any(), any(), any()))
-        .thenThrow(new ReviewNotOwnedException("update"));
-
-    mockMvc
-        .perform(
-            put("/api/companies/company1/reviews/review1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(this.objectMapper.writeValueAsString(this.updateRequest))
-                .principal(this.authentication))
-        .andExpect(status().isForbidden())
-        .andExpect(jsonPath("$.error").value("REVIEW_NOT_OWNED"))
-        .andExpect(jsonPath("$.message").exists());
-  }
-
-  @Test
   public void updateReview_whenNoFieldsProvided_expect400() throws Exception {
     UpdateReviewRequest emptyRequest = new UpdateReviewRequest(null, null, null, null, null);
 
     mockMvc
         .perform(
-            put("/api/companies/company1/reviews/review1")
+            put("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(emptyRequest))
                 .principal(this.authentication))
@@ -308,7 +303,7 @@ public class ReviewControllerTest {
 
     mockMvc
         .perform(
-            put("/api/companies/company1/reviews/review1")
+            put("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(this.updateRequest))
                 .principal(this.authentication))
@@ -321,17 +316,17 @@ public class ReviewControllerTest {
 
   @Test
   public void deleteReview_whenValid_expect200WithSuccessMessage() throws Exception {
-    doNothing().when(this.reviewService).deleteReview(eq("review1"), eq("user1"));
+    doNothing().when(this.reviewService).deleteReview(eq("company1"), eq("user1"));
 
     mockMvc
         .perform(
-            delete("/api/companies/company1/reviews/review1")
+            delete("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .principal(this.authentication))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Review deleted successfully."));
 
-    verify(this.reviewService, times(1)).deleteReview(eq("review1"), eq("user1"));
+    verify(this.reviewService, times(1)).deleteReview(eq("company1"), eq("user1"));
   }
 
   @Test
@@ -342,27 +337,11 @@ public class ReviewControllerTest {
 
     mockMvc
         .perform(
-            delete("/api/companies/company1/reviews/nonexistent")
+            delete("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .principal(this.authentication))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("REVIEW_NOT_FOUND"))
-        .andExpect(jsonPath("$.message").exists());
-  }
-
-  @Test
-  public void deleteReview_whenNotOwned_expect403() throws Exception {
-    doThrow(new ReviewNotOwnedException("delete"))
-        .when(this.reviewService)
-        .deleteReview(anyString(), anyString());
-
-    mockMvc
-        .perform(
-            delete("/api/companies/company1/reviews/review1")
-                .contentType(MediaType.APPLICATION_JSON)
-                .principal(this.authentication))
-        .andExpect(status().isForbidden())
-        .andExpect(jsonPath("$.error").value("REVIEW_NOT_OWNED"))
         .andExpect(jsonPath("$.message").exists());
   }
 
@@ -374,7 +353,7 @@ public class ReviewControllerTest {
 
     mockMvc
         .perform(
-            delete("/api/companies/company1/reviews/review1")
+            delete("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .principal(this.authentication))
         .andExpect(status().isInternalServerError())
@@ -500,12 +479,12 @@ public class ReviewControllerTest {
     updatedReview.setId("review1");
 
     when(this.reviewService.updateReview(
-            eq("review1"), eq("user1"), eq(3), isNull(), isNull(), isNull(), isNull()))
+            eq("company1"), eq("user1"), eq(3), isNull(), isNull(), isNull(), isNull()))
         .thenReturn(updatedReview);
 
     mockMvc
         .perform(
-            put("/api/companies/company1/reviews/review1")
+            put("/api/companies/company1/reviews")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(this.objectMapper.writeValueAsString(partialUpdate))
                 .principal(this.authentication))
