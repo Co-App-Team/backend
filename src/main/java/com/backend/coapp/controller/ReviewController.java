@@ -68,33 +68,30 @@ public class ReviewController {
    * Update an existing review
    *
    * @param companyId company ID from path parameter
-   * @param reviewId review ID from path parameter
    * @param updateRequest UpdateReviewRequest DTO
    * @param authentication authentication object
    * @return ResponseEntity with updated review info
    */
-  @PutMapping("/{reviewId}")
+  @PutMapping
   public ResponseEntity<Map<String, Object>> updateReview(
-      @PathVariable String companyId,
-      @PathVariable String reviewId,
-      @RequestBody UpdateReviewRequest updateRequest,
-      Authentication authentication) {
+    @PathVariable String companyId,
+    @RequestBody UpdateReviewRequest updateRequest,
+    Authentication authentication) {
 
     updateRequest.validateRequest();
 
     UserModel user = (UserModel) authentication.getPrincipal();
     String userId = user.getId();
-    this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId);
 
     ReviewModel review =
-        this.reviewService.updateReview(
-            reviewId,
-            userId,
-            updateRequest.getRating(),
-            updateRequest.getComment(),
-            updateRequest.getJobTitle(),
-            updateRequest.getWorkTermSeason(),
-            updateRequest.getWorkTermYear());
+      this.reviewService.updateReview(
+        companyId,
+        userId,
+        updateRequest.getRating(),
+        updateRequest.getComment(),
+        updateRequest.getJobTitle(),
+        updateRequest.getWorkTermSeason(),
+        updateRequest.getWorkTermYear());
 
     ReviewResponse response = ReviewResponse.fromModel(review);
     return ResponseEntity.ok(response.toMap());
@@ -104,25 +101,21 @@ public class ReviewController {
    * Delete a review
    *
    * @param companyId company ID from path parameter
-   * @param reviewId review ID from path parameter
    * @param authentication authentication object
    * @return ResponseEntity with success message
    */
-  @DeleteMapping("/{reviewId}")
+  @DeleteMapping
   public ResponseEntity<Map<String, Object>> deleteReview(
-      @PathVariable String companyId,
-      @PathVariable String reviewId,
-      Authentication authentication) {
+    @PathVariable String companyId,
+    Authentication authentication) {
 
     UserModel user = (UserModel) authentication.getPrincipal();
     String userId = user.getId();
-    this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId);
 
-    this.reviewService.deleteReview(reviewId, userId);
+    this.reviewService.deleteReview(companyId, userId);
 
     Map<String, Object> response = new HashMap<>();
     response.put("message", "Review deleted successfully.");
-
     return ResponseEntity.ok(response);
   }
 }
