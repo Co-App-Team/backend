@@ -537,7 +537,7 @@ public class AuthControllerTest {
         .andExpect(header().string("Set-Cookie", containsString("Authorization=" + expectedToken)))
         .andExpect(header().string("Set-Cookie", containsString("HttpOnly")))
         .andExpect(header().string("Set-Cookie", containsString("Secure")))
-        .andExpect(header().string("Set-Cookie", containsString("SameSite=Lax")))
+        .andExpect(header().string("Set-Cookie", containsString("SameSite=None")))
         .andExpect(header().string("Set-Cookie", containsString("Max-Age=" + expirationSeconds)))
         .andExpect(header().string("Set-Cookie", containsString("Path=/")))
         .andExpect(jsonPath("$.message").value("Logged in successfully."));

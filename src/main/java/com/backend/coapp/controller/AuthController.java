@@ -131,7 +131,8 @@ public class AuthController {
         ResponseCookie.from("Authorization", token)
             .httpOnly(true)
             .secure(true)
-            .sameSite("Lax")
+            .sameSite("None") // Required for cross-subdomain
+            .domain("onrender.com") // Shared parent domain
             .maxAge(this.authService.getTokenExpireDurationInSeconds())
             .path("/")
             .build();
