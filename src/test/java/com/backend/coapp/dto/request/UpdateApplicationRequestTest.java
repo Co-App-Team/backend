@@ -55,8 +55,6 @@ public class UpdateApplicationRequestTest {
         exception.getMessage());
   }
 
-  // --- Company ID Validation ---
-
   @Test
   public void validateRequest_whenCompanyIdIsBlank_expectException() {
     UpdateApplicationRequest request = getValidRequestBuilder().companyId(" ").build();
@@ -67,8 +65,6 @@ public class UpdateApplicationRequestTest {
     assertEquals(EXCEPTION_PREFIX + "Company Id cannot be blank.", exception.getMessage());
   }
 
-  // --- Job Title Validation ---
-
   @Test
   public void validateRequest_whenJobTitleIsBlank_expectException() {
     UpdateApplicationRequest request = getValidRequestBuilder().jobTitle(" ").build();
@@ -78,8 +74,6 @@ public class UpdateApplicationRequestTest {
 
     assertEquals(EXCEPTION_PREFIX + "Job Title cannot be blank.", exception.getMessage());
   }
-
-  // --- Job Description Validation ---
 
   @Test
   public void validateRequest_whenJobDescriptionExceedsLimit_expectException() {
@@ -94,8 +88,6 @@ public class UpdateApplicationRequestTest {
         EXCEPTION_PREFIX + "Description cannot exceed 2000 characters", exception.getMessage());
   }
 
-  // --- Notes Validation ---
-
   @Test
   public void validateRequest_whenNotesExceedsLimit_expectException() {
     String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1);
@@ -106,8 +98,6 @@ public class UpdateApplicationRequestTest {
 
     assertEquals(EXCEPTION_PREFIX + "Notes cannot exceed 2000 characters", exception.getMessage());
   }
-
-  // --- Optional Fields Validation ---
 
   @Test
   public void validateRequest_whenSourceLinkIsInvalid_expectException() {
@@ -121,8 +111,6 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenSourceLinkIsValid_expectNoException() {
-    // Covers: if (sourceLink != null && !isBlank(sourceLink) && !UrlValidator.isValidUrl(...))
-    // Logic: Valid URL -> !isValidUrl is false -> condition fails -> No exception
     UpdateApplicationRequest request =
         getValidRequestBuilder().sourceLink("https://valid-url.com").build();
     assertDoesNotThrow(request::validateRequest);
@@ -138,8 +126,6 @@ public class UpdateApplicationRequestTest {
     assertEquals(
         EXCEPTION_PREFIX + "Number of positions cannot be negative.", exception.getMessage());
   }
-
-  // --- Date Validation ---
 
   @Test
   public void validateRequest_whenDateAppliedIsAfterDeadline_expectException() {
@@ -159,8 +145,6 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenDateAppliedIsBeforeDeadline_expectNoException() {
-    // Covers: if (dateApplied != null && applicationDeadline != null && dateApplied.isAfter(...))
-    // Logic: isAfter is false -> condition fails -> No exception
     UpdateApplicationRequest request =
         getValidRequestBuilder()
             .dateApplied(LocalDate.of(2024, 1, 1))
@@ -172,7 +156,6 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenOptionalFieldsAreNull_expectSuccess() {
-    // In an Update request, null fields are valid (meaning 'do not update')
     UpdateApplicationRequest request =
         UpdateApplicationRequest.builder()
             .jobTitle("Only updating title")
@@ -185,10 +168,38 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenOnlyStatusProvided_expectSuccess() {
-    // Covers branches in hasAtLeastOneField() where companyId and jobTitle are null
-    // but subsequent fields (status) are not.
     UpdateApplicationRequest request =
         UpdateApplicationRequest.builder().status(ApplicationStatus.APPLIED).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenSourceLinkIsBlank_expectNoException() {
+    UpdateApplicationRequest request = getValidRequestBuilder().sourceLink("   ").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenDateAppliedSetButDeadlineNull_expectNoException() {
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().dateApplied(LocalDate.now()).applicationDeadline(null).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenDateAppliedNullButDeadlineSet_expectNoException() {
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().dateApplied(null).applicationDeadline(LocalDate.now()).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlyNotesProvided_expectSuccess() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().notes("Just a note").build();
 
     assertDoesNotThrow(request::validateRequest);
   }

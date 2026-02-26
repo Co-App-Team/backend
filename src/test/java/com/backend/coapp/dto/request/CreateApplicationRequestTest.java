@@ -230,20 +230,13 @@ public class CreateApplicationRequestTest {
   }
 
   // Date Applied vs Deadline Validation
-  // Note: The provided source code only checks this condition if jobDescription != null
   @Test
-  public void
-      validateRequest_whenDateAppliedAfterDeadlineAndJobDescriptionExists_expectException() {
-    // Setup dates so Applied is AFTER Deadline
+  public void validateRequest_whenDateAppliedAfterDeadline_expectException() {
     LocalDate deadline = LocalDate.now().minusDays(1);
     LocalDate applied = LocalDate.now();
 
     CreateApplicationRequest request =
-        getValidRequestBuilder()
-            .applicationDeadline(deadline)
-            .dateApplied(applied)
-            .jobDescription("Some description") // Required to trigger the check per source logic
-            .build();
+        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
@@ -251,5 +244,16 @@ public class CreateApplicationRequestTest {
     assertEquals(
         EXCEPTION_PREFIX + "Date applied cannot be after application deadline.",
         exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenDateAppliedBeforeDeadline_expectSuccess() {
+    LocalDate applied = LocalDate.now().minusDays(3);
+    LocalDate deadline = LocalDate.now();
+
+    CreateApplicationRequest request =
+        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
+
+    assertDoesNotThrow(request::validateRequest);
   }
 }
