@@ -361,4 +361,48 @@ public class ApplicationServiceTest {
                 LocalDate.now(),
                 "Notes"));
   }
+
+  @Test
+  public void updateApplication_whenOnlyTitleChanges_expectSuccess() {
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    assertEquals("Brand New Title", response.getJobTitle());
+    assertEquals(testCompany.getId(), response.getCompanyId());
+  }
+
+  @Test
+  public void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
+
+    CompanyModel secondCompany = new CompanyModel("Amazon", "Seattle", "https://amazon.com");
+    companyRepository.save(secondCompany);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            secondCompany.getId(),
+            "Software Engineer",
+            ApplicationStatus.APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    assertEquals(secondCompany.getId(), response.getCompanyId());
+  }
 }
