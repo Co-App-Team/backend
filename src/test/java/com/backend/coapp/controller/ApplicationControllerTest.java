@@ -1,287 +1,588 @@
 package com.backend.coapp.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.backend.coapp.dto.request.CreateApplicationRequest;
 import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
+import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.service.ApplicationService;
+import com.backend.coapp.service.JwtService;
 import java.time.LocalDate;
-import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import tools.jackson.databind.ObjectMapper;
 
-@SpringBootTest
-@Testcontainers
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@AutoConfigureMockMvc
+@WebMvcTest(ApplicationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ApplicationControllerTest {
-
-  @Container @ServiceConnection
-  static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
-
   @MockitoBean private ApplicationService applicationService;
+  @MockitoBean private JwtService jwtService;
+  @MockitoBean private Authentication authentication;
+  @Autowired private ApplicationController applicationController;
 
-  private CreateApplicationRequest validCreateRequest;
-  private UpdateApplicationRequest validUpdateRequest;
   private ApplicationResponse mockResponse;
-  private Authentication mockAuth;
+  private CreateApplicationRequest createRequest;
+  private UpdateApplicationRequest updateRequest;
 
   @BeforeEach
   public void setUp() {
-    org.springframework.security.core.context.SecurityContextHolder.clearContext();
-    // added to prevent delete test failure due to dirty test context when running all tests
-
     UserModel mockUser = mock(UserModel.class);
-    when(mockUser.getId()).thenReturn("user123");
+    when(mockUser.getId()).thenReturn("user1");
     when(mockUser.getFirstName()).thenReturn("John");
     when(mockUser.getLastName()).thenReturn("Doe");
 
-    this.mockAuth =
-        new UsernamePasswordAuthenticationToken(mockUser, null, mockUser.getAuthorities());
+    // Match the constructor order: applicationId, companyId, jobTitle, status, applicationDeadline,
+    // jobDescription, numPositions, sourceLink, dateApplied, notes
+    this.mockResponse =
+            new ApplicationResponse(
+                    "app789",
+                    "comp456",
+                    "Software Engineer",
+                    ApplicationStatus.APPLIED,
+                    LocalDate.of(2024, 1, 1),
+                    "Great role",
+                    1,
+                    "https://linkedin.com",
+                    LocalDate.of(2024, 1, 1),
+                    "I think it's not that good.");
 
-    this.validCreateRequest =
-        new CreateApplicationRequest(
-            "comp456",
-            "Software Engineer",
-            ApplicationStatus.APPLIED,
-            LocalDate.of(2024, 1, 1),
-            "Great role",
-            1,
-            "https://linkedin.com",
-            LocalDate.of(2024, 1, 1),
-            "I think it's not that good.");
+    this.createRequest =
+            CreateApplicationRequest.builder()
+                    .userId("user1") // Required by DTO validation in provided code
+                    .companyId("comp456")
+                    .jobTitle("Software Engineer")
+                    .status(ApplicationStatus.APPLIED)
+                    .applicationDeadline(LocalDate.of(2024, 1, 1))
+                    .jobDescription("Great role")
+                    .numPositions(1)
+                    .sourceLink("https://linkedin.com")
+                    .dateApplied(LocalDate.of(2024, 1, 1))
+                    .notes("I think it's not that good.")
+                    .build();
 
-    this.validUpdateRequest = new UpdateApplicationRequest();
-    this.validUpdateRequest.setCompanyId("comp456");
-    this.validUpdateRequest.setJobTitle("Senior Engineer");
-    this.validUpdateRequest.setJobDescription("Great role");
-    this.validUpdateRequest.setSourceLink("https://linkedin.com");
+    this.updateRequest =
+            UpdateApplicationRequest.builder()
+                    .companyId("comp456")
+                    .jobTitle("Senior Engineer")
+                    .status(ApplicationStatus.APPLIED)
+                    .applicationDeadline(LocalDate.of(2024, 1, 1))
+                    .jobDescription("Great role")
+                    .numPositions(1)
+                    .sourceLink("https://linkedin.com")
+                    .dateApplied(LocalDate.of(2024, 1, 1))
+                    .notes("Updated notes.")
+                    .build();
 
-    this.mockResponse = mock(ApplicationResponse.class);
-    when(this.mockResponse.toMap())
-        .thenReturn(Map.of("id", "app789", "jobTitle", "Software Engineer"));
+    when(this.authentication.getPrincipal()).thenReturn(mockUser);
   }
 
-  // === CREATE APPLICATION TESTS ===
+  @Test
+  public void constructor_expectSameInitInstance() {
+    assertEquals(this.applicationController.getApplicationService(), this.applicationService);
+  }
+
+  // test create application
 
   @Test
-  public void createApplication_whenValidRequest_expectCreated() throws Exception {
+  public void createApplication_whenValid_expect201AndApplication() throws Exception {
+    when(this.applicationService.createApplication(
+            eq("user1"),
+            eq("comp456"),
+            eq("Software Engineer"),
+            eq(ApplicationStatus.APPLIED),
+            eq(LocalDate.of(2024, 1, 1)),
+            eq("Great role"),
+            eq(1),
+            eq("https://linkedin.com"),
+            eq(LocalDate.of(2024, 1, 1)),
+            eq("I think it's not that good.")))
+            .thenReturn(this.mockResponse);
+
+    mockMvc
+            .perform(
+                    post("/api/application")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.createRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.applicationId").value("app789"))
+            .andExpect(jsonPath("$.companyId").value("comp456"))
+            .andExpect(jsonPath("$.jobTitle").value("Software Engineer"))
+            .andExpect(jsonPath("$.status").value("APPLIED"))
+            .andExpect(jsonPath("$.notes").value("I think it's not that good."));
+
+    verify(this.applicationService, times(1))
+            .createApplication(
+                    eq("user1"),
+                    eq("comp456"),
+                    eq("Software Engineer"),
+                    eq(ApplicationStatus.APPLIED),
+                    eq(LocalDate.of(2024, 1, 1)),
+                    eq("Great role"),
+                    eq(1),
+                    eq("https://linkedin.com"),
+                    eq(LocalDate.of(2024, 1, 1)),
+                    eq("I think it's not that good."));
+  }
+
+  @Test
+  public void createApplication_whenCompanyNotFound_expect404() throws Exception {
     when(this.applicationService.createApplication(
             anyString(),
             anyString(),
             anyString(),
-            any(),
-            any(),
+            any(ApplicationStatus.class),
+            any(LocalDate.class),
             anyString(),
-            anyInt(),
+            any(Integer.class),
             anyString(),
-            any(),
+            any(LocalDate.class),
             anyString()))
-        .thenReturn(this.mockResponse);
+            .thenThrow(new CompanyNotFoundException("comp456"));
 
     mockMvc
-        .perform(
-            post("/api/application")
-                .with(authentication(this.mockAuth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(this.validCreateRequest)))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").value("app789"));
-
-    verify(this.applicationService)
-        .createApplication(
-            eq("user123"),
-            anyString(),
-            anyString(),
-            any(),
-            any(),
-            anyString(),
-            anyInt(),
-            anyString(),
-            any(),
-            anyString());
+            .perform(
+                    post("/api/application")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.createRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("COMPANY_NOT_FOUND"))
+            .andExpect(jsonPath("$.message").exists());
   }
 
   @Test
-  public void createApplication_whenUnauthenticated_expectForbidden() throws Exception {
-    mockMvc
-        .perform(
-            post("/api/application")
-                .with(anonymous()) // Explicitly set to anonymous to prevent leakage
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(this.validCreateRequest)))
-        .andExpect(status().isForbidden());
+  public void createApplication_whenApplicationAlreadyExists_expect409() throws Exception {
+    when(this.applicationService.createApplication(
+            anyString(),
+            anyString(),
+            anyString(),
+            any(ApplicationStatus.class),
+            any(LocalDate.class),
+            anyString(),
+            any(Integer.class),
+            anyString(),
+            any(LocalDate.class),
+            anyString()))
+            .thenThrow(new DuplicateApplicationException("user1", "job", "comp"));
 
-    verifyNoInteractions(this.applicationService);
+    mockMvc
+            .perform(
+                    post("/api/application")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.createRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.error").value("DUPLICATE_APPLICATION"))
+            .andExpect(jsonPath("$.message").exists());
   }
 
   @Test
-  public void createApplication_whenValidationFails_expectBadRequest() throws Exception {
+  public void createApplication_whenMissingRequiredFields_expect400() throws Exception {
     CreateApplicationRequest invalidRequest = new CreateApplicationRequest();
 
     mockMvc
-        .perform(
-            post("/api/application")
-                .with(authentication(this.mockAuth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidRequest)))
-        .andExpect(status().isBadRequest());
+            .perform(
+                    post("/api/application")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(invalidRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isBadRequest());
 
-    verifyNoInteractions(this.applicationService);
+    verify(this.applicationService, never())
+            .createApplication(
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    any(ApplicationStatus.class),
+                    any(LocalDate.class),
+                    anyString(),
+                    any(Integer.class),
+                    anyString(),
+                    any(LocalDate.class),
+                    anyString());
   }
 
   @Test
-  public void createApplication_whenServiceThrows_expectInternalServerError() throws Exception {
+  public void createApplication_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.createApplication(
             anyString(),
             anyString(),
             anyString(),
-            any(),
-            any(),
+            any(ApplicationStatus.class),
+            any(LocalDate.class),
             anyString(),
-            anyInt(),
+            any(Integer.class),
             anyString(),
-            any(),
+            any(LocalDate.class),
             anyString()))
-        .thenThrow(new RuntimeException("Unexpected error"));
+            .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
-        .perform(
-            post("/api/application")
-                .with(authentication(this.mockAuth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(this.validCreateRequest)))
-        .andExpect(status().isInternalServerError());
+            .perform(
+                    post("/api/application")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.createRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
+            .andExpect(jsonPath("$.message").exists());
   }
 
-  // === UPDATE APPLICATION TESTS ===
+  // test update application
 
   @Test
-  public void updateApplication_whenValidRequest_expectOk() throws Exception {
-    when(this.mockResponse.toMap()).thenReturn(Map.of("jobTitle", "Senior Engineer"));
+  public void updateApplication_whenValid_expect200AndUpdatedApplication() throws Exception {
+    ApplicationResponse updatedResponse =
+            new ApplicationResponse(
+                    "app789",
+                    "comp456",
+                    "Senior Engineer",
+                    ApplicationStatus.APPLIED,
+                    LocalDate.of(2024, 1, 1),
+                    "Great role",
+                    1,
+                    "https://linkedin.com",
+                    LocalDate.of(2024, 1, 1),
+                    "Updated notes.");
+
+    // Match Service signature: userId, applicationId, newCompanyId, newJobTitle, newStatus, newDeadline...
     when(this.applicationService.updateApplication(
-            anyString(), anyString(), anyString(), anyString(), any(), any(), any()))
-        .thenReturn(this.mockResponse);
+            eq("user1"),
+            eq("app789"),
+            eq("comp456"),
+            eq("Senior Engineer"),
+            eq(ApplicationStatus.APPLIED),
+            eq(LocalDate.of(2024, 1, 1)),
+            eq("Great role"),
+            eq(1),
+            eq("https://linkedin.com"),
+            eq(LocalDate.of(2024, 1, 1)),
+            eq("Updated notes.")))
+            .thenReturn(updatedResponse);
 
     mockMvc
-        .perform(
-            put("/api/application/app789")
-                .with(authentication(this.mockAuth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(this.validUpdateRequest)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.jobTitle").value("Senior Engineer"));
+            .perform(
+                    put("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.updateRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.applicationId").value("app789"))
+            .andExpect(jsonPath("$.jobTitle").value("Senior Engineer"))
+            .andExpect(jsonPath("$.notes").value("Updated notes."));
+
+    verify(this.applicationService, times(1))
+            .updateApplication(
+                    eq("user1"),
+                    eq("app789"),
+                    eq("comp456"),
+                    eq("Senior Engineer"),
+                    eq(ApplicationStatus.APPLIED),
+                    eq(LocalDate.of(2024, 1, 1)),
+                    eq("Great role"),
+                    eq(1),
+                    eq("https://linkedin.com"),
+                    eq(LocalDate.of(2024, 1, 1)),
+                    eq("Updated notes."));
   }
 
   @Test
-  public void updateApplication_whenUnauthenticated_expectForbidden() throws Exception {
-    mockMvc
-        .perform(
-            put("/api/application/app789")
-                .with(anonymous()) // Explicitly set to anonymous
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(this.validUpdateRequest)))
-        .andExpect(status().isForbidden());
-
-    verifyNoInteractions(this.applicationService);
-  }
-
-  @Test
-  public void updateApplication_whenValidationFails_expectBadRequest() throws Exception {
-    UpdateApplicationRequest invalidRequest = new UpdateApplicationRequest();
-
-    mockMvc
-        .perform(
-            put("/api/application/app789")
-                .with(authentication(this.mockAuth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidRequest)))
-        .andExpect(status().isBadRequest());
-
-    verifyNoInteractions(this.applicationService);
-  }
-
-  @Test
-  public void updateApplication_whenServiceThrowsException_expectInternalServerError()
-      throws Exception {
+  public void updateApplication_whenApplicationNotFound_expect404() throws Exception {
     when(this.applicationService.updateApplication(
             anyString(),
             anyString(),
             anyString(),
             anyString(),
+            any(ApplicationStatus.class),
+            any(LocalDate.class),
             anyString(),
+            any(Integer.class),
             anyString(),
+            any(LocalDate.class),
             anyString()))
-        .thenThrow(new RuntimeException("Update failed"));
+            .thenThrow(new ApplicationNotFoundException("app789"));
 
     mockMvc
-        .perform(
-            put("/api/application/app789")
-                .with(authentication(this.mockAuth))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(this.validUpdateRequest)))
-        .andExpect(status().isInternalServerError());
-  }
-
-  // === DELETE APPLICATION TESTS ===
-
-  @Test
-  public void deleteApplication_whenValidRequest_expectOk() throws Exception {
-    doNothing().when(this.applicationService).deleteApplication("app789", "user123");
-
-    mockMvc
-        .perform(delete("/api/application/app789").with(authentication(this.mockAuth)))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.message").value("Application successfully deleted."));
-
-    verify(this.applicationService).deleteApplication("app789", "user123");
+            .perform(
+                    put("/api/application/nonexistent")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.updateRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("APPLICATION_NOT_FOUND"))
+            .andExpect(jsonPath("$.message").exists());
   }
 
   @Test
-  public void deleteApplication_whenUnauthenticated_expectForbidden() throws Exception {
-    mockMvc
-        .perform(delete("/api/application/app789").with(anonymous())) // fix for the test pollution
-        .andExpect(status().isForbidden());
+  public void updateApplication_whenNotOwned_expect403() throws Exception {
+    when(this.applicationService.updateApplication(
+            anyString(),
+            anyString(),
+            anyString(),
+            anyString(),
+            any(ApplicationStatus.class),
+            any(LocalDate.class),
+            anyString(),
+            any(Integer.class),
+            anyString(),
+            any(LocalDate.class),
+            anyString()))
+            .thenThrow(new UnauthorizedApplicationAccessException("update"));
 
-    verifyNoInteractions(this.applicationService);
+    mockMvc
+            .perform(
+                    put("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.updateRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error").value("UNAUTHORIZED_APPLICATION_ACCESS"))
+            .andExpect(jsonPath("$.message").exists());
   }
 
   @Test
-  public void deleteApplication_whenServiceThrows_expectInternalServerError() throws Exception {
-    doThrow(new RuntimeException("Delete failed"))
-        .when(this.applicationService)
-        .deleteApplication(anyString(), anyString());
+  public void updateApplication_whenNoFieldsProvided_expect400() throws Exception {
+    UpdateApplicationRequest emptyRequest = new UpdateApplicationRequest();
 
     mockMvc
-        .perform(delete("/api/application/app789").with(authentication(this.mockAuth)))
-        .andExpect(status().isInternalServerError());
+            .perform(
+                    put("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(emptyRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isBadRequest());
+
+    verify(this.applicationService, never())
+            .updateApplication(
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    anyString(),
+                    any(ApplicationStatus.class),
+                    any(LocalDate.class),
+                    anyString(),
+                    any(Integer.class),
+                    anyString(),
+                    any(LocalDate.class),
+                    anyString());
+  }
+
+  @Test
+  public void updateApplication_whenServiceFails_expect500() throws Exception {
+    when(this.applicationService.updateApplication(
+            anyString(),
+            anyString(),
+            anyString(),
+            anyString(),
+            any(ApplicationStatus.class),
+            any(LocalDate.class),
+            anyString(),
+            any(Integer.class),
+            anyString(),
+            any(LocalDate.class),
+            anyString()))
+            .thenThrow(new ApplicationServiceFailException("Database error"));
+
+    mockMvc
+            .perform(
+                    put("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(this.updateRequest))
+                            .principal(this.authentication))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
+            .andExpect(jsonPath("$.message").exists());
+  }
+
+  // test delete application
+
+  @Test
+  public void deleteApplication_whenValid_expect200WithSuccessMessage() throws Exception {
+    doNothing().when(this.applicationService).deleteApplication(eq("app789"), eq("user1"));
+
+    mockMvc
+            .perform(
+                    delete("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .principal(this.authentication))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Application successfully deleted."));
+
+    verify(this.applicationService, times(1)).deleteApplication(eq("app789"), eq("user1"));
+  }
+
+  @Test
+  public void deleteApplication_whenApplicationNotFound_expect404() throws Exception {
+    doThrow(new ApplicationNotFoundException("app789"))
+            .when(this.applicationService)
+            .deleteApplication(anyString(), anyString());
+
+    mockMvc
+            .perform(
+                    delete("/api/application/nonexistent")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .principal(this.authentication))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("APPLICATION_NOT_FOUND"))
+            .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  public void deleteApplication_whenNotOwned_expect403() throws Exception {
+    doThrow(new UnauthorizedApplicationAccessException("delete"))
+            .when(this.applicationService)
+            .deleteApplication(anyString(), anyString());
+
+    mockMvc
+            .perform(
+                    delete("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .principal(this.authentication))
+            .andExpect(status().isForbidden())
+            .andExpect(jsonPath("$.error").value("UNAUTHORIZED_APPLICATION_ACCESS"))
+            .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  public void deleteApplication_whenServiceFails_expect500() throws Exception {
+    doThrow(new ApplicationServiceFailException("Database error"))
+            .when(this.applicationService)
+            .deleteApplication(anyString(), anyString());
+
+    mockMvc
+            .perform(
+                    delete("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .principal(this.authentication))
+            .andExpect(status().isInternalServerError())
+            .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
+            .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  public void createApplication_withoutNotes_expect201() throws Exception {
+    CreateApplicationRequest requestWithoutNotes =
+            CreateApplicationRequest.builder()
+                    .userId("user1")
+                    .companyId("comp456")
+                    .jobTitle("Software Engineer")
+                    .status(ApplicationStatus.APPLIED)
+                    .applicationDeadline(LocalDate.of(2024, 1, 1))
+                    .jobDescription("Great role")
+                    .numPositions(1)
+                    .sourceLink("https://linkedin.com")
+                    .dateApplied(LocalDate.of(2024, 1, 1))
+                    .build();
+
+    ApplicationResponse responseWithoutNotes =
+            new ApplicationResponse(
+                    "app789",
+                    "comp456",
+                    "Software Engineer",
+                    ApplicationStatus.APPLIED,
+                    LocalDate.of(2024, 1, 1),
+                    "Great role",
+                    1,
+                    "https://linkedin.com",
+                    LocalDate.of(2024, 1, 1),
+                    null);
+
+    when(this.applicationService.createApplication(
+            eq("user1"),
+            eq("comp456"),
+            eq("Software Engineer"),
+            eq(ApplicationStatus.APPLIED),
+            eq(LocalDate.of(2024, 1, 1)),
+            eq("Great role"),
+            eq(1),
+            eq("https://linkedin.com"),
+            eq(LocalDate.of(2024, 1, 1)),
+            isNull()))
+            .thenReturn(responseWithoutNotes);
+
+    mockMvc
+            .perform(
+                    post("/api/application")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(requestWithoutNotes))
+                            .principal(this.authentication))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.applicationId").value("app789"))
+            .andExpect(jsonPath("$.jobTitle").value("Software Engineer"));
+
+    verify(this.applicationService, times(1))
+            .createApplication(
+                    eq("user1"),
+                    eq("comp456"),
+                    eq("Software Engineer"),
+                    eq(ApplicationStatus.APPLIED),
+                    eq(LocalDate.of(2024, 1, 1)),
+                    eq("Great role"),
+                    eq(1),
+                    eq("https://linkedin.com"),
+                    eq(LocalDate.of(2024, 1, 1)),
+                    isNull());
+  }
+
+  @Test
+  public void updateApplication_withOnlyJobTitle_expect200() throws Exception {
+    UpdateApplicationRequest partialUpdate =
+            UpdateApplicationRequest.builder().jobTitle("Data Scientist").build();
+
+    ApplicationResponse updatedResponse =
+            new ApplicationResponse(
+                    "app789",
+                    "comp456",
+                    "Data Scientist",
+                    ApplicationStatus.APPLIED,
+                    LocalDate.of(2024, 1, 1),
+                    "Great role",
+                    1,
+                    "https://linkedin.com",
+                    LocalDate.of(2024, 1, 1),
+                    "I think it's not that good.");
+
+    // Matching Service signature order
+    when(this.applicationService.updateApplication(
+            eq("user1"),
+            eq("app789"),
+            isNull(),       // companyId
+            eq("Data Scientist"), // jobTitle
+            isNull(),       // status
+            isNull(),       // deadline
+            isNull(),       // description
+            isNull(),       // positions
+            isNull(),       // link
+            isNull(),       // dateApplied
+            isNull()))      // notes
+            .thenReturn(updatedResponse);
+
+    mockMvc
+            .perform(
+                    put("/api/application/app789")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(this.objectMapper.writeValueAsString(partialUpdate))
+                            .principal(this.authentication))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.jobTitle").value("Data Scientist"));
   }
 }

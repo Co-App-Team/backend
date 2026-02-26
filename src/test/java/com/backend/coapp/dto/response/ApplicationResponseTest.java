@@ -36,7 +36,6 @@ public class ApplicationResponseTest {
             appliedDate,
             notes);
 
-    assertEquals(userId, response.getUserId());
     assertEquals(companyId, response.getCompanyId());
     assertEquals(jobTitle, response.getJobTitle());
     assertEquals(status, response.getStatus());
@@ -67,7 +66,6 @@ public class ApplicationResponseTest {
     ApplicationResponse response = ApplicationResponse.fromModel(model);
 
     assertNotNull(response);
-    assertEquals(userId, response.getUserId());
     assertEquals(companyId, response.getCompanyId());
     assertEquals(jobTitle, response.getJobTitle());
     assertEquals(notes, response.getNotes());

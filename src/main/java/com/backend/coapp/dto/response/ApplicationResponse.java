@@ -13,7 +13,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ApplicationResponse implements IResponse {
 
-  private String userId;
+  private String applicationId;
   private String companyId;
   private String jobTitle;
   private ApplicationStatus status;
@@ -29,7 +29,7 @@ public class ApplicationResponse implements IResponse {
   @Override
   public Map<String, Object> toMap() {
     Map<String, Object> map = new HashMap<>();
-    map.put("userId", this.userId);
+    map.put("applicationId", this.applicationId);
     map.put("companyId", this.companyId);
     map.put("jobTitle", this.jobTitle);
     map.put("status", this.status);
@@ -44,7 +44,7 @@ public class ApplicationResponse implements IResponse {
 
   public static ApplicationResponse fromModel(ApplicationModel application) {
     return new ApplicationResponse(
-        application.getUserId(),
+        application.getId(),
         application.getCompanyId(),
         application.getJobTitle(),
         application.getStatus(),

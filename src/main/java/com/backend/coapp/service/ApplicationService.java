@@ -104,12 +104,16 @@ public class ApplicationService {
   /**
    * Update an existing job application
    *
+   * @param userId ID of the user making the update (must own application)
    * @param applicationId ID of the application to update (must exist)
-   * @param userId ID of the requesting user (must own application)
-   * @param newCompanyId Updated company ID (must exist if changed)
-   * @param newJobTitle Updated job title
+   * @param newCompanyId Updated company ID (nullable)
+   * @param newStatus Updated application status (nullable)
+   * @param newApplicationDeadline Updated application deadline (nullable)
+   * @param newJobTitle Updated job title (nullable)
    * @param newJobDescription Updated job description (nullable)
+   * @param newNumPositions Updated number of positions (nullable)
    * @param newSourceLink Updated source link (nullable)
+   * @param newDateApplied Updated date applied (nullable)
    * @param newNotes Updated notes (nullable)
    * @return ApplicationResponse DTO containing updated application data
    * @throws ApplicationNotFoundException If application doesn't exist
@@ -118,12 +122,16 @@ public class ApplicationService {
    * @throws CompanyNotFoundException If new company ID doesn't exist
    */
   public ApplicationResponse updateApplication(
-      String applicationId,
       String userId,
+      String applicationId,
       String newCompanyId,
       String newJobTitle,
+      ApplicationStatus newStatus,
+      LocalDate newApplicationDeadline,
       String newJobDescription,
+      Integer newNumPositions,
       String newSourceLink,
+      LocalDate newDateApplied,
       String newNotes) {
 
     ApplicationModel existingApp =
@@ -138,11 +146,24 @@ public class ApplicationService {
 
     boolean companyChanged = !Objects.equals(existingApp.getCompanyId(), newCompanyId);
     boolean titleChanged = !Objects.equals(existingApp.getJobTitle(), newJobTitle);
+    boolean statusChanged = !Objects.equals(existingApp.getStatus(), newStatus);
+    boolean deadlineChanged =
+        !Objects.equals(existingApp.getApplicationDeadline(), newApplicationDeadline);
     boolean descChanged = !Objects.equals(existingApp.getJobDescription(), newJobDescription);
+    boolean positionsChanged = !Objects.equals(existingApp.getNumPositions(), newNumPositions);
     boolean linkChanged = !Objects.equals(existingApp.getSourceLink(), newSourceLink);
+    boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
     boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
 
-    if (!companyChanged && !titleChanged && !descChanged && !linkChanged && !notesChanged) {
+    if (!companyChanged
+        && !titleChanged
+        && !descChanged
+        && !linkChanged
+        && !dateAppliedChanged
+        && !notesChanged
+        && !statusChanged
+        && !deadlineChanged
+        && !positionsChanged) {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
@@ -152,8 +173,12 @@ public class ApplicationService {
 
     existingApp.setCompanyId(newCompanyId);
     existingApp.setJobTitle(newJobTitle);
+    existingApp.setStatus(newStatus);
+    existingApp.setApplicationDeadline(newApplicationDeadline);
     existingApp.setJobDescription(newJobDescription);
+    existingApp.setNumPositions(newNumPositions);
     existingApp.setSourceLink(newSourceLink);
+    existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);

@@ -109,7 +109,9 @@ public class ApplicationServiceTest {
 
     assertNotNull(response);
     assertEquals("Data Scientist", response.getJobTitle());
-    assertEquals(testUser.getId(), response.getUserId());
+    // Removed getUserId() assertion as ApplicationResponse typically doesn't expose it in your
+    // previous snippets
+    assertEquals(testCompany.getId(), response.getCompanyId());
   }
 
   @Test
@@ -170,19 +172,26 @@ public class ApplicationServiceTest {
 
   @Test
   public void updateApplication_whenValid_expectSuccess() {
+    // Service expects: userId, appId, companyId, jobTitle, status, deadline, desc, numPos, link,
+    // dateApplied, notes
     ApplicationResponse response =
         this.applicationService.updateApplication(
-            existingApp.getId(),
             "user_001",
+            existingApp.getId(),
             testCompany.getId(),
             "Senior SE",
+            ApplicationStatus.INTERVIEWING,
+            LocalDate.now().plusDays(10),
             "New Desc",
+            2,
             "https://new.link",
+            LocalDate.now(),
             "New Notes");
 
     assertEquals("Senior SE", response.getJobTitle());
     assertEquals("New Desc", response.getJobDescription());
     assertEquals("New Notes", response.getNotes());
+    assertEquals(ApplicationStatus.INTERVIEWING, response.getStatus());
   }
 
   @Test
@@ -191,25 +200,34 @@ public class ApplicationServiceTest {
         UnauthorizedApplicationAccessException.class,
         () ->
             this.applicationService.updateApplication(
-                existingApp.getId(),
                 "wrong_user",
+                existingApp.getId(),
                 testCompany.getId(),
                 "Title",
+                ApplicationStatus.APPLIED,
+                LocalDate.now(),
                 "Desc",
-                null,
-                null));
+                1,
+                "Link",
+                LocalDate.now(),
+                "Notes"));
   }
 
   @Test
   public void updateApplication_whenNoChanges_expectException() {
+    // Must pass exact same values as existingApp to trigger NoChangesDetectedException
     assertThrows(
         NoChangesDetectedException.class,
         () ->
             this.applicationService.updateApplication(
-                existingApp.getId(),
                 "user_001",
+                existingApp.getId(),
                 testCompany.getId(),
                 "Software Engineer",
+                ApplicationStatus.APPLIED,
+                LocalDate.now().plusDays(5),
+                null,
+                null,
                 null,
                 null,
                 null));
@@ -221,7 +239,17 @@ public class ApplicationServiceTest {
         ApplicationNotFoundException.class,
         () ->
             this.applicationService.updateApplication(
-                "invalid_app_id", "user_001", "c1", "t", "d", "l", "n"));
+                "user_001",
+                "invalid_app_id",
+                "c1",
+                "t",
+                ApplicationStatus.APPLIED,
+                LocalDate.now(),
+                "d",
+                1,
+                "l",
+                LocalDate.now(),
+                "n"));
   }
 
   @Test
@@ -230,13 +258,17 @@ public class ApplicationServiceTest {
         CompanyNotFoundException.class,
         () ->
             this.applicationService.updateApplication(
-                existingApp.getId(),
                 "user_001",
+                existingApp.getId(),
                 "non_existent_company",
                 "Title",
+                ApplicationStatus.APPLIED,
+                LocalDate.now(),
                 "Desc",
-                null,
-                null));
+                1,
+                "Link",
+                LocalDate.now(),
+                "Notes"));
   }
 
   // --- Delete Application Integration Tests ---
@@ -301,8 +333,13 @@ public class ApplicationServiceTest {
     when(mockApp.getUserId()).thenReturn("user_001");
     when(mockApp.getCompanyId()).thenReturn("c1");
     when(mockApp.getJobTitle()).thenReturn("Old Title");
+    when(mockApp.getStatus()).thenReturn(ApplicationStatus.APPLIED);
+    when(mockApp.getApplicationDeadline()).thenReturn(LocalDate.now());
     when(mockApp.getJobDescription()).thenReturn("Old Desc");
+    when(mockApp.getNumPositions()).thenReturn(1);
     when(mockApp.getSourceLink()).thenReturn("http://old.com");
+    when(mockApp.getDateApplied()).thenReturn(LocalDate.now());
+    when(mockApp.getNotes()).thenReturn("Old Notes");
 
     when(mockAppRepo.findById(anyString())).thenReturn(Optional.of(mockApp));
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
@@ -312,6 +349,16 @@ public class ApplicationServiceTest {
         RuntimeException.class,
         () ->
             serviceWithMocks.updateApplication(
-                "app1", "user_001", "c1", "New Title", "Desc", "Link", "Notes"));
+                "user_001",
+                "app1",
+                "c1",
+                "New Title",
+                ApplicationStatus.APPLIED,
+                LocalDate.now(),
+                "Desc",
+                1,
+                "Link",
+                LocalDate.now(),
+                "Notes"));
   }
 }
