@@ -43,9 +43,7 @@ public class SecurityConfig {
     http.cors(Customizer.withDefaults())
         .csrf(csrf -> csrf.disable())
         .exceptionHandling(
-            exception ->
-                exception.authenticationEntryPoint(customAuthenticationEntryPoint())
-            )
+            exception -> exception.authenticationEntryPoint(customAuthenticationEntryPoint()))
         .authorizeHttpRequests(
             auth ->
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**")
