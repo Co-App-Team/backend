@@ -263,5 +263,4 @@ public class CreateApplicationRequestTest {
 
     assertDoesNotThrow(request::validateRequest);
   }
-
 }
