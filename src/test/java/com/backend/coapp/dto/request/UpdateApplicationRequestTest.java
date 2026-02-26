@@ -203,4 +203,45 @@ public class UpdateApplicationRequestTest {
 
     assertDoesNotThrow(request::validateRequest);
   }
+
+  @Test
+  public void validateRequest_whenOnlyCompanyIdProvided_expectSuccess() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().companyId("comp-123").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlyJobDescriptionProvided_expectSuccess() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().jobDescription("Some description").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlyNumPositionsProvided_expectSuccess() {
+    UpdateApplicationRequest request = UpdateApplicationRequest.builder().numPositions(3).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlySourceLinkProvided_expectSuccess() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().sourceLink("https://example.com").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlyApplicationDeadlineProvided_expectSuccess() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().applicationDeadline(LocalDate.now()).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenOnlyDateAppliedProvided_expectSuccess() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().dateApplied(LocalDate.now()).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
 }
