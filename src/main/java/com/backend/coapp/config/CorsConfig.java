@@ -22,7 +22,8 @@ public class CorsConfig {
             .addMapping("/**")
             .allowedOrigins(
                 "http://localhost:5173", // Vite dev
-                "https://coapp-frontend.onrender.com" // Production frontend
+                "https://coapp-frontend-dev.onrender.com", // Dev frontend
+                "https://coapp-suite.onrender.com" // Production frontend
                 )
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
             .allowedHeaders("*")
