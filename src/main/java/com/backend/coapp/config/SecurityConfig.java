@@ -44,7 +44,7 @@ public class SecurityConfig {
         .csrf(csrf -> csrf.disable())
         .exceptionHandling(
             exception ->
-                exception.authenticationEntryPoint(customAuthenticationEntryPoint()) // ← add this
+                exception.authenticationEntryPoint(customAuthenticationEntryPoint())
             )
         .authorizeHttpRequests(
             auth ->
