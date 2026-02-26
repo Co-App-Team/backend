@@ -256,4 +256,12 @@ public class CreateApplicationRequestTest {
 
     assertDoesNotThrow(request::validateRequest);
   }
+
+  @Test
+  public void validateRequest_whenDateAppliedIsNull_expectSuccess() {
+    CreateApplicationRequest request = getValidRequestBuilder().dateApplied(null).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
+
 }
