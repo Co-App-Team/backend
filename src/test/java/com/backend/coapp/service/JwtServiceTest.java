@@ -17,6 +17,7 @@ import org.mockito.MockedStatic;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
+/** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 public class JwtServiceTest {
   private JwtService jwtService;
   private UserDetails userDetails;

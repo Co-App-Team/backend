@@ -6,6 +6,7 @@ import com.backend.coapp.model.document.ReviewModel;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 public class ReviewResponseTest {
 
   @Test

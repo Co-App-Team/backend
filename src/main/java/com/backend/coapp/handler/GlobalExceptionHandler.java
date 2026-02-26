@@ -387,25 +387,6 @@ public class GlobalExceptionHandler {
         .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_FOUND, "message", ex.getMessage()));
   }
 
-  /**
-   * Handles unauthorized review modification attempts
-   *
-   * @param ex Caught ReviewNotOwnedException
-   * @return HTTP 403 response with error code {@code REVIEW_NOT_OWNED}
-   */
-  @ExceptionHandler(ReviewNotOwnedException.class)
-  public ResponseEntity<Map<String, Object>> handleReviewNotOwnedException(
-      ReviewNotOwnedException ex) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_OWNED, "message", ex.getMessage()));
-  }
-
-  /**
-   * Handles review service failures Logs error and returns generic failure message
-   *
-   * @param ex Caught ReviewServiceFailException
-   * @return HTTP 500 response with error code {@code INTERNAL_ERROR}
-   */
   @ExceptionHandler(ReviewServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleReviewServiceFailException(
       ReviewServiceFailException ex) {

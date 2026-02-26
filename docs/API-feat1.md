@@ -27,7 +27,7 @@ We will use JSON Web Token (JWT) for managing users authentication and users ses
 **Response 200 OK:**
 Response header:
 ```
-Set-Cookie: Authorization=<token>; HttpOnly; Secure; SameSite=Lax; Max-Age=3600
+Set-Cookie: Authorization=<token>; HttpOnly; Secure; SameSite=None; Max-Age=3600
 ```
 
 *Each cookie is assumed to be expired in 2 hours.*
@@ -80,7 +80,7 @@ N/A
 
 Response header:
 ```
-Set-Cookie: Authorization=; HttpOnly; Secure; SameSite=Lax; Max-Age=0
+Set-Cookie: Authorization=; HttpOnly; Secure; SameSite=None; Max-Age=0
 ``` 
 
 Response body:

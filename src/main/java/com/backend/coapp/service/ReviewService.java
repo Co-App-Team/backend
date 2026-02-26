@@ -103,7 +103,7 @@ public class ReviewService {
   /**
    * Update a review
    *
-   * @param reviewId ID of the review
+   * @param companyId ID of the company
    * @param userId ID of the user
    * @param rating new rating (optional)
    * @param comment new comment (optional)
@@ -111,13 +111,12 @@ public class ReviewService {
    * @param workTermSeason new work term season (optional)
    * @param workTermYear new work term year (optional)
    * @return updated ReviewModel
-   * @throws ReviewNotFoundException if review does not exist
-   * @throws ReviewNotOwnedException if user doesn't own the review
+   * @throws ReviewNotFoundException if review does not exist for this user and company
    * @throws ReviewServiceFailException if an unexpected error occurs
    */
   @Transactional
   public ReviewModel updateReview(
-      String reviewId,
+      String companyId,
       String userId,
       Integer rating,
       String comment,
@@ -127,14 +126,10 @@ public class ReviewService {
 
     try {
       ReviewModel review =
-          this.reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
+          this.reviewRepository
+              .findByUserIdAndCompanyId(userId, companyId)
+              .orElseThrow(ReviewNotFoundException::new);
 
-      // must be owned by user
-      if (!review.getUserId().equals(userId)) {
-        throw new ReviewNotOwnedException("update");
-      }
-
-      // want to track if its changed so we can update the avg rating for the company
       boolean ratingChanged = false;
       if (rating != null && !rating.equals(review.getRating())) {
         review.setRating(rating);
@@ -156,18 +151,17 @@ public class ReviewService {
 
       ReviewModel updatedReview = this.reviewRepository.save(review);
 
-      // update company average rating if rating changed
       if (ratingChanged) {
-        this.companyService.updateAvgRating(review.getCompanyId());
+        this.companyService.updateAvgRating(companyId);
       }
 
       return updatedReview;
 
-    } catch (ReviewNotFoundException | ReviewNotOwnedException ex) {
+    } catch (ReviewNotFoundException ex) {
       throw ex;
 
     } catch (Exception ex) {
-      log.error("Error updating review: {}", reviewId, ex);
+      log.error("Error updating review for user: {} in company: {}", userId, companyId, ex);
       throw new ReviewServiceFailException("Failed to update review: " + ex.getMessage());
     }
   }
@@ -175,35 +169,29 @@ public class ReviewService {
   /**
    * Delete a review
    *
-   * @param reviewId ID of the review
+   * @param companyId ID of the company
    * @param userId ID of the user
-   * @throws ReviewNotFoundException if review does not exist
-   * @throws ReviewNotOwnedException if user doesn't own the review
+   * @throws ReviewNotFoundException if review does not exist for this user and company
    * @throws ReviewServiceFailException if an unexpected error occurs
    */
   @Transactional
-  public void deleteReview(String reviewId, String userId) {
+  public void deleteReview(String companyId, String userId) {
 
     try {
       ReviewModel review =
-          this.reviewRepository.findById(reviewId).orElseThrow(ReviewNotFoundException::new);
+          this.reviewRepository
+              .findByUserIdAndCompanyId(userId, companyId)
+              .orElseThrow(ReviewNotFoundException::new);
 
-      // must be owned by user
-      if (!review.getUserId().equals(userId)) {
-        throw new ReviewNotOwnedException("delete");
-      }
-
-      String companyId = review.getCompanyId();
-
-      this.reviewRepository.deleteById(reviewId);
+      this.reviewRepository.deleteById(review.getId());
 
       this.companyService.updateAvgRating(companyId);
 
-    } catch (ReviewNotFoundException | ReviewNotOwnedException ex) {
+    } catch (ReviewNotFoundException ex) {
       throw ex;
 
     } catch (Exception ex) {
-      log.error("Error deleting review: {}", reviewId, ex);
+      log.error("Error deleting review for user: {} in company: {}", userId, companyId, ex);
       throw new ReviewServiceFailException("Failed to delete review: " + ex.getMessage());
     }
   }

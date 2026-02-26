@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for ReviewModel */
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 public class ReviewModelTest {
 
   private static ValidatorFactory validatorFactory;
