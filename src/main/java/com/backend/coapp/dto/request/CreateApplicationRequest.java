@@ -67,7 +67,7 @@ public class CreateApplicationRequest implements IRequest {
     if (numPositions != null && numPositions < 0) {
       throw new InvalidRequestException("Number of positions cannot be negative.");
     }
-    if (jobDescription != null && dateApplied.isAfter(applicationDeadline)) {
+    if (dateApplied != null && dateApplied.isAfter(applicationDeadline)) {
       throw new InvalidRequestException("Date applied cannot be after application deadline.");
     }
     if (sourceLink != null && !isBlank(sourceLink) && !UrlValidator.isValidUrl(sourceLink.trim())) {
