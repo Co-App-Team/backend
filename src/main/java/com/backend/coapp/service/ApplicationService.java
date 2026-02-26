@@ -62,11 +62,11 @@ public class ApplicationService {
       LocalDate dateApplied,
       String notes) {
     if (this.companyRepository.findById(companyId).isEmpty()) {
-      throw new CompanyNotFoundException(companyId);
+      throw new CompanyNotFoundException();
     }
 
     if (this.userRepository.findById(userId).isEmpty()) {
-      throw new UserNotFoundException(userId);
+      throw new UserNotFoundException();
     }
 
     boolean alreadyExists =
@@ -74,7 +74,7 @@ public class ApplicationService {
             userId, companyId, jobTitle);
 
     if (alreadyExists) {
-      throw new DuplicateApplicationException(userId, jobTitle, companyId);
+      throw new DuplicateApplicationException(jobTitle, companyId);
     }
 
     try {
@@ -137,7 +137,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
+            .orElseThrow(() -> new ApplicationNotFoundException());
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -168,7 +168,7 @@ public class ApplicationService {
     }
 
     if (companyChanged && this.companyRepository.findById(newCompanyId).isEmpty()) {
-      throw new CompanyNotFoundException(newCompanyId);
+      throw new CompanyNotFoundException();
     }
 
     existingApp.setCompanyId(newCompanyId);
@@ -197,7 +197,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException(applicationId));
+            .orElseThrow(() -> new ApplicationNotFoundException());
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(

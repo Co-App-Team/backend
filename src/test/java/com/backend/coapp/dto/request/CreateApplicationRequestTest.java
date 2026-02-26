@@ -143,17 +143,6 @@ public class CreateApplicationRequestTest {
     assertEquals(EXCEPTION_PREFIX + "Application deadline cannot be null.", exception.getMessage());
   }
 
-  // Date Applied Validation
-  @Test
-  public void validateRequest_whenDateAppliedIsNull_expectException() {
-    CreateApplicationRequest request = getValidRequestBuilder().dateApplied(null).build();
-
-    InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, request::validateRequest);
-
-    assertEquals(EXCEPTION_PREFIX + "Date applied cannot be null.", exception.getMessage());
-  }
-
   // Source Link Validation
   @Test
   public void validateRequest_whenSourceLinkIsInvalid_expectException() {

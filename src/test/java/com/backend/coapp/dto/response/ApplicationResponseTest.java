@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 
 public class ApplicationResponseTest {
 
-  private final String userId = "user123";
+  private final String applicationId = "app123";
   private final String companyId = "comp456";
   private final String jobTitle = "Software Engineer";
   private final ApplicationStatus status = ApplicationStatus.APPLIED;
@@ -25,7 +25,7 @@ public class ApplicationResponseTest {
   public void constructorAndGetters_expectCorrectValues() {
     ApplicationResponse response =
         new ApplicationResponse(
-            userId,
+            applicationId,
             companyId,
             jobTitle,
             status,
@@ -36,6 +36,7 @@ public class ApplicationResponseTest {
             appliedDate,
             notes);
 
+    assertEquals(applicationId, response.getApplicationId());
     assertEquals(companyId, response.getCompanyId());
     assertEquals(jobTitle, response.getJobTitle());
     assertEquals(status, response.getStatus());
@@ -51,7 +52,7 @@ public class ApplicationResponseTest {
   public void fromModel_whenValidModel_expectCorrectMapping() {
     ApplicationModel model =
         ApplicationModel.builder()
-            .userId(userId)
+            .id(applicationId)
             .companyId(companyId)
             .jobTitle(jobTitle)
             .status(status)
@@ -66,6 +67,7 @@ public class ApplicationResponseTest {
     ApplicationResponse response = ApplicationResponse.fromModel(model);
 
     assertNotNull(response);
+    assertEquals(applicationId, response.getApplicationId());
     assertEquals(companyId, response.getCompanyId());
     assertEquals(jobTitle, response.getJobTitle());
     assertEquals(notes, response.getNotes());
@@ -76,7 +78,7 @@ public class ApplicationResponseTest {
   public void toMap_expectKeysAndValuesMatch() {
     ApplicationResponse response =
         new ApplicationResponse(
-            userId,
+            applicationId,
             companyId,
             jobTitle,
             status,
@@ -91,7 +93,7 @@ public class ApplicationResponseTest {
 
     assertNotNull(map);
     assertEquals(10, map.size());
-    assertEquals(userId, map.get("userId"));
+    assertEquals(applicationId, map.get("applicationId"));
     assertEquals(companyId, map.get("companyId"));
     assertEquals(jobTitle, map.get("jobTitle"));
     assertEquals(status, map.get("status"));
@@ -107,7 +109,7 @@ public class ApplicationResponseTest {
   public void toMap_withNullValues_expectKeysExistWithNulls() {
     ApplicationResponse response =
         new ApplicationResponse(
-            userId, companyId, jobTitle, status, deadline, null, null, null, null, null);
+            applicationId, companyId, jobTitle, status, deadline, null, null, null, null, null);
 
     Map<String, Object> map = response.toMap();
 
@@ -115,6 +117,6 @@ public class ApplicationResponseTest {
     assertNull(map.get("jobDescription"));
     assertTrue(map.containsKey("notes"));
     assertNull(map.get("notes"));
-    assertEquals(userId, map.get("userId"));
+    assertEquals(applicationId, map.get("applicationId"));
   }
 }

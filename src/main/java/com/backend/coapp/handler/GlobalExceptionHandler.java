@@ -26,12 +26,12 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(InvalidRequestException.class)
   public ResponseEntity<Map<String, Object>> handleInvalidRequest(InvalidRequestException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(
-                    Map.of(
-                            "error",
-                            RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
-                            "message",
-                            ex.getMessage()));
+        .body(
+            Map.of(
+                "error",
+                RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
+                "message",
+                ex.getMessage()));
   }
 
   /**
@@ -42,9 +42,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AuthEmailNotRegisteredException.class)
   public ResponseEntity<Map<String, Object>> handleEmailNotRegistered(
-          AuthEmailNotRegisteredException ex) {
+      AuthEmailNotRegisteredException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", AuthErrorCode.EMAIL_NOT_REGISTERED, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.EMAIL_NOT_REGISTERED, "message", ex.getMessage()));
   }
 
   /**
@@ -59,12 +59,12 @@ public class GlobalExceptionHandler {
     String errorMessage = "ERROR: Email service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "Unable to send verification email. Please try again later."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "Unable to send verification email. Please try again later."));
   }
 
   /**
@@ -79,12 +79,12 @@ public class GlobalExceptionHandler {
     String errorMessage = "ERROR: Reset verification code service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "Internal failure. Please try again later."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "Internal failure. Please try again later."));
   }
 
   /**
@@ -95,9 +95,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(EmailInvalidAddressException.class)
   public ResponseEntity<Map<String, Object>> handleEmailInvalidAddressException(
-          EmailInvalidAddressException ex) {
+      EmailInvalidAddressException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", AuthErrorCode.INVALID_EMAIL, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.INVALID_EMAIL, "message", ex.getMessage()));
   }
 
   /**
@@ -108,9 +108,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AuthEmailAlreadyUsedException.class)
   public ResponseEntity<Map<String, Object>> handleAuthEmailAlreadyUsedException(
-          AuthEmailAlreadyUsedException ex) {
+      AuthEmailAlreadyUsedException ex) {
     return ResponseEntity.status(409)
-            .body(Map.of("error", AuthErrorCode.EXIST_ACCOUNT_WITH_EMAIL, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.EXIST_ACCOUNT_WITH_EMAIL, "message", ex.getMessage()));
   }
 
   /**
@@ -121,9 +121,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AuthAccountNotYetActivatedException.class)
   public ResponseEntity<Map<String, Object>> handleAuthAccountNotYetActivatedException(
-          AuthAccountNotYetActivatedException ex) {
+      AuthAccountNotYetActivatedException ex) {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(Map.of("error", AuthErrorCode.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.ACCOUNT_NOT_ACTIVATED, "message", ex.getMessage()));
   }
 
   /**
@@ -134,9 +134,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(IncorrectCodeException.class)
   public ResponseEntity<Map<String, Object>> handleIncorrectCodeException(
-          IncorrectCodeException ex) {
+      IncorrectCodeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", AuthErrorCode.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.INVALID_CONFIRMATION_CODE, "message", ex.getMessage()));
   }
 
   /**
@@ -147,9 +147,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AuthAccountAlreadyVerifyException.class)
   public ResponseEntity<Map<String, Object>> handleAuthAccountAlreadyVerifyException(
-          AuthAccountAlreadyVerifyException ex) {
+      AuthAccountAlreadyVerifyException ex) {
     return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-            .body(Map.of("error", AuthErrorCode.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.ACCOUNT_ALREADY_VERIFIED, "message", ex.getMessage()));
   }
 
   /**
@@ -160,16 +160,16 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<Map<String, Object>> handleAuthenticationException(
-          AuthenticationException ex) {
+      AuthenticationException ex) {
     String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "Authentication failed. Please try again later."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "Authentication failed. Please try again later."));
   }
 
   /**
@@ -180,10 +180,10 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(AuthBadCredentialException.class)
   public ResponseEntity<Map<String, Object>> handleAuthBadCredentialException(
-          AuthBadCredentialException ex) {
+      AuthBadCredentialException ex) {
 
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(Map.of("error", AuthErrorCode.INVALID_EMAIL_OR_PASSWORD, "message", ex.getMessage()));
+        .body(Map.of("error", AuthErrorCode.INVALID_EMAIL_OR_PASSWORD, "message", ex.getMessage()));
   }
 
   /**
@@ -194,16 +194,16 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(JwtServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleJwtServiceFailException(
-          JwtServiceFailException ex) {
+      JwtServiceFailException ex) {
     String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "Authentication failed. Please try again."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "Authentication failed. Please try again."));
   }
 
   /**
@@ -214,16 +214,16 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(UserServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleUserServiceFailException(
-          UserServiceFailException ex) {
+      UserServiceFailException ex) {
     String errorMessage = "ERROR: User Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "User service fail. Please try again."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "User service fail. Please try again."));
   }
 
   /**
@@ -234,7 +234,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(CompanyAlreadyExistsException.class)
   public ResponseEntity<Map<String, Object>> handleCompanyAlreadyExistsException(
-          CompanyAlreadyExistsException ex) {
+      CompanyAlreadyExistsException ex) {
     Map<String, Object> response = new HashMap<>();
     response.put("error", CompanyErrorCode.COMPANY_ALREADY_EXISTS);
     response.put("message", ex.getMessage());
@@ -249,9 +249,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(CompanyNotFoundException.class)
   public ResponseEntity<Map<String, Object>> handleCompanyNotFoundException(
-          CompanyNotFoundException ex) {
+      CompanyNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(Map.of("error", CompanyErrorCode.COMPANY_NOT_FOUND, "message", ex.getMessage()));
+        .body(Map.of("error", CompanyErrorCode.COMPANY_NOT_FOUND, "message", ex.getMessage()));
   }
 
   /**
@@ -262,9 +262,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(InvalidWebsiteException.class)
   public ResponseEntity<Map<String, Object>> handleInvalidWebsiteException(
-          InvalidWebsiteException ex) {
+      InvalidWebsiteException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", CompanyErrorCode.INVALID_WEBSITE, "message", ex.getMessage()));
+        .body(Map.of("error", CompanyErrorCode.INVALID_WEBSITE, "message", ex.getMessage()));
   }
 
   /**
@@ -275,16 +275,16 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(CompanyServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleCompanyServiceFailException(
-          CompanyServiceFailException ex) {
+      CompanyServiceFailException ex) {
     String errorMessage = "ERROR: Company Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "An unexpected error occurred while processing your request."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your request."));
   }
 
   // === Application Exception Handlers ===
@@ -297,9 +297,11 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(DuplicateApplicationException.class)
   public ResponseEntity<Map<String, Object>> handleDuplicateApplicationException(
-          DuplicateApplicationException ex) {
+      DuplicateApplicationException ex) {
     return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(Map.of("error", ApplicationErrorCode.DUPLICATE_APPLICATION, "message", ex.getMessage()));
+        .body(
+            Map.of(
+                "error", ApplicationErrorCode.DUPLICATE_APPLICATION, "message", ex.getMessage()));
   }
 
   /**
@@ -310,9 +312,11 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ApplicationNotFoundException.class)
   public ResponseEntity<Map<String, Object>> handleApplicationNotFoundException(
-          ApplicationNotFoundException ex) {
+      ApplicationNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(Map.of("error", ApplicationErrorCode.APPLICATION_NOT_FOUND, "message", ex.getMessage()));
+        .body(
+            Map.of(
+                "error", ApplicationErrorCode.APPLICATION_NOT_FOUND, "message", ex.getMessage()));
   }
 
   /**
@@ -323,9 +327,14 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(UnauthorizedApplicationAccessException.class)
   public ResponseEntity<Map<String, Object>> handleUnauthorizedApplicationAccessException(
-          UnauthorizedApplicationAccessException ex) {
+      UnauthorizedApplicationAccessException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(Map.of("error", ApplicationErrorCode.UNAUTHORIZED_APPLICATION_ACCESS, "message", ex.getMessage()));
+        .body(
+            Map.of(
+                "error",
+                ApplicationErrorCode.UNAUTHORIZED_APPLICATION_ACCESS,
+                "message",
+                ex.getMessage()));
   }
 
   /**
@@ -336,16 +345,16 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ApplicationServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleApplicationServiceFailException(
-          ApplicationServiceFailException ex) {
+      ApplicationServiceFailException ex) {
     String errorMessage = "ERROR: Application Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "An unexpected error occurred while processing your application."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your application."));
   }
 
   // === Review Exception Handlers ===
@@ -358,7 +367,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ReviewAlreadyExistsException.class)
   public ResponseEntity<Map<String, Object>> handleReviewAlreadyExistsException(
-          ReviewAlreadyExistsException ex) {
+      ReviewAlreadyExistsException ex) {
     Map<String, Object> response = new HashMap<>();
     response.put("error", ReviewErrorCode.REVIEW_ALREADY_EXISTS);
     response.put("message", ex.getMessage());
@@ -373,9 +382,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ReviewNotFoundException.class)
   public ResponseEntity<Map<String, Object>> handleReviewNotFoundException(
-          ReviewNotFoundException ex) {
+      ReviewNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_FOUND, "message", ex.getMessage()));
+        .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_FOUND, "message", ex.getMessage()));
   }
 
   /**
@@ -386,9 +395,9 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ReviewNotOwnedException.class)
   public ResponseEntity<Map<String, Object>> handleReviewNotOwnedException(
-          ReviewNotOwnedException ex) {
+      ReviewNotOwnedException ex) {
     return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_OWNED, "message", ex.getMessage()));
+        .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_OWNED, "message", ex.getMessage()));
   }
 
   /**
@@ -399,16 +408,16 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(ReviewServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleReviewServiceFailException(
-          ReviewServiceFailException ex) {
+      ReviewServiceFailException ex) {
     String errorMessage = "ERROR: Review Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(
-                    Map.of(
-                            "error",
-                            SystemErrorCode.INTERNAL_ERROR,
-                            "message",
-                            "An unexpected error occurred while processing your review."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your review."));
   }
 
   /**
@@ -420,7 +429,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(UserNotExistException.class)
   public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExistException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
+        .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
   }
 
   /**
@@ -431,14 +440,14 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<Map<String, Object>> handleMessageNotReadable(
-          HttpMessageNotReadableException ex) {
+      HttpMessageNotReadableException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(
-                    Map.of(
-                            "error",
-                            RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
-                            "message",
-                            "Request body is missing or malformed."));
+        .body(
+            Map.of(
+                "error",
+                RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD,
+                "message",
+                "Request body is missing or malformed."));
   }
 
   /**
@@ -451,6 +460,6 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(Map.of("error", "BAD_REQUEST", "message", ex.getMessage()));
+        .body(Map.of("error", "BAD_REQUEST", "message", ex.getMessage()));
   }
 }
