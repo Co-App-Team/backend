@@ -30,6 +30,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 @WebMvcTest(CompanyController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class CompanyControllerTest {

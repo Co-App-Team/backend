@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 public class PaginationResponseTest {
 
   @Test

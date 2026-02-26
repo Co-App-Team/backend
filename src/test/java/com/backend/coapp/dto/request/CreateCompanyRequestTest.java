@@ -6,6 +6,7 @@ import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.exception.InvalidWebsiteException;
 import org.junit.jupiter.api.Test;
 
+/* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 public class CreateCompanyRequestTest {
 
   @Test
