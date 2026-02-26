@@ -12,6 +12,7 @@ import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.AuthBadCredentialException;
 import com.backend.coapp.exception.UserNotExistException;
 import com.backend.coapp.exception.UserServiceFailException;
+import com.backend.coapp.exception.UserUpdateSamePasswordException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
@@ -100,6 +101,24 @@ public class UserControllerTest {
     ;
 
     verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
+  }
+
+  @Test
+  @WithMockUser(username = "testUserID")
+  public void updatePassword_whenNewPasswordSameWithOldPassword_expect400() throws Exception {
+    doThrow(new UserUpdateSamePasswordException())
+        .when(this.userService)
+        .udpateUserPassword(anyString(), anyString(), anyString());
+    mockMvc
+        .perform(
+            patch("/api/user/update-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(
+            jsonPath("$.error").value(UserErrorCode.NEW_PASSWORD_SAME_WITH_OLD_PASSWORD.name()));
+    ;
   }
 
   @Test

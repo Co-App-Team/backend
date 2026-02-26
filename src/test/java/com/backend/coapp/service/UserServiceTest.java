@@ -117,6 +117,15 @@ public class UserServiceTest {
   }
 
   @Test
+  public void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
+    assertThrows(
+        UserUpdateSamePasswordException.class,
+        () ->
+            this.userService.udpateUserPassword(
+                this.fooUserActivated.getId(), "fooEmail", "fooEmail"));
+  }
+
+  @Test
   public void udpatePassword_whenDatabaseSaveOperationFail_expectException() {
     this.userService = new UserService(this.mockUserRepository, this.passwordEncoder);
 
