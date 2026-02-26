@@ -15,6 +15,7 @@ import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+/** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 public class EmailServiceTest {
   private JavaMailSender mailSender;
   private EmailService emailService;

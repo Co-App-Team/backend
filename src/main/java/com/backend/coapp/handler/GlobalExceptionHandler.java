@@ -198,13 +198,6 @@ public class GlobalExceptionHandler {
         .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_FOUND, "message", ex.getMessage()));
   }
 
-  @ExceptionHandler(ReviewNotOwnedException.class)
-  public ResponseEntity<Map<String, Object>> handleReviewNotOwnedException(
-      ReviewNotOwnedException ex) {
-    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-        .body(Map.of("error", ReviewErrorCode.REVIEW_NOT_OWNED, "message", ex.getMessage()));
-  }
-
   @ExceptionHandler(ReviewServiceFailException.class)
   public ResponseEntity<Map<String, Object>> handleReviewServiceFailException(
       ReviewServiceFailException ex) {

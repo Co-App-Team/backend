@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import com.backend.coapp.exception.ConcurrencyException;
 import com.backend.coapp.exception.GenAIQuotaExceededException;
 import com.backend.coapp.exception.GenAIUsageManagementServiceException;
 import com.backend.coapp.exception.UserNotExistException;
@@ -14,17 +15,18 @@ import com.backend.coapp.repository.UserRepository;
 import com.backend.coapp.util.GenAIUsageConstants;
 import java.time.LocalDateTime;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 @SpringBootTest
 @Testcontainers
 public class GenAIUsageManagementServiceTest {
@@ -195,37 +197,27 @@ public class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenTwoConcurrentRequests_expectOneSuccessOneFailure()
-      throws InterruptedException {
-    CyclicBarrier barrier = new CyclicBarrier(2); // forces both threads to meet before proceeding
-    CountDownLatch doneLatch = new CountDownLatch(2);
+  public void checkAndIncrementUsage_whenTwoConcurrentRequests_expectException() {
+    UserRepository userRepositoryMock = Mockito.mock(UserRepository.class);
+    UserGenAIUsageRepository userGenAIUsageRepositoryMock =
+        Mockito.mock(UserGenAIUsageRepository.class);
+    this.genAIUsageManagementService =
+        new GenAIUsageManagementService(userGenAIUsageRepositoryMock, userRepositoryMock);
 
-    AtomicInteger successCount = new AtomicInteger(0);
-    AtomicInteger failureCount = new AtomicInteger(0);
+    when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
+        .thenReturn(this.userGenAIUsageModel);
 
-    ExecutorService executor = Executors.newFixedThreadPool(2);
+    when(userGenAIUsageRepositoryMock.save(any()))
+        .thenThrow(new OptimisticLockingFailureException("foo"));
 
-    for (int i = 0; i < 2; i++) {
-      executor.submit(
-          () -> {
-            try {
-              barrier.await(); // both threads must reach here before either proceeds
-              genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId());
-              successCount.incrementAndGet();
-            } catch (GenAIUsageManagementServiceException e) {
-              failureCount.incrementAndGet();
-            } catch (Exception e) {
-              failureCount.incrementAndGet();
-            } finally {
-              doneLatch.countDown();
-            }
-          });
-    }
+    assertThrows(
+        ConcurrencyException.class,
+        () -> this.genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId()));
 
-    doneLatch.await(10, TimeUnit.SECONDS); // timeout to avoid hanging forever
-    executor.shutdown();
+    verifyNoInteractions(userRepositoryMock);
+    verify(userGenAIUsageRepositoryMock, times(1))
+        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
 
-    assertEquals(1, successCount.get());
-    assertEquals(1, failureCount.get());
+    verify(userGenAIUsageRepositoryMock, times(1)).save(any());
   }
 }
