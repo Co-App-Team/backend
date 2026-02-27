@@ -49,17 +49,17 @@ public class UserService {
    * @throws AuthEmailNotRegisteredException if there is no account associated with the email.
    * @throws AuthEmailNotRegisteredException if account not yet activated.
    * @throws AuthBadCredentialException if old password is incorrect.
-   * @throws UserUpdateSamePasswordException if new password is same with old password.
+   * @throws UserInvalidPasswordChangeException if new password is same with old password.
    */
-  public void udpateUserPassword(String userID, String oldPassword, String newPassword)
+  public void updateUserPassword(String userID, String oldPassword, String newPassword)
       throws UserServiceFailException,
           AuthEmailNotRegisteredException,
           AuthAccountNotYetActivatedException,
           AuthBadCredentialException,
-          UserUpdateSamePasswordException {
+          UserInvalidPasswordChangeException {
     UserModel user;
     if (oldPassword.equals(newPassword)) {
-      throw new UserUpdateSamePasswordException();
+      throw new UserInvalidPasswordChangeException();
     }
     try {
       user = this.userRepository.findUserModelById(userID);

@@ -218,9 +218,9 @@ public class GlobalExceptionHandler {
         .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
   }
 
-  @ExceptionHandler(UserUpdateSamePasswordException.class)
+  @ExceptionHandler(UserInvalidPasswordChangeException.class)
   public ResponseEntity<Map<String, Object>> handleUserUpdateSamePasswordException(
-      UserUpdateSamePasswordException ex) {
+      UserInvalidPasswordChangeException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
             Map.of(
