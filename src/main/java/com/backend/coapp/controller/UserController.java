@@ -52,7 +52,7 @@ public class UserController {
     request.validateRequest();
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String userID = auth.getName();
-    this.userService.udpateUserPassword(userID, request.getOldPassword(), request.getNewPassword());
+    this.userService.updateUserPassword(userID, request.getOldPassword(), request.getNewPassword());
 
     return ResponseEntity.ok().body(Map.of("message", "Updated password successfully."));
   }

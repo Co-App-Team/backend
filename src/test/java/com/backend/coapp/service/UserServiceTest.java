@@ -79,10 +79,10 @@ public class UserServiceTest {
   }
 
   @Test
-  public void udpateUserPassword_whenOldPasswordMatch_expectNoException() {
+  public void updateUserPassword_whenOldPasswordMatch_expectNoException() {
     assertDoesNotThrow(
         () ->
-            this.userService.udpateUserPassword(
+            this.userService.updateUserPassword(
                 this.fooUserActivated.getId(), this.rawPassword, "newPassword"));
     UserModel user = this.userRepository.findUserModelById(this.fooUserActivated.getId());
     assertNotNull(user);
@@ -93,7 +93,7 @@ public class UserServiceTest {
   public void updatePassword_whenNoAccountFound_expectException() {
     assertThrows(
         AuthEmailNotRegisteredException.class,
-        () -> this.userService.udpateUserPassword("notExistUser", "1", "2"));
+        () -> this.userService.updateUserPassword("notExistUser", "1", "2"));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class UserServiceTest {
     assertThrows(
         AuthAccountNotYetActivatedException.class,
         () ->
-            this.userService.udpateUserPassword(
+            this.userService.updateUserPassword(
                 this.fooUserNotActivated.getId(),
                 this.fooUserNotActivated.getPassword(),
                 "newPassword"));
@@ -112,8 +112,17 @@ public class UserServiceTest {
     assertThrows(
         AuthBadCredentialException.class,
         () ->
-            this.userService.udpateUserPassword(
+            this.userService.updateUserPassword(
                 this.fooUserActivated.getId(), "fooEmail", "newPassword"));
+  }
+
+  @Test
+  public void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
+    assertThrows(
+        UserInvalidPasswordChangeException.class,
+        () ->
+            this.userService.updateUserPassword(
+                this.fooUserActivated.getId(), "fooEmail", "fooEmail"));
   }
 
   @Test
@@ -126,7 +135,7 @@ public class UserServiceTest {
     assertThrows(
         UserServiceFailException.class,
         () ->
-            this.userService.udpateUserPassword(
+            this.userService.updateUserPassword(
                 this.fooUserActivated.getId(), this.rawPassword, "newPassword"));
 
     verify(this.mockUserRepository, times(1)).save(any(UserModel.class));
@@ -141,7 +150,7 @@ public class UserServiceTest {
     assertThrows(
         UserServiceFailException.class,
         () ->
-            this.userService.udpateUserPassword(
+            this.userService.updateUserPassword(
                 this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
 
     verify(this.mockUserRepository, never()).save(any(UserModel.class));
