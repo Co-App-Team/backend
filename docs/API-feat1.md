@@ -335,6 +335,16 @@ Response body:
 }
 ```
 
+**Response 400 BAD REQUEST:**
+
+Response body:
+```json
+{
+    "error": "NEW_PASSWORD_SAME_WITH_OLD_PASSWORD",
+    "message": "New password must be different from old password"
+}
+```
+
 **Response 401 UNAUTHORIZED:**
 
 Response body:

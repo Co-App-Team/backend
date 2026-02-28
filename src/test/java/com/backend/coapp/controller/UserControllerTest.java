@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.AuthBadCredentialException;
+import com.backend.coapp.exception.UserInvalidPasswordChangeException;
 import com.backend.coapp.exception.UserNotExistException;
 import com.backend.coapp.exception.UserServiceFailException;
 import com.backend.coapp.model.document.UserModel;
@@ -71,7 +72,7 @@ public class UserControllerTest {
   @Test
   @WithMockUser(username = "testUserID")
   public void updatePassword_whenSuccess_expectNoException() throws Exception {
-    doNothing().when(this.userService).udpateUserPassword(anyString(), anyString(), anyString());
+    doNothing().when(this.userService).updateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
             patch("/api/user/update-password")
@@ -80,7 +81,7 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").isNotEmpty());
 
-    verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
+    verify(userService, times(1)).updateUserPassword("testUserID", "oldPassword", "newPassword");
   }
 
   @Test
@@ -88,7 +89,7 @@ public class UserControllerTest {
   public void updatePassword_whenIncorrectOldPassword_expect401() throws Exception {
     doThrow(new AuthBadCredentialException())
         .when(this.userService)
-        .udpateUserPassword(anyString(), anyString(), anyString());
+        .updateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
             patch("/api/user/update-password")
@@ -99,7 +100,25 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_EMAIL_OR_PASSWORD.name()));
     ;
 
-    verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
+    verify(userService, times(1)).updateUserPassword("testUserID", "oldPassword", "newPassword");
+  }
+
+  @Test
+  @WithMockUser(username = "testUserID")
+  public void updatePassword_whenNewPasswordSameWithOldPassword_expect400() throws Exception {
+    doThrow(new UserInvalidPasswordChangeException())
+        .when(this.userService)
+        .updateUserPassword(anyString(), anyString(), anyString());
+    mockMvc
+        .perform(
+            patch("/api/user/update-password")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.dummyRequest)))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.message").isNotEmpty())
+        .andExpect(
+            jsonPath("$.error").value(UserErrorCode.NEW_PASSWORD_SAME_WITH_OLD_PASSWORD.name()));
+    ;
   }
 
   @Test
@@ -107,7 +126,7 @@ public class UserControllerTest {
   public void updatePassword_whenUserServiceFail_expect500() throws Exception {
     doThrow(new UserServiceFailException("foo"))
         .when(this.userService)
-        .udpateUserPassword(anyString(), anyString(), anyString());
+        .updateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
             patch("/api/user/update-password")
@@ -116,9 +135,8 @@ public class UserControllerTest {
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
-    ;
 
-    verify(userService, times(1)).udpateUserPassword("testUserID", "oldPassword", "newPassword");
+    verify(userService, times(1)).updateUserPassword("testUserID", "oldPassword", "newPassword");
   }
 
   @Test
