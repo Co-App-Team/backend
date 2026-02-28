@@ -516,7 +516,7 @@ public class UserServiceTest {
     setUpExperiences();
 
     assertThrows(
-        ExperienceNotOwnException.class,
+        ExperienceNotOwnedException.class,
         () ->
             this.userService.deleteUserExperience(
                 fooExperience1.getId(), "anotherUserId")); // different user trying to delete
@@ -715,7 +715,7 @@ public class UserServiceTest {
     setUpCompany();
 
     assertThrows(
-        ExperienceNotOwnException.class,
+        ExperienceNotOwnedException.class,
         () ->
             this.userService.updateUserExperience(
                 fooExperience1.getId(),

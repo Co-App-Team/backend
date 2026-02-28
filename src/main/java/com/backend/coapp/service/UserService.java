@@ -194,10 +194,10 @@ public class UserService {
               .orElseThrow(ExperienceNotFoundException::new);
 
       if (!experience.getUserId().equals(userId)) {
-        throw new ExperienceNotOwnException("Can NOT delete.");
+        throw new ExperienceNotOwnedException("Can NOT delete.");
       }
       this.userExperienceRepository.deleteById(experienceId);
-    } catch (ExperienceNotOwnException | ExperienceNotFoundException e) {
+    } catch (ExperienceNotOwnedException | ExperienceNotFoundException e) {
       throw e;
     } catch (Exception e) {
       throw new UserServiceFailException(e.getMessage());
@@ -240,7 +240,7 @@ public class UserService {
               .orElseThrow(ExperienceNotFoundException::new);
 
       if (!experience.getUserId().equals(userId)) {
-        throw new ExperienceNotOwnException("Cannot update.");
+        throw new ExperienceNotOwnedException("Cannot update.");
       }
 
       if (!this.companyRepository.existsById(companyId)) {
@@ -255,10 +255,10 @@ public class UserService {
 
       this.userExperienceRepository.save(experience);
 
-    } catch (ExperienceNotOwnException
-        | ExperienceNotFoundException
-        | CompanyNotFoundException
-        | UserServiceFailException e) {
+    } catch (ExperienceNotOwnedException
+             | ExperienceNotFoundException
+             | CompanyNotFoundException
+             | UserServiceFailException e) {
       throw e;
     } catch (Exception e) {
       throw new UserServiceFailException(e.getMessage());
