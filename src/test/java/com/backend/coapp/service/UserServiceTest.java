@@ -197,7 +197,6 @@ public class UserServiceTest {
             this.userService.updateUserPassword(
                 this.fooUserActivated.getId(), this.RAW_PASSWORD, "newPassword"));
 
-
     verify(this.mockUserRepository, times(1)).save(any(UserModel.class));
   }
 

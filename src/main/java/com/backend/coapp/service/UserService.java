@@ -256,9 +256,9 @@ public class UserService {
       this.userExperienceRepository.save(experience);
 
     } catch (ExperienceNotOwnedException
-             | ExperienceNotFoundException
-             | CompanyNotFoundException
-             | UserServiceFailException e) {
+        | ExperienceNotFoundException
+        | CompanyNotFoundException
+        | UserServiceFailException e) {
       throw e;
     } catch (Exception e) {
       throw new UserServiceFailException(e.getMessage());
