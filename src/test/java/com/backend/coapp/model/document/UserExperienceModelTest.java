@@ -1,7 +1,6 @@
 package com.backend.coapp.model.document;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.backend.coapp.util.ExperienceConstants;
 import jakarta.validation.ConstraintViolation;
@@ -188,5 +187,64 @@ public class UserExperienceModelTest {
     UserExperienceModel model = buildValidModel();
     model.setRoleTitle("a".repeat(ExperienceConstants.MAX_JOB_TITLE_LENGTH));
     assertNoViolations(model);
+  }
+
+  @Test
+  public void constructor_whenValidArgs_shouldSetFieldsCorrectly() {
+    UserExperienceModel model =
+        new UserExperienceModel(
+            VALID_USER_ID,
+            VALID_COMPANY_ID,
+            VALID_ROLE_TITLE,
+            VALID_ROLE_DESCRIPTION,
+            VALID_START_DATE,
+            VALID_END_DATE);
+
+    assertEquals(VALID_USER_ID, model.getUserId());
+    assertEquals(VALID_COMPANY_ID, model.getCompanyId());
+    assertEquals(VALID_ROLE_TITLE, model.getRoleTitle());
+    assertEquals(VALID_ROLE_DESCRIPTION, model.getRoleDescription());
+    assertEquals(VALID_START_DATE, model.getStartDate());
+    assertEquals(VALID_END_DATE, model.getEndDate());
+    assertNull(model.getId()); // id should not be set
+  }
+
+  @Test
+  public void constructor_whenEndDateIsNull_shouldSetEndDateAsNull() {
+    UserExperienceModel model =
+        new UserExperienceModel(
+            VALID_USER_ID,
+            VALID_COMPANY_ID,
+            VALID_ROLE_TITLE,
+            VALID_ROLE_DESCRIPTION,
+            VALID_START_DATE,
+            null); // current job
+
+    assertNull(model.getEndDate());
+    assertNull(model.getId());
+  }
+
+  @Test
+  public void constructor_shouldNeverSetId() {
+    UserExperienceModel model1 =
+        new UserExperienceModel(
+            VALID_USER_ID,
+            VALID_COMPANY_ID,
+            VALID_ROLE_TITLE,
+            VALID_ROLE_DESCRIPTION,
+            VALID_START_DATE,
+            VALID_END_DATE);
+
+    UserExperienceModel model2 =
+        new UserExperienceModel(
+            VALID_USER_ID,
+            VALID_COMPANY_ID,
+            VALID_ROLE_TITLE,
+            VALID_ROLE_DESCRIPTION,
+            VALID_START_DATE,
+            null);
+
+    assertNull(model1.getId());
+    assertNull(model2.getId());
   }
 }

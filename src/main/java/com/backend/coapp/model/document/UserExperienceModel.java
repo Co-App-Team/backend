@@ -49,4 +49,29 @@ public class UserExperienceModel {
   private LocalDate startDate;
 
   private LocalDate endDate;
+
+  /**
+   * UserExperienceModel
+   *
+   * @param userId ID of the user
+   * @param companyId ID of the company of the experience
+   * @param roleTitle job title of the experience
+   * @param roleDescription role description of the experience
+   * @param startDate start date of the experience
+   * @param endDate end date of the experience
+   */
+  public UserExperienceModel(
+      String userId,
+      String companyId,
+      String roleTitle,
+      String roleDescription,
+      LocalDate startDate,
+      LocalDate endDate) {
+    this.userId = userId;
+    this.companyId = companyId;
+    this.roleTitle = roleTitle;
+    this.roleDescription = roleDescription;
+    this.startDate = startDate;
+    this.endDate = endDate;
+  }
 }
