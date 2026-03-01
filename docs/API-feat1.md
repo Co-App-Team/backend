@@ -30,7 +30,7 @@ Response header:
 Set-Cookie: Authorization=<token>; HttpOnly; Secure; SameSite=None; Max-Age=3600
 ```
 
-*Each cookie is assumed to be expired in 2 hours.*
+*Each cookie is assumed to be expired in 1 hours.*
 
 Response body:
 
