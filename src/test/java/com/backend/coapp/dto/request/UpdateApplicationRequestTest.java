@@ -244,4 +244,69 @@ public class UpdateApplicationRequestTest {
         getValidRequestBuilder().dateApplied(LocalDate.of(2024, 1, 1)).build();
     assertDoesNotThrow(request::validateRequest);
   }
+
+  @Test
+  public void validateRequest_whenJobDescriptionIsNull_expectNoException() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().jobTitle(validJobTitle).jobDescription(null).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenNotesIsNull_expectNoException() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().jobTitle(validJobTitle).notes(null).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenNumPositionsIsNull_expectNoException() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().jobTitle(validJobTitle).numPositions(null).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenNumPositionsIsZero_expectNoException() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().jobTitle(validJobTitle).numPositions(0).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenDateAppliedEqualsDeadline_expectNoException() {
+    LocalDate sameDate = LocalDate.of(2025, 6, 15);
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().dateApplied(sameDate).applicationDeadline(sameDate).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenJobDescriptionExactlyAtLimit_expectNoException() {
+    String exactDescription = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH);
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().jobDescription(exactDescription).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenNotesExactlyAtLimit_expectNoException() {
+    String exactNotes = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH);
+    UpdateApplicationRequest request = getValidRequestBuilder().notes(exactNotes).build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenSourceLinkIsValidWithWhitespace_expectNoException() {
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().sourceLink("  https://valid-url.com  ").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenCompanyIdIsNotBlank_expectNoException() {
+    UpdateApplicationRequest request =
+        UpdateApplicationRequest.builder().companyId("valid-id").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
 }
