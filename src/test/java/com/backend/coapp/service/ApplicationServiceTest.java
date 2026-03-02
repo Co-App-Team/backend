@@ -405,4 +405,139 @@ public class ApplicationServiceTest {
 
     assertEquals(secondCompany.getId(), response.getCompanyId());
   }
+
+  @Test
+  public void updateApplication_whenOnlyDescriptionChanges_expectSuccess() {
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            "Brand New Description", // Changed
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            existingApp.getNotes());
+
+    assertEquals("Brand New Description", response.getJobDescription());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyLinkChanges_expectSuccess() {
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            "https://new-job-link.com", // Changed
+            existingApp.getDateApplied(),
+            existingApp.getNotes());
+
+    assertEquals("https://new-job-link.com", response.getSourceLink());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyDateAppliedChanges_expectSuccess() {
+    LocalDate newDate = LocalDate.now().minusDays(1);
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            newDate, // Changed
+            existingApp.getNotes());
+
+    assertEquals(newDate, response.getDateApplied());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyNotesChanges_expectSuccess() {
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            "Updated internal notes"); // Changed
+
+    assertEquals("Updated internal notes", response.getNotes());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyStatusChanges_expectSuccess() {
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            ApplicationStatus.ACCEPTED, // Changed
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            existingApp.getNotes());
+
+    assertEquals(ApplicationStatus.ACCEPTED, response.getStatus());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyDeadlineChanges_expectSuccess() {
+    LocalDate newDeadline = LocalDate.now().plusWeeks(2);
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            newDeadline, // Changed
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            existingApp.getNotes());
+
+    assertEquals(newDeadline, response.getApplicationDeadline());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyPositionsChanges_expectSuccess() {
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            99, // Changed
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            existingApp.getNotes());
+
+    assertEquals(99, response.getNumPositions());
+  }
 }
