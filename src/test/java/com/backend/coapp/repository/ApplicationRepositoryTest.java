@@ -133,7 +133,6 @@ public class ApplicationRepositoryTest {
 
   @Test
   public void existsByUserIdAndCompanyIdAndJobTitle_whenMatchExists_expectTrue() {
-    // Exact match for app1: "user1", "companyA", "Software Engineer"
     boolean exists =
         repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Software Engineer");
 
@@ -142,16 +141,13 @@ public class ApplicationRepositoryTest {
 
   @Test
   public void existsByUserIdAndCompanyIdAndJobTitle_whenPartialMatch_expectFalse() {
-    // Correct user and company, but different job title
     boolean wrongTitle =
         repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Backend Developer");
 
-    // Correct company and title, but different user
     boolean wrongUser =
         repository.existsByUserIdAndCompanyIdAndJobTitle(
             "user999", "companyA", "Software Engineer");
 
-    // Correct user and title, but different company
     boolean wrongCompany =
         repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyZ", "Software Engineer");
 
@@ -162,7 +158,6 @@ public class ApplicationRepositoryTest {
 
   @Test
   public void existsByUserIdAndCompanyIdAndJobTitle_whenCaseDoesNotMatch_expectFalse() {
-    // Testing case sensitivity (Standard MongoDB behavior unless collation is specified)
     boolean exists =
         repository.existsByUserIdAndCompanyIdAndJobTitle("USER1", "companyA", "Software Engineer");
 
@@ -171,7 +166,6 @@ public class ApplicationRepositoryTest {
 
   @Test
   public void existsByUserIdAndCompanyIdAndJobTitle_afterDelete_expectFalse() {
-    // Delete the application and then verify existence
     repository.delete(app1);
 
     boolean exists =

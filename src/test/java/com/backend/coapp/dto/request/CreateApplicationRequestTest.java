@@ -15,7 +15,6 @@ public class CreateApplicationRequestTest {
   private final String validJobTitle = "Software Engineer";
   private final ApplicationStatus validStatus = ApplicationStatus.APPLIED;
 
-  // FIX: Use dynamic dates to ensure 'Applied' date is always before 'Deadline' for valid requests
   private final LocalDate validDateApplied = LocalDate.now();
   private final LocalDate validDeadline = LocalDate.now().plusMonths(1);
 
@@ -164,8 +163,6 @@ public class CreateApplicationRequestTest {
 
     assertDoesNotThrow(request::validateRequest);
   }
-
-  // --- TESTS FOR REQUESTED LOGIC ---
 
   // Job Description Length Validation
   @Test

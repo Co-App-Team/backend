@@ -90,7 +90,7 @@ public class ApplicationServiceTest {
     assertSame(this.companyRepository, this.applicationService.getCompanyRepository());
   }
 
-  // --- Create Application Integration Tests ---
+  // Create Application Integration Tests
 
   @Test
   public void createApplication_whenValid_expectSuccess() {
@@ -109,8 +109,6 @@ public class ApplicationServiceTest {
 
     assertNotNull(response);
     assertEquals("Data Scientist", response.getJobTitle());
-    // Removed getUserId() assertion as ApplicationResponse typically doesn't expose it in your
-    // previous snippets
     assertEquals(testCompany.getId(), response.getCompanyId());
   }
 
@@ -168,12 +166,10 @@ public class ApplicationServiceTest {
                 null));
   }
 
-  // --- Update Application Integration Tests ---
+  // Update Application Integration Tests
 
   @Test
   public void updateApplication_whenValid_expectSuccess() {
-    // Service expects: userId, appId, companyId, jobTitle, status, deadline, desc, numPos, link,
-    // dateApplied, notes
     ApplicationResponse response =
         this.applicationService.updateApplication(
             "user_001",
@@ -215,7 +211,6 @@ public class ApplicationServiceTest {
 
   @Test
   public void updateApplication_whenNoChanges_expectException() {
-    // Must pass exact same values as existingApp to trigger NoChangesDetectedException
     assertThrows(
         NoChangesDetectedException.class,
         () ->
@@ -271,7 +266,7 @@ public class ApplicationServiceTest {
                 "Notes"));
   }
 
-  // --- Delete Application Integration Tests ---
+  // Delete Application Integration Tests
 
   @Test
   public void deleteApplication_whenValid_expectDeleted() {
