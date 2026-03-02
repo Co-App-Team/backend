@@ -24,7 +24,6 @@ public class ApplicationModelTest {
 
   @BeforeEach
   public void setUp() {
-
     // Java Validator since we're using lombok
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     this.validator = factory.getValidator();
@@ -41,6 +40,29 @@ public class ApplicationModelTest {
     validApplication.setNumPositions(3);
     validApplication.setDateApplied(LocalDate.now());
     validApplication.setNotes("Referral from John Doe");
+  }
+
+  @Test
+  public void builder_expectCorrectValues() {
+    LocalDate deadline = LocalDate.now().plusMonths(1);
+
+    ApplicationModel app =
+        ApplicationModel.builder()
+            .userId("builder-user")
+            .companyId("builder-comp")
+            .jobTitle("Architect")
+            .status(ApplicationStatus.INTERVIEWING)
+            .applicationDeadline(deadline)
+            .numPositions(2)
+            .build();
+
+    assertNotNull(app);
+    assertEquals("builder-user", app.getUserId());
+    assertEquals("builder-comp", app.getCompanyId());
+    assertEquals("Architect", app.getJobTitle());
+    assertEquals(ApplicationStatus.INTERVIEWING, app.getStatus());
+    assertEquals(deadline, app.getApplicationDeadline());
+    assertEquals(2, app.getNumPositions());
   }
 
   @Test
@@ -108,7 +130,7 @@ public class ApplicationModelTest {
 
   @Test
   public void validate_whenNumPositionsIsZero_expectViolation() {
-    validApplication.setNumPositions(0); // Invalid (must be >= 1)
+    validApplication.setNumPositions(0);
     Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
     assertFalse(violations.isEmpty());
     assertEquals(

@@ -130,4 +130,47 @@ public class ApplicationRepositoryTest {
     assertThat(updated).isPresent();
     assertThat(updated.get().getStatus()).isEqualTo(ApplicationStatus.ACCEPTED);
   }
+
+  @Test
+  public void existsByUserIdAndCompanyIdAndJobTitle_whenMatchExists_expectTrue() {
+    boolean exists =
+        repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Software Engineer");
+
+    assertThat(exists).isTrue();
+  }
+
+  @Test
+  public void existsByUserIdAndCompanyIdAndJobTitle_whenPartialMatch_expectFalse() {
+    boolean wrongTitle =
+        repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Backend Developer");
+
+    boolean wrongUser =
+        repository.existsByUserIdAndCompanyIdAndJobTitle(
+            "user999", "companyA", "Software Engineer");
+
+    boolean wrongCompany =
+        repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyZ", "Software Engineer");
+
+    assertThat(wrongTitle).isFalse();
+    assertThat(wrongUser).isFalse();
+    assertThat(wrongCompany).isFalse();
+  }
+
+  @Test
+  public void existsByUserIdAndCompanyIdAndJobTitle_whenCaseDoesNotMatch_expectFalse() {
+    boolean exists =
+        repository.existsByUserIdAndCompanyIdAndJobTitle("USER1", "companyA", "Software Engineer");
+
+    assertThat(exists).isFalse();
+  }
+
+  @Test
+  public void existsByUserIdAndCompanyIdAndJobTitle_afterDelete_expectFalse() {
+    repository.delete(app1);
+
+    boolean exists =
+        repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Software Engineer");
+
+    assertThat(exists).isFalse();
+  }
 }

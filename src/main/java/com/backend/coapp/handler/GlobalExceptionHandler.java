@@ -182,6 +182,50 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred while processing your request."));
   }
 
+  @ExceptionHandler(DuplicateApplicationException.class)
+  public ResponseEntity<Map<String, Object>> handleDuplicateApplicationException(
+      DuplicateApplicationException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+            Map.of(
+                "error", ApplicationErrorCode.DUPLICATE_APPLICATION, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ApplicationNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleApplicationNotFoundException(
+      ApplicationNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(
+            Map.of(
+                "error", ApplicationErrorCode.APPLICATION_NOT_FOUND, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(UnauthorizedApplicationAccessException.class)
+  public ResponseEntity<Map<String, Object>> handleUnauthorizedApplicationAccessException(
+      UnauthorizedApplicationAccessException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(
+            Map.of(
+                "error",
+                ApplicationErrorCode.UNAUTHORIZED_APPLICATION_ACCESS,
+                "message",
+                ex.getMessage()));
+  }
+
+  @ExceptionHandler(ApplicationServiceFailException.class)
+  public ResponseEntity<Map<String, Object>> handleApplicationServiceFailException(
+      ApplicationServiceFailException ex) {
+    String errorMessage = "ERROR: Application Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your application."));
+  }
+
   @ExceptionHandler(ReviewAlreadyExistsException.class)
   public ResponseEntity<Map<String, Object>> handleReviewAlreadyExistsException(
       ReviewAlreadyExistsException ex) {

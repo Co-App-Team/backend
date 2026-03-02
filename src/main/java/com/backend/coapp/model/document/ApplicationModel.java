@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data // Generates Getters, Setters, equals(), hashCode(), and toString()
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Document(collection = "applications")
 public class ApplicationModel {
 
