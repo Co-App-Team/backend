@@ -40,9 +40,6 @@ public class CreateApplicationRequest implements IRequest {
   public void validateRequest() {
 
     // Required
-    if (isBlank(userId)) {
-      throw new InvalidRequestException("User id cannot be null or empty.");
-    }
     if (isBlank(companyId)) {
       throw new InvalidRequestException("Company id cannot be null or empty.");
     }

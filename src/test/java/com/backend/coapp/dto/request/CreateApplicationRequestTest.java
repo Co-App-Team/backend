@@ -25,7 +25,6 @@ public class CreateApplicationRequestTest {
   /** Helper method to create a valid builder. */
   private CreateApplicationRequest.CreateApplicationRequestBuilder getValidRequestBuilder() {
     return CreateApplicationRequest.builder()
-        .userId(validUserId)
         .companyId(validCompanyId)
         .jobTitle(validJobTitle)
         .status(validStatus)
@@ -43,7 +42,6 @@ public class CreateApplicationRequestTest {
             .notes("Some notes")
             .build();
 
-    assertEquals(validUserId, request.getUserId());
     assertEquals(validCompanyId, request.getCompanyId());
     assertEquals(validJobTitle, request.getJobTitle());
     assertEquals(validStatus, request.getStatus());
@@ -59,27 +57,6 @@ public class CreateApplicationRequestTest {
     CreateApplicationRequest request = getValidRequestBuilder().sourceLink(validUrl).build();
 
     assertDoesNotThrow(request::validateRequest);
-  }
-
-  // User ID Validation
-  @Test
-  public void validateRequest_whenUserIdIsNull_expectException() {
-    CreateApplicationRequest request = getValidRequestBuilder().userId(null).build();
-
-    InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, request::validateRequest);
-
-    assertEquals(EXCEPTION_PREFIX + "User id cannot be null or empty.", exception.getMessage());
-  }
-
-  @Test
-  public void validateRequest_whenUserIdIsBlank_expectException() {
-    CreateApplicationRequest request = getValidRequestBuilder().userId("   ").build();
-
-    InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, request::validateRequest);
-
-    assertEquals(EXCEPTION_PREFIX + "User id cannot be null or empty.", exception.getMessage());
   }
 
   // Company ID Validation
