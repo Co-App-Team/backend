@@ -209,16 +209,20 @@ public class ApplicationService {
     this.applicationRepository.deleteById(applicationId);
   }
 
-    public List<ApplicationResponse> getApplications(String userID) {
-      List<ApplicationModel> userApplicationModels =
-              this.applicationRepository
-                      .findByUserId(userID);
+  /**
+   * Retrieves all job applications for a specific user.
+   *
+   * @param userId The ID of the user.
+   * @return A list of ApplicationResponse DTOs.
+   */
+  public List<ApplicationResponse> getApplications(String userId) {
+    List<ApplicationModel> userApplicationModels = this.applicationRepository.findByUserId(userId);
 
-      List<ApplicationResponse> userApplications = new ArrayList<>();
-      for (ApplicationModel application : userApplicationModels) {
-        userApplications.add(ApplicationResponse.fromModel(application));
-      }
-
-      return userApplications;
+    List<ApplicationResponse> userApplications = new ArrayList<>();
+    for (ApplicationModel application : userApplicationModels) {
+      userApplications.add(ApplicationResponse.fromModel(application));
     }
+
+    return userApplications;
+  }
 }

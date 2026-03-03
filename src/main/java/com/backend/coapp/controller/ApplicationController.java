@@ -3,13 +3,8 @@ package com.backend.coapp.controller;
 import com.backend.coapp.dto.request.CreateApplicationRequest;
 import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
-import com.backend.coapp.dto.response.CompanyResponse;
-import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ApplicationService;
-
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -18,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -121,19 +115,19 @@ public class ApplicationController {
     return ResponseEntity.ok(Map.of("message", "Application successfully deleted."));
   }
 
-  @GetMapping("/")
-  public ResponseEntity<Map<String, Object>> getApplications(Authentication authentication) {
+  /**
+   * Retrieves all job applications for the currently authenticated user.
+   *
+   * @param authentication The authentication object provided by Spring Security.
+   * @return ResponseEntity containing a list of applications.
+   */
+  @GetMapping
+  public ResponseEntity<List<ApplicationResponse>> getApplications(Authentication authentication) {
     UserModel user = (UserModel) authentication.getPrincipal();
     String userId = user.getId();
 
-    Map<String, Object> response = new HashMap<>();
-
     List<ApplicationResponse> applicationList = this.applicationService.getApplications(userId);
 
-    for (ApplicationResponse application : applicationList) {
-      response.put(application.getApplicationId(), application.toMap());
-    }
-
-    return ResponseEntity.ok().body(response);
+    return ResponseEntity.ok(applicationList);
   }
 }
