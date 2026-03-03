@@ -172,7 +172,10 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
         .andExpect(jsonPath("$.notes").value("Updated: Scheduled interview."));
 
     // Verify Database after update
-    ApplicationModel refetchedApp = applicationRepository.findById(appId).get();
+    ApplicationModel refetchedApp =
+        applicationRepository
+            .findById(appId)
+            .orElseThrow(() -> new AssertionError("Application should still exist"));
     assertThat(refetchedApp.getJobTitle()).isEqualTo("Senior Software Engineer");
     assertThat(refetchedApp.getStatus()).isEqualTo(ApplicationStatus.INTERVIEWING);
 

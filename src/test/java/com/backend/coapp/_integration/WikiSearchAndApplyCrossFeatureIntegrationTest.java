@@ -70,11 +70,11 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
     this.companyRepository.save(amazon);
     this.amazonId = amazon.getId();
 
-    CompanyModel google = new CompanyModel("Samsung", "Mountain View", "https://google.com");
+    CompanyModel google = new CompanyModel("Google", "Mountain View", "https://google.com");
     this.companyRepository.save(google);
     this.googleId = google.getId();
 
-    CompanyModel microsoft = new CompanyModel("Google", "Redmond", "https://microsoft.com");
+    CompanyModel microsoft = new CompanyModel("Microsoft", "Redmond", "https://microsoft.com");
     this.companyRepository.save(microsoft);
 
     // Create a user
@@ -114,7 +114,7 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
         .perform(get("/api/companies").param("search", "o").cookie(this.authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.companies").isArray())
-        .andExpect(jsonPath("$.companies.length()").value(2));
+        .andExpect(jsonPath("$.companies.length()").value(3));
 
     // User applies to Amazon
     CreateApplicationRequest amazonApplyReq =

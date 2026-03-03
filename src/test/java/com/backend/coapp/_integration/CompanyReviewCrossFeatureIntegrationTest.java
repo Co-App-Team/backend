@@ -117,7 +117,7 @@ class CompanyReviewCrossFeatureIntegrationTest {
                 .content(objectMapper.writeValueAsString(createReviewRequest))
                 .cookie(this.authCookie))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.reviewId").isNotEmpty()) // Fixed: "reviewId" instead of "id"
+        .andExpect(jsonPath("$.reviewId").isNotEmpty())
         .andExpect(jsonPath("$.companyId").value(testCompanyId))
         .andExpect(jsonPath("$.userId").value(testUserId))
         .andExpect(jsonPath("$.rating").value(5))

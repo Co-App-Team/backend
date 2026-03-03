@@ -158,7 +158,7 @@ class ReviewUpdateAndHistoryCrossFeatureIntegrationTest {
 
     // Verify the db still has only 1 review and updated content
     assertThat(reviewRepository.count()).isOne();
-    ReviewModel updatedReview = reviewRepository.findAll().getFirst();
+    ReviewModel updatedReview = reviewRepository.findAll().iterator().next();
     assertThat(updatedReview.getRating()).isEqualTo(4);
     assertThat(updatedReview.getComment()).contains("improved drastically");
 
