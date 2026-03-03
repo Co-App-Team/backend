@@ -87,7 +87,6 @@ class CrossFeatureWikiSearchAndApplyIntegrationTest {
     }
 
     @Test
-    @DisplayName("wikiBulkApplyFlow_whenUserSearchesAppliesMultipleAndProgressesStatus_expectCompanyIsolation")
     void wikiBulkApplyFlow_whenUserSearchesAppliesMultipleAndProgressesStatus_expectCompanyIsolation() {
 
         assertThat(applicationRepository.count()).isZero();

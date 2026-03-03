@@ -76,7 +76,6 @@ class CrossFeatureReviewUpdateAndHistoryIntegrationTest {
     }
 
     @Test
-    @DisplayName("reviewUpdateFlow_whenUserAttemptsDuplicateAndUpdates_expectRatingMathRecalculatedWithIsolation")
     void reviewUpdateFlow_whenUserAttemptsDuplicateAndUpdates_expectRatingMathRecalculatedWithIsolation() {
 
         assertThat(reviewRepository.count()).isZero();

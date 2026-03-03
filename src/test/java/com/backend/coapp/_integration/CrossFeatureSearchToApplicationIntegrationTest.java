@@ -83,7 +83,6 @@ class CrossFeatureSearchToApplicationIntegrationTest {
     }
 
     @Test
-    @DisplayName("searchToApplyFlow_whenUserSearchesPaginatesReviewsAndApplies_expectUserDashboardSliceUpdatedWithIsolation")
     void searchToApplyFlow_whenUserSearchesPaginatesReviewsAndApplies_expectUserDashboardSliceUpdatedWithIsolation() {
 
         assertThat(companyRepository.count()).isEqualTo(3);
