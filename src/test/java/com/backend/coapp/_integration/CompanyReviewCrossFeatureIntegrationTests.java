@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.backend.coapp.dto.request.CreateReviewRequest;
 import com.backend.coapp.dto.request.LoginRequest;
+import com.backend.coapp.dto.request.UpdateReviewRequest;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.model.document.UserModel;
@@ -31,7 +32,7 @@ import tools.jackson.databind.ObjectMapper;
 @Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
-class CompanyReviewCrossFeatureIntegrationTest {
+class CompanyReviewCrossFeatureIntegrationTests {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -51,7 +52,6 @@ class CompanyReviewCrossFeatureIntegrationTest {
   private String testCompanyId;
   private String testUserId;
   private String testUserEmail;
-  private Cookie authCookie;
 
   @BeforeEach
   void setUp() {
@@ -67,16 +67,21 @@ class CompanyReviewCrossFeatureIntegrationTest {
 
     // Create a user
     UserModel testUser =
-        new UserModel("user_001", "test@example.com", "", "Test", "User", true, 1234);
-    testUser.setPassword(passwordEncoder.encode("password123"));
+        new UserModel(
+            "user_001",
+            "test@example.com",
+            passwordEncoder.encode("password123"),
+            "Test",
+            "User",
+            true,
+            1234);
     this.userRepository.save(testUser);
     this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
   @Test
-  void companyReviewFlow_whenUserLogsInAndPostsReview_expectRatingUpdatedWithCrossFeatureIsolation()
-      throws Exception {
+  void reviewFlow_whenUserLogsInAndPostsReviewAndLogsOut_expectCorrectDataInDB() throws Exception {
 
     // A user exists and a company exists in the database
     assertThat(reviewRepository.count()).isZero();
@@ -96,12 +101,12 @@ class CompanyReviewCrossFeatureIntegrationTest {
             .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
-    this.authCookie = loginResult.getResponse().getCookie("Authorization");
-    assertThat(this.authCookie).isNotNull();
+    Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
+    assertThat(authCookie).isNotNull();
 
     // The user views the company profile before leaving a review
     mockMvc
-        .perform(get("/api/companies/{id}", testCompanyId).cookie(this.authCookie))
+        .perform(get("/api/companies/{id}", testCompanyId).cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.company.avgRating").value(0.0));
 
@@ -115,7 +120,7 @@ class CompanyReviewCrossFeatureIntegrationTest {
             post("/api/companies/{companyId}/reviews", testCompanyId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createReviewRequest))
-                .cookie(this.authCookie))
+                .cookie(authCookie))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.reviewId").isNotEmpty())
         .andExpect(jsonPath("$.companyId").value(testCompanyId))
@@ -136,12 +141,108 @@ class CompanyReviewCrossFeatureIntegrationTest {
 
     // The user re-fetches the company page and expects to see the updated average rating
     mockMvc
-        .perform(get("/api/companies/{id}", testCompanyId).cookie(this.authCookie))
+        .perform(get("/api/companies/{id}", testCompanyId).cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.company").exists())
         .andExpect(jsonPath("$.company.avgRating").value(5.0));
 
     // The user logs out
-    mockMvc.perform(get("/api/auth/logout").cookie(this.authCookie)).andExpect(status().isOk());
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
+  }
+
+  void
+      reviewFlow_whenUserLogsInAndCreatesDuplicatesAndUpdatesReviewAndLogsOut_expectCorrectDataInDB()
+          throws Exception {
+
+    assertThat(reviewRepository.count()).isZero();
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // User logs in
+    LoginRequest loginRequest = new LoginRequest(testUserEmail, "password123");
+    MvcResult loginResult =
+        mockMvc
+            .perform(
+                post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(loginRequest)))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged in successfully."))
+            .andReturn();
+
+    Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
+    assertThat(authCookie).isNotNull();
+
+    // Post a Review (Rating: 1)
+    CreateReviewRequest createReviewRequest =
+        new CreateReviewRequest(
+            1, "Terrible experience, poorly managed.", "Junior Dev", "Fall", 2023);
+
+    mockMvc
+        .perform(
+            post("/api/companies/{companyId}/reviews", testCompanyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(createReviewRequest))
+                .cookie(authCookie))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.reviewId").isNotEmpty())
+        .andExpect(jsonPath("$.companyId").value(testCompanyId))
+        .andExpect(jsonPath("$.userId").value(testUserId))
+        .andExpect(jsonPath("$.rating").value(1));
+
+    assertThat(reviewRepository.count()).isOne();
+
+    mockMvc
+        .perform(get("/api/companies/{companyId}", testCompanyId).cookie(authCookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.company.avgRating").value(1.0));
+
+    // Post another Review for the same company (duplicate): error
+    CreateReviewRequest duplicateReviewRequest =
+        new CreateReviewRequest(5, "Wait, nevermind it was great!", "Junior Dev", "Fall", 2023);
+
+    mockMvc
+        .perform(
+            post("/api/companies/{companyId}/reviews", testCompanyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(duplicateReviewRequest))
+                .cookie(authCookie))
+        .andExpect(status().is4xxClientError());
+
+    // Verify the second review was not saved
+    assertThat(reviewRepository.count()).isOne();
+
+    // Update the existing Review (Rating: 4)
+    UpdateReviewRequest updateReviewRequest =
+        new UpdateReviewRequest(
+            4,
+            "Actually, things improved drastically after I spoke to management.",
+            "Junior Dev",
+            "Fall",
+            2023);
+
+    mockMvc
+        .perform(
+            put("/api/companies/{companyId}/reviews", testCompanyId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateReviewRequest))
+                .cookie(authCookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.rating").value(4));
+
+    // Verify the db still has only 1 review and updated content
+    assertThat(reviewRepository.count()).isOne();
+    ReviewModel updatedReview = reviewRepository.findAll().iterator().next();
+    assertThat(updatedReview.getRating()).isEqualTo(4);
+    assertThat(updatedReview.getComment()).contains("improved drastically");
+
+    // Cross-feature check
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    mockMvc
+        .perform(get("/api/companies/{companyId}", testCompanyId).cookie(authCookie))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.company.avgRating").value(4.0));
   }
 }

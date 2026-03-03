@@ -56,7 +56,6 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
   private String testUserEmail;
   private String amazonId;
   private String googleId;
-  private Cookie authCookie;
 
   @BeforeEach
   void setUp() {
@@ -79,15 +78,23 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
 
     // Create a user
     UserModel testUser =
-        new UserModel("user_001", "test@example.com", "", "Test", "User", true, 1234);
-    testUser.setPassword(passwordEncoder.encode("password123"));
+        new UserModel(
+            "user_001",
+            "test@example.com",
+            passwordEncoder.encode("password123"),
+            "Test",
+            "User",
+            true,
+            1234);
     this.userRepository.save(testUser);
     this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
   @Test
-  void WhenUserSearchesAppliesMultipleAndProgressesStatus_ExpectCorrectDataInDB() throws Exception {
+  void
+      wikiFlow_whenUserLogsInSearchesAppliesMultipleAndProgressesStatusAndLogsOut_expectCorrectDataInDB()
+          throws Exception {
 
     assertThat(applicationRepository.count()).isZero();
     assertThat(companyRepository.count()).isEqualTo(3);
@@ -105,12 +112,12 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
             .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
-    this.authCookie = loginResult.getResponse().getCookie("Authorization");
-    assertThat(this.authCookie).isNotNull();
+    Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
+    assertThat(authCookie).isNotNull();
 
     // Wiki search for "o"
     mockMvc
-        .perform(get("/api/companies").param("search", "o").cookie(this.authCookie))
+        .perform(get("/api/companies").param("search", "o").cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.companies").isArray())
         .andExpect(jsonPath("$.companies.length()").value(3));
@@ -136,7 +143,7 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
                 post("/api/application")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(amazonApplyReq))
-                    .cookie(this.authCookie))
+                    .cookie(authCookie))
             .andExpect(status().isCreated())
             .andReturn();
 
@@ -165,7 +172,7 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
                 post("/api/application")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(googleApplyReq))
-                    .cookie(this.authCookie))
+                    .cookie(authCookie))
             .andExpect(status().isCreated())
             .andReturn();
 
@@ -189,14 +196,13 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
             put("/api/application/{id}", amazonApp.getApplicationId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateAmazonReq))
-                .cookie(this.authCookie))
+                .cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("OFFER_RECEIVED"));
 
     // User deletes their Google application
     mockMvc
-        .perform(
-            delete("/api/application/{id}", googleApp.getApplicationId()).cookie(this.authCookie))
+        .perform(delete("/api/application/{id}", googleApp.getApplicationId()).cookie(authCookie))
         .andExpect(status().isOk());
 
     // Verify 1 app remains
@@ -210,6 +216,6 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
     assertThat(userRepository.count()).isOne();
 
     // User logs out
-    mockMvc.perform(get("/api/auth/logout").cookie(this.authCookie)).andExpect(status().isOk());
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
   }
 }

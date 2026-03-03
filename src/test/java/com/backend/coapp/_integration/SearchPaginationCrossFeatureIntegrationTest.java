@@ -12,6 +12,7 @@ import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.ReviewRepository;
 import com.backend.coapp.repository.UserRepository;
+import com.jayway.jsonpath.JsonPath;
 import jakarta.servlet.http.Cookie;
 import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +54,6 @@ class SearchPaginationCrossFeatureIntegrationTest {
 
   private String testUserId;
   private String testUserEmail;
-  private Cookie authCookie;
 
   @BeforeEach
   void setUp() {
@@ -65,8 +65,14 @@ class SearchPaginationCrossFeatureIntegrationTest {
 
     // Create the main user
     UserModel testUser =
-        new UserModel("user_001", "test@example.com", "", "Test", "User", true, 1234);
-    testUser.setPassword(passwordEncoder.encode("password123"));
+        new UserModel(
+            "user_001",
+            "test@example.com",
+            passwordEncoder.encode("password123"),
+            "Test",
+            "User",
+            true,
+            1234);
     this.userRepository.save(testUser);
     this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
@@ -85,7 +91,9 @@ class SearchPaginationCrossFeatureIntegrationTest {
   }
 
   @Test
-  void WhenUserSearchesPaginatesReviewsAndApplies_ExpectCorrectDataInDB() throws Exception {
+  void
+      wikiFlow_whenUserLogsInAndSearchesPaginatesReviewsAndAppliesAndLogsOut_expectCorrectDataInDB()
+          throws Exception {
 
     assertThat(companyRepository.count()).isEqualTo(3);
     assertThat(userRepository.count()).isOne();
@@ -104,8 +112,8 @@ class SearchPaginationCrossFeatureIntegrationTest {
             .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
-    this.authCookie = loginResult.getResponse().getCookie("Authorization");
-    assertThat(this.authCookie).isNotNull();
+    Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
+    assertThat(authCookie).isNotNull();
 
     // The user searches for "Tech" and paginates companies (page 0, size 1)
     MvcResult searchResult =
@@ -123,8 +131,7 @@ class SearchPaginationCrossFeatureIntegrationTest {
             .andReturn();
 
     String targetCompanyId =
-        com.jayway.jsonpath.JsonPath.read(
-            searchResult.getResponse().getContentAsString(), "$.companies[0].companyId");
+        JsonPath.read(searchResult.getResponse().getContentAsString(), "$.companies[0].companyId");
 
     // User leaves a review
     CreateReviewRequest reviewRequest =
@@ -169,7 +176,7 @@ class SearchPaginationCrossFeatureIntegrationTest {
             post("/api/application")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(createRequest))
-                .cookie(this.authCookie))
+                .cookie(authCookie))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.applicationId").isNotEmpty())
         .andExpect(jsonPath("$.companyId").value(targetCompanyId))

@@ -55,7 +55,6 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
   private String testCompanyId;
   private String testUserId;
   private String testUserEmail;
-  private Cookie authCookie;
 
   @BeforeEach
   void setUp() {
@@ -70,17 +69,24 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
 
     // A user already exists
     UserModel testUser =
-        new UserModel("user_001", "test@example.com", "", "Test", "User", true, 1234);
+        new UserModel(
+            "user_001",
+            "test@example.com",
+            passwordEncoder.encode("password123"),
+            "Test",
+            "User",
+            true,
+            1234);
 
-    testUser.setPassword(passwordEncoder.encode("password123"));
     this.userRepository.save(testUser);
     this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
   @Test
-  void whenUserLogsInAndCreatesUpdatesDeletesApplicationAndLogsOut_ExpectCorrectDataInDB()
-      throws Exception {
+  void
+      applicationFlow_whenUserLogsInAndCreatesUpdatesDeletesApplicationAndLogsOut_expectCorrectDataInDB()
+          throws Exception {
 
     // A user exists and a company exists in the database
     assertThat(applicationRepository.count()).isZero();
@@ -100,8 +106,8 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
             .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
-    this.authCookie = loginResult.getResponse().getCookie("Authorization");
-    assertThat(this.authCookie).isNotNull();
+    Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
+    assertThat(authCookie).isNotNull();
 
     // The user creates a new application using that companies id
     CreateApplicationRequest createRequest =
@@ -124,7 +130,7 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
                 post("/api/application")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(createRequest))
-                    .cookie(this.authCookie)) // Real JWT cookie for auth
+                    .cookie(authCookie)) // Real JWT cookie for auth
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.applicationId").isNotEmpty())
             .andExpect(jsonPath("$.companyId").value(testCompanyId))
@@ -165,7 +171,7 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
             put("/api/application/{id}", appId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateRequest))
-                .cookie(this.authCookie))
+                .cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.jobTitle").value("Senior Software Engineer"))
         .andExpect(jsonPath("$.status").value("INTERVIEWING"))
@@ -181,11 +187,11 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
 
     // The user then decides to delete the Application
     mockMvc
-        .perform(delete("/api/application/{id}", appId).cookie(this.authCookie))
+        .perform(delete("/api/application/{id}", appId).cookie(authCookie))
         .andExpect(status().isOk());
 
     // The user logs out
-    mockMvc.perform(get("/api/auth/logout").cookie(this.authCookie)).andExpect(status().isOk());
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
 
     // Verify deleted
     assertThat(applicationRepository.count()).isZero();
