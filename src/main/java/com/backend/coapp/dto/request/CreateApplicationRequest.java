@@ -20,7 +20,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class CreateApplicationRequest implements IRequest {
 
-  private String userId;
   private String companyId;
   private String jobTitle;
   private ApplicationStatus status;

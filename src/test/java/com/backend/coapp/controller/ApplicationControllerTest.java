@@ -68,7 +68,6 @@ public class ApplicationControllerTest {
 
     this.createRequest =
         CreateApplicationRequest.builder()
-            .userId("user1") // Required by DTO validation in provided code
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
@@ -485,7 +484,6 @@ public class ApplicationControllerTest {
   public void createApplication_withoutNotes_expect201() throws Exception {
     CreateApplicationRequest requestWithoutNotes =
         CreateApplicationRequest.builder()
-            .userId("user1")
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)

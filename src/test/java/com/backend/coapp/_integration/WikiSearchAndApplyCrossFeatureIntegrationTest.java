@@ -125,7 +125,6 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
     // User applies to Amazon
     CreateApplicationRequest amazonApplyReq =
         CreateApplicationRequest.builder()
-            .userId(testUserId)
             .companyId(amazonId)
             .jobTitle("SDE II")
             .status(ApplicationStatus.APPLIED)
@@ -154,7 +153,6 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
     // User applies to Google
     CreateApplicationRequest googleApplyReq =
         CreateApplicationRequest.builder()
-            .userId(testUserId)
             .companyId(googleId)
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.INTERVIEWING)
