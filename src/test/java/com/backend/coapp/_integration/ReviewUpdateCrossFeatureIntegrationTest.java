@@ -30,8 +30,7 @@ import tools.jackson.databind.ObjectMapper;
 @Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
-@SuppressWarnings("unchecked")
-class ReviewUpdateAndHistoryCrossFeatureIntegrationTest {
+class ReviewUpdateCrossFeatureIntegrationTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -76,9 +75,7 @@ class ReviewUpdateAndHistoryCrossFeatureIntegrationTest {
   }
 
   @Test
-  void
-      reviewUpdateFlow_whenUserAttemptsDuplicateAndUpdates_expectRatingMathRecalculatedWithIsolation()
-          throws Exception {
+  void WhenUserCreatesDuplicatesAndUpdatesReview_ExpectCorrectDataInDB() throws Exception {
 
     assertThat(reviewRepository.count()).isZero();
     assertThat(companyRepository.count()).isOne();

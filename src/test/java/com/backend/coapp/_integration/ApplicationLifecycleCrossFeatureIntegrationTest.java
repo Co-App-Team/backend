@@ -79,7 +79,7 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
   }
 
   @Test
-  void whenUserLogsInAndCreatesUpdatesAndDeletesApplicationAndLogsOut_ExpectCorrectDataInDB()
+  void whenUserLogsInAndCreatesUpdatesDeletesApplicationAndLogsOut_ExpectCorrectDataInDB()
       throws Exception {
 
     // A user exists and a company exists in the database

@@ -87,8 +87,7 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
   }
 
   @Test
-  void wikiBulkApplyFlow_whenUserSearchesAppliesMultipleAndProgressesStatus_expectCompanyIsolation()
-      throws Exception {
+  void WhenUserSearchesAppliesMultipleAndProgressesStatus_ExpectCorrectDataInDB() throws Exception {
 
     assertThat(applicationRepository.count()).isZero();
     assertThat(companyRepository.count()).isEqualTo(3);

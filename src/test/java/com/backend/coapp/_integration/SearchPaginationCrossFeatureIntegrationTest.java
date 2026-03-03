@@ -32,8 +32,7 @@ import tools.jackson.databind.ObjectMapper;
 @Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
-@SuppressWarnings("unchecked")
-class SearchToApplicationCrossFeatureIntegrationTest {
+class SearchPaginationCrossFeatureIntegrationTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -86,9 +85,7 @@ class SearchToApplicationCrossFeatureIntegrationTest {
   }
 
   @Test
-  void
-      searchToApplyFlow_whenUserSearchesPaginatesReviewsAndApplies_expectUserDashboardSliceUpdatedWithIsolation()
-          throws Exception {
+  void WhenUserSearchesPaginatesReviewsAndApplies_ExpectCorrectDataInDB() throws Exception {
 
     assertThat(companyRepository.count()).isEqualTo(3);
     assertThat(userRepository.count()).isOne();
