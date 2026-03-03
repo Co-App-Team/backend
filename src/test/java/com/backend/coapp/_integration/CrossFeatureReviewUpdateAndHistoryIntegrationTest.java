@@ -1,6 +1,7 @@
-package com.backend.coapp;
+package com.backend.coapp._integration;
 
 import com.backend.coapp.dto.response.CompanyResponse;
+import com.backend.coapp.exception.ReviewAlreadyExistsException;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.model.document.UserModel;
@@ -11,6 +12,7 @@ import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.service.ReviewService;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,10 +22,11 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Testcontainers
 @SpringBootTest
-class CrossFeatureCompanyReviewIntegrationTest {
+class CrossFeatureReviewUpdateAndHistoryIntegrationTest {
 
     @Container
     @ServiceConnection
@@ -55,7 +58,7 @@ class CrossFeatureCompanyReviewIntegrationTest {
         this.userRepository.deleteAll();
 
         // Create a company
-        CompanyModel testCompany = new CompanyModel("Test Corp Inc.", "Remote", "https://testcorp.com");
+        CompanyModel testCompany = new CompanyModel("Tech Innovators", "Remote", "https://techinnovators.com");
         this.companyRepository.save(testCompany);
         this.testCompanyId = testCompany.getId();
 
@@ -73,58 +76,79 @@ class CrossFeatureCompanyReviewIntegrationTest {
     }
 
     @Test
-    void companyReviewFlow_whenUserLogsInAndPostsReview_expectRatingUpdatedWithCrossFeatureIsolation() {
+    @DisplayName("reviewUpdateFlow_whenUserAttemptsDuplicateAndUpdates_expectRatingMathRecalculatedWithIsolation")
+    void reviewUpdateFlow_whenUserAttemptsDuplicateAndUpdates_expectRatingMathRecalculatedWithIsolation() {
 
         assertThat(reviewRepository.count()).isZero();
         assertThat(companyRepository.count()).isOne();
         assertThat(userRepository.count()).isOne();
 
-        // The user logs in
+        // User Logs in
         UserModel loggedInUser = userRepository.findById(testUserId)
                 .orElseThrow(() -> new AssertionError("User should exist in the DB"));
         String authorName = loggedInUser.getFirstName() + " " + loggedInUser.getLastName();
 
-        // The user views the company profile before leaving a review
-        CompanyResponse initialCompanyView = companyService.getCompanyById(testCompanyId);
-        
-        assertThat(initialCompanyView).isNotNull();
-        Double initialRating = initialCompanyView.getAvgRating() != null ? initialCompanyView.getAvgRating() : 0.0;
-
-        // The logged-in user posts a review for the company
-        ReviewModel createdReview = reviewService.createReview(
+        // Post a Review (Rating: 1)
+        ReviewModel initialReview = reviewService.createReview(
                 testCompanyId,
-                loggedInUser.getId(),
+                testUserId,
                 authorName,
-                5,
-                "Amazing company with great remote culture!",
-                "Software Engineer",
-                "Summer",
+                1,
+                "Terrible experience, poorly managed.",
+                "Junior Dev",
+                "Fall",
                 2023
         );
 
-        // Verify the review
-        assertThat(createdReview).isNotNull();
-        assertThat(createdReview.getId()).isNotBlank();
-        assertThat(createdReview.getCompanyId()).isEqualTo(testCompanyId);
-        assertThat(createdReview.getUserId()).isEqualTo(testUserId);
-        assertThat(createdReview.getRating()).isEqualTo(5);
-        
+        assertThat(initialReview).isNotNull();
+        assertThat(initialReview.getRating()).isEqualTo(1);
         assertThat(reviewRepository.count()).isOne();
-        
+
+        // Verify Company avgRating correctly calculated to 1.0
+        CompanyResponse companyAfterFirstReview = companyService.getCompanyById(testCompanyId);
+        assertThat(companyAfterFirstReview.getAvgRating()).isEqualTo(1.0);
+
+        // Post another Review for the same company
+        assertThrows(ReviewAlreadyExistsException.class, () -> {
+            reviewService.createReview(
+                    testCompanyId,
+                    testUserId,
+                    authorName,
+                    5,
+                    "Wait, nevermind it was great!",
+                    "Junior Dev",
+                    "Fall",
+                    2023
+            );
+        }, "Expected service to throw an exception when a user tries to leave a second review for the same company.");
+
+        // Verify the second review was not saved
+        assertThat(reviewRepository.count()).isOne();
+
+        // Update the existing Review (Rating: 4)
+        ReviewModel updatedReview = reviewService.updateReview(
+                testCompanyId,
+                testUserId,
+                4,
+                "Actually, things improved drastically after I spoke to management.",
+                "Junior Dev",
+                "Fall",
+                2023
+        );
+
+        assertThat(updatedReview).isNotNull();
+        assertThat(updatedReview.getRating()).isEqualTo(4);
+        assertThat(updatedReview.getComment()).contains("improved drastically");
+
+        // Verify the db still has only 1 review
+        assertThat(reviewRepository.count()).isOne();
+
         // Cross-feature check
         assertThat(companyRepository.count()).isOne();
         assertThat(userRepository.count()).isOne();
 
-        // The user re-fetches the company page and expects to see the updated average rating
-        CompanyResponse updatedCompanyView = companyService.getCompanyById(testCompanyId);
-        
-        assertThat(updatedCompanyView).isNotNull();
-        Double updatedRating = updatedCompanyView.getAvgRating();
-        
-        // Assert that the avgRating increased
-        assertThat(updatedRating)
-                .isNotNull()
-                .isGreaterThan(initialRating)
-                .isEqualTo(5.0);
+        // Check updated rating
+        CompanyResponse companyAfterUpdate = companyService.getCompanyById(testCompanyId);
+        assertThat(companyAfterUpdate.getAvgRating()).isEqualTo(4.0);
     }
 }

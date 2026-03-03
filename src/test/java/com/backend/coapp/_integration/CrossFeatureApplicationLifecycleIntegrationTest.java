@@ -1,4 +1,4 @@
-package com.backend.coapp;
+package com.backend.coapp._integration;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.model.document.ApplicationModel;
@@ -142,7 +142,7 @@ class CrossFeatureApplicationLifecycleIntegrationTest {
         // Verify deleted
         assertThat(applicationRepository.count()).isZero();
         assertThat(applicationRepository.findById(appId)).isEmpty();
-        // Verify Cross-feature isolation
+        // Verify Cross-feature
         assertThat(companyRepository.count()).isOne();
         assertThat(userRepository.count()).isOne();
     }
