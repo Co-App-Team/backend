@@ -70,15 +70,16 @@ This document outlines the API endpoints for the log job applications feature of
 
 ```json
 {
-  "userId": "user",
+  "userId": "user", 
   "companyId": "company",
   "jobTitle": "title",
   "status": "status", 
   "applicationDeadline": "deadline", 
-  "jobDescription": "description", 
-  "numPositions": "positions", 
-  "sourceLink": "link", 
-  "dateApplied": "applied"
+  "jobDescription": "description (optional)", 
+  "numPositions": "positions (optional)", 
+  "sourceLink": "link (optional)", 
+  "dateApplied": "applied (optional)",
+  "notes": "notes (optional)"
 }
 ```
 
@@ -135,14 +136,15 @@ Response body:
 ```json
 {
   "applicationId": "application",
-  "userId": "user",
+  "companyId": "company (optional)",
   "jobTitle": "title (optional)",
   "status": "status (optional)", 
   "applicationDeadline": "deadline (optional)", 
   "jobDescription": "description (optional)", 
   "numPositions": "positions (optional)", 
   "sourceLink": "link (optional)", 
-  "dateApplied": "applied (optional)"
+  "dateApplied": "applied (optional)",
+  "notes": "notes (optional)"
 }
 ```
 

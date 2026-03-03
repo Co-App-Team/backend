@@ -34,4 +34,6 @@ public interface ApplicationRepository extends MongoRepository<ApplicationModel,
    * @return A filtered list of applications
    */
   List<ApplicationModel> findByUserIdAndStatus(String userId, ApplicationStatus status);
+
+  boolean existsByUserIdAndCompanyIdAndJobTitle(String userId, String companyId, String jobTitle);
 }
