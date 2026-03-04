@@ -1,7 +1,7 @@
 # API Documentation - Feature #2: Log Job Applications
 
 ## Overview
-This document outlines the API endpoints for the log job applications feature of CoApp. This feature allows users to log new job applications, delete existing applications, and edit application details. 
+This document outlines the API endpoints for the log job applications feature of CoApp. This feature allows users to log new job applications, retrieve their applications, delete existing applications, and edit application details. 
 
 ---
 
@@ -11,18 +11,15 @@ This document outlines the API endpoints for the log job applications feature of
 ```json
 {
   "applicationId": "string",
-  "userId": "string",
   "companyId": "string", 
   "jobTitle": "string",
   "status": "string",
   "applicationDeadline": "datetime string",
-  "dateCreated": "datetime string", 
-  "dateModified": "datetime string", 
   "jobDescription": "string (optional)",
   "numPositions": "int (optional)", 
   "sourceLink": "string (optional)",
   "dateApplied": "datetime string (optional)",
-  "notes": "string (optional)",
+  "notes": "string (optional)"
 }
 ```
 
@@ -64,13 +61,12 @@ This document outlines the API endpoints for the log job applications feature of
 
 **Method:** `POST`
 
-**Description:** Takes a userId, companyId, jobTitle, status, applicationDeadline. Optionally, can also take jobDescription, numPositions, sourceLink, and dateApplied.
+**Description:** Takes a companyId, jobTitle, status, applicationDeadline. Optionally, can also take jobDescription, numPositions, sourceLink, dateApplied, and notes. User ID is extracted from authentication.
 
-**Request Body:** 
+**Request Body:**
 
 ```json
 {
-  "userId": "user", 
   "companyId": "company",
   "jobTitle": "title",
   "status": "status", 
@@ -83,14 +79,21 @@ This document outlines the API endpoints for the log job applications feature of
 }
 ```
 
-**Response 201 CREATED:** 
+**Response 201 CREATED:**
 
-Response body: 
+Response body:
 ```json
 {
   "applicationId": "applicationId",
-  "dateCreated": "dateCreated",
-  "dateModified": "dateModified"
+  "companyId": "companyId",
+  "jobTitle": "jobTitle",
+  "status": "status",
+  "applicationDeadline": "applicationDeadline",
+  "jobDescription": "jobDescription (optional)",
+  "numPositions": "numPositions (optional)",
+  "sourceLink": "sourceLink (optional)",
+  "dateApplied": "dateApplied (optional)",
+  "notes": "notes (optional)"
 }
 ```
 
@@ -99,7 +102,7 @@ Response body:
 ```json
 {
   "error": "BAD_REQUEST",
-  "message": "At least one of the required fields (userId, companyId, jobTitle, status, applicationDeadline) is not present or invalid"
+  "message": "At least one of the required fields (companyId, jobTitle, status, applicationDeadline) is not present or invalid"
 }
 ```
 
@@ -108,7 +111,25 @@ Response body:
 ```json
 {
   "error": "UNAUTHORIZED",
-  "message": "Invalid userId"
+  "message": "Invalid or missing authentication"
+}
+```
+
+**Response 404 Not Found:**
+
+```json
+{
+  "error": "COMPANY_NOT_FOUND",
+  "message": "Company not found"
+}
+```
+
+**Response 409 Conflict:**
+
+```json
+{
+  "error": "DUPLICATE_APPLICATION",
+  "message": "Duplicate application detected"
 }
 ```
 
@@ -116,7 +137,7 @@ Response body:
 
 ```json
 {
-  "error": "INTERNAL_SERVER_ERROR",
+  "error": "INTERNAL_ERROR",
   "message": "An unexpected error occurred while processing your request."
 }
 ```
@@ -125,17 +146,16 @@ Response body:
 
 ### 2. Edit an existing job application
 
-**Path:** `/api/application`
+**Path:** `/api/application/{applicationId}`
 
 **Method:** `PUT`
 
-**Description:** Takes an applicationId, userId, and the field(s) (jobTitle, status, applicationDeadline, jobDescription, numPositions, sourceLink, and dateApplied) to be updated
+**Description:** Updates specific fields of an existing application (companyId, jobTitle, status, applicationDeadline, jobDescription, numPositions, sourceLink, dateApplied, notes). At least one field must be provided. User ID is extracted from authentication.
 
-**Request Body:** 
+**Request Body:**
 
 ```json
 {
-  "applicationId": "application",
   "companyId": "company (optional)",
   "jobTitle": "title (optional)",
   "status": "status (optional)", 
@@ -148,21 +168,56 @@ Response body:
 }
 ```
 
-**Response 200 OK:** 
+**Response 200 OK:**
 
 ```json
 {
   "applicationId": "applicationId",
-  "dateModified": "date"
+  "companyId": "companyId",
+  "jobTitle": "jobTitle",
+  "status": "status",
+  "applicationDeadline": "applicationDeadline",
+  "jobDescription": "jobDescription (optional)",
+  "numPositions": "numPositions (optional)",
+  "sourceLink": "sourceLink (optional)",
+  "dateApplied": "dateApplied (optional)",
+  "notes": "notes (optional)"
 }
 ```
 
-**Response 400 Bad Request:** 
+**Response 400 Bad Request:**
 
 ```json
 {
   "error": "BAD_REQUEST",
-  "message": "Invalid applicationId and/or userId"
+  "message": "No valid fields provided for update or invalid data"
+}
+```
+
+**Response 403 Forbidden:**
+
+```json
+{
+  "error": "UNAUTHORIZED_APPLICATION_ACCESS",
+  "message": "Unauthorized access to application"
+}
+```
+
+**Response 404 Not Found:**
+
+```json
+{
+  "error": "APPLICATION_NOT_FOUND",
+  "message": "Application not found"
+}
+```
+
+**Response 500 Internal Server Error:**
+
+```json
+{
+  "error": "INTERNAL_ERROR",
+  "message": "An unexpected error occurred while processing your request."
 }
 ```
 
@@ -170,35 +225,95 @@ Response body:
 
 ### 3. Delete a job application
 
-**Path:** `/api/account`
+**Path:** `/api/application/{applicationId}`
 
 **Method:** `DELETE`
 
-**Description:** Takes an applicationId and userId 
+**Description:** Deletes an existing application by ID. User ID is extracted from authentication.
 
-**Request Body:** 
-
-```json
-{
-  "applicationId": "application",
-  "userId": "user"
-}
-```
+**No Request Body.**
 
 **Response 200 OK:**
 
 ```json
 {
-  "applicationId": "application"
+  "message": "Application successfully deleted."
 }
 ```
 
-
-**Response 400 Bad Request:** 
+**Response 403 Forbidden:**
 
 ```json
 {
-  "error": "BAD_REQUEST",
-  "message": "Invalid applicationId and/or userId"
+  "error": "UNAUTHORIZED_APPLICATION_ACCESS",
+  "message": "Unauthorized access to application"
+}
+```
+
+**Response 404 Not Found:**
+
+```json
+{
+  "error": "APPLICATION_NOT_FOUND",
+  "message": "Application not found"
+}
+```
+
+**Response 500 Internal Server Error:**
+
+```json
+{
+  "error": "INTERNAL_ERROR",
+  "message": "An unexpected error occurred while processing your request."
+}
+```
+
+---
+
+### 4. Retrieve all job applications
+
+**Path:** `/api/application`
+
+**Method:** `GET`
+
+**Description:** Retrieves all job applications for the currently authenticated user.
+
+**No Request Body.**
+
+**Response 200 OK:**
+
+Array of applications:
+```json
+[
+  {
+    "applicationId": "applicationId",
+    "companyId": "companyId",
+    "jobTitle": "jobTitle",
+    "status": "status",
+    "applicationDeadline": "applicationDeadline",
+    "jobDescription": "jobDescription (optional)",
+    "numPositions": "numPositions (optional)",
+    "sourceLink": "sourceLink (optional)",
+    "dateApplied": "dateApplied (optional)",
+    "notes": "notes (optional)"
+  }
+]
+```
+
+**Response 401 Unauthorized:**
+
+```json
+{
+  "error": "UNAUTHORIZED",
+  "message": "Invalid or missing authentication"
+}
+```
+
+**Response 500 Internal Server Error:**
+
+```json
+{
+  "error": "INTERNAL_ERROR",
+  "message": "An unexpected error occurred while processing your request."
 }
 ```

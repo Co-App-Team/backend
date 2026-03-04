@@ -159,7 +159,6 @@ class SearchPaginationCrossFeatureIntegrationTest {
 
     CreateApplicationRequest createRequest =
         CreateApplicationRequest.builder()
-            .userId(testUserId)
             .companyId(targetCompanyId)
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)

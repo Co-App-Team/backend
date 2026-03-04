@@ -112,7 +112,6 @@ class ApplicationLifecycleCrossFeatureIntegrationTest {
     // The user creates a new application using that companies id
     CreateApplicationRequest createRequest =
         CreateApplicationRequest.builder()
-            .userId(testUserId)
             .companyId(testCompanyId)
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
