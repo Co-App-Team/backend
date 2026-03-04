@@ -39,4 +39,47 @@ Thank you for contributing! This guide will help you set up the project environm
 
 ## Development workflow
 
-TBD 
+### Preliminary
+
+#### Project structure
+We follow a **layered architecture**, where an application is organized into horizontal layers,
+and each layer has a clear responsibility. 
+Ensure to follow the structure as described in [ARCHITECTURE.md](../docs/ARCHITECTURE.md).
+
+#### Coding standard
+
+We follow [Google Java Style Standard](https://google.github.io/styleguide/javaguide.html)
+for all Java code to ensure consistency and readability across the project.
+
+> \[!TIP\]
+> Make sure to format your code using `./gradlew spotlessApply` before commit.
+
+#### Commit message
+
+Each commit should follow the structure below:
+```bash
+Header  # A concise summary, no more than 50 characters
+
+Body    # Optional. Wrap lines at 72 characters
+```
+### Development
+
+1. Create a branch by following the convention: `task/<issue_number>-<IndicatorOfTheTask>`.
+2. Merge to `dev` when the task development is completed.
+3. `dev` is only merged to `main` on the release day.
+
+> \[!IMPORTANT\]
+> All tasks branch need to be merged to `dev`. Please avoid merging task branch directly to `main`.
+
+ ### Authentication for development
+
+For every API call, except from `api/auth/*`, the application will expect `JWT` to be included in the header of the request.
+To obtain the `JWT` token, you will need to log in to the application (if you have not yet created an account, please do so).
+After log in successfully, you can find `JWT` in cookie:
+
+ ![loginFromPostman.png](../docs/img/loginFromPostman.png)
+ 
+Postman will also cache your cookie here: \
+![tokenExample.png](../docs/img/tokenExample.png)
+
+If you need to clean cookie and login against, please select `Cookies` and remove `Authorization` cookie

@@ -1,0 +1,294 @@
+package com.backend.coapp.service;
+
+import com.backend.coapp.exception.*;
+import com.backend.coapp.model.document.UserModel;
+import com.backend.coapp.repository.UserRepository;
+import java.util.Random;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.*;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+/**
+ * Authentication Service
+ *
+ * <p>This handles all business logic related to authentication.
+ */
+@Service
+@Slf4j
+@Getter // For testing
+public class AuthService {
+
+  public static final int NUMS_VERIFICATION_CODE = 6;
+
+  /** Singleton service and repository * */
+  private final UserRepository userRepository;
+
+  private final EmailService emailService;
+
+  private final AuthenticationManager authenticationManager;
+
+  private final JwtService jwtService;
+
+  private final PasswordEncoder passwordEncoder;
+
+  @Autowired
+  public AuthService(
+      UserRepository userRepository,
+      EmailService emailService,
+      AuthenticationManager authenticationManager,
+      JwtService jwtService,
+      PasswordEncoder passwordEncoder) {
+    this.userRepository = userRepository;
+    this.emailService = emailService;
+    this.authenticationManager = authenticationManager;
+    this.jwtService = jwtService;
+    this.passwordEncoder = passwordEncoder;
+  }
+
+  /**
+   * Create a new user and send verification code to user email.
+   *
+   * @param email user email
+   * @param password password
+   * @param firstName User first name
+   * @param lastName User last name
+   * @throws AuthEmailAlreadyUsedException if provided email has been used with an existing account
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
+   */
+  public void createNewUser(String email, String password, String firstName, String lastName)
+      throws AuthEmailAlreadyUsedException, EmailServiceException, EmailInvalidAddressException {
+    UserModel userIfExist = this.userRepository.findUserModelByEmail(email);
+
+    if (userIfExist != null) {
+      log.warn("WARNING LOG: User tried to create a new account with an email that has been used.");
+      throw new AuthEmailAlreadyUsedException();
+    } else {
+      int verificationCode = this.generateVerificationCode();
+      String emailSubject = "Verification code for your new account";
+      String emailBody = this.generateEmailBodyWithVerificationCode(verificationCode);
+
+      UserModel newUser =
+          new UserModel(
+              email, this.passwordEncoder.encode(password), firstName, lastName, verificationCode);
+      this.userRepository.save(newUser);
+
+      this.emailService.sendEmail(email, emailSubject, emailBody);
+    }
+  }
+
+  /**
+   * Verify confirmation code to activate new account
+   *
+   * @param email user email
+   * @param verifyCode verification code
+   * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
+   *     email.
+   * @throws AuthAccountAlreadyVerifyException if the account has been verified
+   */
+  public void verifyUser(String email, int verifyCode)
+      throws AuthEmailNotRegisteredException,
+          IncorrectCodeException,
+          AuthAccountAlreadyVerifyException {
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else {
+      boolean verified = user.getVerified();
+      if (verified) {
+        throw new AuthAccountAlreadyVerifyException();
+      }
+
+      user.setVerified(user.getVerificationCode() == verifyCode);
+      verified = user.getVerified();
+      if (verified) {
+        user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
+        this.userRepository.save(user);
+      } else {
+        throw new IncorrectCodeException();
+      }
+    }
+  }
+
+  /**
+   * Reset verification code and resend the new code to user email.
+   *
+   * @param email user email
+   * @throws EmailServiceException if there is failure with EmailService
+   * @throws AuthEmailNotRegisteredException if there aren't any accounts associated with provided
+   *     email.
+   * @throws AuthAccountAlreadyVerifyException if the account has been verified
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
+   */
+  public void resetVerifyCode(String email)
+      throws EmailServiceException,
+          AuthEmailNotRegisteredException,
+          AuthAccountAlreadyVerifyException,
+          EmailInvalidAddressException {
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else {
+      if (user.getVerified()) {
+        throw new AuthAccountAlreadyVerifyException();
+      }
+      int newVerifyCode = this.generateVerificationCode();
+
+      String emailSubject = "New verification code";
+      String emailBody = this.generateEmailBodyWithVerificationCode(newVerifyCode);
+      user.setVerificationCode(newVerifyCode);
+      this.userRepository.save(user);
+
+      this.emailService.sendEmail(email, emailSubject, emailBody);
+    }
+  }
+
+  /**
+   * @param email Email associated to an account that client wants to reset password
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
+   *     email
+   * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
+   */
+  public void forgotPassword(String email)
+      throws AuthEmailNotRegisteredException,
+          AuthAccountNotYetActivatedException,
+          EmailServiceException,
+          EmailInvalidAddressException {
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+    int newVerifyCode = this.generateVerificationCode();
+
+    String emailSubject = "Forgot password? New verification code";
+    String emailBody = this.generateEmailBodyWithVerificationCode(newVerifyCode);
+    user.setVerificationCode(newVerifyCode);
+    this.userRepository.save(user);
+
+    this.emailService.sendEmail(email, emailSubject, emailBody);
+  }
+
+  /**
+   * @param email Email associated to an account that client wants to reset password
+   * @param verificationCode Forgot password code provided by client
+   * @param newPassword New password
+   * @throws AuthEmailNotRegisteredException when there aren't any accounts associated with the
+   *     email
+   * @throws AuthAccountNotYetActivatedException when the account has not been activated yet.
+   * @throws EmailServiceException if there is a failure in EmailService
+   * @throws EmailInvalidAddressException if provided email has invalid format
+   * @return true if forgot password code match the code sent to user and update password
+   *     successfully; false otherwise
+   */
+  public void updatePassword(String email, Integer verificationCode, String newPassword)
+      throws AuthEmailNotRegisteredException,
+          AuthAccountNotYetActivatedException,
+          IncorrectCodeException,
+          EmailServiceException,
+          EmailInvalidAddressException {
+    UserModel user = this.userRepository.findUserModelByEmail(email);
+    if (user == null) {
+      throw new AuthEmailNotRegisteredException();
+    } else if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+
+    boolean updatedPassword = user.getVerificationCode().equals(verificationCode);
+    if (updatedPassword) {
+      user.setPassword(this.passwordEncoder.encode(newPassword));
+      user.setVerificationCode(UserModel.DEFAULT_VERIFICATION_CODE);
+      this.userRepository.save(user);
+    } else {
+      throw new IncorrectCodeException();
+    }
+  }
+
+  /**
+   * Login business logic
+   *
+   * @param email user email
+   * @param password provided password
+   * @return Access token if authentication is successfully
+   * @throws AuthenticationException unknown authentication failure
+   * @throws AuthAccountNotYetActivatedException when users try to log in an account that has not
+   *     been yet activated
+   * @throws AuthBadCredentialException when email or password is incorrect
+   * @throws JwtServiceFailException when JWT service failed
+   */
+  public String login(String email, String password)
+      throws AuthenticationException,
+          AuthAccountNotYetActivatedException,
+          AuthBadCredentialException,
+          JwtServiceFailException {
+
+    UserModel user;
+
+    try {
+      user = this.userRepository.findUserModelByEmail(email);
+    } catch (Exception e) {
+      throw new AuthenticationServiceException("Database operation failed:" + e.getMessage());
+    }
+    if (user == null || !this.passwordEncoder.matches(password, user.getPassword())) {
+      throw new AuthBadCredentialException();
+    }
+
+    if (!user.getVerified()) {
+      throw new AuthAccountNotYetActivatedException();
+    }
+
+    String token = this.jwtService.generateToken(user);
+    return token;
+  }
+
+  /**
+   * Get expiration duration of every token issued
+   *
+   * @return expiration duration in milliseconds.
+   */
+  public long getTokenExpireDurationInSeconds() {
+    return this.jwtService.getExpirationDurationInMilliseconds() / 1000;
+  }
+
+  /**
+   * Generate verification code of NUMS_VERIFICATION_CODE digits.
+   *
+   * @return int
+   */
+  private int generateVerificationCode() {
+    Random random = new Random();
+    int lowerBound = (int) Math.pow(10, NUMS_VERIFICATION_CODE - 1);
+    int upperRange = lowerBound * 9;
+    return lowerBound + random.nextInt(upperRange);
+  }
+
+  /**
+   * Generate body of email with verification code
+   *
+   * @param verificationCode verification code to share with user
+   * @return email body
+   */
+  private String generateEmailBodyWithVerificationCode(int verificationCode) {
+    return """
+                Dear user,
+
+                Your confirmation code is: %d
+
+                Please do NOT share this code.
+
+                Thank you,
+                CoApp Team.
+                """
+        .formatted(verificationCode);
+  }
+}
