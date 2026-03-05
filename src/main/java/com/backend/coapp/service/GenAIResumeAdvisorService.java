@@ -11,12 +11,15 @@ import com.backend.coapp.service.genAI.GenAIService;
 import com.backend.coapp.util.GenAIConstants;
 import java.util.Comparator;
 import java.util.List;
+
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@Getter // For testing only
 public class GenAIResumeAdvisorService {
   private final GenAIService genAIService;
   private final GenAIUsageManagementService genAIUsageManagementService;
@@ -58,18 +61,18 @@ public class GenAIResumeAdvisorService {
     }
     List<UserExperienceModel> allExperience = userExperienceRepository.findAllByUserId(userId);
     String experienceSummary = this.prepareExperienceDescription((allExperience));
-    String conext =
+    String context =
         this.getContext(applicationJobTitle, applicationJobDescription, experienceSummary);
     String instruction = this.getInstruction();
 
-    String finalPrompt = this.prepareFinalPrompt(instruction, conext, prompt);
+    String finalPrompt = this.prepareFinalPrompt(instruction, context, prompt);
 
-    if (finalPrompt.length() > GenAIConstants.MAX_PROMPT_CHARACTERS) {
-      log.warn("A prompt is over " + GenAIConstants.MAX_PROMPT_CHARACTERS + ".");
+    if (finalPrompt.length() > GenAIConstants.MAX_TOTAL_CHARACTERS) {
+      log.warn("A prompt is over " + GenAIConstants.MAX_TOTAL_CHARACTERS + ".");
     }
 
     this.genAIUsageManagementService.checkAndIncrementUsage(userId);
-    return this.genAIService.generateResponse(conext);
+    return this.genAIService.generateResponse(finalPrompt);
   }
 
   private String getInstruction() {
