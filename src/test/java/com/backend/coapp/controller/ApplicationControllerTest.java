@@ -415,6 +415,47 @@ public class ApplicationControllerTest {
         .andExpect(jsonPath("$.message").exists());
   }
 
+  @Test
+  public void updateApplication_whenNoChanges_expect400() throws Exception {
+    when(this.applicationService.updateApplication(
+            anyString(),
+            anyString(),
+            anyString(),
+            anyString(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()))
+        .thenThrow(new NoChangesDetectedException("No fields were changed."));
+
+    mockMvc
+        .perform(
+            put("/api/application/app789")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.updateRequest))
+                .principal(this.authentication))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("NO_CHANGE_DETECTED_TO_UPDATE"))
+        .andExpect(jsonPath("$.message").value("No fields were changed."));
+
+    verify(this.applicationService, times(1))
+        .updateApplication(
+            anyString(),
+            eq("app789"),
+            anyString(),
+            anyString(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
+  }
+
   // test delete application
 
   @Test

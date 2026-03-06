@@ -273,4 +273,16 @@ public class GlobalExceptionHandler {
                 "message",
                 ex.getMessage()));
   }
+
+  @ExceptionHandler(NoChangesDetectedException.class)
+  public ResponseEntity<Map<String, Object>> handleNoChangesDetectedException(
+      NoChangesDetectedException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            Map.of(
+                "error",
+                ApplicationErrorCode.NO_CHANGE_DETECTED_TO_UPDATE,
+                "message",
+                ex.getMessage()));
+  }
 }
