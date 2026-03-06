@@ -176,11 +176,21 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenNotesExceedsLimit_expectException() {
-    String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1);
+    String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_NOTES_LENGTH + 1);
     UpdateApplicationRequest request = getValidRequestBuilder().notes(longNotes).build();
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
     assertEquals(EXCEPTION_PREFIX + "Notes cannot exceed 2000 characters", exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenJobTitleExceedsLimit_expectException() {
+    String longTitle = "a".repeat(ApplicationConstants.MAX_JOB_TITLE_LENGTH + 1);
+    UpdateApplicationRequest request = getValidRequestBuilder().jobTitle(longTitle).build();
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+    assertEquals(
+        EXCEPTION_PREFIX + "Job title cannot exceed 80 characters", exception.getMessage());
   }
 
   @Test

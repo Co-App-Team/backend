@@ -8,10 +8,10 @@ import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.UserExperienceRepository;
 import com.backend.coapp.service.genAI.GenAIService;
+import com.backend.coapp.util.ApplicationConstants;
 import com.backend.coapp.util.GenAIConstants;
 import java.util.Comparator;
 import java.util.List;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +58,14 @@ public class GenAIResumeAdvisorService {
       }
       applicationJobDescription = applicationModel.getJobDescription();
       applicationJobTitle = applicationModel.getJobTitle();
+      if (applicationJobDescription.length() > ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH
+          || applicationJobTitle.length() > ApplicationConstants.MAX_JOB_TITLE_LENGTH) {
+        throw new OverCharacterLimitException(
+            "The selected job application has job description too long (over %s characters) or job title too long (over %s characters). Please shorten the description and try again"
+                .formatted(
+                    ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH,
+                    ApplicationConstants.MAX_JOB_TITLE_LENGTH));
+      }
     }
     List<UserExperienceModel> allExperience = userExperienceRepository.findAllByUserId(userId);
     String experienceSummary = this.prepareExperienceDescription((allExperience));
@@ -66,10 +74,6 @@ public class GenAIResumeAdvisorService {
     String instruction = this.getInstruction();
 
     String finalPrompt = this.prepareFinalPrompt(instruction, context, prompt);
-
-    if (finalPrompt.length() > GenAIConstants.MAX_TOTAL_CHARACTERS) {
-      log.warn("A prompt is over " + GenAIConstants.MAX_TOTAL_CHARACTERS + ".");
-    }
 
     this.genAIUsageManagementService.checkAndIncrementUsage(userId);
     return this.genAIService.generateResponse(finalPrompt);
