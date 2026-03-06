@@ -199,6 +199,18 @@ public class UpdateApplicationRequestTest {
   }
 
   @Test
+  public void validateRequest_whenSourceLinkIsEmpty_expectSuccess() {
+    UpdateApplicationRequest request = getValidRequestBuilder().sourceLink("").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenSourceLinkIsWhitespace_expectSuccess() {
+    UpdateApplicationRequest request = getValidRequestBuilder().sourceLink("   ").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
   public void validateRequest_whenNumPositionsNegative_expectException() {
     UpdateApplicationRequest request = getValidRequestBuilder().numPositions(-1).build();
     InvalidRequestException exception =
