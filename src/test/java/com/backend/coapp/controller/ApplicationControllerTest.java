@@ -458,7 +458,6 @@ public class ApplicationControllerTest {
 
   // test delete application
 
-
   @Test
   public void deleteApplication_whenValid_expect200WithSuccessMessage() throws Exception {
     doNothing().when(this.applicationService).deleteApplication(eq("app789"), eq("user1"));
