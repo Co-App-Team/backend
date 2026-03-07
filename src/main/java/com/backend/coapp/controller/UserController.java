@@ -141,7 +141,7 @@ public class UserController {
       @PathVariable String experienceId) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String userID = auth.getName();
-    if (experienceId == null || experienceId.isBlank()) {
+    if (experienceId.isBlank()) {
       throw new InvalidRequestException("Experience ID can NOT be null or empty");
     }
 
