@@ -136,7 +136,7 @@ public class UserController {
    * @param experienceId Path variable
    * @return ResponseEntity: Deleted successfully when successfully deletes
    */
-  @PutMapping("/experience/{experienceId}")
+  @DeleteMapping("/experience/{experienceId}")
   public ResponseEntity<Map<String, Object>> deleteUserExperience(
       @PathVariable String experienceId) {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();

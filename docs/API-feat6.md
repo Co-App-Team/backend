@@ -72,6 +72,7 @@ Response body:
 {
     "experience":[
       {
+        "experienceId": "experienceId1",
         "companyId": "companyId1",
         "roleTitle": "Software Engineer",
         "roleDescription": "Built and maintained microservices using Spring Boot",
@@ -79,6 +80,7 @@ Response body:
         "endDate": "2024-01-01"
       },
       {
+       "experienceId": "experienceId2",
         "companyId": "companyId2",
         "roleTitle": "Software Engineer",
         "roleDescription": "Built and maintained microservices using Spring Boot",
@@ -168,7 +170,7 @@ Response body:
 This includes null/emptty fields or role title/description is over character limit (We will specify exact number of character limit in the response's message).*
 
 
-**Response 401 NOT FOUND:**
+**Response 404 NOT FOUND:**
 
 Response body:
 ```json
@@ -217,7 +219,7 @@ Response body:
 }
 ```
 
-**Response 401 NOT FOUND:**
+**Response 404 NOT FOUND:**
 
 Response body:
 ```json

@@ -339,7 +339,7 @@ public class UserControllerTest {
     doNothing().when(userService).deleteUserExperience(any(), any());
 
     mockMvc
-        .perform(put("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
+        .perform(delete("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Deleted successfully."));
     verify(userService, times(1))
@@ -352,7 +352,7 @@ public class UserControllerTest {
     doThrow(new ExperienceNotFoundException()).when(userService).deleteUserExperience(any(), any());
 
     mockMvc
-        .perform(put("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
+        .perform(delete("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value(UserExperienceErrorCode.EXPERIENCE_NOT_FOUND.name()));
     verify(userService, times(1))
@@ -367,7 +367,7 @@ public class UserControllerTest {
         .deleteUserExperience(any(), any());
 
     mockMvc
-        .perform(put("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
+        .perform(delete("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error").value(UserExperienceErrorCode.EXPERIENCE_NOT_OWN.name()));
     verify(userService, times(1))
@@ -382,7 +382,7 @@ public class UserControllerTest {
         .deleteUserExperience(any(), any());
 
     mockMvc
-        .perform(put("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
+        .perform(delete("/api/user/experience/{experienceId}", DUMMY_USER_EXPERIENCE_MODEL.getId()))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
     verify(userService, times(1))
@@ -394,7 +394,7 @@ public class UserControllerTest {
   public void deleteUserExperience_whenMissingExperienceId_expect400() throws Exception {
 
     mockMvc
-        .perform(put("/api/user/experience/{experienceId}", "  "))
+        .perform(delete("/api/user/experience/{experienceId}", "  "))
         .andExpect(status().isBadRequest())
         .andExpect(
             jsonPath("$.error").value(RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()));
