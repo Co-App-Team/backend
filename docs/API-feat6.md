@@ -7,9 +7,9 @@ This document outlines the API endpoints for the AI resume builder feature of Co
 
 ### 1. Prompt
 
-**Path:** `api/resume-ai-builder/`
+**Path:** `api/resume-ai-advisor/`
 
-**Method:** `GET`
+**Method:** `POST`
 
 **Description**: Prompt to chatbot 
 
@@ -18,16 +18,11 @@ This document outlines the API endpoints for the AI resume builder feature of Co
 ```json
 {
     "userPrompt": "question from user",
-    "applicationId" : "applicationID",
-    "experienceId": ["experienceId1","experienceId2"]
+    "applicationId" : "applicationID"
 }
 ```
 
-*Note: `applicationId` and `experienceId` are optional context.*
-
-> \[!IMPORTANT\]
-> Since we only allow users to select up to 2 experience to stay within context window limit.
-
+*Note: `applicationId` is optional context.*
 
 **Response 200 OK:**
 
@@ -58,16 +53,6 @@ Response body:
 }
 ```
 
-**Response 400 BAD REQUESTS:**
-
-Response body:
-```json
-{
-  "error":"OVER_LIMIT_EXPERIENCE",
-  "message":"Only allow to select up to 2 experience. Please try again."
-}
-```
-
 
 ### 2. Update users' profiles for GenAI context
 
@@ -76,7 +61,7 @@ Response body:
 
 This is an updated of the same endpoint from `API-feat1.md`
 
-**Path:** `api/user/about-me`
+**Path:** `api/user/experience`
 
 **Method:** `GET`
 
@@ -85,38 +70,31 @@ This is an updated of the same endpoint from `API-feat1.md`
 Response body:
 ```json
 {
-    "firstName":"user first name",
-    "lastName": "user last name",
-    "email": "user email",
-    "pastExperiences":[ // The most two recent experience
-        {
-            "experienceId":"ID of the first experience",
-            "company":"company name 1",
-            "roleDescription": "description of role at company 1"
-        },
-        {
-            "experienceId":"ID of the second experience",
-            "company":"company name 2",
-            "roleDescription": "description of role at company 2"
-        }
-
+    "experience":[
+      {
+        "companyId": "companyId1",
+        "roleTitle": "Software Engineer",
+        "roleDescription": "Built and maintained microservices using Spring Boot",
+        "startDate": "2023-01-01",
+        "endDate": "2024-01-01"
+      },
+      {
+        "companyId": "companyId2",
+        "roleTitle": "Software Engineer",
+        "roleDescription": "Built and maintained microservices using Spring Boot",
+        "startDate": "2023-01-01",
+        "endDate": "2024-01-01"
+      },
+      ...
     ]
-}
-```
-
-**Response 400 BAD REQUEST:**
-
-Response body:
-```json
-{
-  "error": "USER_NOT_EXIST",
-  "message": "User does NOT exist."
 }
 ```
 
 #### 2.2 Add/update/delete experience
 
-**Path:** `api/user/past-experience`
+**Note: `endDate` can be null to indicate current job.**
+
+**Path:** `api/user/experience`
 
 **Method:** `POST`
 
@@ -126,8 +104,11 @@ Response body:
 
 ```json
 {
-    "company": "Company A", 
-    "summary": "Summary of your role"
+  "companyId": "companyId",
+  "roleTitle": "Software Engineer",
+  "roleDescription": "Built and maintained microservices using Spring Boot",
+  "startDate": "2023-01-01",
+  "endDate": "2024-01-01"
 }
 ```
 
@@ -136,19 +117,25 @@ Response body:
 Response body:
 ```json
 {
-  "response":"Added successfully."
+  "experienceId":"ID of the new experience"
 }
 ```
 
 **Response 400 BAD REQUEST:**
 
+ *The backend will return 400 if any field is invalid. 
+ This includes null/emptty fields or role title/description is over character limit (We will specify exact number of character limit in the response's message).*
+
+**Response 404 NOT FOUND:**
+
 Response body:
 ```json
 {
-  "error":"OVER_LIMIT_CHARACTER",
-  "message":"Your description about your role is too long. Please short it and try again."
+  "error":"COMPANY_NOT_FOUND",
+  "message":"Company with this companyId does not exist."
 }
 ```
+**Path:** `api/user/experience/{experienceId}`
 
 **Method:** `PATCH`
 
@@ -158,9 +145,11 @@ Response body:
 
 ```json
 {
-    "experienceId": "ID of the experience",
-    "company": "Company A", 
-    "summary": "Summary of your role"
+   "companyId": "companyId",
+   "roleTitle": "Software Engineer",
+   "roleDescription": "Built and maintained microservices using Spring Boot",
+   "startDate": "2023-01-01",
+   "endDate": "2024-01-01"
 }
 ```
 
@@ -175,23 +164,41 @@ Response body:
 
 **Response 400 BAD REQUEST:**
 
-Response body:
-```json
-{
-  "error":"OVER_LIMIT_CHARACTER",
-  "message":"Your description about your role is too long. Please short it and try again."
-}
-```
+*The backend will return 400 if any field is invalid.
+This includes null/emptty fields or role title/description is over character limit (We will specify exact number of character limit in the response's message).*
 
-**Response 400 BAD REQUEST:**
+
+**Response 401 NOT FOUND:**
 
 Response body:
 ```json
 {
-  "error":"EXPERIENCE_NOT_EXIST",
-  "message":"The experience doesn't exist or belong to the user."
+  "error":"EXPERIENCE_NOT_FOUND",
+  "message":"The experience does not exist or not belong to the user."
 }
 ```
+
+**Response 403 FORBIDDEN:**
+
+Response body:
+```json
+{
+  "error":"EXPERIENCE_NOT_OWN",
+  "message":"The experience doesn't belong to the user. Can NOT delete."
+}
+```
+
+**Response 404 NOT FOUND:**
+
+Response body:
+```json
+{
+  "error":"COMPANY_NOT_FOUND",
+  "message":"Company with this companyId does not exist."
+}
+```
+
+**Path:** `api/user/experience/{experienceId}`
 
 **Method:** `DELETE`
 
@@ -199,11 +206,7 @@ Response body:
 
 **Request Body**
 
-```json
-{
-    "experienceId": "ID of the experience"
-}
-```
+*N/A*
 
 **Response 200 OK:**
 
@@ -214,13 +217,23 @@ Response body:
 }
 ```
 
-**Response 400 BAD REQUEST:**
+**Response 401 NOT FOUND:**
 
 Response body:
 ```json
 {
-  "error":"EXPERIENCE_NOT_EXIST",
+  "error":"EXPERIENCE_NOT_FOUND",
   "message":"The experience does not exist or not belong to the user."
+}
+```
+
+**Response 403 FORBIDDEN:**
+
+Response body:
+```json
+{
+  "error":"EXPERIENCE_NOT_OWN",
+  "message":"The experience doesn't belong to the user. Can NOT delete."
 }
 ```
 
