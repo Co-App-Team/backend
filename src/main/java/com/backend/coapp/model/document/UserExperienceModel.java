@@ -13,7 +13,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /** Model to keep track of user experience */
-@Document(collection = "user_experience")
+@Document(collection = "userExperience")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
