@@ -40,7 +40,7 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
     validateStatus();
     validateSortBy();
     validateSortOrder();
-    validatePagination();
+    validateRequest();
   }
 
   /**

@@ -17,58 +17,58 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validatePagination_whenAllValid_expectNoChange() {
+  public void validateRequest_whenAllValid_expectNoChange() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(1, 10);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(1, request.getPage());
     assertEquals(10, request.getSize());
   }
 
   @Test
-  public void validatePagination_whenPageNull_expectDefaultPage() {
+  public void validateRequest_whenPageNull_expectDefaultPage() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(null, 10);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_PAGE, request.getPage());
   }
 
   @Test
-  public void validatePagination_whenPageNegative_expectDefaultPage() {
+  public void validateRequest_whenPageNegative_expectDefaultPage() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(-1, 10);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_PAGE, request.getPage());
   }
 
   @Test
-  public void validatePagination_whenSizeNull_expectDefaultSize() {
+  public void validateRequest_whenSizeNull_expectDefaultSize() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(0, null);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_SIZE, request.getSize());
   }
 
   @Test
-  public void validatePagination_whenSizeTooSmall_expectDefaultSize() {
+  public void validateRequest_whenSizeTooSmall_expectDefaultSize() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(0, 0);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_SIZE, request.getSize());
   }
 
   @Test
-  public void validatePagination_whenSizeTooLarge_expectCappedToMax() {
+  public void validateRequest_whenSizeTooLarge_expectCappedToMax() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(0, 999);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_MAX_SIZE, request.getSize());
   }
 
   @Test
-  public void validatePagination_whenMultipleIssues_expectAllFixed() {
+  public void validateRequest_whenMultipleIssues_expectAllFixed() {
     ApplicationPaginationRequest request = new ApplicationPaginationRequest(-3, 999);
-    request.validatePagination();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_PAGE, request.getPage());
     assertEquals(ApplicationConstants.APPLICATION_MAX_SIZE, request.getSize());

@@ -6,11 +6,11 @@ import com.backend.coapp.util.PaginationConstants;
 import org.junit.jupiter.api.Test;
 
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
-public class PaginationRequestTest {
+public class ReviewPaginationRequestTest {
 
   @Test
   public void validateRequest_withValidData_expectNoException() {
-    PaginationRequest request = new PaginationRequest(0, PaginationConstants.REVIEW_DEFAULT_SIZE);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(0, PaginationConstants.REVIEW_DEFAULT_SIZE);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(0, request.getPage());
@@ -19,7 +19,7 @@ public class PaginationRequestTest {
 
   @Test
   public void validateRequest_withNullPage_expectDefaultPage() {
-    PaginationRequest request = new PaginationRequest(null, 10);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(null, 10);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_DEFAULT_PAGE, request.getPage());
@@ -27,7 +27,7 @@ public class PaginationRequestTest {
 
   @Test
   public void validateRequest_withNegativePage_expectDefaultPage() {
-    PaginationRequest request = new PaginationRequest(-1, 10);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(-1, 10);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_DEFAULT_PAGE, request.getPage());
@@ -35,7 +35,7 @@ public class PaginationRequestTest {
 
   @Test
   public void validateRequest_withNullSize_expectDefaultSize() {
-    PaginationRequest request = new PaginationRequest(0, null);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(0, null);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_DEFAULT_SIZE, request.getSize());
@@ -43,7 +43,7 @@ public class PaginationRequestTest {
 
   @Test
   public void validateRequest_withZeroSize_expectDefaultSize() {
-    PaginationRequest request = new PaginationRequest(0, 0);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(0, 0);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_DEFAULT_SIZE, request.getSize());
@@ -51,7 +51,7 @@ public class PaginationRequestTest {
 
   @Test
   public void validateRequest_withSizeAboveMax_expectCappedSize() {
-    PaginationRequest request = new PaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE + 10);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE + 10);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_MAX_SIZE, request.getSize());
@@ -59,7 +59,7 @@ public class PaginationRequestTest {
 
   @Test
   public void validateRequest_withValidMaxSize_expectNoChange() {
-    PaginationRequest request = new PaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE);
+    ReviewPaginationRequest request = new ReviewPaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_MAX_SIZE, request.getSize());
