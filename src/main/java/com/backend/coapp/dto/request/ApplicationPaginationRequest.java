@@ -3,14 +3,11 @@ package com.backend.coapp.dto.request;
 import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.util.ApplicationConstants;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @NoArgsConstructor
+@SuperBuilder
 public class ApplicationPaginationRequest extends PaginationRequest implements IRequest {
-
-  public ApplicationPaginationRequest(Integer page, Integer size) {
-    setPage(page != null ? page : ApplicationConstants.APPLICATION_DEFAULT_PAGE);
-    setSize(size != null ? size : ApplicationConstants.APPLICATION_DEFAULT_SIZE);
-  }
 
   @Override
   public void validateRequest() throws InvalidRequestException {

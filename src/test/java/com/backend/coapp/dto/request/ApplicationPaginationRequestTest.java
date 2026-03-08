@@ -10,7 +10,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void getMethods_expectInitValues() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(2, 50);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(2).size(50).build();
 
     assertEquals(2, request.getPage());
     assertEquals(50, request.getSize());
@@ -18,7 +19,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenAllValid_expectNoChange() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(1, 10);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(1).size(10).build();
     request.validateRequest();
 
     assertEquals(1, request.getPage());
@@ -27,7 +29,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenPageNull_expectDefaultPage() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(null, 10);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(null).size(10).build();
     request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_PAGE, request.getPage());
@@ -35,7 +38,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenPageNegative_expectDefaultPage() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(-1, 10);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(-1).size(10).build();
     request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_PAGE, request.getPage());
@@ -43,7 +47,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenSizeNull_expectDefaultSize() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(0, null);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(0).size(null).build();
     request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_SIZE, request.getSize());
@@ -51,7 +56,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenSizeTooSmall_expectDefaultSize() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(0, 0);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(0).size(0).build();
     request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_SIZE, request.getSize());
@@ -59,7 +65,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenSizeTooLarge_expectCappedToMax() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(0, 999);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(0).size(999).build();
     request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_MAX_SIZE, request.getSize());
@@ -67,7 +74,8 @@ public class ApplicationPaginationRequestTest {
 
   @Test
   public void validateRequest_whenMultipleIssues_expectAllFixed() {
-    ApplicationPaginationRequest request = new ApplicationPaginationRequest(-3, 999);
+    ApplicationPaginationRequest request =
+        ApplicationPaginationRequest.builder().page(-3).size(999).build();
     request.validateRequest();
 
     assertEquals(ApplicationConstants.APPLICATION_DEFAULT_PAGE, request.getPage());

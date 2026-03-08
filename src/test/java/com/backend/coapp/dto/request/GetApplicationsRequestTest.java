@@ -12,17 +12,23 @@ import org.junit.jupiter.api.Test;
 public class GetApplicationsRequestTest {
 
   @Test
-  public void getMethods_expectInitValues() {
-    GetApplicationsRequest request = new GetApplicationsRequest();
-    request.setSearch("niche");
-    request.setStatus("APPLIED");
-    request.setSortBy("dateApplied");
-    request.setSortOrder("asc");
+  public void builder_expectInitValues() {
+    GetApplicationsRequest request =
+        GetApplicationsRequest.builder()
+            .search("niche")
+            .status("APPLIED")
+            .sortBy("dateApplied")
+            .sortOrder("asc")
+            .page(0)
+            .size(20)
+            .build();
 
     assertEquals("niche", request.getSearch());
     assertEquals("APPLIED", request.getStatus());
     assertEquals("dateApplied", request.getSortBy());
     assertEquals("asc", request.getSortOrder());
+    assertEquals(0, request.getPage());
+    assertEquals(20, request.getSize());
   }
 
   @Test
@@ -40,12 +46,14 @@ public class GetApplicationsRequestTest {
 
   @Test
   public void validateAndParse_whenAllValid_expectNoChange() {
-    GetApplicationsRequest request = new GetApplicationsRequest();
-    request.setStatus("APPLIED");
-    request.setSortBy("dateApplied");
-    request.setSortOrder("asc");
-    request.setPage(1);
-    request.setSize(10);
+    GetApplicationsRequest request =
+        GetApplicationsRequest.builder()
+            .status("APPLIED")
+            .sortBy("dateApplied")
+            .sortOrder("asc")
+            .page(1)
+            .size(10)
+            .build();
 
     request.validateAndParse();
 
@@ -118,8 +126,7 @@ public class GetApplicationsRequestTest {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("INVALID_STATUS");
 
-    InvalidRequestException ex =
-        assertThrows(InvalidRequestException.class, request::validateAndParse);
+    assertThrows(InvalidRequestException.class, request::validateAndParse);
   }
 
   @Test
@@ -157,8 +164,7 @@ public class GetApplicationsRequestTest {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("invalidField");
 
-    InvalidRequestException ex =
-        assertThrows(InvalidRequestException.class, request::validateAndParse);
+    assertThrows(InvalidRequestException.class, request::validateAndParse);
   }
 
   @Test
@@ -206,7 +212,6 @@ public class GetApplicationsRequestTest {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("sideways");
 
-    InvalidRequestException ex =
-        assertThrows(InvalidRequestException.class, request::validateAndParse);
+    assertThrows(InvalidRequestException.class, request::validateAndParse);
   }
 }

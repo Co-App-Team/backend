@@ -7,14 +7,15 @@ import com.backend.coapp.util.ApplicationValidSearchParameters;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-/**
- * all query params for GET/api/application extends ApplicationPaginationRequest for page / size
- * handling.
- */
+/** all query params for GET/api/application extends ApplicationPaginationRequest for page / size */
 @Getter
 @Setter
+@NoArgsConstructor
+@SuperBuilder
 public class GetApplicationsRequest extends ApplicationPaginationRequest {
 
   // case-insensitive partial match search for company name
@@ -43,10 +44,6 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
     validateRequest();
   }
 
-  /**
-   * Parses the comma-separated status string into parsedStatuses. Each part is matched against
-   * ApplicationStatus by name.
-   */
   private void validateStatus() {
     if (status == null || status.isBlank()) {
       return;
