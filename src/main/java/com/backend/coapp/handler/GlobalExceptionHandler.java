@@ -285,4 +285,19 @@ public class GlobalExceptionHandler {
                 "message",
                 ex.getMessage()));
   }
+
+  @ExceptionHandler(InvalidQueryParameterException.class)
+  public ResponseEntity<Map<String, Object>> handleInvalidQueryParameterException(
+      InvalidQueryParameterException ex) {
+    Map<String, Object> response = new HashMap<>(); // map needed for the details to be done nicely
+    response.put("error", ApplicationErrorCode.INVALID_QUERY_PARAMETER);
+    response.put("message", ex.getMessage());
+    response.put(
+        "details",
+        Map.of(
+            "parameter", ex.getParameter(),
+            "invalidValue", ex.getInvalidValue(),
+            "validValues", ex.getValidValues()));
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 }
