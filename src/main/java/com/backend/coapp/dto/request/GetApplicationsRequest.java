@@ -36,7 +36,7 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
    *
    * @throws InvalidQueryParameterException if any parameter contains an invalid value.
    */
-  public void validateAndParse() throws InvalidQueryParameterException{
+  public void validateAndParse() throws InvalidQueryParameterException {
     validateStatus();
     validateSortBy();
     validateSortOrder();
