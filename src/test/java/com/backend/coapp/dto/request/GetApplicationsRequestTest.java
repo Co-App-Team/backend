@@ -2,10 +2,9 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidQueryParameterException;
+import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
-import com.backend.coapp.util.ApplicationValidSearchParameters;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -119,12 +118,8 @@ public class GetApplicationsRequestTest {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("INVALID_STATUS");
 
-    InvalidQueryParameterException ex =
-        assertThrows(InvalidQueryParameterException.class, request::validateAndParse);
-
-    assertEquals("status", ex.getParameter());
-    assertEquals("INVALID_STATUS", ex.getInvalidValue());
-    assertEquals(ApplicationValidSearchParameters.VALID_STATUS_VALUES, ex.getValidValues());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, request::validateAndParse);
   }
 
   @Test
@@ -162,12 +157,8 @@ public class GetApplicationsRequestTest {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("invalidField");
 
-    InvalidQueryParameterException ex =
-        assertThrows(InvalidQueryParameterException.class, request::validateAndParse);
-
-    assertEquals("sortBy", ex.getParameter());
-    assertEquals("invalidField", ex.getInvalidValue());
-    assertEquals(ApplicationValidSearchParameters.VALID_SORT_BY_VALUES, ex.getValidValues());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, request::validateAndParse);
   }
 
   @Test
@@ -215,11 +206,7 @@ public class GetApplicationsRequestTest {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("sideways");
 
-    InvalidQueryParameterException ex =
-        assertThrows(InvalidQueryParameterException.class, request::validateAndParse);
-
-    assertEquals("sortOrder", ex.getParameter());
-    assertEquals("sideways", ex.getInvalidValue());
-    assertEquals(ApplicationValidSearchParameters.VALID_SORT_ORDER_VALUES, ex.getValidValues());
+    InvalidRequestException ex =
+        assertThrows(InvalidRequestException.class, request::validateAndParse);
   }
 }

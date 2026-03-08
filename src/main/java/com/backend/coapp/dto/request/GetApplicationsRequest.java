@@ -1,6 +1,6 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidQueryParameterException;
+import com.backend.coapp.exception.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import com.backend.coapp.util.ApplicationValidSearchParameters;
@@ -34,9 +34,9 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
   /**
    * Validates every query parameter and populates the parsed fields.
    *
-   * @throws InvalidQueryParameterException if any parameter contains an invalid value.
+   * @throws InvalidRequestException if any parameter contains an invalid value.
    */
-  public void validateAndParse() throws InvalidQueryParameterException {
+  public void validateAndParse() throws InvalidRequestException {
     validateStatus();
     validateSortBy();
     validateSortOrder();
@@ -58,8 +58,7 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
       try {
         parsedStatuses.add(ApplicationStatus.valueOf(trimmed));
       } catch (IllegalArgumentException e) {
-        throw new InvalidQueryParameterException(
-            "status", trimmed, ApplicationValidSearchParameters.VALID_STATUS_VALUES);
+        throw new InvalidRequestException("Invalid value for status: '" + trimmed + "'.");
       }
     }
   }
@@ -71,8 +70,7 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
     }
 
     if (!ApplicationValidSearchParameters.VALID_SORT_BY_VALUES.contains(sortBy)) {
-      throw new InvalidQueryParameterException(
-          "sortBy", sortBy, ApplicationValidSearchParameters.VALID_SORT_BY_VALUES);
+      throw new InvalidRequestException("Invalid value for sortBy: '" + sortBy + "'.");
     }
   }
 
@@ -85,8 +83,7 @@ public class GetApplicationsRequest extends ApplicationPaginationRequest {
 
     String normalised = sortOrder.toLowerCase();
     if (!ApplicationValidSearchParameters.VALID_SORT_ORDER_VALUES.contains(normalised)) {
-      throw new InvalidQueryParameterException(
-          "sortOrder", sortOrder, ApplicationValidSearchParameters.VALID_SORT_ORDER_VALUES);
+      throw new InvalidRequestException("Invalid value for sortOrder: '" + sortOrder + "'.");
     }
     sortOrder = normalised;
   }

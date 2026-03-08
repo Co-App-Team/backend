@@ -666,23 +666,4 @@ public class ApplicationControllerTest {
         .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
         .andExpect(jsonPath("$.message").exists());
   }
-
-  // temporary test to cover the global exception handler until I finish new implementation of the
-  // controller for feature 3
-  @Test
-  public void getApplications_whenInvalidQueryParameter_expect400WithDetails() throws Exception {
-    when(this.applicationService.getApplications(anyString()))
-        .thenThrow(
-            new InvalidQueryParameterException(
-                "status", "INVALID_STATUS", List.of("APPLIED", "REJECTED")));
-
-    mockMvc
-        .perform(get("/api/application").principal(this.authentication))
-        .andExpect(status().isBadRequest())
-        .andExpect(jsonPath("$.error").value("INVALID_QUERY_PARAMETER"))
-        .andExpect(jsonPath("$.message").value("Invalid query parameter"))
-        .andExpect(jsonPath("$.details.parameter").value("status"))
-        .andExpect(jsonPath("$.details.invalidValue").value("INVALID_STATUS"))
-        .andExpect(jsonPath("$.details.validValues").isArray());
-  }
 }
