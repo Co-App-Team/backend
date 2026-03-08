@@ -14,7 +14,7 @@ public class ReviewPaginationRequest extends PaginationRequest implements IReque
 
   @Override
   public void validateRequest() throws InvalidRequestException {
-    super.validatePagination(
+    super.normalizePagination(
         PaginationConstants.REVIEW_DEFAULT_PAGE,
         PaginationConstants.REVIEW_DEFAULT_SIZE,
         PaginationConstants.REVIEW_MAX_SIZE);

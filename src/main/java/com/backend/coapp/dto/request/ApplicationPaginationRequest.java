@@ -14,7 +14,7 @@ public class ApplicationPaginationRequest extends PaginationRequest implements I
 
   @Override
   public void validateRequest() throws InvalidRequestException {
-    super.validatePagination(
+    super.normalizePagination(
         ApplicationConstants.APPLICATION_DEFAULT_PAGE,
         ApplicationConstants.APPLICATION_DEFAULT_SIZE,
         ApplicationConstants.APPLICATION_MAX_SIZE);

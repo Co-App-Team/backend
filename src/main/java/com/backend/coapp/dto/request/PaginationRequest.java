@@ -12,7 +12,7 @@ public abstract class PaginationRequest {
   private Integer page;
   private Integer size;
 
-  protected void validatePagination(int defaultPage, int defaultSize, int maxSize) {
+  protected void normalizePagination(int defaultPage, int defaultSize, int maxSize) {
     if (this.page == null || this.page < 0) {
       this.page = defaultPage;
     }
