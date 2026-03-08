@@ -10,7 +10,8 @@ public class ReviewPaginationRequestTest {
 
   @Test
   public void validateRequest_withValidData_expectNoException() {
-    ReviewPaginationRequest request = new ReviewPaginationRequest(0, PaginationConstants.REVIEW_DEFAULT_SIZE);
+    ReviewPaginationRequest request =
+        new ReviewPaginationRequest(0, PaginationConstants.REVIEW_DEFAULT_SIZE);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(0, request.getPage());
@@ -51,7 +52,8 @@ public class ReviewPaginationRequestTest {
 
   @Test
   public void validateRequest_withSizeAboveMax_expectCappedSize() {
-    ReviewPaginationRequest request = new ReviewPaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE + 10);
+    ReviewPaginationRequest request =
+        new ReviewPaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE + 10);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_MAX_SIZE, request.getSize());
@@ -59,7 +61,8 @@ public class ReviewPaginationRequestTest {
 
   @Test
   public void validateRequest_withValidMaxSize_expectNoChange() {
-    ReviewPaginationRequest request = new ReviewPaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE);
+    ReviewPaginationRequest request =
+        new ReviewPaginationRequest(0, PaginationConstants.REVIEW_MAX_SIZE);
 
     assertDoesNotThrow(request::validateRequest);
     assertEquals(PaginationConstants.REVIEW_MAX_SIZE, request.getSize());

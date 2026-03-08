@@ -5,7 +5,7 @@ import com.backend.coapp.util.ApplicationConstants;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ApplicationPaginationRequest extends PaginationRequest  implements IRequest {
+public class ApplicationPaginationRequest extends PaginationRequest implements IRequest {
 
   public ApplicationPaginationRequest(Integer page, Integer size) {
     setPage(page != null ? page : ApplicationConstants.APPLICATION_DEFAULT_PAGE);
@@ -15,8 +15,8 @@ public class ApplicationPaginationRequest extends PaginationRequest  implements 
   @Override
   public void validateRequest() throws InvalidRequestException {
     super.validatePagination(
-      ApplicationConstants.APPLICATION_DEFAULT_PAGE,
-      ApplicationConstants.APPLICATION_DEFAULT_SIZE,
-      ApplicationConstants.APPLICATION_MAX_SIZE);
+        ApplicationConstants.APPLICATION_DEFAULT_PAGE,
+        ApplicationConstants.APPLICATION_DEFAULT_SIZE,
+        ApplicationConstants.APPLICATION_MAX_SIZE);
   }
 }
