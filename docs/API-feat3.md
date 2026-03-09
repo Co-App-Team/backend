@@ -14,7 +14,7 @@ The first endpoint is the most important and provides the minimum requirements f
 ### Application DTO
 ```json
 {
-  "id": "string",
+  "applicationId": "string",
   "companyId": "string",
   "jobTitle": "string",
   "status": "string",
@@ -77,7 +77,7 @@ The first endpoint is the most important and provides the minimum requirements f
 {
   "applications": [
     {
-      "id": "x",
+      "applicationId": "x",
       "companyId": "z",
       "jobTitle": "Software Engineering Intern",
       "status": "APPLIED",
