@@ -14,15 +14,18 @@ The first endpoint is the most important and provides the minimum requirements f
 ### Application DTO
 ```json
 {
-  "id": "string",
+  "applicationId": "string",
   "userId": "string",
+  "companyId": "string",
   "companyName": "string",
   "jobTitle": "string",
-  "postingLink": "string",
+  "sourceLink": "string (optional)",
   "status": "string",
-  "dateApplied": "datetime string",
-  "notes": "string (optional)",
-  "address": "string (optional)"
+  "applicationDeadline": "date string",
+  "dateApplied": "date string (optional)",
+  "jobDescription": "string (optional)",
+  "numPositions": "integer (optional)",
+  "notes": "string (optional)"
 }
 ```
 
@@ -76,26 +79,18 @@ The first endpoint is the most important and provides the minimum requirements f
 {
   "applications": [
     {
-      "id": "x",
+      "applicationId": "x",
       "userId": "y",
+      "companyId": "z",
       "companyName": "Niche",
       "jobTitle": "Software Engineering Intern",
-      "postingLink": "link",
+      "sourceLink": "https://linkedin.com/jobs/123",
       "status": "APPLIED",
-      "dateApplied": "date string",
-      "notes": "Applied through university portal",
-      "address": "address here"
-    },
-    {
-      "id": "x",
-      "userId": "y",
-      "companyName": "Varian",
-      "jobTitle": "Software Engineering Intern",
-      "postingLink": "link",
-      "status": "APPLIED",
-      "dateApplied": "date string",
-      "notes": "Applied through university portal",
-      "address": "address here"
+      "applicationDeadline": "2024-03-01",
+      "dateApplied": "2024-01-15",
+      "jobDescription": "Build cool things.",
+      "numPositions": 3,
+      "notes": "Applied through university portal"
     }
   ],
   "pagination": {
@@ -107,6 +102,7 @@ The first endpoint is the most important and provides the minimum requirements f
     "hasPrevious": false
   }
 }
+
 ```
 
 **Response 400 Bad Request:**
@@ -115,14 +111,10 @@ Returns when query has an invalid value:
 
 ```json
 {
-  "error": "BAD_REQUEST",
-  "message": "Invalid query parameter",
-  "details": {
-    "parameter": {Name of offending parameter},
-    "invalidValue": {The value causing the offense},
-    "validValues": [{An array of valid values}]
-  }
+  "error": "REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message": "Invalid inputs of the request. Invalid value for status: 'invalidStatusName'."
 }
+
 ```
 
 **Example:** `status=invalidStatusName` 
