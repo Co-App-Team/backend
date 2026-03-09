@@ -9,6 +9,7 @@ import com.backend.coapp.exception.auth.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.exception.genai.ExperienceNotFoundException;
 import com.backend.coapp.exception.genai.ExperienceNotOwnedException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.document.UserModel;
@@ -233,7 +234,7 @@ public class UserServiceTest {
   @Test
   public void getUserInformationFromUserID_whenUserNotExit_expectException() {
     assertThrows(
-        UserNotExistException.class, () -> this.userService.getUserInformationFromUserID("999"));
+        UserNotFoundException.class, () -> this.userService.getUserInformationFromUserID("999"));
   }
 
   @Test

@@ -7,7 +7,7 @@ import static org.mockito.Mockito.*;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.exception.application.*;
-import com.backend.coapp.exception.auth.UserNotFoundException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;

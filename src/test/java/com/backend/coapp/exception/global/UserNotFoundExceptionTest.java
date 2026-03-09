@@ -1,4 +1,4 @@
-package com.backend.coapp.exception.auth;
+package com.backend.coapp.exception.global;
 
 import static org.junit.jupiter.api.Assertions.*;
 

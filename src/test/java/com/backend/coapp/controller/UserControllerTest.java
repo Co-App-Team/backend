@@ -11,8 +11,8 @@ import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.auth.AuthBadCredentialException;
 import com.backend.coapp.exception.auth.UserInvalidPasswordChangeException;
-import com.backend.coapp.exception.auth.UserNotExistException;
 import com.backend.coapp.exception.auth.UserServiceFailException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
@@ -158,7 +158,7 @@ public class UserControllerTest {
   @Test
   @WithMockUser(username = "testUserID")
   public void aboutMe_whenNoUserExist_expectException() throws Exception {
-    doThrow(new UserNotExistException())
+    doThrow(new UserNotFoundException())
         .when(this.userService)
         .getUserInformationFromUserID(anyString());
     mockMvc

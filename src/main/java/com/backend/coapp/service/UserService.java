@@ -5,6 +5,7 @@ import com.backend.coapp.exception.auth.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.exception.genai.ExperienceNotFoundException;
 import com.backend.coapp.exception.genai.ExperienceNotOwnedException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.CompanyRepository;
@@ -111,10 +112,10 @@ public class UserService {
    * @param userID ID of an user
    * @return UserModel
    * @throws UserServiceFailException when DB fails to search for the user
-   * @throws UserNotExistException when user not exist
+   * @throws UserNotFoundException when user not exist
    */
   public UserModel getUserInformationFromUserID(String userID)
-      throws UserServiceFailException, UserNotExistException {
+      throws UserServiceFailException, UserNotFoundException {
     UserModel user;
     try {
       user = this.userRepository.findUserModelById(userID);
@@ -123,7 +124,7 @@ public class UserService {
       throw new UserServiceFailException(e.getMessage());
     }
     if (user == null) {
-      throw new UserNotExistException();
+      throw new UserNotFoundException();
     }
     return user;
   }

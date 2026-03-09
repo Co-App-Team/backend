@@ -1,4 +1,4 @@
-package com.backend.coapp.exception.auth;
+package com.backend.coapp.exception.global;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
