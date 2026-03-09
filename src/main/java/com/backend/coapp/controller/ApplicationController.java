@@ -117,22 +117,6 @@ public class ApplicationController {
   }
 
   /**
-   * Retrieves all job applications for the currently authenticated user.
-   *
-   * @param authentication The authentication object provided by Spring Security.
-   * @return ResponseEntity containing a list of applications.
-   */
-  @GetMapping
-  public ResponseEntity<List<ApplicationResponse>> getApplications(Authentication authentication) {
-    UserModel user = (UserModel) authentication.getPrincipal();
-    String userId = user.getId();
-
-    List<ApplicationResponse> applicationList = this.applicationService.getApplications(userId);
-
-    return ResponseEntity.ok(applicationList);
-  }
-
-  /**
    * Get a paginated list of applications with optional filtering and sorting. all query params are
    * optional and can be combined freely.
    *
