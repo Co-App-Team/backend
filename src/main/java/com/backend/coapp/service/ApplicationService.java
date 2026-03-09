@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
-
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -35,10 +34,10 @@ public class ApplicationService {
   private final MongoTemplate mongoTemplate;
 
   public ApplicationService(
-    ApplicationRepository applicationRepository,
-    CompanyRepository companyRepository,
-    UserRepository userRepository,
-    MongoTemplate mongoTemplate) {
+      ApplicationRepository applicationRepository,
+      CompanyRepository companyRepository,
+      UserRepository userRepository,
+      MongoTemplate mongoTemplate) {
     this.applicationRepository = applicationRepository;
     this.companyRepository = companyRepository;
     this.userRepository = userRepository;
@@ -240,10 +239,10 @@ public class ApplicationService {
 
   /**
    * Retrieves a paginated, optionally filtered and sorted list of applications for a user.
-   * <p>
-   * Search is performed against company name (case-insensitive, partial match).
-   * Because the model only stores a company id, matching company IDs are resolved from the companies
-   * collection and then used in a filter. If the search matches no companies the result will be empty.
+   *
+   * <p>Search is performed against company name (case-insensitive, partial match). Because the
+   * model only stores a company id, matching company IDs are resolved from the companies collection
+   * and then used in a filter. If the search matches no companies the result will be empty.
    *
    * @param userId The ID of the authenticated user, always applied as a filter
    * @param search Optional company name search term (case-insensitive, partial match)
@@ -272,9 +271,9 @@ public class ApplicationService {
       // if no companies match the search, force an empty result with an "impossible" filter.
       if (search != null && !search.isBlank()) {
         List<String> matchingCompanyIds =
-          this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
-            .map(CompanyModel::getId)
-            .collect(Collectors.toList());
+            this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
+                .map(CompanyModel::getId)
+                .collect(Collectors.toList());
 
         // add ids to the query criteria filter
         criteria = criteria.and("companyId").in(matchingCompanyIds);
@@ -288,7 +287,7 @@ public class ApplicationService {
       // get direction, default to descending
       // validation has already ensured sortOrder is either asc or desc
       Sort.Direction direction =
-        "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
+          "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
       // sort by the specified field and direction
       Sort sort = Sort.by(direction, sortBy);
 
@@ -298,9 +297,9 @@ public class ApplicationService {
       // get the actual paged results
       // skip is used to determine which page to fetch
       List<ApplicationModel> applications =
-        mongoTemplate.find(
-          new Query(criteria).with(sort).skip((long) page * size).limit(size),
-          ApplicationModel.class);
+          mongoTemplate.find(
+              new Query(criteria).with(sort).skip((long) page * size).limit(size),
+              ApplicationModel.class);
 
       // map model objects to DTOs
       List<ApplicationResponse> applicationResponses = new ArrayList<>();
@@ -309,22 +308,21 @@ public class ApplicationService {
       }
 
       // calculate total pages
-      // simpler to do manually in this case, as using the spring data page class is a lot of work when building
+      // simpler to do manually in this case, as using the spring data page class is a lot of work
+      // when building
       // queries in this way
       int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
       PaginationResponse pagination =
-        new PaginationResponse(
-          page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
+          new PaginationResponse(
+              page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
 
       // get actual response mapping
-      return Map.of(
-        "applications", applicationResponses,
-        "pagination", pagination.toMap());
+      return Map.of("applications", applicationResponses, "pagination", pagination.toMap());
 
     } catch (Exception e) {
       log.error("Failed to retrieve applications for user {}: {}", userId, e.getMessage());
       throw new ApplicationServiceFailException(
-        "Failed to retrieve applications. Please try again.");
+          "Failed to retrieve applications. Please try again.");
     }
   }
 }

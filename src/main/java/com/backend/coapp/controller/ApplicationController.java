@@ -133,8 +133,8 @@ public class ApplicationController {
   }
 
   /**
-   * Get a paginated list of applications with optional filtering and sorting.
-   * all query params are optional and can be combined freely.
+   * Get a paginated list of applications with optional filtering and sorting. all query params are
+   * optional and can be combined freely.
    *
    * @param applicationRequest query params: search, status, sortBy, sortOrder, page, size
    * @param authentication The authentication object provided by Spring Security
@@ -142,7 +142,7 @@ public class ApplicationController {
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getApplications(
-    @ModelAttribute GetApplicationsRequest applicationRequest, Authentication authentication) {
+      @ModelAttribute GetApplicationsRequest applicationRequest, Authentication authentication) {
 
     applicationRequest.validateAndParse();
 
@@ -150,14 +150,14 @@ public class ApplicationController {
     String userId = user.getId();
 
     Map<String, Object> response =
-      this.applicationService.getFilteredApplications(
-        userId,
-        applicationRequest.getSearch(),
-        applicationRequest.getParsedStatuses(),
-        applicationRequest.getSortBy(),
-        applicationRequest.getSortOrder(),
-        applicationRequest.getPage(),
-        applicationRequest.getSize());
+        this.applicationService.getFilteredApplications(
+            userId,
+            applicationRequest.getSearch(),
+            applicationRequest.getParsedStatuses(),
+            applicationRequest.getSortBy(),
+            applicationRequest.getSortOrder(),
+            applicationRequest.getPage(),
+            applicationRequest.getSize());
 
     return ResponseEntity.ok(response);
   }
