@@ -32,7 +32,9 @@ public class UserExperienceRequest implements IRequest {
     }
 
     if (roleTitle.length() > ExperienceConstants.MAX_JOB_TITLE_LENGTH) {
-      throw new InvalidRequestException("Role title must not be NULL or blank.");
+      throw new InvalidRequestException(
+          "Role title must be less than %s characters"
+              .formatted(ExperienceConstants.MAX_JOB_TITLE_LENGTH));
     }
 
     if (roleDescription == null || roleDescription.isBlank()) {
@@ -40,7 +42,9 @@ public class UserExperienceRequest implements IRequest {
     }
 
     if (roleDescription.length() > ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH) {
-      throw new InvalidRequestException("Role description must not be NULL or blank.");
+      throw new InvalidRequestException(
+          "Role title must be less than %s characters."
+              .formatted(ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH));
     }
 
     if (startDate == null) {

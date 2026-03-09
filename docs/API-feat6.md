@@ -110,7 +110,7 @@ Response body:
   "roleTitle": "Software Engineer",
   "roleDescription": "Built and maintained microservices using Spring Boot",
   "startDate": "2023-01-01",
-  "endDate": "2024-01-01"
+  "endDate": "2024-01-01" (optional)
 }
 ```
 
@@ -151,7 +151,7 @@ Response body:
    "roleTitle": "Software Engineer",
    "roleDescription": "Built and maintained microservices using Spring Boot",
    "startDate": "2023-01-01",
-   "endDate": "2024-01-01"
+   "endDate": "2024-01-01" (optional)
 }
 ```
 

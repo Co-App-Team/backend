@@ -542,4 +542,19 @@ public class UserControllerTest {
             DUMMY_USER_EXPERIENCE_REQUEST.getStartDate(),
             DUMMY_USER_EXPERIENCE_REQUEST.getEndDate());
   }
+
+  @Test
+  @WithMockUser(username = "testUserID")
+  public void updateUserExperience_whenMissingExperienceId_expect400() throws Exception {
+
+    mockMvc
+        .perform(
+            patch("/api/user/experience/{experienceId}", " ")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(DUMMY_USER_EXPERIENCE_REQUEST)))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            jsonPath("$.error").value(RequestErrorCode.REQUEST_HAS_NULL_OR_EMPTY_FIELD.name()));
+    verifyNoInteractions(userService);
+  }
 }

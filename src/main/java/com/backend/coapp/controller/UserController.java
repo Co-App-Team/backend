@@ -163,6 +163,9 @@ public class UserController {
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String userId = auth.getName();
     request.validateRequest();
+    if (experienceId.isBlank()) {
+      throw new InvalidRequestException("Experience ID can NOT be null or empty");
+    }
 
     userService.updateUserExperience(
         experienceId,
