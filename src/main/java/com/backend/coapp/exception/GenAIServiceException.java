@@ -5,6 +5,6 @@ package com.backend.coapp.exception;
  */
 public class GenAIServiceException extends RuntimeException {
   public GenAIServiceException(String message) {
-    super("GenAI service fail. " + message);
+    super("GenAI service failed. " + message);
   }
 }

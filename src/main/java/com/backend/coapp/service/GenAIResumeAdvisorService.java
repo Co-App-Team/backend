@@ -57,6 +57,9 @@ public class GenAIResumeAdvisorService {
         throw new ApplicationNotOwnedException();
       }
       applicationJobDescription = applicationModel.getJobDescription();
+      if (applicationJobDescription == null){
+        applicationJobDescription = "No job description";
+      }
       applicationJobTitle = applicationModel.getJobTitle();
       if (applicationJobDescription.length() > ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH
           || applicationJobTitle.length() > ApplicationConstants.MAX_JOB_TITLE_LENGTH) {
@@ -67,8 +70,8 @@ public class GenAIResumeAdvisorService {
                     ApplicationConstants.MAX_JOB_TITLE_LENGTH));
       }
     }
-    List<UserExperienceModel> allExperience = userExperienceRepository.findAllByUserId(userId);
-    String experienceSummary = this.prepareExperienceDescription((allExperience));
+    List<UserExperienceModel> experiences = userExperienceRepository.findAllByUserId(userId);
+    String experienceSummary = this.prepareExperienceDescription((experiences));
     String context =
         this.getContext(applicationJobTitle, applicationJobDescription, experienceSummary);
     String instruction = this.getInstruction();
@@ -148,7 +151,7 @@ public class GenAIResumeAdvisorService {
 
            %s
 
-           Use information provided above to address the request bellow:
+           Use information provided above to address the request below:
            %s
            """
         .formatted(instruction, context, userPrompt);
