@@ -1,0 +1,15 @@
+package com.backend.coapp.exception.company;
+
+import lombok.Getter;
+
+/** thrown when attempting to create a company that already exists */
+@Getter
+public class CompanyAlreadyExistsException extends RuntimeException {
+
+  private final String existingCompanyId;
+
+  public CompanyAlreadyExistsException(String existingCompanyId) {
+    super("A company with this name already exists.");
+    this.existingCompanyId = existingCompanyId;
+  }
+}

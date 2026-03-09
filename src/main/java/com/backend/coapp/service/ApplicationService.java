@@ -1,7 +1,9 @@
 package com.backend.coapp.service;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.*;
+import com.backend.coapp.exception.auth.UserNotFoundException;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.repository.ApplicationRepository;

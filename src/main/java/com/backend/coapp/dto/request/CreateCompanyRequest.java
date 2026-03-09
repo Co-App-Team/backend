@@ -1,7 +1,7 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidRequestException;
-import com.backend.coapp.exception.InvalidWebsiteException;
+import com.backend.coapp.exception.company.InvalidWebsiteException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.util.UrlValidator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

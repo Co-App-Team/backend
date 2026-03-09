@@ -3,7 +3,7 @@ package com.backend.coapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import java.util.regex.Matcher;
