@@ -15,6 +15,7 @@ import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -717,5 +718,84 @@ public class ApplicationServiceTest {
             existingApp.getNotes());
 
     assertEquals(99, response.getNumPositions());
+  }
+
+  @Test
+  public void getFilteredApplications_whenDbFails_expectServiceFailException() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.count(any(), eq(ApplicationModel.class)))
+        .thenThrow(new RuntimeException("DB Crash"));
+
+    assertThrows(
+        ApplicationServiceFailException.class,
+        () ->
+            serviceWithMocks.getFilteredApplications(
+                "user_001", null, null, "dateApplied", "desc", 0, 20));
+  }
+
+  @Test
+  public void getFilteredApplications_whenSortOrderAsc_expectAscendingResults() {
+    ApplicationModel laterApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId(testCompany.getId())
+            .jobTitle("Later Role")
+            .status(ApplicationStatus.APPLIED)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .dateApplied(LocalDate.now().plusDays(1))
+            .build();
+    this.applicationRepository.save(laterApp);
+
+    Map<String, Object> result =
+        this.applicationService.getFilteredApplications(
+            "user_001", null, null, "dateApplied", "asc", 0, 20);
+
+    List<?> applications = (List<?>) result.get("applications");
+    assertEquals(2, applications.size());
+  }
+
+  @Test
+  public void getFilteredApplications_whenEmptyStatusList_expectAllResults() {
+    Map<String, Object> result =
+        this.applicationService.getFilteredApplications(
+            "user_001", null, Collections.emptyList(), "dateApplied", "desc", 0, 20);
+
+    List<?> applications = (List<?>) result.get("applications");
+    assertEquals(1, applications.size());
+  }
+
+  @Test
+  public void getFilteredApplications_whenBlankSearch_expectAllResults() {
+    Map<String, Object> result =
+        this.applicationService.getFilteredApplications(
+            "user_001", "   ", null, "dateApplied", "desc", 0, 20);
+
+    List<?> applications = (List<?>) result.get("applications");
+    assertEquals(1, applications.size());
+  }
+
+  @Test
+  public void getFilteredApplications_whenOnSecondPage_expectHasPreviousTrue() {
+    for (int i = 0; i < 4; i++) {
+      this.applicationRepository.save(
+          ApplicationModel.builder()
+              .userId("user_001")
+              .companyId(testCompany.getId())
+              .jobTitle("Role " + i)
+              .status(ApplicationStatus.APPLIED)
+              .applicationDeadline(LocalDate.now().plusDays(5))
+              .build());
+    }
+
+    Map<String, Object> result =
+        this.applicationService.getFilteredApplications(
+            "user_001", null, null, "dateApplied", "desc", 1, 3);
+
+    Map<?, ?> pagination = (Map<?, ?>) result.get("pagination");
+    assertEquals(1, pagination.get("currentPage"));
+    assertEquals(true, pagination.get("hasPrevious"));
+    assertEquals(false, pagination.get("hasNext"));
   }
 }
