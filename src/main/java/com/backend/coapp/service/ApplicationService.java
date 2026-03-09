@@ -309,8 +309,7 @@ public class ApplicationService {
 
       // calculate total pages
       // simpler to do manually in this case, as using the spring data page class is a lot of work
-      // when building
-      // queries in this way
+      // when building queries in this way.
       int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
       PaginationResponse pagination =
           new PaginationResponse(
