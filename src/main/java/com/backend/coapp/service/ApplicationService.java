@@ -1,8 +1,10 @@
 package com.backend.coapp.service;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
+import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.ApplicationModel;
+import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
@@ -10,9 +12,16 @@ import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,14 +32,17 @@ public class ApplicationService {
   private final ApplicationRepository applicationRepository;
   private final CompanyRepository companyRepository;
   private final UserRepository userRepository;
+  private final MongoTemplate mongoTemplate;
 
   public ApplicationService(
-      ApplicationRepository applicationRepository,
-      CompanyRepository companyRepository,
-      UserRepository userRepository) {
+    ApplicationRepository applicationRepository,
+    CompanyRepository companyRepository,
+    UserRepository userRepository,
+    MongoTemplate mongoTemplate) {
     this.applicationRepository = applicationRepository;
     this.companyRepository = companyRepository;
     this.userRepository = userRepository;
+    this.mongoTemplate = mongoTemplate;
   }
 
   /**
@@ -224,5 +236,95 @@ public class ApplicationService {
     }
 
     return userApplications;
+  }
+
+  /**
+   * Retrieves a paginated, optionally filtered and sorted list of applications for a user.
+   * <p>
+   * Search is performed against company name (case-insensitive, partial match).
+   * Because the model only stores a company id, matching company IDs are resolved from the companies
+   * collection and then used in a filter. If the search matches no companies the result will be empty.
+   *
+   * @param userId The ID of the authenticated user, always applied as a filter
+   * @param search Optional company name search term (case-insensitive, partial match)
+   * @param statuses Optional list of status values to include
+   * @param sortBy Field to sort by
+   * @param sortOrder Sort direction: asc/desc (default desc)
+   * @param page page number
+   * @param size results per page
+   * @return Map with keys "applications"(List) and "pagination" (Map)
+   * @throws ApplicationServiceFailException If the database query fails
+   */
+  public Map<String, Object> getFilteredApplications(
+      String userId,
+      String search,
+      List<ApplicationStatus> statuses,
+      String sortBy,
+      String sortOrder,
+      int page,
+      int size) {
+
+    try {
+      // use criteria to build the mongo query dynamically with .where() or .and() calls
+      Criteria criteria = Criteria.where("userId").is(userId);
+
+      // search for companies using the search string and get their ids
+      // if no companies match the search, force an empty result with an "impossible" filter.
+      if (search != null && !search.isBlank()) {
+        List<String> matchingCompanyIds =
+          this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
+            .map(CompanyModel::getId)
+            .collect(Collectors.toList());
+
+        // add ids to the query criteria filter
+        criteria = criteria.and("companyId").in(matchingCompanyIds);
+      }
+
+      // add filter for statuses if given
+      if (statuses != null && !statuses.isEmpty()) {
+        criteria = criteria.and("status").in(statuses);
+      }
+
+      // get direction, default to descending
+      // validation has already ensured sortOrder is either asc or desc
+      Sort.Direction direction =
+        "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
+      // sort by the specified field and direction
+      Sort sort = Sort.by(direction, sortBy);
+
+      // total matching documents for pagination
+      long totalItems = mongoTemplate.count(new Query(criteria), ApplicationModel.class);
+
+      // get the actual paged results
+      // skip is used to determine which page to fetch
+      List<ApplicationModel> applications =
+        mongoTemplate.find(
+          new Query(criteria).with(sort).skip((long) page * size).limit(size),
+          ApplicationModel.class);
+
+      // map model objects to DTOs
+      List<ApplicationResponse> applicationResponses = new ArrayList<>();
+      for (ApplicationModel application : applications) {
+        applicationResponses.add(ApplicationResponse.fromModel(application));
+      }
+
+      // calculate total pages
+      // simpler to do manually in this case, as using the spring data page class is a lot of work when building
+      // queries in this way
+      int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
+      PaginationResponse pagination =
+        new PaginationResponse(
+          page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
+
+      // get actual response mapping
+      return Map.of(
+        "applications", applicationResponses,
+        "pagination", pagination.toMap());
+
+    } catch (Exception e) {
+      log.error("Failed to retrieve applications for user {}: {}", userId, e.getMessage());
+      throw new ApplicationServiceFailException(
+        "Failed to retrieve applications. Please try again.");
+    }
   }
 }
