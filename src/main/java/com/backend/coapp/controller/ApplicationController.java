@@ -6,7 +6,6 @@ import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ApplicationService;
-import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
