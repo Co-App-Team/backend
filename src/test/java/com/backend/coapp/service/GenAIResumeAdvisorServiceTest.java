@@ -138,6 +138,34 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
+  public void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
+    ApplicationModel fooApplicationNoDescription =
+        applicationRepository.save(
+            ApplicationModel.builder()
+                .userId(fooUser.getId())
+                .companyId(fooCompany.getId())
+                .jobTitle("Software Engineer II")
+                .status(ApplicationStatus.APPLIED)
+                .build());
+
+    when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
+
+    String result =
+        genAIResumeAdvisorService.getAdvice(
+            fooUser.getId(), fooApplicationNoDescription.getId(), VALID_PROMPT);
+
+    assertEquals(VALID_RESPONSE, result);
+    verify(geminiGenAIService, times(1))
+        .generateResponse(
+            argThat(
+                prompt ->
+                    prompt.contains(fooApplicationNoDescription.getJobTitle())
+                        && prompt.contains("No job description")
+                        && prompt.contains("no experience")));
+    verify(genAIUsageManagementService, times(1)).checkAndIncrementUsage(fooUser.getId());
+  }
+
+  @Test
   public void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
     String oversizedPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS + 1);
 
@@ -337,6 +365,8 @@ public class GenAIResumeAdvisorServiceTest {
     assertThrows(
         GenAIServiceException.class,
         () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT));
+    verify(genAIUsageManagementService, times(1)).checkAndIncrementUsage(fooUser.getId());
+    verify(genAIUsageManagementService, times(1)).decrementUsage(fooUser.getId());
   }
 
   @Test

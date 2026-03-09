@@ -1,8 +1,6 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.ApplicationNotFoundException;
-import com.backend.coapp.exception.ApplicationNotOwnedException;
-import com.backend.coapp.exception.OverCharacterLimitException;
+import com.backend.coapp.exception.*;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.repository.ApplicationRepository;
@@ -38,7 +36,30 @@ public class GenAIResumeAdvisorService {
     this.userExperienceRepository = userExperienceRepository;
   }
 
-  public String getAdvice(String userId, String applicationId, String prompt) {
+  /**
+   * Get feedback from GenAI for application
+   *
+   * @param userId ID of a user
+   * @param applicationId ID of the application that user want to apply for (Optional)
+   * @param prompt prompt from user
+   * @return response from GenAI
+   * @throws OverCharacterLimitException when request has too many characters
+   * @throws ApplicationNotOwnedException when application doesn't belong to the user
+   * @throws ApplicationNotFoundException when application can't be found
+   * @throws GenAIUsageManagementServiceException when there is something wrong in GenAI usage
+   *     management
+   * @throws UserNotExistException when user doesn't exist
+   * @throws GenAIQuotaExceededException when user exceed GenAI usage limit
+   * @throws ConcurrencyException when the same user make a request twice
+   */
+  public String getAdvice(String userId, String applicationId, String prompt)
+      throws OverCharacterLimitException,
+          ApplicationNotOwnedException,
+          ApplicationNotFoundException,
+          GenAIUsageManagementServiceException,
+          UserNotExistException,
+          GenAIQuotaExceededException,
+          ConcurrencyException {
     String applicationJobDescription = null;
     String applicationJobTitle = null;
     if (prompt.length() > GenAIConstants.MAX_PROMPT_CHARACTERS) {
@@ -57,7 +78,7 @@ public class GenAIResumeAdvisorService {
         throw new ApplicationNotOwnedException();
       }
       applicationJobDescription = applicationModel.getJobDescription();
-      if (applicationJobDescription == null){
+      if (applicationJobDescription == null) {
         applicationJobDescription = "No job description";
       }
       applicationJobTitle = applicationModel.getJobTitle();
@@ -79,9 +100,21 @@ public class GenAIResumeAdvisorService {
     String finalPrompt = this.prepareFinalPrompt(instruction, context, prompt);
 
     this.genAIUsageManagementService.checkAndIncrementUsage(userId);
-    return this.genAIService.generateResponse(finalPrompt);
+    String response;
+    try {
+      response = this.genAIService.generateResponse(finalPrompt);
+    } catch (Exception e) {
+      this.genAIUsageManagementService.decrementUsage(userId);
+      throw e;
+    }
+    return response;
   }
 
+  /**
+   * Get instruction for GenAI
+   *
+   * @return set of instructions for GenAI
+   */
   private String getInstruction() {
     return """
         You are a professional career advisor and resume expert.
@@ -100,9 +133,17 @@ public class GenAIResumeAdvisorService {
         """;
   }
 
+  /**
+   * Generate context about user for GenAI
+   *
+   * @param applicationJobTitle job title that the user want to apply
+   * @param applicationJobDescription job description of the job
+   * @param experienceDescription user's experiences
+   * @return context about user for GenAI
+   */
   private String getContext(
       String applicationJobTitle, String applicationJobDescription, String experienceDescription) {
-    if (applicationJobTitle != null && applicationJobDescription != null) {
+    if (applicationJobTitle != null) {
 
       return """
               You are supporting a co-op student who is applying for %s.
@@ -117,6 +158,12 @@ public class GenAIResumeAdvisorService {
     }
   }
 
+  /**
+   * Prepare description about user's experiences
+   *
+   * @param allExperience all experiences of the user
+   * @return summary about user's experiences
+   */
   private String prepareExperienceDescription(List<UserExperienceModel> allExperience) {
     StringBuilder experienceDescription;
     if (allExperience.isEmpty()) {
@@ -145,6 +192,14 @@ public class GenAIResumeAdvisorService {
     return experienceDescription.toString();
   }
 
+  /**
+   * Prepare final prompt for GenAI
+   *
+   * @param instruction set of instructions
+   * @param context additional information about user
+   * @param userPrompt prompt from the user
+   * @return
+   */
   private String prepareFinalPrompt(String instruction, String context, String userPrompt) {
     return """
            %s

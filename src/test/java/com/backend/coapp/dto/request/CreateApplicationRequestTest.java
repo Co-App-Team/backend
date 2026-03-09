@@ -152,7 +152,9 @@ public class CreateApplicationRequestTest {
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Job description cannot exceed 2000 characters.",
+        EXCEPTION_PREFIX
+            + "Job description cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH),
         exception.getMessage());
   }
 
@@ -174,7 +176,11 @@ public class CreateApplicationRequestTest {
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
-    assertEquals(EXCEPTION_PREFIX + "Notes cannot exceed 2000 characters.", exception.getMessage());
+    assertEquals(
+        EXCEPTION_PREFIX
+            + "Notes cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_NOTES_LENGTH),
+        exception.getMessage());
   }
 
   @Test
@@ -195,7 +201,10 @@ public class CreateApplicationRequestTest {
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Job title cannot exceed 80 characters.", exception.getMessage());
+        EXCEPTION_PREFIX
+            + "Job title cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_TITLE_LENGTH),
+        exception.getMessage());
   }
 
   // Num Positions Validation

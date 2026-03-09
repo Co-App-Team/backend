@@ -171,7 +171,10 @@ public class UpdateApplicationRequestTest {
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
     assertEquals(
-        EXCEPTION_PREFIX + "Description cannot exceed 2000 characters", exception.getMessage());
+        EXCEPTION_PREFIX
+            + "Description cannot exceed %s characters"
+                .formatted(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH),
+        exception.getMessage());
   }
 
   @Test
@@ -180,7 +183,11 @@ public class UpdateApplicationRequestTest {
     UpdateApplicationRequest request = getValidRequestBuilder().notes(longNotes).build();
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
-    assertEquals(EXCEPTION_PREFIX + "Notes cannot exceed 2000 characters", exception.getMessage());
+    assertEquals(
+        EXCEPTION_PREFIX
+            + "Notes cannot exceed %s characters"
+                .formatted(ApplicationConstants.MAX_JOB_NOTES_LENGTH),
+        exception.getMessage());
   }
 
   @Test
@@ -190,7 +197,10 @@ public class UpdateApplicationRequestTest {
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
     assertEquals(
-        EXCEPTION_PREFIX + "Job title cannot exceed 80 characters", exception.getMessage());
+        EXCEPTION_PREFIX
+            + "Job title cannot exceed %s characters"
+                .formatted(ApplicationConstants.MAX_JOB_TITLE_LENGTH),
+        exception.getMessage());
   }
 
   @Test

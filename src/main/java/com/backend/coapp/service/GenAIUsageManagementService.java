@@ -36,7 +36,6 @@ public class GenAIUsageManagementService {
    * @throws GenAIUsageManagementServiceException when something goes wrong (Internal)
    * @throws UserNotExistException when the ID of the user doesn't exist in the database
    * @throws GenAIQuotaExceededException when the user exceeds GenAI usage limit
-   * @throws GenAIQuotaExceededException when the user makes more than one request a time
    * @throws ConcurrencyException when the user request at the same time
    */
   public void checkAndIncrementUsage(String userId)
@@ -74,6 +73,35 @@ public class GenAIUsageManagementService {
       userGenAIUsageRepository.save(userUsageRecord);
     } catch (UserNotExistException | GenAIQuotaExceededException e) {
       throw e;
+    } catch (OptimisticLockingFailureException e) {
+      throw new ConcurrencyException("Another request is in progress, please try again.");
+    } catch (Exception e) {
+      throw new GenAIUsageManagementServiceException(e.getMessage());
+    }
+  }
+
+  /**
+   * Decrement GenAI usage of the existing record of a user
+   *
+   * @param userId ID of the user
+   * @throws ConcurrencyException when the user request at the same time
+   * @throws GenAIUsageManagementServiceException when something goes wrong (Internal)
+   */
+  public void decrementUsage(String userId)
+      throws ConcurrencyException, GenAIUsageManagementServiceException {
+    try {
+      UserGenAIUsageModel userUsageRecord =
+          this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(userId);
+      if (userUsageRecord == null) {
+        throw new GenAIUsageManagementServiceException(
+            "GenAI record not found for user %s".formatted(userId));
+      }
+
+      if (userUsageRecord.getRequestCount() >= 1) {
+        userUsageRecord.setRequestCount(userUsageRecord.getRequestCount() - 1);
+      }
+      userGenAIUsageRepository.save(userUsageRecord);
+
     } catch (OptimisticLockingFailureException e) {
       throw new ConcurrencyException("Another request is in progress, please try again.");
     } catch (Exception e) {
