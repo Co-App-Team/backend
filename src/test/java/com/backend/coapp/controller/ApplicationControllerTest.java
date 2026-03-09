@@ -16,6 +16,8 @@ import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.service.ApplicationService;
 import com.backend.coapp.service.JwtService;
 import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +68,6 @@ public class ApplicationControllerTest {
 
     this.createRequest =
         CreateApplicationRequest.builder()
-            .userId("user1") // Required by DTO validation in provided code
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
@@ -414,6 +415,47 @@ public class ApplicationControllerTest {
         .andExpect(jsonPath("$.message").exists());
   }
 
+  @Test
+  public void updateApplication_whenNoChanges_expect400() throws Exception {
+    when(this.applicationService.updateApplication(
+            anyString(),
+            anyString(),
+            anyString(),
+            anyString(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any()))
+        .thenThrow(new NoChangesDetectedException("No fields were changed."));
+
+    mockMvc
+        .perform(
+            put("/api/application/app789")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.objectMapper.writeValueAsString(this.updateRequest))
+                .principal(this.authentication))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value("NO_CHANGE_DETECTED_TO_UPDATE"))
+        .andExpect(jsonPath("$.message").value("No fields were changed."));
+
+    verify(this.applicationService, times(1))
+        .updateApplication(
+            anyString(),
+            eq("app789"),
+            anyString(),
+            anyString(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any(),
+            any());
+  }
+
   // test delete application
 
   @Test
@@ -483,7 +525,6 @@ public class ApplicationControllerTest {
   public void createApplication_withoutNotes_expect201() throws Exception {
     CreateApplicationRequest requestWithoutNotes =
         CreateApplicationRequest.builder()
-            .userId("user1")
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
@@ -585,5 +626,44 @@ public class ApplicationControllerTest {
                 .principal(this.authentication))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.jobTitle").value("Data Scientist"));
+  }
+
+  @Test
+  public void getApplications_whenValid_expect200AndApplicationList() throws Exception {
+    List<ApplicationResponse> mockList = List.of(this.mockResponse);
+
+    when(this.applicationService.getApplications(eq("user1"))).thenReturn(mockList);
+
+    mockMvc
+        .perform(get("/api/application").principal(this.authentication))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].applicationId").value("app789"))
+        .andExpect(jsonPath("$[0].jobTitle").value("Software Engineer"));
+
+    verify(this.applicationService, times(1)).getApplications(eq("user1"));
+  }
+
+  @Test
+  public void getApplications_whenEmpty_expect200AndEmptyList() throws Exception {
+    when(this.applicationService.getApplications(eq("user1"))).thenReturn(Collections.emptyList());
+
+    mockMvc
+        .perform(get("/api/application").principal(this.authentication))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isEmpty());
+
+    verify(this.applicationService, times(1)).getApplications(eq("user1"));
+  }
+
+  @Test
+  public void getApplications_whenServiceFails_expect500() throws Exception {
+    when(this.applicationService.getApplications(anyString()))
+        .thenThrow(new ApplicationServiceFailException("Database error"));
+
+    mockMvc
+        .perform(get("/api/application").principal(this.authentication))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
+        .andExpect(jsonPath("$.message").exists());
   }
 }

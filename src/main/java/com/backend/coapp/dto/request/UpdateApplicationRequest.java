@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO request for creating a new application. Optional: companyId, jobTitle, status,
+ * DTO request for updating an application. Optional: companyId, jobTitle, status,
  * applicationDeadline, dateApplied, jobDescription, numPositions, sourceLink, notes.
  */
 @Getter
@@ -76,7 +76,9 @@ public class UpdateApplicationRequest implements IRequest {
       throw new InvalidRequestException("Number of positions cannot be negative.");
     }
 
-    if (sourceLink != null && !UrlValidator.isValidUrl(sourceLink.trim())) {
+    if (sourceLink != null
+        && !sourceLink.isBlank()
+        && !UrlValidator.isValidUrl(sourceLink.trim())) {
       throw new InvalidRequestException("Website must be a valid URL");
     }
 

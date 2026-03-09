@@ -5,6 +5,7 @@ import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ApplicationService;
+import java.util.List;
 import java.util.Map;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -112,5 +113,21 @@ public class ApplicationController {
     this.applicationService.deleteApplication(applicationId, userId);
 
     return ResponseEntity.ok(Map.of("message", "Application successfully deleted."));
+  }
+
+  /**
+   * Retrieves all job applications for the currently authenticated user.
+   *
+   * @param authentication The authentication object provided by Spring Security.
+   * @return ResponseEntity containing a list of applications.
+   */
+  @GetMapping
+  public ResponseEntity<List<ApplicationResponse>> getApplications(Authentication authentication) {
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userId = user.getId();
+
+    List<ApplicationResponse> applicationList = this.applicationService.getApplications(userId);
+
+    return ResponseEntity.ok(applicationList);
   }
 }

@@ -8,6 +8,8 @@ import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -205,5 +207,22 @@ public class ApplicationService {
     }
 
     this.applicationRepository.deleteById(applicationId);
+  }
+
+  /**
+   * Retrieves all job applications for a specific user.
+   *
+   * @param userId The ID of the user.
+   * @return A list of ApplicationResponse DTOs.
+   */
+  public List<ApplicationResponse> getApplications(String userId) {
+    List<ApplicationModel> userApplicationModels = this.applicationRepository.findByUserId(userId);
+
+    List<ApplicationResponse> userApplications = new ArrayList<>();
+    for (ApplicationModel application : userApplicationModels) {
+      userApplications.add(ApplicationResponse.fromModel(application));
+    }
+
+    return userApplications;
   }
 }
