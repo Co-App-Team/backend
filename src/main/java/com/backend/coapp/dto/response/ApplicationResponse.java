@@ -6,11 +6,13 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 /** DTO response for returning an application. */
 @Getter
 @AllArgsConstructor
+@Builder
 public class ApplicationResponse implements IResponse {
 
   private String applicationId;

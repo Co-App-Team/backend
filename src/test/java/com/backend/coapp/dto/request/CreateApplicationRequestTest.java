@@ -29,7 +29,7 @@ public class CreateApplicationRequestTest {
         .jobTitle(validJobTitle)
         .status(validStatus)
         .applicationDeadline(validDeadline)
-            .interviewDate(validInterviewDate)
+        .interviewDate(validInterviewDate)
         .dateApplied(validDateApplied);
   }
 
@@ -239,8 +239,7 @@ public class CreateApplicationRequestTest {
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Application deadline cannot be in the past.",
-        exception.getMessage());
+        EXCEPTION_PREFIX + "Application deadline cannot be in the past.", exception.getMessage());
   }
 
   @Test
