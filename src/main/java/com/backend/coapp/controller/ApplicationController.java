@@ -127,7 +127,7 @@ public class ApplicationController {
   public ResponseEntity<Map<String, Object>> getApplications(
       @ModelAttribute GetApplicationsRequest applicationRequest, Authentication authentication) {
 
-    applicationRequest.validateAndParse();
+    applicationRequest.validateRequest();
 
     UserModel user = (UserModel) authentication.getPrincipal();
     String userId = user.getId();
