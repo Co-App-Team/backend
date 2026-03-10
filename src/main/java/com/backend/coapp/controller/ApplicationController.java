@@ -125,21 +125,21 @@ public class ApplicationController {
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getApplications(
-    @ModelAttribute GetApplicationsRequest applicationRequest) {
+      @ModelAttribute GetApplicationsRequest applicationRequest) {
 
     applicationRequest.validateRequest();
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String userId = auth.getName();
 
     Map<String, Object> response =
-      this.applicationService.getFilteredApplications(
-        userId,
-        applicationRequest.getSearch(),
-        applicationRequest.getParsedStatuses(),
-        applicationRequest.getSortBy(),
-        applicationRequest.getSortOrder(),
-        applicationRequest.getPage(),
-        applicationRequest.getSize());
+        this.applicationService.getFilteredApplications(
+            userId,
+            applicationRequest.getSearch(),
+            applicationRequest.getParsedStatuses(),
+            applicationRequest.getSortBy(),
+            applicationRequest.getSortOrder(),
+            applicationRequest.getPage(),
+            applicationRequest.getSize());
 
     return ResponseEntity.ok(response);
   }
