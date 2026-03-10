@@ -285,4 +285,66 @@ public class GlobalExceptionHandler {
                 "message",
                 ex.getMessage()));
   }
+
+  @ExceptionHandler(OverCharacterLimitException.class)
+  public ResponseEntity<Map<String, Object>> handleOverCharacterLimitException(
+          OverCharacterLimitException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(
+                    Map.of(
+                            "error",
+                            GenAIErrorCode.OVER_LIMIT_CHARACTER,
+                            "message",
+                            ex.getMessage()));
+  }
+
+  @ExceptionHandler(ApplicationNotOwnedException.class)
+  public ResponseEntity<Map<String, Object>> handleApplicationNotOwnedException(
+          ApplicationNotOwnedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(
+                    Map.of(
+                            "error",
+                            ApplicationErrorCode.APPLICATION_NOT_OWN,
+                            "message",
+                            ex.getMessage()));
+  }
+
+  @ExceptionHandler(GenAIQuotaExceededException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIQuotaExceededException(
+          GenAIQuotaExceededException ex) {
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .body(
+                    Map.of(
+                            "error",
+                            GenAIErrorCode.OVER_LIMIT_CHATBOT_REQUEST,
+                            "message",
+                            ex.getMessage()));
+  }
+
+  @ExceptionHandler(ConcurrencyException.class)
+  public ResponseEntity<Map<String, Object>> handleConcurrencyException(
+          ConcurrencyException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(
+                    Map.of(
+                            "error",
+                            GenAIErrorCode.OTHER_REQUEST_IN_PROGRESS,
+                            "message",
+                            ex.getMessage()));
+  }
+
+  @ExceptionHandler(GenAIUsageManagementServiceException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIUsageManagementServiceException(
+          GenAIUsageManagementServiceException ex) {
+    String errorMessage = "ERROR: Application Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(
+                    Map.of(
+                            "error",
+                            SystemErrorCode.INTERNAL_ERROR,
+                            "message",
+                            "An unexpected error occurred while processing your request. Please try again later."));
+  }
 }
