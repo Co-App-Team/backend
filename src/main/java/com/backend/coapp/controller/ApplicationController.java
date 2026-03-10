@@ -121,7 +121,7 @@ public class ApplicationController {
    * optional and can be combined freely.
    *
    * @param applicationRequest query params: search, status, sortBy, sortOrder, page, size
-   * @return 200 with applications and pagination unless there is an error
+   * @return 200 with applications and pagination unless there is an error.
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getApplications(
