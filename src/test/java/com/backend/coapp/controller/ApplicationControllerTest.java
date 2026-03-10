@@ -293,7 +293,6 @@ public class ApplicationControllerTest {
         .andExpect(jsonPath("$.applicationId").value(APP_ID));
   }
 
-
   // test update application
 
   @Test

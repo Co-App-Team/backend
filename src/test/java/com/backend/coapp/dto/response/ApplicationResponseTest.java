@@ -25,32 +25,32 @@ public class ApplicationResponseTest {
   /** Helper methods. */
   private ApplicationResponse.ApplicationResponseBuilder getValidResponseBuilder() {
     return ApplicationResponse.builder()
-            .applicationId(applicationId)
-            .companyId(companyId)
-            .jobTitle(jobTitle)
-            .status(status)
-            .applicationDeadline(deadline)
-            .jobDescription(description)
-            .numPositions(numPositions)
-            .sourceLink(source)
-            .dateApplied(appliedDate)
-            .notes(notes)
-            .interviewDate(interviewDate);
+        .applicationId(applicationId)
+        .companyId(companyId)
+        .jobTitle(jobTitle)
+        .status(status)
+        .applicationDeadline(deadline)
+        .jobDescription(description)
+        .numPositions(numPositions)
+        .sourceLink(source)
+        .dateApplied(appliedDate)
+        .notes(notes)
+        .interviewDate(interviewDate);
   }
 
   private ApplicationModel.ApplicationModelBuilder getValidModelBuilder() {
     return ApplicationModel.builder()
-            .id(applicationId)
-            .companyId(companyId)
-            .jobTitle(jobTitle)
-            .status(status)
-            .applicationDeadline(deadline)
-            .jobDescription(description)
-            .numPositions(numPositions)
-            .sourceLink(source)
-            .dateApplied(appliedDate)
-            .notes(notes)
-            .interviewDate(interviewDate);
+        .id(applicationId)
+        .companyId(companyId)
+        .jobTitle(jobTitle)
+        .status(status)
+        .applicationDeadline(deadline)
+        .jobDescription(description)
+        .numPositions(numPositions)
+        .sourceLink(source)
+        .dateApplied(appliedDate)
+        .notes(notes)
+        .interviewDate(interviewDate);
   }
 
   @Test
@@ -109,14 +109,14 @@ public class ApplicationResponseTest {
   @Test
   public void toMap_withNullValues_expectKeysExistWithNulls() {
     ApplicationResponse response =
-            getValidResponseBuilder()
-                    .jobDescription(null)
-                    .numPositions(null)
-                    .sourceLink(null)
-                    .dateApplied(null)
-                    .notes(null)
-                    .interviewDate(null)
-                    .build();
+        getValidResponseBuilder()
+            .jobDescription(null)
+            .numPositions(null)
+            .sourceLink(null)
+            .dateApplied(null)
+            .notes(null)
+            .interviewDate(null)
+            .build();
 
     Map<String, Object> map = response.toMap();
 

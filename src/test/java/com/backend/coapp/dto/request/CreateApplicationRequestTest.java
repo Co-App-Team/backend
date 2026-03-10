@@ -259,4 +259,25 @@ public class CreateApplicationRequestTest {
 
     assertDoesNotThrow(request::validateRequest);
   }
+
+  // Interview Date Validation
+  @Test
+  public void validateRequest_whenInterviewDateInThePast_expectException() {
+    CreateApplicationRequest request =
+        getValidRequestBuilder().interviewDate(LocalDate.now().minusDays(1)).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX + "Interview Date cannot be in the past.", exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenInterviewDateIsToday_expectSuccess() {
+    CreateApplicationRequest request =
+        getValidRequestBuilder().interviewDate(LocalDate.now()).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
 }
