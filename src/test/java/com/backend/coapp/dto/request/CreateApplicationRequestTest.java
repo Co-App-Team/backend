@@ -152,7 +152,9 @@ public class CreateApplicationRequestTest {
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Job description cannot exceed 2000 characters.",
+        EXCEPTION_PREFIX
+            + "Job description cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH),
         exception.getMessage());
   }
 
@@ -168,13 +170,17 @@ public class CreateApplicationRequestTest {
   // Notes Length Validation
   @Test
   public void validateRequest_whenNotesExceedsMaxLength_expectException() {
-    String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1);
+    String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_NOTES_LENGTH + 1);
     CreateApplicationRequest request = getValidRequestBuilder().notes(longNotes).build();
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
-    assertEquals(EXCEPTION_PREFIX + "Notes cannot exceed 2000 characters.", exception.getMessage());
+    assertEquals(
+        EXCEPTION_PREFIX
+            + "Notes cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_NOTES_LENGTH),
+        exception.getMessage());
   }
 
   @Test
@@ -183,6 +189,22 @@ public class CreateApplicationRequestTest {
     CreateApplicationRequest request = getValidRequestBuilder().notes(maxNotes).build();
 
     assertDoesNotThrow(request::validateRequest);
+  }
+
+  // Job tile length validation
+  @Test
+  public void validateRequest_whenJobTitleExceedsLimit_expectException() {
+    String longTitle = "a".repeat(ApplicationConstants.MAX_JOB_TITLE_LENGTH + 1);
+    CreateApplicationRequest request = getValidRequestBuilder().jobTitle(longTitle).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX
+            + "Job title cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_TITLE_LENGTH),
+        exception.getMessage());
   }
 
   // Num Positions Validation
