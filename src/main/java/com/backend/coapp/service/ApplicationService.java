@@ -251,7 +251,7 @@ public class ApplicationService {
    * @param sortOrder Sort direction: asc/desc (default desc)
    * @param page page number
    * @param size results per page
-   * @return Map with keys "applications"(List) and "pagination" (Map)
+   * @return Map with keys "applications" (List) and "pagination" (Map)
    * @throws ApplicationServiceFailException If the database query fails
    */
   public Map<String, Object> getFilteredApplications(
@@ -264,58 +264,15 @@ public class ApplicationService {
       int size) {
 
     try {
-      // use criteria to build the mongo query dynamically with .where() or .and() calls
-      Criteria criteria = Criteria.where("userId").is(userId);
+      Criteria criteria = buildCriteria(userId, search, statuses);
+      Sort sort = buildSort(sortBy, sortOrder);
 
-      // search for companies using the search string and get their ids
-      // if no companies match the search, force an empty result with an "impossible" filter.
-      if (search != null && !search.isBlank()) {
-        List<String> matchingCompanyIds =
-            this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
-                .map(CompanyModel::getId)
-                .collect(Collectors.toList());
-
-        // add ids to the query criteria filter
-        criteria = criteria.and("companyId").in(matchingCompanyIds);
-      }
-
-      // add filter for statuses if given
-      if (statuses != null && !statuses.isEmpty()) {
-        criteria = criteria.and("status").in(statuses);
-      }
-
-      // get direction, default to descending
-      // validation has already ensured sortOrder is either asc or desc
-      Sort.Direction direction =
-          "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
-      // sort by the specified field and direction
-      Sort sort = Sort.by(direction, sortBy);
-
-      // total matching documents for pagination
       long totalItems = mongoTemplate.count(new Query(criteria), ApplicationModel.class);
+      List<ApplicationModel> applications = fetchApplications(criteria, sort, page, size);
 
-      // get the actual paged results
-      // skip is used to determine which page to fetch
-      List<ApplicationModel> applications =
-          mongoTemplate.find(
-              new Query(criteria).with(sort).skip((long) page * size).limit(size),
-              ApplicationModel.class);
+      List<ApplicationResponse> applicationResponses = mapToResponses(applications);
+      PaginationResponse pagination = buildPagination(page, size, totalItems);
 
-      // map model objects to DTOs
-      List<ApplicationResponse> applicationResponses = new ArrayList<>();
-      for (ApplicationModel application : applications) {
-        applicationResponses.add(ApplicationResponse.fromModel(application));
-      }
-
-      // calculate total pages
-      // simpler to do manually in this case, as using the spring data page class is a lot of work
-      // when building queries in this way.
-      int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
-      PaginationResponse pagination =
-          new PaginationResponse(
-              page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
-
-      // get actual response mapping
       return Map.of("applications", applicationResponses, "pagination", pagination.toMap());
 
     } catch (Exception e) {
@@ -323,5 +280,71 @@ public class ApplicationService {
       throw new ApplicationServiceFailException(
           "Failed to retrieve applications. Please try again.");
     }
+  }
+
+  /**
+   * Builds the MongoDB query criteria from user filters. Always filters by userId. optionally
+   * filters by company name search and status list.
+   */
+  private Criteria buildCriteria(String userId, String search, List<ApplicationStatus> statuses) {
+    Criteria criteria = Criteria.where("userId").is(userId);
+
+    if (search != null && !search.isBlank()) {
+      List<String> matchingCompanyIds = resolveCompanyIds(search);
+      criteria = criteria.and("companyId").in(matchingCompanyIds);
+    }
+
+    if (statuses != null && !statuses.isEmpty()) {
+      criteria = criteria.and("status").in(statuses);
+    }
+
+    return criteria;
+  }
+
+  /**
+   * Resolves a list of company IDs matching the given search term (case-insensitive, partial
+   * match). Returns an empty list if no companies match, which will force an empty query result.
+   */
+  private List<String> resolveCompanyIds(String search) {
+    return this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
+        .map(CompanyModel::getId)
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Builds a Sort from the given field and direction string. Defaults to descending if sortOrder is
+   * not "asc".
+   */
+  private Sort buildSort(String sortBy, String sortOrder) {
+    // validation has already ensured sortOrder is either asc or desc
+    Sort.Direction direction =
+        "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    return Sort.by(direction, sortBy);
+  }
+
+  /** Executes the paginated MongoDB query and returns the matching ApplicationModel documents. */
+  private List<ApplicationModel> fetchApplications(
+      Criteria criteria, Sort sort, int page, int size) {
+    return mongoTemplate.find(
+        new Query(criteria).with(sort).skip((long) page * size).limit(size),
+        ApplicationModel.class);
+  }
+
+  /** Maps a list of ApplicationModel documents to ApplicationResponse DTOs. */
+  private List<ApplicationResponse> mapToResponses(List<ApplicationModel> applications) {
+    List<ApplicationResponse> responses = new ArrayList<>();
+    for (ApplicationModel application : applications) {
+      responses.add(ApplicationResponse.fromModel(application));
+    }
+    return responses;
+  }
+
+  /** Constructs the PaginationResponse from current page state and total item count. */
+  private PaginationResponse buildPagination(int page, int size, long totalItems) {
+    // simpler to do manually in this case, as using the spring data page class is a lot of work
+    // when building queries in this way.
+    int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
+    return new PaginationResponse(
+        page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
   }
 }
