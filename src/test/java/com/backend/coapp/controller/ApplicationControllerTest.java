@@ -26,6 +26,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -589,222 +590,217 @@ public class ApplicationControllerTest {
   // test get applications (filtered)
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenNoParams_expect200WithApplicationsAndPagination()
-      throws Exception {
+    throws Exception {
     Map<String, Object> mockServiceResponse =
+      Map.of(
+        "applications",
+        List.of(this.mockResponse.toMap()),
+        "pagination",
         Map.of(
-            "applications",
-            List.of(this.mockResponse.toMap()),
-            "pagination",
-            Map.of(
-                "currentPage",
-                0,
-                "totalPages",
-                1,
-                "totalItems",
-                1L,
-                "itemsPerPage",
-                20,
-                "hasNext",
-                false,
-                "hasPrevious",
-                false));
+          "currentPage",
+          0,
+          "totalPages",
+          1,
+          "totalItems",
+          1L,
+          "itemsPerPage",
+          20,
+          "hasNext",
+          false,
+          "hasPrevious",
+          false));
 
     when(this.applicationService.getFilteredApplications(
-            eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(0), eq(20)))
-        .thenReturn(mockServiceResponse);
+      eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(0), eq(20)))
+      .thenReturn(mockServiceResponse);
 
     mockMvc
-        .perform(get("/api/application").principal(this.authentication))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.applications[0].applicationId").value("app789"))
-        .andExpect(jsonPath("$.applications[0].jobTitle").value("Software Engineer"))
-        .andExpect(jsonPath("$.pagination.currentPage").value(0))
-        .andExpect(jsonPath("$.pagination.totalItems").value(1));
+      .perform(get("/api/application"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.applications[0].applicationId").value("app789"))
+      .andExpect(jsonPath("$.applications[0].jobTitle").value("Software Engineer"))
+      .andExpect(jsonPath("$.pagination.currentPage").value(0))
+      .andExpect(jsonPath("$.pagination.totalItems").value(1));
 
     verify(this.applicationService, times(1))
-        .getFilteredApplications(
-            eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(0), eq(20));
+      .getFilteredApplications(
+        eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(0), eq(20));
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenSearchParam_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            eq("user1"), eq("Google"), isNull(), anyString(), anyString(), anyInt(), anyInt()))
-        .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
+      eq("user1"), eq("Google"), isNull(), anyString(), anyString(), anyInt(), anyInt()))
+      .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
 
     mockMvc
-        .perform(get("/api/application").param("search", "Google").principal(this.authentication))
-        .andExpect(status().isOk());
+      .perform(get("/api/application").param("search", "Google"))
+      .andExpect(status().isOk());
 
     verify(this.applicationService, times(1))
-        .getFilteredApplications(
-            eq("user1"), eq("Google"), isNull(), anyString(), anyString(), anyInt(), anyInt());
+      .getFilteredApplications(
+        eq("user1"), eq("Google"), isNull(), anyString(), anyString(), anyInt(), anyInt());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenStatusParam_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            eq("user1"),
-            isNull(),
-            eq(List.of(ApplicationStatus.APPLIED)),
-            anyString(),
-            anyString(),
-            anyInt(),
-            anyInt()))
-        .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
+      eq("user1"),
+      isNull(),
+      eq(List.of(ApplicationStatus.APPLIED)),
+      anyString(),
+      anyString(),
+      anyInt(),
+      anyInt()))
+      .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
 
     mockMvc
-        .perform(get("/api/application").param("status", "APPLIED").principal(this.authentication))
-        .andExpect(status().isOk());
+      .perform(get("/api/application").param("status", "APPLIED"))
+      .andExpect(status().isOk());
 
     verify(this.applicationService, times(1))
-        .getFilteredApplications(
-            eq("user1"),
-            isNull(),
-            eq(List.of(ApplicationStatus.APPLIED)),
-            anyString(),
-            anyString(),
-            anyInt(),
-            anyInt());
+      .getFilteredApplications(
+        eq("user1"),
+        isNull(),
+        eq(List.of(ApplicationStatus.APPLIED)),
+        anyString(),
+        anyString(),
+        anyInt(),
+        anyInt());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenMultipleStatuses_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            eq("user1"),
-            isNull(),
-            eq(List.of(ApplicationStatus.APPLIED, ApplicationStatus.REJECTED)),
-            anyString(),
-            anyString(),
-            anyInt(),
-            anyInt()))
-        .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
+      eq("user1"),
+      isNull(),
+      eq(List.of(ApplicationStatus.APPLIED, ApplicationStatus.REJECTED)),
+      anyString(),
+      anyString(),
+      anyInt(),
+      anyInt()))
+      .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
 
     mockMvc
-        .perform(
-            get("/api/application")
-                .param("status", "APPLIED,REJECTED")
-                .principal(this.authentication))
-        .andExpect(status().isOk());
+      .perform(get("/api/application").param("status", "APPLIED,REJECTED"))
+      .andExpect(status().isOk());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenInvalidStatus_expect400() throws Exception {
     mockMvc
-        .perform(
-            get("/api/application")
-                .param("status", "INVALID_STATUS")
-                .principal(this.authentication))
-        .andExpect(status().isBadRequest());
+      .perform(get("/api/application").param("status", "INVALID_STATUS"))
+      .andExpect(status().isBadRequest());
 
     verify(this.applicationService, never())
-        .getFilteredApplications(
-            anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt());
+      .getFilteredApplications(
+        anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenInvalidSortBy_expect400() throws Exception {
     mockMvc
-        .perform(
-            get("/api/application").param("sortBy", "invalidField").principal(this.authentication))
-        .andExpect(status().isBadRequest());
+      .perform(get("/api/application").param("sortBy", "invalidField"))
+      .andExpect(status().isBadRequest());
 
     verify(this.applicationService, never())
-        .getFilteredApplications(
-            anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt());
+      .getFilteredApplications(
+        anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenInvalidSortOrder_expect400() throws Exception {
     mockMvc
-        .perform(
-            get("/api/application").param("sortOrder", "sideways").principal(this.authentication))
-        .andExpect(status().isBadRequest());
+      .perform(get("/api/application").param("sortOrder", "sideways"))
+      .andExpect(status().isBadRequest());
 
     verify(this.applicationService, never())
-        .getFilteredApplications(
-            anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt());
+      .getFilteredApplications(
+        anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenSortParams_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            eq("user1"), isNull(), isNull(), eq("dateApplied"), eq("asc"), anyInt(), anyInt()))
-        .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
+      eq("user1"), isNull(), isNull(), eq("dateApplied"), eq("asc"), anyInt(), anyInt()))
+      .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
 
     mockMvc
-        .perform(
-            get("/api/application")
-                .param("sortBy", "dateApplied")
-                .param("sortOrder", "asc")
-                .principal(this.authentication))
-        .andExpect(status().isOk());
+      .perform(get("/api/application").param("sortBy", "dateApplied").param("sortOrder", "asc"))
+      .andExpect(status().isOk());
 
     verify(this.applicationService, times(1))
-        .getFilteredApplications(
-            eq("user1"), isNull(), isNull(), eq("dateApplied"), eq("asc"), anyInt(), anyInt());
+      .getFilteredApplications(
+        eq("user1"), isNull(), isNull(), eq("dateApplied"), eq("asc"), anyInt(), anyInt());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenPaginationParams_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(2), eq(10)))
-        .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
+      eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(2), eq(10)))
+      .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
 
     mockMvc
-        .perform(
-            get("/api/application")
-                .param("page", "2")
-                .param("size", "10")
-                .principal(this.authentication))
-        .andExpect(status().isOk());
+      .perform(get("/api/application").param("page", "2").param("size", "10"))
+      .andExpect(status().isOk());
 
     verify(this.applicationService, times(1))
-        .getFilteredApplications(
-            eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(2), eq(10));
+      .getFilteredApplications(
+        eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(2), eq(10));
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt()))
-        .thenThrow(new ApplicationServiceFailException("Database error"));
+      anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt()))
+      .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
-        .perform(get("/api/application").principal(this.authentication))
-        .andExpect(status().isInternalServerError())
-        .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
-        .andExpect(jsonPath("$.message").exists());
+      .perform(get("/api/application"))
+      .andExpect(status().isInternalServerError())
+      .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
+      .andExpect(jsonPath("$.message").exists());
   }
 
   @Test
+  @WithMockUser(username = "user1")
   public void getApplications_whenEmpty_expect200WithEmptyList() throws Exception {
     when(this.applicationService.getFilteredApplications(
-            eq("user1"), isNull(), isNull(), anyString(), anyString(), anyInt(), anyInt()))
-        .thenReturn(
-            Map.of(
-                "applications",
-                Collections.emptyList(),
-                "pagination",
-                Map.of(
-                    "currentPage",
-                    0,
-                    "totalPages",
-                    0,
-                    "totalItems",
-                    0L,
-                    "itemsPerPage",
-                    20,
-                    "hasNext",
-                    false,
-                    "hasPrevious",
-                    false)));
+      eq("user1"), isNull(), isNull(), anyString(), anyString(), anyInt(), anyInt()))
+      .thenReturn(
+        Map.of(
+          "applications",
+          Collections.emptyList(),
+          "pagination",
+          Map.of(
+            "currentPage",
+            0,
+            "totalPages",
+            0,
+            "totalItems",
+            0L,
+            "itemsPerPage",
+            20,
+            "hasNext",
+            false,
+            "hasPrevious",
+            false)));
 
     mockMvc
-        .perform(get("/api/application").principal(this.authentication))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.applications").isEmpty())
-        .andExpect(jsonPath("$.pagination.totalItems").value(0));
+      .perform(get("/api/application"))
+      .andExpect(status().isOk())
+      .andExpect(jsonPath("$.applications").isEmpty())
+      .andExpect(jsonPath("$.pagination.totalItems").value(0));
   }
 }

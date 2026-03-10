@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -120,27 +121,25 @@ public class ApplicationController {
    * optional and can be combined freely.
    *
    * @param applicationRequest query params: search, status, sortBy, sortOrder, page, size
-   * @param authentication The authentication object provided by Spring Security
    * @return 200 with applications and pagination unless there is an error
    */
   @GetMapping
   public ResponseEntity<Map<String, Object>> getApplications(
-      @ModelAttribute GetApplicationsRequest applicationRequest, Authentication authentication) {
+    @ModelAttribute GetApplicationsRequest applicationRequest) {
 
     applicationRequest.validateRequest();
-
-    UserModel user = (UserModel) authentication.getPrincipal();
-    String userId = user.getId();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String userId = auth.getName();
 
     Map<String, Object> response =
-        this.applicationService.getFilteredApplications(
-            userId,
-            applicationRequest.getSearch(),
-            applicationRequest.getParsedStatuses(),
-            applicationRequest.getSortBy(),
-            applicationRequest.getSortOrder(),
-            applicationRequest.getPage(),
-            applicationRequest.getSize());
+      this.applicationService.getFilteredApplications(
+        userId,
+        applicationRequest.getSearch(),
+        applicationRequest.getParsedStatuses(),
+        applicationRequest.getSortBy(),
+        applicationRequest.getSortOrder(),
+        applicationRequest.getPage(),
+        applicationRequest.getSize());
 
     return ResponseEntity.ok(response);
   }
