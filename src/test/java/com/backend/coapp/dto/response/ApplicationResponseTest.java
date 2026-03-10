@@ -34,7 +34,8 @@ public class ApplicationResponseTest {
             numPositions,
             source,
             appliedDate,
-            notes);
+            notes,
+            LocalDate.now());
 
     assertEquals(applicationId, response.getApplicationId());
     assertEquals(companyId, response.getCompanyId());
@@ -87,12 +88,13 @@ public class ApplicationResponseTest {
             numPositions,
             source,
             appliedDate,
-            notes);
+            notes,
+            LocalDate.now());
 
     Map<String, Object> map = response.toMap();
 
     assertNotNull(map);
-    assertEquals(10, map.size());
+    assertEquals(11, map.size());
     assertEquals(applicationId, map.get("applicationId"));
     assertEquals(companyId, map.get("companyId"));
     assertEquals(jobTitle, map.get("jobTitle"));
@@ -103,13 +105,25 @@ public class ApplicationResponseTest {
     assertEquals(source, map.get("sourceLink"));
     assertEquals(appliedDate, map.get("dateApplied"));
     assertEquals(notes, map.get("notes"), "The notes key in the map should match the notes field");
+    assertEquals(LocalDate.now(), LocalDate.now(), "The interviewdate  doesn't match");
+
   }
 
   @Test
   public void toMap_withNullValues_expectKeysExistWithNulls() {
     ApplicationResponse response =
         new ApplicationResponse(
-            applicationId, companyId, jobTitle, status, deadline, null, null, null, null, null);
+            applicationId,
+            companyId,
+            jobTitle,
+            status,
+            deadline,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
 
     Map<String, Object> map = response.toMap();
 

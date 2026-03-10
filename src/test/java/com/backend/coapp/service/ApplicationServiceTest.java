@@ -106,7 +106,8 @@ public class ApplicationServiceTest {
             1,
             "https://link.com",
             LocalDate.now(),
-            "Notes");
+            "Notes",
+            LocalDate.now());
 
     assertNotNull(response);
     assertEquals("Data Scientist", response.getJobTitle());
@@ -128,7 +129,8 @@ public class ApplicationServiceTest {
                 1,
                 null,
                 null,
-                null));
+                null,
+                LocalDate.now()));
   }
 
   @Test
@@ -144,6 +146,7 @@ public class ApplicationServiceTest {
                 LocalDate.now(),
                 null,
                 1,
+                null,
                 null,
                 null,
                 null));
@@ -162,6 +165,7 @@ public class ApplicationServiceTest {
                 LocalDate.now(),
                 null,
                 1,
+                null,
                 null,
                 null,
                 null));
@@ -183,7 +187,8 @@ public class ApplicationServiceTest {
             2,
             "https://new.link",
             LocalDate.now(),
-            "New Notes");
+            "New Notes",
+            LocalDate.now());
 
     assertEquals("Senior SE", response.getJobTitle());
     assertEquals("New Desc", response.getJobDescription());
@@ -207,7 +212,8 @@ public class ApplicationServiceTest {
                 1,
                 "Link",
                 LocalDate.now(),
-                "Notes"));
+                "Notes",
+                LocalDate.now()));
   }
 
   @Test
@@ -222,6 +228,7 @@ public class ApplicationServiceTest {
                 "Software Engineer",
                 ApplicationStatus.APPLIED,
                 LocalDate.now().plusDays(5),
+                null,
                 null,
                 null,
                 null,
@@ -245,7 +252,8 @@ public class ApplicationServiceTest {
                 1,
                 "l",
                 LocalDate.now(),
-                "n"));
+                "n",
+                LocalDate.now()));
   }
 
   @Test
@@ -264,7 +272,8 @@ public class ApplicationServiceTest {
                 1,
                 "Link",
                 LocalDate.now(),
-                "Notes"));
+                "Notes",
+                LocalDate.now()));
   }
 
   // Delete Application Integration Tests
@@ -341,6 +350,7 @@ public class ApplicationServiceTest {
                 1,
                 null,
                 null,
+                null,
                 null));
   }
 
@@ -380,7 +390,8 @@ public class ApplicationServiceTest {
                 1,
                 "Link",
                 LocalDate.now(),
-                "Notes"));
+                "Notes",
+                LocalDate.now()));
   }
 
   @Test
@@ -394,6 +405,7 @@ public class ApplicationServiceTest {
             "Brand New Title",
             ApplicationStatus.APPLIED,
             existingApp.getApplicationDeadline(),
+            null,
             null,
             null,
             null,
@@ -422,6 +434,7 @@ public class ApplicationServiceTest {
             null,
             null,
             null,
+            null,
             null);
 
     assertEquals(secondCompany.getId(), response.getCompanyId());
@@ -441,7 +454,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals("Brand New Description", response.getJobDescription());
   }
@@ -460,7 +474,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             "https://new-job-link.com", // Changed
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals("https://new-job-link.com", response.getSourceLink());
   }
@@ -480,7 +495,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             newDate, // Changed
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(newDate, response.getDateApplied());
   }
@@ -499,7 +515,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            "Updated internal notes"); // Changed
+            "Updated internal notes", // Changed
+            existingApp.getInterviewDate());
 
     assertEquals("Updated internal notes", response.getNotes());
   }
@@ -518,7 +535,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(ApplicationStatus.ACCEPTED, response.getStatus());
   }
@@ -538,7 +556,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(newDeadline, response.getApplicationDeadline());
   }
@@ -557,7 +576,8 @@ public class ApplicationServiceTest {
             99, // Changed
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(99, response.getNumPositions());
   }

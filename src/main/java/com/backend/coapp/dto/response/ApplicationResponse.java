@@ -25,6 +25,7 @@ public class ApplicationResponse implements IResponse {
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
+  private LocalDate interviewDate;
 
   @Override
   public Map<String, Object> toMap() {
@@ -39,6 +40,7 @@ public class ApplicationResponse implements IResponse {
     map.put("sourceLink", this.sourceLink);
     map.put("dateApplied", this.dateApplied);
     map.put("notes", this.notes);
+    map.put("interviewDate", this.interviewDate);
     return map;
   }
 
@@ -53,6 +55,7 @@ public class ApplicationResponse implements IResponse {
         application.getNumPositions(),
         application.getSourceLink(),
         application.getDateApplied(),
-        application.getNotes());
+        application.getNotes(),
+        application.getInterviewDate());
   }
 }

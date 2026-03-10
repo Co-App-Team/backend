@@ -30,6 +30,7 @@ public class CreateApplicationRequest implements IRequest {
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
+  private LocalDate interviewDate;
 
   private boolean isBlank(String value) {
     return value == null || value.trim().isEmpty();
@@ -58,6 +59,9 @@ public class CreateApplicationRequest implements IRequest {
     if (applicationDeadline == null) {
       throw new InvalidRequestException("Application deadline cannot be null.");
     }
+    if (applicationDeadline.isBefore(LocalDate.now())) {
+      throw new InvalidRequestException("Application deadline cannot be in the past.");
+    }
 
     // Optional fields
     if (jobDescription != null
@@ -79,6 +83,9 @@ public class CreateApplicationRequest implements IRequest {
     }
     if (sourceLink != null && !isBlank(sourceLink) && !UrlValidator.isValidUrl(sourceLink.trim())) {
       throw new InvalidRequestException("Source link is not a valid URL.");
+    }
+    if (interviewDate != null && interviewDate.isBefore(LocalDate.now())) {
+      throw new InvalidRequestException("Interview Date cannot be in the past.");
     }
   }
 }

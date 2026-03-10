@@ -53,7 +53,8 @@ public class UpdateApplicationRequestTest {
             3,
             "https://updated-link.com",
             applied,
-            "Updated notes");
+            "Updated notes",
+            LocalDate.now());
 
     assertEquals(validCompanyId, request.getCompanyId());
     assertEquals(validJobTitle, request.getJobTitle());

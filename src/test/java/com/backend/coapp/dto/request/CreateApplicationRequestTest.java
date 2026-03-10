@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 
 public class CreateApplicationRequestTest {
 
-  private final String validUserId = "user-123";
   private final String validCompanyId = "comp-456";
   private final String validJobTitle = "Software Engineer";
   private final ApplicationStatus validStatus = ApplicationStatus.APPLIED;
 
   private final LocalDate validDateApplied = LocalDate.now();
   private final LocalDate validDeadline = LocalDate.now().plusMonths(1);
+  private final LocalDate validInterviewDate = LocalDate.now().plusMonths(1);
 
   private final String validUrl = "https://careers.google.com";
 
@@ -29,6 +29,7 @@ public class CreateApplicationRequestTest {
         .jobTitle(validJobTitle)
         .status(validStatus)
         .applicationDeadline(validDeadline)
+            .interviewDate(validInterviewDate)
         .dateApplied(validDateApplied);
   }
 
@@ -238,7 +239,7 @@ public class CreateApplicationRequestTest {
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Date applied cannot be after application deadline.",
+        EXCEPTION_PREFIX + "Application deadline cannot be in the past.",
         exception.getMessage());
   }
 
