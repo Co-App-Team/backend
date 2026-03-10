@@ -332,12 +332,11 @@ public class ApplicationService {
 
   /** Maps a list of ApplicationModel documents to ApplicationResponse DTOs. */
   private List<ApplicationResponse> mapToResponses(List<ApplicationModel> applications) {
-    List<ApplicationResponse> responses = new ArrayList<>();
-    for (ApplicationModel application : applications) {
-      responses.add(ApplicationResponse.fromModel(application));
-    }
-    return responses;
+    return applications.stream()
+      .map(ApplicationResponse::fromModel)
+      .toList();
   }
+
 
   /** Constructs the PaginationResponse from current page state and total item count. */
   private PaginationResponse buildPagination(int page, int size, long totalItems) {
