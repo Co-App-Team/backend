@@ -53,6 +53,21 @@ Response body:
 }
 ```
 
+**Path:** `api/resume-ai-advisor/remaining-quota`
+
+**Method:** `GET`
+
+**Description**: Get remaining GenAI usage quota
+
+**Response 200 OK:**
+
+Response body:
+```json
+{
+  "remainingQuota":number of requests left(int)
+}
+```
+
 
 ### 2. Update users' profiles for GenAI context
 
