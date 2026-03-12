@@ -309,4 +309,68 @@ public class GenAIUsageManagementServiceTest {
 
     verify(userGenAIUsageRepositoryMock, times(1)).save(any());
   }
+
+  @Test
+  public void getNumberOfRequestLeft_whenNoUsageRecordExists_expectDefaultLimit() {
+    this.userGenAIUsageRepository.deleteAll();
+
+    int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
+
+    assertEquals(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, result);
+  }
+
+  @Test
+  public void getNumberOfRequestLeft_whenUsageRecordExists_expectCorrectRemainingCount() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(3);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
+
+    assertEquals(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT - 3, result);
+  }
+
+  @Test
+  public void getNumberOfRequestLeft_whenRequestCountIsZero_expectFullLimit() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(0);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
+
+    assertEquals(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, result);
+  }
+
+  @Test
+  public void getNumberOfRequestLeft_whenRequestCountAtLimit_expectZeroRequestLeft() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
+
+    assertEquals(0, result);
+  }
+
+  @Test
+  public void
+      getNumberOfRequestLeft_whenRepoOperationFails_expectGenAIUsageManagementServiceException() {
+    UserGenAIUsageRepository userGenAIUsageRepositoryMock =
+        Mockito.mock(UserGenAIUsageRepository.class);
+    this.genAIUsageManagementService =
+        new GenAIUsageManagementService(userGenAIUsageRepositoryMock, userRepository);
+
+    when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
+        .thenThrow(new RuntimeException("DB failed"));
+
+    assertThrows(
+        GenAIUsageManagementServiceException.class,
+        () -> this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId()));
+
+    verify(userGenAIUsageRepositoryMock, times(1))
+        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+  }
 }
