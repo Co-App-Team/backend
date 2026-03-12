@@ -72,7 +72,10 @@ jacocoTestReport {
 
 pitest {
 	junit5PluginVersion = '1.2.3'
-	targetClasses = ['com.backend.coapp.util.*']
+
+	targetClasses = ['com.backend.coapp.util.*',
+					 'com.backend.coapp.service.*',]
+
 	targetTests   = ['com.backend.coapp.*']
 
 	excludedTestClasses = [
@@ -80,7 +83,18 @@ pitest {
 			'com.backend.coapp._integration.*',
 			'com.backend.coapp.repository.*',
 			'com.backend.coapp.config.*',
-			'com.backend.coapp.service.*',
+
+			'com.backend.coapp.service.CompanyServiceTest',
+			'com.backend.coapp.service.ApplicationServiceTest',
+			'com.backend.coapp.service.AuthServiceTest',
+			'com.backend.coapp.service.EmailServiceTest',
+			'com.backend.coapp.service.GenAIResumeAdvisorServiceTest',
+			'com.backend.coapp.service.GenAIUsageManagementServiceTest',
+			'com.backend.coapp.service.JwtServiceTest',
+			'com.backend.coapp.service.ReviewServiceTest',
+			'com.backend.coapp.service.UserServiceTest',
+			'com.backend.coapp.service.genAI.GeminiGenAIServiceTest',
+
 			'com.backend.coapp.controller.*',
 	]
 
