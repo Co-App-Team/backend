@@ -27,6 +27,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+/** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 @WebMvcTest(GenAIResumeAdvisorController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class GenAIResumeAdvisorControllerTest {
