@@ -749,6 +749,29 @@ public class ApplicationServiceTest {
   }
 
   @Test
+  public void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
+    LocalDate newInterviewDate = DATE.plusDays(1);
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            existingApp.getNotes(),
+            newInterviewDate);
+
+    assertNotNull(response);
+    assertEquals(newInterviewDate, response.getInterviewDate());
+    assertEquals(existingApp.getJobTitle(), response.getJobTitle());
+  }
+
+  @Test
   public void getFilteredApplications_whenDbFails_expectServiceFailException() {
     ApplicationService serviceWithMocks =
         new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
