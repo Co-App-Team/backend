@@ -33,6 +33,10 @@ public class ApplicationModel {
   private String companyId;
 
   @NotBlank(message = "Job title cannot be empty")
+  @Size(
+      max = ApplicationConstants.MAX_JOB_TITLE_LENGTH,
+      message =
+          ("Job title cannot exceed " + ApplicationConstants.MAX_JOB_TITLE_LENGTH + " characters"))
   private String jobTitle;
 
   @NotNull(message = "Application Deadline cannot be null")

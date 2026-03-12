@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * DTO request for creating a new application. Optional: companyId, jobTitle, status,
+ * DTO request for updating an application. Optional: companyId, jobTitle, status,
  * applicationDeadline, dateApplied, jobDescription, numPositions, sourceLink, notes.
  */
 @Getter
@@ -56,18 +56,29 @@ public class UpdateApplicationRequest implements IRequest {
       throw new InvalidRequestException("Job Title cannot be blank.");
     }
 
+    if (jobTitle != null && jobTitle.length() > ApplicationConstants.MAX_JOB_TITLE_LENGTH) {
+      throw new InvalidRequestException(
+          "Job title cannot exceed %s characters"
+              .formatted(ApplicationConstants.MAX_JOB_TITLE_LENGTH));
+    }
+
     if (jobDescription != null
         && jobDescription.length() > ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH) {
-      throw new InvalidRequestException("Description cannot exceed 2000 characters");
+      throw new InvalidRequestException(
+          "Description cannot exceed %s characters"
+              .formatted(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH));
     }
-    if (notes != null && notes.length() > ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH) {
-      throw new InvalidRequestException("Notes cannot exceed 2000 characters");
+    if (notes != null && notes.length() > ApplicationConstants.MAX_JOB_NOTES_LENGTH) {
+      throw new InvalidRequestException(
+          "Notes cannot exceed %s characters".formatted(ApplicationConstants.MAX_JOB_NOTES_LENGTH));
     }
     if (numPositions != null && numPositions < 0) {
       throw new InvalidRequestException("Number of positions cannot be negative.");
     }
 
-    if (sourceLink != null && !UrlValidator.isValidUrl(sourceLink.trim())) {
+    if (sourceLink != null
+        && !sourceLink.isBlank()
+        && !UrlValidator.isValidUrl(sourceLink.trim())) {
       throw new InvalidRequestException("Website must be a valid URL");
     }
 

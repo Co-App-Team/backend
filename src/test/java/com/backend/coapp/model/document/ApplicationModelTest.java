@@ -157,4 +157,13 @@ public class ApplicationModelTest {
     assertEquals("Some notes", app.getNotes());
     assertNotNull(app.getDateApplied());
   }
+
+  @Test
+  public void validate_whenJobTitleTooLong_expectViolation() {
+    String longTitle = "a".repeat(ApplicationConstants.MAX_JOB_TITLE_LENGTH + 1);
+    validApplication.setJobTitle(longTitle);
+    Set<ConstraintViolation<ApplicationModel>> violations = validator.validate(validApplication);
+    assertFalse(violations.isEmpty());
+    assertTrue(violations.iterator().next().getMessage().contains("Job title cannot exceed"));
+  }
 }

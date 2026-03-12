@@ -219,4 +219,93 @@ public class GenAIUsageManagementServiceTest {
 
     verify(userGenAIUsageRepositoryMock, times(1)).save(any());
   }
+
+  @Test
+  public void decrementUsage_whenUserExistsWithCount_expectDecrementByOne() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(5);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    this.genAIUsageManagementService.decrementUsage(this.fooUser.getId());
+
+    UserGenAIUsageModel updatedRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    assertEquals(4, updatedRecord.getRequestCount());
+  }
+
+  @Test
+  public void decrementUsage_whenRequestCountIsOne_expectDecrementToZero() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(1);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    this.genAIUsageManagementService.decrementUsage(this.fooUser.getId());
+
+    UserGenAIUsageModel updatedRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    assertEquals(0, updatedRecord.getRequestCount());
+  }
+
+  @Test
+  public void decrementUsage_whenRequestCountIsZero_expectCountStaysAtZero() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(0);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    this.genAIUsageManagementService.decrementUsage(this.fooUser.getId());
+
+    UserGenAIUsageModel updatedRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    assertEquals(0, updatedRecord.getRequestCount()); // not decremented below 0
+  }
+
+  @Test
+  public void decrementUsage_whenUsageRecordNotFound_expectGenAIUsageManagementServiceException() {
+    this.userGenAIUsageRepository.deleteAll();
+
+    assertThrows(
+        GenAIUsageManagementServiceException.class,
+        () -> this.genAIUsageManagementService.decrementUsage(this.fooUser.getId()));
+  }
+
+  @Test
+  public void
+      decrementUsage_whenUsageRepoOperationFails_expectGenAIUsageManagementServiceException() {
+    UserGenAIUsageRepository userGenAIUsageRepositoryMock =
+        Mockito.mock(UserGenAIUsageRepository.class);
+    this.genAIUsageManagementService =
+        new GenAIUsageManagementService(userGenAIUsageRepositoryMock, userRepository);
+
+    when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
+        .thenThrow(new RuntimeException("DB failed"));
+
+    assertThrows(
+        GenAIUsageManagementServiceException.class,
+        () -> this.genAIUsageManagementService.decrementUsage(this.fooUser.getId()));
+
+    verify(userGenAIUsageRepositoryMock, times(1))
+        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+  }
+
+  @Test
+  public void decrementUsage_whenOptimisticLockingFails_expectConcurrencyException() {
+    UserGenAIUsageRepository userGenAIUsageRepositoryMock =
+        Mockito.mock(UserGenAIUsageRepository.class);
+    this.genAIUsageManagementService =
+        new GenAIUsageManagementService(userGenAIUsageRepositoryMock, userRepository);
+
+    when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
+        .thenReturn(this.userGenAIUsageModel);
+    when(userGenAIUsageRepositoryMock.save(any()))
+        .thenThrow(new OptimisticLockingFailureException("conflict"));
+
+    assertThrows(
+        ConcurrencyException.class,
+        () -> this.genAIUsageManagementService.decrementUsage(this.fooUser.getId()));
+
+    verify(userGenAIUsageRepositoryMock, times(1)).save(any());
+  }
 }

@@ -295,4 +295,22 @@ public class GlobalExceptionHandler {
                 "message",
                 ex.getMessage()));
   }
+
+  @ExceptionHandler(ExperienceNotOwnedException.class)
+  public ResponseEntity<Map<String, Object>> handleExperienceNotOwnedException(
+      ExperienceNotOwnedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(
+            Map.of(
+                "error", UserExperienceErrorCode.EXPERIENCE_NOT_OWN, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ExperienceNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleExperienceNotFoundException(
+      ExperienceNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(
+            Map.of(
+                "error", UserExperienceErrorCode.EXPERIENCE_NOT_FOUND, "message", ex.getMessage()));
+  }
 }

@@ -2,7 +2,7 @@ package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.request.GetAllCompaniesRequest;
-import com.backend.coapp.dto.request.PaginationRequest;
+import com.backend.coapp.dto.request.ReviewPaginationRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.dto.response.ReviewResponse;
@@ -87,7 +87,7 @@ public class CompanyController {
    */
   @GetMapping("/{companyId}")
   public ResponseEntity<Map<String, Object>> getCompanyById(
-      @PathVariable String companyId, @ModelAttribute PaginationRequest request) {
+      @PathVariable String companyId, @ModelAttribute ReviewPaginationRequest request) {
 
     request.validateRequest();
 

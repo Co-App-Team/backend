@@ -45,6 +45,13 @@ public class CreateApplicationRequest implements IRequest {
     if (isBlank(jobTitle)) {
       throw new InvalidRequestException("Job title cannot be null or empty.");
     }
+
+    if (jobTitle.length() > ApplicationConstants.MAX_JOB_TITLE_LENGTH) {
+      throw new InvalidRequestException(
+          "Job title cannot exceed %s characters."
+              .formatted(ApplicationConstants.MAX_JOB_TITLE_LENGTH));
+    }
+
     if (status == null) {
       throw new InvalidRequestException("Status cannot be null.");
     }
@@ -55,10 +62,14 @@ public class CreateApplicationRequest implements IRequest {
     // Optional fields
     if (jobDescription != null
         && jobDescription.length() > ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH) {
-      throw new InvalidRequestException("Job description cannot exceed 2000 characters.");
+      throw new InvalidRequestException(
+          "Job description cannot exceed %s characters."
+              .formatted(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH));
     }
-    if (notes != null && notes.length() > ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH) {
-      throw new InvalidRequestException("Notes cannot exceed 2000 characters.");
+    if (notes != null && notes.length() > ApplicationConstants.MAX_JOB_NOTES_LENGTH) {
+      throw new InvalidRequestException(
+          "Notes cannot exceed %s characters."
+              .formatted(ApplicationConstants.MAX_JOB_NOTES_LENGTH));
     }
     if (numPositions != null && numPositions < 0) {
       throw new InvalidRequestException("Number of positions cannot be negative.");

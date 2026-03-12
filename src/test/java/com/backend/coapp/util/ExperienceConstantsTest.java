@@ -7,6 +7,6 @@ import org.junit.jupiter.api.Test;
 public class ExperienceConstantsTest {
   @Test
   public void testConstants() {
-    assertEquals(2000, ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH);
+    assertEquals(1000, ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH);
   }
 }

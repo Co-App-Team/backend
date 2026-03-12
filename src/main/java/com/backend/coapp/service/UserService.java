@@ -134,8 +134,10 @@ public class UserService {
    *
    * @param userId ID of the user
    * @return List of user experience model
+   * @throws UserServiceFailException when there is something goes wrong in database operation
    */
-  public List<UserExperienceModel> getAllUserExperience(String userId) {
+  public List<UserExperienceModel> getAllUserExperience(String userId)
+      throws UserServiceFailException {
     try {
       return this.userExperienceRepository.findAllByUserId(userId);
     } catch (Exception e) {
@@ -153,6 +155,8 @@ public class UserService {
    * @param startDate start date of the experience
    * @param endDate end date of the experience (can be null - current job)
    * @return created experience
+   * @throws UserServiceFailException when internal error
+   * @throws CompanyNotFoundException when provided company NOT exist
    */
   public UserExperienceModel createNewUserExperience(
       String userId,
@@ -160,7 +164,8 @@ public class UserService {
       String roleTitle,
       String roleDescription,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate)
+      throws UserServiceFailException, CompanyNotFoundException {
     try {
       if (companyId == null) throw new UserServiceFailException("Company ID cannot be null.");
       if (roleTitle == null) throw new UserServiceFailException("Role title cannot be null.");
@@ -189,8 +194,12 @@ public class UserService {
    *
    * @param experienceId ID of the experience
    * @param userId ID of the user that the experience is supposed to belong to
+   * @throws ExperienceNotOwnedException the provided experience is not owned by the user
+   * @throws ExperienceNotFoundException the provided experience NOT exist
+   * @throws UserServiceFailException when internal error.
    */
-  public void deleteUserExperience(String experienceId, String userId) {
+  public void deleteUserExperience(String experienceId, String userId)
+      throws ExperienceNotOwnedException, ExperienceNotFoundException, UserServiceFailException {
     try {
       UserExperienceModel experience =
           this.userExperienceRepository
@@ -219,6 +228,10 @@ public class UserService {
    * @param roleDescription role description of the experience
    * @param startDate start date of the experience
    * @param endDate end date of the experience.
+   * @throws UserServiceFailException for internal error
+   * @throws ExperienceNotFoundException not found experience
+   * @throws ExperienceNotOwnedException experience not own by the user
+   * @throws CompanyNotFoundException company not exists
    */
   public void updateUserExperience(
       String experienceId,
@@ -227,7 +240,11 @@ public class UserService {
       String roleTitle,
       String roleDescription,
       LocalDate startDate,
-      LocalDate endDate) {
+      LocalDate endDate)
+      throws UserServiceFailException,
+          ExperienceNotFoundException,
+          ExperienceNotOwnedException,
+          CompanyNotFoundException {
     try {
       if (companyId == null) throw new UserServiceFailException("Company ID cannot be null.");
       if (roleTitle == null) throw new UserServiceFailException("Role title cannot be null.");
