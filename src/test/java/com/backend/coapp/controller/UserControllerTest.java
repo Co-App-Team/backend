@@ -26,7 +26,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
@@ -54,7 +53,7 @@ public class UserControllerTest {
 
   @BeforeEach
   public void setUp() {
-    UserModel mockUser = mock(UserModel.class);
+    mockUser = mock(UserModel.class);
     when(mockUser.getId()).thenReturn("testUserID");
     when(mockUser.getFirstName()).thenReturn("Foo");
     when(mockUser.getLastName()).thenReturn("User");
@@ -71,7 +70,7 @@ public class UserControllerTest {
             .build();
     this.DUMMY_USER_EXPERIENCE_MODEL =
         new UserExperienceModel(
-            "testUserID",
+            mockUser.getId(),
             "fooCompanyId",
             "fooRole",
             "Doing foo tasks",
@@ -112,11 +111,11 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").isNotEmpty());
 
-    verify(userService, times(1)).updateUserPassword("testUserID", "oldPassword", "newPassword");
+    verify(userService, times(1))
+        .updateUserPassword(mockUser.getId(), "oldPassword", "newPassword");
   }
 
   @Test
-  //  @WithMockUser(username = "testUserID")
   public void updatePassword_whenIncorrectOldPassword_expect401() throws Exception {
     doThrow(new AuthBadCredentialException())
         .when(this.userService)
@@ -132,7 +131,8 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_EMAIL_OR_PASSWORD.name()));
     ;
 
-    verify(userService, times(1)).updateUserPassword("testUserID", "oldPassword", "newPassword");
+    verify(userService, times(1))
+        .updateUserPassword(mockUser.getId(), "oldPassword", "newPassword");
   }
 
   @Test
@@ -168,7 +168,8 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
 
-    verify(userService, times(1)).updateUserPassword("testUserID", "oldPassword", "newPassword");
+    verify(userService, times(1))
+        .updateUserPassword(mockUser.getId(), "oldPassword", "newPassword");
   }
 
   @Test
@@ -186,7 +187,7 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.firstName").value("foo"))
         .andExpect(jsonPath("$.lastName").value("woof"));
 
-    verify(userService, times(1)).getUserInformationFromUserID("testUserID");
+    verify(userService, times(1)).getUserInformationFromUserID(mockUser.getId());
   }
 
   @Test
@@ -203,7 +204,7 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(jsonPath("$.error").value(UserErrorCode.USER_NOT_EXIST.name()));
 
-    verify(userService, times(1)).getUserInformationFromUserID("testUserID");
+    verify(userService, times(1)).getUserInformationFromUserID(mockUser.getId());
   }
 
   @Test
@@ -220,7 +221,7 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
 
-    verify(userService, times(1)).getUserInformationFromUserID("testUserID");
+    verify(userService, times(1)).getUserInformationFromUserID(mockUser.getId());
   }
 
   @Test
@@ -237,7 +238,7 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.experience").isArray())
         .andExpect(jsonPath("$.experience.length()").value(1));
 
-    verify(userService, times(1)).getAllUserExperience("testUserID");
+    verify(userService, times(1)).getAllUserExperience(mockUser.getId());
   }
 
   @Test
@@ -252,7 +253,7 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.experience").isArray())
         .andExpect(jsonPath("$.experience.length()").value(0));
-    verify(userService, times(1)).getAllUserExperience("testUserID");
+    verify(userService, times(1)).getAllUserExperience(mockUser.getId());
   }
 
   @Test
@@ -267,7 +268,7 @@ public class UserControllerTest {
                 .principal(this.authentication))
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
-    verify(userService, times(1)).getAllUserExperience("testUserID");
+    verify(userService, times(1)).getAllUserExperience(mockUser.getId());
   }
 
   @Test
@@ -286,7 +287,7 @@ public class UserControllerTest {
 
     verify(userService, times(1))
         .createNewUserExperience(
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -326,7 +327,7 @@ public class UserControllerTest {
 
     verify(userService, times(1))
         .createNewUserExperience(
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -349,7 +350,7 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
     verify(userService, times(1))
         .createNewUserExperience(
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -368,7 +369,7 @@ public class UserControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Deleted successfully."));
     verify(userService, times(1))
-        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), "testUserID");
+        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), mockUser.getId());
   }
 
   @Test
@@ -382,7 +383,7 @@ public class UserControllerTest {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value(UserExperienceErrorCode.EXPERIENCE_NOT_FOUND.name()));
     verify(userService, times(1))
-        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), "testUserID");
+        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), mockUser.getId());
   }
 
   @Test
@@ -398,7 +399,7 @@ public class UserControllerTest {
         .andExpect(status().isForbidden())
         .andExpect(jsonPath("$.error").value(UserExperienceErrorCode.EXPERIENCE_NOT_OWN.name()));
     verify(userService, times(1))
-        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), "testUserID");
+        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), mockUser.getId());
   }
 
   @Test
@@ -414,7 +415,7 @@ public class UserControllerTest {
         .andExpect(status().isInternalServerError())
         .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
     verify(userService, times(1))
-        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), "testUserID");
+        .deleteUserExperience(DUMMY_USER_EXPERIENCE_MODEL.getId(), mockUser.getId());
   }
 
   @Test
@@ -445,7 +446,7 @@ public class UserControllerTest {
     verify(userService, times(1))
         .updateUserExperience(
             DUMMY_USER_EXPERIENCE_MODEL.getId(),
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -454,7 +455,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "testUserID")
   public void updateUserExperience_whenInvalidRequest_expect400() throws Exception {
     UserExperienceRequest invalidRequest = UserExperienceRequest.builder().build();
 
@@ -471,7 +471,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "testUserID")
   public void updateUserExperience_whenExperienceNotFound_expect404() throws Exception {
     doThrow(new ExperienceNotFoundException())
         .when(userService)
@@ -489,7 +488,7 @@ public class UserControllerTest {
     verify(userService, times(1))
         .updateUserExperience(
             DUMMY_USER_EXPERIENCE_MODEL.getId(),
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -498,7 +497,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "testUserID")
   public void updateUserExperience_whenNotOwned_expect403() throws Exception {
     doThrow(new ExperienceNotOwnedException("Cannot update."))
         .when(userService)
@@ -515,7 +513,7 @@ public class UserControllerTest {
     verify(userService, times(1))
         .updateUserExperience(
             DUMMY_USER_EXPERIENCE_MODEL.getId(),
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -524,7 +522,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "testUserID")
   public void updateUserExperience_whenCompanyNotFound_expect404() throws Exception {
     doThrow(new CompanyNotFoundException())
         .when(userService)
@@ -541,7 +538,7 @@ public class UserControllerTest {
     verify(userService, times(1))
         .updateUserExperience(
             DUMMY_USER_EXPERIENCE_MODEL.getId(),
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -550,7 +547,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "testUserID")
   public void updateUserExperience_whenServiceFails_expect500() throws Exception {
     doThrow(new UserServiceFailException("DB failed"))
         .when(userService)
@@ -567,7 +563,7 @@ public class UserControllerTest {
     verify(userService, times(1))
         .updateUserExperience(
             DUMMY_USER_EXPERIENCE_MODEL.getId(),
-            "testUserID",
+            mockUser.getId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getCompanyId(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleTitle(),
             DUMMY_USER_EXPERIENCE_REQUEST.getRoleDescription(),
@@ -576,7 +572,6 @@ public class UserControllerTest {
   }
 
   @Test
-  @WithMockUser(username = "testUserID")
   public void updateUserExperience_whenMissingExperienceId_expect400() throws Exception {
 
     mockMvc
