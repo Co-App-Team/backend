@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.GenAIServiceException;
-import com.backend.coapp.exception.OverCharacterLimitException;
+import com.backend.coapp.exception.genai.GenAIServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.util.GenAIConstants;
 import com.google.genai.Client;
 import com.google.genai.Models;

@@ -1,4 +1,4 @@
-package com.backend.coapp.exception;
+package com.backend.coapp.exception.genai;
 
 /**
  * This is internal exception, which will be thrown when there is something wrong with GenAI service

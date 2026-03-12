@@ -10,7 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.request.UserExperienceRequest;
 import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.exception.*;
 import com.backend.coapp.exception.auth.AuthBadCredentialException;
 import com.backend.coapp.exception.auth.UserInvalidPasswordChangeException;
 import com.backend.coapp.exception.auth.UserServiceFailException;

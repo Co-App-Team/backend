@@ -2,7 +2,6 @@ package com.backend.coapp.service;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
-import com.backend.coapp.exception.*;
 import com.backend.coapp.exception.application.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.exception.global.UserNotFoundException;

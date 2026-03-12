@@ -1,10 +1,11 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.*;
 import com.backend.coapp.exception.application.ApplicationNotFoundException;
+import com.backend.coapp.exception.application.ApplicationNotOwnedException;
 import com.backend.coapp.exception.genai.ConcurrencyException;
 import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
 import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserExperienceModel;

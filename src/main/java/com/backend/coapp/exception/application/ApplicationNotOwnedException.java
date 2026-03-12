@@ -1,4 +1,4 @@
-package com.backend.coapp.exception;
+package com.backend.coapp.exception.application;
 
 public class ApplicationNotOwnedException extends RuntimeException {
   public ApplicationNotOwnedException() {
