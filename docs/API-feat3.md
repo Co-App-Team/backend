@@ -15,16 +15,14 @@ The first endpoint is the most important and provides the minimum requirements f
 ```json
 {
   "applicationId": "string",
-  "userId": "string",
   "companyId": "string",
-  "companyName": "string",
   "jobTitle": "string",
-  "sourceLink": "string (optional)",
   "status": "string",
   "applicationDeadline": "date string",
-  "dateApplied": "date string (optional)",
   "jobDescription": "string (optional)",
   "numPositions": "integer (optional)",
+  "sourceLink": "string (optional)",
+  "dateApplied": "date string (optional)",
   "notes": "string (optional)"
 }
 ```
@@ -48,7 +46,7 @@ The first endpoint is the most important and provides the minimum requirements f
 
 ### 1. Get Filtered/Searched Applications
 
-**Path:** `/api/applications`
+**Path:** `/api/application`
 
 **Method:** `GET`
 
@@ -80,16 +78,14 @@ The first endpoint is the most important and provides the minimum requirements f
   "applications": [
     {
       "applicationId": "x",
-      "userId": "y",
       "companyId": "z",
-      "companyName": "Niche",
       "jobTitle": "Software Engineering Intern",
-      "sourceLink": "https://linkedin.com/jobs/123",
       "status": "APPLIED",
       "applicationDeadline": "2024-03-01",
-      "dateApplied": "2024-01-15",
       "jobDescription": "Build cool things.",
       "numPositions": 3,
+      "sourceLink": "https://linkedin.com/jobs/123",
+      "dateApplied": "2024-01-15",
       "notes": "Applied through university portal"
     }
   ],
@@ -109,25 +105,12 @@ The first endpoint is the most important and provides the minimum requirements f
 
 Returns when query has an invalid value:
 
-```json
-{
-  "error": "REQUEST_HAS_NULL_OR_EMPTY_FIELD",
-  "message": "Invalid inputs of the request. Invalid value for status: 'invalidStatusName'."
-}
-
-```
-
 **Example:** `status=invalidStatusName` 
 
 ```json
 {
-  "error": "BAD_REQUEST",
-  "message": "Invalid query parameter",
-  "details": {
-    "parameter": "status",
-    "invalidValue": "invalidStatusName",
-    "validValues": ["NOT_APPLIED", "APPLIED", "INTERVIEW_SCHEDULED", "INTERVIEWING", "OFFER_RECEIVED", "REJECTED", "WITHDRAWN", "ACCEPTED"]
-  }
+  "error": "REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message": "Invalid inputs of the request. Invalid value for status: 'invalidStatusName'."
 }
 ```
 
