@@ -2,7 +2,7 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.time.LocalDate;
@@ -14,46 +14,39 @@ public class UpdateApplicationRequestTest {
   private final String validJobTitle = "Senior Software Engineer";
   private final String EXCEPTION_PREFIX = "Invalid inputs of the request. ";
 
-  /** Helper method to create a valid builder. */
+  private final LocalDate deadline = LocalDate.now().plusMonths(1);
+  private final LocalDate applied = LocalDate.now().plusMonths(1);
+
+  /** Helper methods to create a valid builder. */
   private UpdateApplicationRequest.UpdateApplicationRequestBuilder getValidRequestBuilder() {
     return UpdateApplicationRequest.builder().companyId(validCompanyId).jobTitle(validJobTitle);
   }
 
+  private UpdateApplicationRequest.UpdateApplicationRequestBuilder getFullValidRequestBuilder() {
+
+    return UpdateApplicationRequest.builder()
+        .companyId(validCompanyId)
+        .jobTitle(validJobTitle)
+        .companyId(validCompanyId)
+        .jobTitle(validJobTitle)
+        .status(ApplicationStatus.APPLIED)
+        .applicationDeadline(deadline)
+        .dateApplied(applied)
+        .jobDescription("Updated description")
+        .numPositions(3)
+        .sourceLink("https://updated-link.com")
+        .notes("Updated notes")
+        .interviewDate(deadline);
+  }
+
   @Test
   public void getMethods_andLombokConstructors_expectInitValues() {
-    LocalDate deadline = LocalDate.of(2025, 12, 31);
-    LocalDate applied = LocalDate.of(2025, 1, 1);
 
-    UpdateApplicationRequest.UpdateApplicationRequestBuilder builder =
-        UpdateApplicationRequest.builder()
-            .companyId(validCompanyId)
-            .jobTitle(validJobTitle)
-            .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(deadline)
-            .dateApplied(applied)
-            .jobDescription("Updated description")
-            .numPositions(3)
-            .sourceLink("https://updated-link.com")
-            .notes("Updated notes");
-
-    assertNotNull(builder.toString());
-
-    UpdateApplicationRequest request = builder.build();
+    UpdateApplicationRequest request = getFullValidRequestBuilder().build();
 
     UpdateApplicationRequest emptyRequest = new UpdateApplicationRequest();
-    assertNull(emptyRequest.getCompanyId());
 
-    UpdateApplicationRequest fullRequest =
-        new UpdateApplicationRequest(
-            validCompanyId,
-            validJobTitle,
-            ApplicationStatus.APPLIED,
-            deadline,
-            "Updated description",
-            3,
-            "https://updated-link.com",
-            applied,
-            "Updated notes");
+    assertNull(emptyRequest.getCompanyId());
 
     assertEquals(validCompanyId, request.getCompanyId());
     assertEquals(validJobTitle, request.getJobTitle());
@@ -64,6 +57,7 @@ public class UpdateApplicationRequestTest {
     assertEquals(3, request.getNumPositions());
     assertEquals("https://updated-link.com", request.getSourceLink());
     assertEquals("Updated notes", request.getNotes());
+    assertEquals(deadline, request.getInterviewDate());
   }
 
   @Test
@@ -74,18 +68,7 @@ public class UpdateApplicationRequestTest {
 
   @Test
   public void validateRequest_whenAllFieldsPopulatedAndValid_expectNoException() {
-    UpdateApplicationRequest request =
-        UpdateApplicationRequest.builder()
-            .companyId(validCompanyId)
-            .jobTitle(validJobTitle)
-            .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.of(2025, 12, 31))
-            .dateApplied(LocalDate.of(2025, 1, 1))
-            .jobDescription("A valid description")
-            .numPositions(1)
-            .sourceLink("https://valid-url.com")
-            .notes("A valid note")
-            .build();
+    UpdateApplicationRequest request = getFullValidRequestBuilder().build();
 
     assertDoesNotThrow(request::validateRequest);
   }
@@ -339,6 +322,26 @@ public class UpdateApplicationRequestTest {
   public void validateRequest_whenCompanyIdIsNotBlank_expectNoException() {
     UpdateApplicationRequest request =
         UpdateApplicationRequest.builder().companyId("valid-id").build();
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  public void validateRequest_whenInterviewDateInThePast_expectException() {
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().interviewDate(LocalDate.now().minusDays(1)).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX + "Interview Date cannot be in the past.", exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenInterviewDateIsToday_expectSuccess() {
+    UpdateApplicationRequest request =
+        getValidRequestBuilder().interviewDate(LocalDate.now()).build();
+
     assertDoesNotThrow(request::validateRequest);
   }
 }

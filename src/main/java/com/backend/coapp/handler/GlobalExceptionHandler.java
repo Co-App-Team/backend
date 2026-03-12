@@ -1,6 +1,17 @@
 package com.backend.coapp.handler;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.*;
+import com.backend.coapp.exception.auth.*;
+import com.backend.coapp.exception.company.CompanyAlreadyExistsException;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.company.CompanyServiceFailException;
+import com.backend.coapp.exception.company.InvalidWebsiteException;
+import com.backend.coapp.exception.genai.*;
+import com.backend.coapp.exception.global.InvalidRequestException;
+import com.backend.coapp.exception.global.UserNotFoundException;
+import com.backend.coapp.exception.review.ReviewAlreadyExistsException;
+import com.backend.coapp.exception.review.ReviewNotFoundException;
+import com.backend.coapp.exception.review.ReviewServiceFailException;
 import com.backend.coapp.model.enumeration.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -256,8 +267,8 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred while processing your review."));
   }
 
-  @ExceptionHandler(UserNotExistException.class)
-  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExistException ex) {
+  @ExceptionHandler(UserNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
   }
@@ -328,5 +339,23 @@ public class GlobalExceptionHandler {
                 SystemErrorCode.INTERNAL_ERROR,
                 "message",
                 "An unexpected error occurred while processing your request. Please try again later."));
+  }
+
+  @ExceptionHandler(ExperienceNotOwnedException.class)
+  public ResponseEntity<Map<String, Object>> handleExperienceNotOwnedException(
+      ExperienceNotOwnedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(
+            Map.of(
+                "error", UserExperienceErrorCode.EXPERIENCE_NOT_OWN, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ExperienceNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleExperienceNotFoundException(
+      ExperienceNotFoundException ex) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(
+            Map.of(
+                "error", UserExperienceErrorCode.EXPERIENCE_NOT_FOUND, "message", ex.getMessage()));
   }
 }

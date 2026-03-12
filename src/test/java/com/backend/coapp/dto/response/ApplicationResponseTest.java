@@ -20,21 +20,42 @@ public class ApplicationResponseTest {
   private final String source = "https://example.com";
   private final LocalDate appliedDate = LocalDate.now();
   private final String notes = "Some important notes";
+  private final LocalDate interviewDate = LocalDate.now().plusDays(1);
+
+  /** Helper methods. */
+  private ApplicationResponse.ApplicationResponseBuilder getValidResponseBuilder() {
+    return ApplicationResponse.builder()
+        .applicationId(applicationId)
+        .companyId(companyId)
+        .jobTitle(jobTitle)
+        .status(status)
+        .applicationDeadline(deadline)
+        .jobDescription(description)
+        .numPositions(numPositions)
+        .sourceLink(source)
+        .dateApplied(appliedDate)
+        .notes(notes)
+        .interviewDate(interviewDate);
+  }
+
+  private ApplicationModel.ApplicationModelBuilder getValidModelBuilder() {
+    return ApplicationModel.builder()
+        .id(applicationId)
+        .companyId(companyId)
+        .jobTitle(jobTitle)
+        .status(status)
+        .applicationDeadline(deadline)
+        .jobDescription(description)
+        .numPositions(numPositions)
+        .sourceLink(source)
+        .dateApplied(appliedDate)
+        .notes(notes)
+        .interviewDate(interviewDate);
+  }
 
   @Test
   public void constructorAndGetters_expectCorrectValues() {
-    ApplicationResponse response =
-        new ApplicationResponse(
-            applicationId,
-            companyId,
-            jobTitle,
-            status,
-            deadline,
-            description,
-            numPositions,
-            source,
-            appliedDate,
-            notes);
+    ApplicationResponse response = getValidResponseBuilder().build();
 
     assertEquals(applicationId, response.getApplicationId());
     assertEquals(companyId, response.getCompanyId());
@@ -46,23 +67,12 @@ public class ApplicationResponseTest {
     assertEquals(source, response.getSourceLink());
     assertEquals(appliedDate, response.getDateApplied());
     assertEquals(notes, response.getNotes());
+    assertEquals(interviewDate, response.getInterviewDate());
   }
 
   @Test
   public void fromModel_whenValidModel_expectCorrectMapping() {
-    ApplicationModel model =
-        ApplicationModel.builder()
-            .id(applicationId)
-            .companyId(companyId)
-            .jobTitle(jobTitle)
-            .status(status)
-            .applicationDeadline(deadline)
-            .jobDescription(description)
-            .numPositions(numPositions)
-            .sourceLink(source)
-            .dateApplied(appliedDate)
-            .notes(notes)
-            .build();
+    ApplicationModel model = getValidModelBuilder().build();
 
     ApplicationResponse response = ApplicationResponse.fromModel(model);
 
@@ -72,27 +82,17 @@ public class ApplicationResponseTest {
     assertEquals(jobTitle, response.getJobTitle());
     assertEquals(notes, response.getNotes());
     assertEquals(status, response.getStatus());
+    assertEquals(interviewDate, response.getInterviewDate());
   }
 
   @Test
   public void toMap_expectKeysAndValuesMatch() {
-    ApplicationResponse response =
-        new ApplicationResponse(
-            applicationId,
-            companyId,
-            jobTitle,
-            status,
-            deadline,
-            description,
-            numPositions,
-            source,
-            appliedDate,
-            notes);
+    ApplicationResponse response = getValidResponseBuilder().build();
 
     Map<String, Object> map = response.toMap();
 
     assertNotNull(map);
-    assertEquals(10, map.size());
+    assertEquals(11, map.size());
     assertEquals(applicationId, map.get("applicationId"));
     assertEquals(companyId, map.get("companyId"));
     assertEquals(jobTitle, map.get("jobTitle"));
@@ -102,14 +102,21 @@ public class ApplicationResponseTest {
     assertEquals(numPositions, map.get("numPositions"));
     assertEquals(source, map.get("sourceLink"));
     assertEquals(appliedDate, map.get("dateApplied"));
-    assertEquals(notes, map.get("notes"), "The notes key in the map should match the notes field");
+    assertEquals(notes, map.get("notes"));
+    assertEquals(interviewDate, map.get("interviewDate"));
   }
 
   @Test
   public void toMap_withNullValues_expectKeysExistWithNulls() {
     ApplicationResponse response =
-        new ApplicationResponse(
-            applicationId, companyId, jobTitle, status, deadline, null, null, null, null, null);
+        getValidResponseBuilder()
+            .jobDescription(null)
+            .numPositions(null)
+            .sourceLink(null)
+            .dateApplied(null)
+            .notes(null)
+            .interviewDate(null)
+            .build();
 
     Map<String, Object> map = response.toMap();
 
@@ -117,6 +124,8 @@ public class ApplicationResponseTest {
     assertNull(map.get("jobDescription"));
     assertTrue(map.containsKey("notes"));
     assertNull(map.get("notes"));
+    assertTrue(map.containsKey("interviewDate"));
+    assertNull(map.get("interviewDate"));
     assertEquals(applicationId, map.get("applicationId"));
   }
 }

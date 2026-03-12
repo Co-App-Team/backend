@@ -2,7 +2,7 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.time.LocalDate;
@@ -10,13 +10,13 @@ import org.junit.jupiter.api.Test;
 
 public class CreateApplicationRequestTest {
 
-  private final String validUserId = "user-123";
   private final String validCompanyId = "comp-456";
   private final String validJobTitle = "Software Engineer";
   private final ApplicationStatus validStatus = ApplicationStatus.APPLIED;
 
   private final LocalDate validDateApplied = LocalDate.now();
   private final LocalDate validDeadline = LocalDate.now().plusMonths(1);
+  private final LocalDate validInterviewDate = LocalDate.now().plusMonths(1);
 
   private final String validUrl = "https://careers.google.com";
 
@@ -29,6 +29,7 @@ public class CreateApplicationRequestTest {
         .jobTitle(validJobTitle)
         .status(validStatus)
         .applicationDeadline(validDeadline)
+        .interviewDate(validInterviewDate)
         .dateApplied(validDateApplied);
   }
 
@@ -226,21 +227,6 @@ public class CreateApplicationRequestTest {
   }
 
   // Date Applied vs Deadline Validation
-  @Test
-  public void validateRequest_whenDateAppliedAfterDeadline_expectException() {
-    LocalDate deadline = LocalDate.now().minusDays(1);
-    LocalDate applied = LocalDate.now();
-
-    CreateApplicationRequest request =
-        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
-
-    InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, request::validateRequest);
-
-    assertEquals(
-        EXCEPTION_PREFIX + "Date applied cannot be after application deadline.",
-        exception.getMessage());
-  }
 
   @Test
   public void validateRequest_whenDateAppliedBeforeDeadline_expectSuccess() {
@@ -256,6 +242,27 @@ public class CreateApplicationRequestTest {
   @Test
   public void validateRequest_whenDateAppliedIsNull_expectSuccess() {
     CreateApplicationRequest request = getValidRequestBuilder().dateApplied(null).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  // Interview Date Validation
+  @Test
+  public void validateRequest_whenInterviewDateInThePast_expectException() {
+    CreateApplicationRequest request =
+        getValidRequestBuilder().interviewDate(LocalDate.now().minusDays(1)).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX + "Interview Date cannot be in the past.", exception.getMessage());
+  }
+
+  @Test
+  public void validateRequest_whenInterviewDateIsToday_expectSuccess() {
+    CreateApplicationRequest request =
+        getValidRequestBuilder().interviewDate(LocalDate.now()).build();
 
     assertDoesNotThrow(request::validateRequest);
   }

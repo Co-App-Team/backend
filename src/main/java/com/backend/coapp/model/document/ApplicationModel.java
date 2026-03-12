@@ -74,4 +74,6 @@ public class ApplicationModel {
       message =
           ("Notes cannot exceed " + ApplicationConstants.MAX_JOB_NOTES_LENGTH + " characters"))
   private String notes;
+
+  private LocalDate interviewDate;
 }

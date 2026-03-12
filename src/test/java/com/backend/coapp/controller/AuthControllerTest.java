@@ -7,7 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.backend.coapp.dto.request.*;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.RequestErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;

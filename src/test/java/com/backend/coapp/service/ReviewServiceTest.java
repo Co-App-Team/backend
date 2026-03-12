@@ -3,7 +3,11 @@ package com.backend.coapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.global.InvalidRequestException;
+import com.backend.coapp.exception.review.ReviewAlreadyExistsException;
+import com.backend.coapp.exception.review.ReviewNotFoundException;
+import com.backend.coapp.exception.review.ReviewServiceFailException;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.repository.CompanyRepository;

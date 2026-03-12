@@ -2,7 +2,7 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.util.List;
@@ -32,10 +32,10 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateAndParse_whenAllNull_expectDefaults() {
+  public void validateRequest_whenAllNull_expectDefaults() {
     GetApplicationsRequest request = new GetApplicationsRequest();
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertNull(request.getParsedStatuses());
     assertEquals(ApplicationConstants.SORT_BY_DATE_APPLIED, request.getSortBy());
@@ -45,7 +45,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateAndParse_whenAllValid_expectNoChange() {
+  public void validateRequest_whenAllValid_expectNoChange() {
     GetApplicationsRequest request =
         GetApplicationsRequest.builder()
             .status("APPLIED")
@@ -55,7 +55,7 @@ public class GetApplicationsRequestTest {
             .size(10)
             .build();
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(List.of(ApplicationStatus.APPLIED), request.getParsedStatuses());
     assertEquals("dateApplied", request.getSortBy());
@@ -65,41 +65,41 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateAndParse_whenStatusNull_expectParsedStatusesNull() {
+  public void validateRequest_whenStatusNull_expectParsedStatusesNull() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus(null);
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertNull(request.getParsedStatuses());
   }
 
   @Test
-  public void validateAndParse_whenStatusBlank_expectParsedStatusesNull() {
+  public void validateRequest_whenStatusBlank_expectParsedStatusesNull() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("   ");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertNull(request.getParsedStatuses());
   }
 
   @Test
-  public void validateAndParse_whenStatusSingleValid_expectParsedStatuses() {
+  public void validateRequest_whenStatusSingleValid_expectParsedStatuses() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("INTERVIEWING");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(List.of(ApplicationStatus.INTERVIEWING), request.getParsedStatuses());
   }
 
   @Test
-  public void validateAndParse_whenStatusMultipleValid_expectAllParsed() {
+  public void validateRequest_whenStatusMultipleValid_expectAllParsed() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("APPLIED,REJECTED,OFFER_RECEIVED");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(
         List.of(
@@ -110,11 +110,11 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateAndParse_whenStatusMultipleWithSpaces_expectTrimmedAndParsed() {
+  public void validateRequest_whenStatusMultipleWithSpaces_expectTrimmedAndParsed() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("APPLIED , REJECTED");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(
         List.of(ApplicationStatus.APPLIED, ApplicationStatus.REJECTED),
@@ -122,96 +122,96 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateAndParse_whenStatusInvalid_expectException() {
+  public void validateRequest_whenStatusInvalid_expectException() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("INVALID_STATUS");
 
-    assertThrows(InvalidRequestException.class, request::validateAndParse);
+    assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateAndParse_whenSortByNull_expectDefaultSortBy() {
+  public void validateRequest_whenSortByNull_expectDefaultSortBy() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy(null);
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.SORT_BY_DATE_APPLIED, request.getSortBy());
   }
 
   @Test
-  public void validateAndParse_whenSortByBlank_expectDefaultSortBy() {
+  public void validateRequest_whenSortByBlank_expectDefaultSortBy() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("   ");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.SORT_BY_DATE_APPLIED, request.getSortBy());
   }
 
   @Test
-  public void validateAndParse_whenSortByValid_expectUnchanged() {
+  public void validateRequest_whenSortByValid_expectUnchanged() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("dateApplied");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals("dateApplied", request.getSortBy());
   }
 
   @Test
-  public void validateAndParse_whenSortByInvalid_expectException() {
+  public void validateRequest_whenSortByInvalid_expectException() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("invalidField");
 
-    assertThrows(InvalidRequestException.class, request::validateAndParse);
+    assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateAndParse_whenSortOrderNull_expectDefaultSortOrder() {
+  public void validateRequest_whenSortOrderNull_expectDefaultSortOrder() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder(null);
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.DEFAULT_SORT_ORDER, request.getSortOrder());
   }
 
   @Test
-  public void validateAndParse_whenSortOrderBlank_expectDefaultSortOrder() {
+  public void validateRequest_whenSortOrderBlank_expectDefaultSortOrder() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("   ");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals(ApplicationConstants.DEFAULT_SORT_ORDER, request.getSortOrder());
   }
 
   @Test
-  public void validateAndParse_whenSortOrderDesc_expectUnchanged() {
+  public void validateRequest_whenSortOrderDesc_expectUnchanged() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("desc");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals("desc", request.getSortOrder());
   }
 
   @Test
-  public void validateAndParse_whenSortOrderUpperCase_expectNormalisedToLower() {
+  public void validateRequest_whenSortOrderUpperCase_expectNormalisedToLower() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("ASC");
 
-    request.validateAndParse();
+    request.validateRequest();
 
     assertEquals("asc", request.getSortOrder());
   }
 
   @Test
-  public void validateAndParse_whenSortOrderInvalid_expectException() {
+  public void validateRequest_whenSortOrderInvalid_expectException() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("sideways");
 
-    assertThrows(InvalidRequestException.class, request::validateAndParse);
+    assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 }

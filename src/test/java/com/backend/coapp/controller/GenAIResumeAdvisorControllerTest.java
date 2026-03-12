@@ -9,7 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.backend.coapp.dto.request.GenAIResumeAdvisorRequest;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.ApplicationNotFoundException;
+import com.backend.coapp.exception.application.ApplicationNotOwnedException;
+import com.backend.coapp.exception.genai.ConcurrencyException;
+import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
+import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.model.enumeration.UserErrorCode;
@@ -194,7 +200,7 @@ public class GenAIResumeAdvisorControllerTest {
   @Test
   public void resumeAdvisor_whenUserNotExist_expect400() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
-        .thenThrow(new UserNotExistException());
+        .thenThrow(new UserNotFoundException());
 
     mockMvc
         .perform(
