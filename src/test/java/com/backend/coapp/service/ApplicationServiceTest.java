@@ -55,6 +55,8 @@ public class ApplicationServiceTest {
   private UserModel testUser;
   private ApplicationModel existingApp;
 
+  private final LocalDate DATE = LocalDate.of(2800, 1, 1);
+
   @BeforeEach
   public void setUp() {
     // Clear DB for Integration Tests
@@ -76,7 +78,8 @@ public class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.now().plusDays(5))
+            .applicationDeadline(DATE)
+            .interviewDate(DATE)
             .build();
     this.applicationRepository.save(existingApp);
 
@@ -111,12 +114,13 @@ public class ApplicationServiceTest {
             testCompany.getId(),
             "Data Scientist",
             ApplicationStatus.APPLIED,
-            LocalDate.now(),
+            DATE,
             "Desc",
             1,
             "https://link.com",
-            LocalDate.now(),
-            "Notes");
+            DATE,
+            "Notes",
+            DATE);
 
     assertNotNull(response);
     assertEquals("Data Scientist", response.getJobTitle());
@@ -133,12 +137,13 @@ public class ApplicationServiceTest {
                 "invalid_id",
                 "Title",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 null,
                 1,
                 null,
                 null,
-                null));
+                null,
+                DATE));
   }
 
   @Test
@@ -151,12 +156,13 @@ public class ApplicationServiceTest {
                 testCompany.getId(),
                 "Title",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 null,
                 1,
                 null,
                 null,
-                null));
+                null,
+                DATE));
   }
 
   @Test
@@ -169,12 +175,13 @@ public class ApplicationServiceTest {
                 testCompany.getId(),
                 "Software Engineer",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 null,
                 1,
                 null,
                 null,
-                null));
+                null,
+                DATE));
   }
 
   // Update Application Integration Tests
@@ -188,12 +195,13 @@ public class ApplicationServiceTest {
             testCompany.getId(),
             "Senior SE",
             ApplicationStatus.INTERVIEWING,
-            LocalDate.now().plusDays(10),
+            DATE,
             "New Desc",
             2,
             "https://new.link",
-            LocalDate.now(),
-            "New Notes");
+            DATE,
+            "New Notes",
+            DATE);
 
     assertEquals("Senior SE", response.getJobTitle());
     assertEquals("New Desc", response.getJobDescription());
@@ -212,12 +220,13 @@ public class ApplicationServiceTest {
                 testCompany.getId(),
                 "Title",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 "Desc",
                 1,
                 "Link",
-                LocalDate.now(),
-                "Notes"));
+                DATE,
+                "Notes",
+                DATE));
   }
 
   @Test
@@ -231,12 +240,13 @@ public class ApplicationServiceTest {
                 testCompany.getId(),
                 "Software Engineer",
                 ApplicationStatus.APPLIED,
-                LocalDate.now().plusDays(5),
+                DATE,
                 null,
                 null,
                 null,
                 null,
-                null));
+                null,
+                DATE));
   }
 
   @Test
@@ -250,12 +260,13 @@ public class ApplicationServiceTest {
                 "c1",
                 "t",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 "d",
                 1,
                 "l",
-                LocalDate.now(),
-                "n"));
+                DATE,
+                "n",
+                DATE));
   }
 
   @Test
@@ -269,12 +280,13 @@ public class ApplicationServiceTest {
                 "non_existent_company",
                 "Title",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 "Desc",
                 1,
                 "Link",
-                LocalDate.now(),
-                "Notes"));
+                DATE,
+                "Notes",
+                DATE));
   }
 
   // Delete Application Integration Tests
@@ -371,7 +383,8 @@ public class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Product Manager")
             .status(ApplicationStatus.REJECTED)
-            .applicationDeadline(LocalDate.now().plusDays(5))
+            .applicationDeadline(DATE)
+            .interviewDate(DATE)
             .build();
     this.applicationRepository.save(rejectedApp);
 
@@ -397,7 +410,8 @@ public class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Designer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.now().plusDays(5))
+            .applicationDeadline(DATE)
+            .interviewDate(DATE)
             .build();
     this.applicationRepository.save(otherApp);
 
@@ -418,7 +432,8 @@ public class ApplicationServiceTest {
               .companyId(testCompany.getId())
               .jobTitle("Role " + i)
               .status(ApplicationStatus.APPLIED)
-              .applicationDeadline(LocalDate.now().plusDays(5))
+              .applicationDeadline(DATE)
+              .interviewDate(DATE)
               .build());
     }
 
@@ -440,7 +455,8 @@ public class ApplicationServiceTest {
               .companyId(testCompany.getId())
               .jobTitle("Role " + i)
               .status(ApplicationStatus.APPLIED)
-              .applicationDeadline(LocalDate.now().plusDays(5))
+              .applicationDeadline(DATE)
+              .interviewDate(DATE)
               .build());
     }
 
@@ -499,12 +515,13 @@ public class ApplicationServiceTest {
                 "c1",
                 "t1",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 null,
                 1,
                 null,
                 null,
-                null));
+                null,
+                DATE));
   }
 
   @Test
@@ -517,12 +534,13 @@ public class ApplicationServiceTest {
     when(mockApp.getCompanyId()).thenReturn("c1");
     when(mockApp.getJobTitle()).thenReturn("Old Title");
     when(mockApp.getStatus()).thenReturn(ApplicationStatus.APPLIED);
-    when(mockApp.getApplicationDeadline()).thenReturn(LocalDate.now());
+    when(mockApp.getApplicationDeadline()).thenReturn(DATE);
     when(mockApp.getJobDescription()).thenReturn("Old Desc");
     when(mockApp.getNumPositions()).thenReturn(1);
     when(mockApp.getSourceLink()).thenReturn("http://old.com");
-    when(mockApp.getDateApplied()).thenReturn(LocalDate.now());
+    when(mockApp.getDateApplied()).thenReturn(DATE);
     when(mockApp.getNotes()).thenReturn("Old Notes");
+    when(mockApp.getInterviewDate()).thenReturn(DATE);
 
     when(mockAppRepo.findById(anyString())).thenReturn(Optional.of(mockApp));
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
@@ -537,12 +555,13 @@ public class ApplicationServiceTest {
                 "c1",
                 "New Title",
                 ApplicationStatus.APPLIED,
-                LocalDate.now(),
+                DATE,
                 "Desc",
                 1,
                 "Link",
-                LocalDate.now(),
-                "Notes"));
+                DATE,
+                "Notes",
+                DATE));
   }
 
   @Test
@@ -559,7 +578,8 @@ public class ApplicationServiceTest {
             null,
             null,
             null,
-            null);
+            null,
+            existingApp.getInterviewDate());
 
     assertEquals("Brand New Title", response.getJobTitle());
     assertEquals(testCompany.getId(), response.getCompanyId());
@@ -582,7 +602,8 @@ public class ApplicationServiceTest {
             null,
             null,
             null,
-            null);
+            null,
+            existingApp.getInterviewDate());
 
     assertEquals(secondCompany.getId(), response.getCompanyId());
   }
@@ -601,7 +622,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals("Brand New Description", response.getJobDescription());
   }
@@ -620,14 +642,15 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             "https://new-job-link.com",
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals("https://new-job-link.com", response.getSourceLink());
   }
 
   @Test
   public void updateApplication_whenOnlyDateAppliedChanges_expectSuccess() {
-    LocalDate newDate = LocalDate.now().minusDays(1);
+    LocalDate newDate = DATE.minusDays(1);
     ApplicationResponse response =
         this.applicationService.updateApplication(
             "user_001",
@@ -640,7 +663,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             newDate,
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(newDate, response.getDateApplied());
   }
@@ -659,7 +683,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            "Updated internal notes");
+            "Updated internal notes",
+            existingApp.getInterviewDate());
 
     assertEquals("Updated internal notes", response.getNotes());
   }
@@ -678,14 +703,15 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(ApplicationStatus.ACCEPTED, response.getStatus());
   }
 
   @Test
   public void updateApplication_whenOnlyDeadlineChanges_expectSuccess() {
-    LocalDate newDeadline = LocalDate.now().plusWeeks(2);
+    LocalDate newDeadline = DATE.plusWeeks(2);
     ApplicationResponse response =
         this.applicationService.updateApplication(
             "user_001",
@@ -698,7 +724,8 @@ public class ApplicationServiceTest {
             existingApp.getNumPositions(),
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(newDeadline, response.getApplicationDeadline());
   }
@@ -717,9 +744,33 @@ public class ApplicationServiceTest {
             99,
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
-            existingApp.getNotes());
+            existingApp.getNotes(),
+            existingApp.getInterviewDate());
 
     assertEquals(99, response.getNumPositions());
+  }
+
+  @Test
+  public void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
+    LocalDate newInterviewDate = DATE.plusDays(1);
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            existingApp.getCompanyId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            existingApp.getApplicationDeadline(),
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            existingApp.getDateApplied(),
+            existingApp.getNotes(),
+            newInterviewDate);
+
+    assertNotNull(response);
+    assertEquals(newInterviewDate, response.getInterviewDate());
+    assertEquals(existingApp.getJobTitle(), response.getJobTitle());
   }
 
   @Test
@@ -745,8 +796,9 @@ public class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Later Role")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.now().plusDays(5))
-            .dateApplied(LocalDate.now().plusDays(1))
+            .applicationDeadline(DATE)
+            .dateApplied(DATE.plusDays(1))
+            .interviewDate(DATE)
             .build();
     this.applicationRepository.save(laterApp);
 
@@ -787,7 +839,8 @@ public class ApplicationServiceTest {
               .companyId(testCompany.getId())
               .jobTitle("Role " + i)
               .status(ApplicationStatus.APPLIED)
-              .applicationDeadline(LocalDate.now().plusDays(5))
+              .applicationDeadline(DATE)
+              .interviewDate(DATE)
               .build());
     }
 

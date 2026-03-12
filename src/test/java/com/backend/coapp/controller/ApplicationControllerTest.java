@@ -47,6 +47,8 @@ public class ApplicationControllerTest {
   private CreateApplicationRequest createRequest;
   private UpdateApplicationRequest updateRequest;
 
+  private final LocalDate DATE = LocalDate.of(2800, 1, 1);
+
   @BeforeEach
   public void setUp() {
     UserModel mockUser = mock(UserModel.class);
@@ -54,32 +56,32 @@ public class ApplicationControllerTest {
     when(mockUser.getFirstName()).thenReturn("John");
     when(mockUser.getLastName()).thenReturn("Doe");
 
-    // Match the constructor order: applicationId, companyId, jobTitle, status, applicationDeadline,
-    // jobDescription, numPositions, sourceLink, dateApplied, notes
     this.mockResponse =
         new ApplicationResponse(
             "app789",
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            LocalDate.of(2024, 1, 1),
+            DATE,
             "Great role",
             1,
             "https://linkedin.com",
-            LocalDate.of(2024, 1, 1),
-            "I think it's not that good.");
+            DATE,
+            "I think it's not that good.",
+            DATE);
 
     this.createRequest =
         CreateApplicationRequest.builder()
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.of(2024, 1, 1))
+            .applicationDeadline(DATE)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(LocalDate.of(2024, 1, 1))
+            .dateApplied(DATE)
             .notes("I think it's not that good.")
+            .interviewDate(DATE)
             .build();
 
     this.updateRequest =
@@ -87,12 +89,13 @@ public class ApplicationControllerTest {
             .companyId("comp456")
             .jobTitle("Senior Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.of(2024, 1, 1))
+            .applicationDeadline(DATE)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(LocalDate.of(2024, 1, 1))
+            .dateApplied(DATE)
             .notes("Updated notes.")
+            .interviewDate(DATE)
             .build();
 
     when(this.authentication.getPrincipal()).thenReturn(mockUser);
@@ -112,12 +115,13 @@ public class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(LocalDate.of(2024, 1, 1)),
-            eq("I think it's not that good.")))
+            eq(DATE),
+            eq("I think it's not that good."),
+            eq(DATE)))
         .thenReturn(this.mockResponse);
 
     mockMvc
@@ -139,12 +143,13 @@ public class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(LocalDate.of(2024, 1, 1)),
-            eq("I think it's not that good."));
+            eq(DATE),
+            eq("I think it's not that good."),
+            eq(DATE));
   }
 
   @Test
@@ -156,10 +161,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString()))
+            anyString(),
+            any(LocalDate.class)))
         .thenThrow(new CompanyNotFoundException());
 
     mockMvc
@@ -182,10 +188,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString()))
+            anyString(),
+            any(LocalDate.class)))
         .thenThrow(new DuplicateApplicationException("job", "comp"));
 
     mockMvc
@@ -219,10 +226,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString());
+            anyString(),
+            any(LocalDate.class));
   }
 
   @Test
@@ -234,10 +242,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString()))
+            anyString(),
+            any(LocalDate.class)))
         .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
@@ -261,27 +270,27 @@ public class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            LocalDate.of(2024, 1, 1),
+            DATE,
             "Great role",
             1,
             "https://linkedin.com",
-            LocalDate.of(2024, 1, 1),
-            "Updated notes.");
+            DATE,
+            "Updated notes.",
+            DATE);
 
-    // Match Service signature: userId, applicationId, newCompanyId, newJobTitle, newStatus,
-    // newDeadline...
     when(this.applicationService.updateApplication(
             eq("user1"),
             eq("app789"),
             eq("comp456"),
             eq("Senior Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(LocalDate.of(2024, 1, 1)),
-            eq("Updated notes.")))
+            eq(DATE),
+            eq("Updated notes."),
+            eq(DATE)))
         .thenReturn(updatedResponse);
 
     mockMvc
@@ -302,12 +311,13 @@ public class ApplicationControllerTest {
             eq("comp456"),
             eq("Senior Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(LocalDate.of(2024, 1, 1)),
-            eq("Updated notes."));
+            eq(DATE),
+            eq("Updated notes."),
+            eq(DATE));
   }
 
   @Test
@@ -320,10 +330,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString()))
+            anyString(),
+            any(LocalDate.class)))
         .thenThrow(new ApplicationNotFoundException());
 
     mockMvc
@@ -347,10 +358,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString()))
+            anyString(),
+            any(LocalDate.class)))
         .thenThrow(new UnauthorizedApplicationAccessException("update"));
 
     mockMvc
@@ -385,10 +397,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString());
+            anyString(),
+            any(LocalDate.class));
   }
 
   @Test
@@ -401,10 +414,11 @@ public class ApplicationControllerTest {
             any(ApplicationStatus.class),
             any(LocalDate.class),
             anyString(),
-            any(Integer.class),
+            anyInt(),
             anyString(),
             any(LocalDate.class),
-            anyString()))
+            anyString(),
+            any(LocalDate.class)))
         .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
@@ -428,6 +442,7 @@ public class ApplicationControllerTest {
             any(),
             any(),
             any(),
+            anyInt(),
             any(),
             any(),
             any(),
@@ -453,6 +468,7 @@ public class ApplicationControllerTest {
             any(),
             any(),
             any(),
+            anyInt(),
             any(),
             any(),
             any(),
@@ -531,11 +547,11 @@ public class ApplicationControllerTest {
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(LocalDate.of(2024, 1, 1))
+            .applicationDeadline(DATE)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(LocalDate.of(2024, 1, 1))
+            .dateApplied(DATE)
             .build();
 
     ApplicationResponse responseWithoutNotes =
@@ -544,11 +560,12 @@ public class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            LocalDate.of(2024, 1, 1),
+            DATE,
             "Great role",
             1,
             "https://linkedin.com",
-            LocalDate.of(2024, 1, 1),
+            DATE,
+            null,
             null);
 
     when(this.applicationService.createApplication(
@@ -556,11 +573,12 @@ public class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
+            isNull(),
             isNull()))
         .thenReturn(responseWithoutNotes);
 
@@ -580,11 +598,12 @@ public class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(LocalDate.of(2024, 1, 1)),
+            eq(DATE),
+            isNull(),
             isNull());
   }
 

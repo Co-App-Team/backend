@@ -59,6 +59,7 @@ public class ApplicationService {
    * @param sourceLink URL to job posting (nullable)
    * @param dateApplied Date application was submitted (non-null)
    * @param notes Additional notes (nullable)
+   * @param interviewDate Date of interview (nullable)
    * @return ApplicationResponse DTO containing created application data
    * @throws CompanyNotFoundException If company doesn't exist
    * @throws UserNotFoundException If user doesn't exist
@@ -75,7 +76,8 @@ public class ApplicationService {
       Integer numPositions,
       String sourceLink,
       LocalDate dateApplied,
-      String notes) {
+      String notes,
+      LocalDate interviewDate) {
     if (this.companyRepository.findById(companyId).isEmpty()) {
       throw new CompanyNotFoundException();
     }
@@ -105,6 +107,7 @@ public class ApplicationService {
               .sourceLink(sourceLink)
               .dateApplied(dateApplied)
               .notes(notes)
+              .interviewDate(interviewDate)
               .build();
 
       ApplicationModel savedApplication = this.applicationRepository.save(applicationModel);
@@ -130,6 +133,7 @@ public class ApplicationService {
    * @param newSourceLink Updated source link (nullable)
    * @param newDateApplied Updated date applied (nullable)
    * @param newNotes Updated notes (nullable)
+   * @param newInterviewDate Updated interview date (nullable)
    * @return ApplicationResponse DTO containing updated application data
    * @throws ApplicationNotFoundException If application doesn't exist
    * @throws UnauthorizedApplicationAccessException If user doesn't own application
@@ -147,7 +151,8 @@ public class ApplicationService {
       Integer newNumPositions,
       String newSourceLink,
       LocalDate newDateApplied,
-      String newNotes) {
+      String newNotes,
+      LocalDate newInterviewDate) {
 
     ApplicationModel existingApp =
         this.applicationRepository
@@ -169,6 +174,8 @@ public class ApplicationService {
     boolean linkChanged = !Objects.equals(existingApp.getSourceLink(), newSourceLink);
     boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
     boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
+    boolean interviewDateChanged =
+        !Objects.equals(existingApp.getInterviewDate(), newInterviewDate);
 
     if (!companyChanged
         && !titleChanged
@@ -178,7 +185,8 @@ public class ApplicationService {
         && !notesChanged
         && !statusChanged
         && !deadlineChanged
-        && !positionsChanged) {
+        && !positionsChanged
+        && !interviewDateChanged) {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
@@ -195,6 +203,7 @@ public class ApplicationService {
     existingApp.setSourceLink(newSourceLink);
     existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
+    existingApp.setInterviewDate(newInterviewDate);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);
     return ApplicationResponse.fromModel(updatedApp);

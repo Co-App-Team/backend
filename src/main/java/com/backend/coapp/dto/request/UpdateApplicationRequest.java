@@ -30,6 +30,7 @@ public class UpdateApplicationRequest implements IRequest {
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
+  private LocalDate interviewDate;
 
   private boolean hasAtLeastOneField() {
     return companyId != null
@@ -40,7 +41,8 @@ public class UpdateApplicationRequest implements IRequest {
         || numPositions != null
         || sourceLink != null
         || dateApplied != null
-        || notes != null;
+        || notes != null
+        || interviewDate != null;
   }
 
   public void validateRequest() {
@@ -86,6 +88,9 @@ public class UpdateApplicationRequest implements IRequest {
         && applicationDeadline != null
         && dateApplied.isAfter(applicationDeadline)) {
       throw new InvalidRequestException("Date applied cannot be after application deadline.");
+    }
+    if (interviewDate != null && interviewDate.isBefore(LocalDate.now())) {
+      throw new InvalidRequestException("Interview Date cannot be in the past.");
     }
   }
 }
