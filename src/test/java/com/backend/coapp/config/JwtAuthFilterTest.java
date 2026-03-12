@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.JwtExpiredException;
-import com.backend.coapp.exception.JwtInvalidTokenException;
-import com.backend.coapp.exception.JwtServiceFailException;
+import com.backend.coapp.exception.auth.JwtExpiredException;
+import com.backend.coapp.exception.auth.JwtInvalidTokenException;
+import com.backend.coapp.exception.auth.JwtServiceFailException;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
 import com.backend.coapp.model.enumeration.UserRoles;

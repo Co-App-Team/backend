@@ -1,6 +1,6 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import com.backend.coapp.util.UrlValidator;
@@ -58,9 +58,6 @@ public class CreateApplicationRequest implements IRequest {
     }
     if (applicationDeadline == null) {
       throw new InvalidRequestException("Application deadline cannot be null.");
-    }
-    if (applicationDeadline.isBefore(LocalDate.now())) {
-      throw new InvalidRequestException("Application deadline cannot be in the past.");
     }
 
     // Optional fields

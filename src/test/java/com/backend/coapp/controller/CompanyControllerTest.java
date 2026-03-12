@@ -10,7 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.backend.coapp.dto.request.CreateCompanyRequest;
 import com.backend.coapp.dto.response.CompanyResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.company.CompanyAlreadyExistsException;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.company.CompanyServiceFailException;
+import com.backend.coapp.exception.company.InvalidWebsiteException;
 import com.backend.coapp.model.document.ReviewModel;
 import com.backend.coapp.service.CompanyService;
 import com.backend.coapp.service.JwtService;

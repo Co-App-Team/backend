@@ -1,6 +1,6 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import java.util.Random;

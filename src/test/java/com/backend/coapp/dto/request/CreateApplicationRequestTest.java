@@ -2,7 +2,7 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.time.LocalDate;
@@ -227,20 +227,6 @@ public class CreateApplicationRequestTest {
   }
 
   // Date Applied vs Deadline Validation
-  @Test
-  public void validateRequest_whenDateAppliedAfterDeadline_expectException() {
-    LocalDate deadline = LocalDate.now().minusDays(1);
-    LocalDate applied = LocalDate.now();
-
-    CreateApplicationRequest request =
-        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
-
-    InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, request::validateRequest);
-
-    assertEquals(
-        EXCEPTION_PREFIX + "Application deadline cannot be in the past.", exception.getMessage());
-  }
 
   @Test
   public void validateRequest_whenDateAppliedBeforeDeadline_expectSuccess() {

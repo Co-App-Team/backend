@@ -1,6 +1,12 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.ApplicationNotFoundException;
+import com.backend.coapp.exception.application.ApplicationNotOwnedException;
+import com.backend.coapp.exception.genai.ConcurrencyException;
+import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
+import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.repository.ApplicationRepository;
@@ -48,7 +54,7 @@ public class GenAIResumeAdvisorService {
    * @throws ApplicationNotFoundException when application can't be found
    * @throws GenAIUsageManagementServiceException when there is something wrong in GenAI usage
    *     management
-   * @throws UserNotExistException when user doesn't exist
+   * @throws UserNotFoundException when user doesn't exist
    * @throws GenAIQuotaExceededException when user exceed GenAI usage limit
    * @throws ConcurrencyException when the same user make a request twice
    */
@@ -57,7 +63,7 @@ public class GenAIResumeAdvisorService {
           ApplicationNotOwnedException,
           ApplicationNotFoundException,
           GenAIUsageManagementServiceException,
-          UserNotExistException,
+          UserNotFoundException,
           GenAIQuotaExceededException,
           ConcurrencyException {
     String applicationJobDescription = null;
