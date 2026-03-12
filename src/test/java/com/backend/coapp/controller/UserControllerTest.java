@@ -11,6 +11,13 @@ import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.request.UserExperienceRequest;
 import com.backend.coapp.dto.response.UserResponse;
 import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.AuthBadCredentialException;
+import com.backend.coapp.exception.auth.UserInvalidPasswordChangeException;
+import com.backend.coapp.exception.auth.UserServiceFailException;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotOwnedException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.*;
@@ -192,7 +199,7 @@ public class UserControllerTest {
 
   @Test
   public void aboutMe_whenNoUserExist_expectException() throws Exception {
-    doThrow(new UserNotExistException())
+    doThrow(new UserNotFoundException())
         .when(this.userService)
         .getUserInformationFromUserID(anyString());
     mockMvc

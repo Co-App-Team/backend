@@ -6,6 +6,8 @@ import com.backend.coapp.exception.company.CompanyAlreadyExistsException;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.exception.company.CompanyServiceFailException;
 import com.backend.coapp.exception.company.InvalidWebsiteException;
+import com.backend.coapp.exception.genai.ExperienceNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotOwnedException;
 import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.exception.review.ReviewAlreadyExistsException;

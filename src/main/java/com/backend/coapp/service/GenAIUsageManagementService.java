@@ -1,9 +1,9 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.exception.genai.ConcurrencyException;
 import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
 import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserGenAIUsageModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserGenAIUsageRepository;
