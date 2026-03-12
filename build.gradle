@@ -4,6 +4,7 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.diffplug.spotless' version '6.25.0'
 	id 'jacoco'
+	id 'info.solidsoft.pitest' version '1.19.0-rc.2'
 }
 
 group = 'com.backend'
@@ -67,4 +68,42 @@ jacocoTestReport {
 		csv.required = false
 		html.required = true
 	}
+}
+
+pitest {
+	junit5PluginVersion = '1.2.3'
+
+	targetClasses = ['com.backend.coapp.util.*',
+					 'com.backend.coapp.service.*',]
+
+	targetTests   = ['com.backend.coapp.*']
+
+	excludedTestClasses = [
+			'com.backend.coapp.CoAppApplicationTests',
+			'com.backend.coapp._integration.*',
+			'com.backend.coapp.repository.*',
+			'com.backend.coapp.config.*',
+
+			// exclude these three tests for now
+//			'com.backend.coapp.service.CompanyServiceTest',
+//			'com.backend.coapp.service.ApplicationServiceTest',
+//			'com.backend.coapp.service.ReviewServiceTest',
+			'com.backend.coapp.service.AuthServiceTest',
+			'com.backend.coapp.service.EmailServiceTest',
+			'com.backend.coapp.service.GenAIResumeAdvisorServiceTest',
+			'com.backend.coapp.service.GenAIUsageManagementServiceTest',
+			'com.backend.coapp.service.JwtServiceTest',
+			'com.backend.coapp.service.UserServiceTest',
+			'com.backend.coapp.service.genAI.GeminiGenAIServiceTest',
+
+			'com.backend.coapp.controller.*',
+	]
+
+	threads = 4
+	timestampedReports = false
+	outputFormats = ['XML', 'HTML']
+	enableDefaultIncrementalAnalysis = true
+	mutationThreshold = 100
+	coverageThreshold = 85
+	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED', '-XX:+EnableDynamicAgentLoading']
 }
