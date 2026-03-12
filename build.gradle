@@ -72,29 +72,14 @@ jacocoTestReport {
 
 pitest {
 	junit5PluginVersion = '1.2.3'
-
-	targetClasses = [
-			'com.backend.coapp.util.*',
-//			'com.backend.coapp.handler.*',
-	]
-
-	targetTests = ['com.backend.coapp.*']
-
-	excludedClasses = [
-			'com.backend.coapp.CoAppApplication',
-			'com.backend.coapp.config.*',
-			'com.backend.coapp.dto.*',
-			'com.backend.coapp.model.document.*',
-			'com.backend.coapp.model.enumeration.*',
-			'com.backend.coapp.exception.*',
-	]
+	targetClasses = ['com.backend.coapp.util.*']
+	targetTests   = ['com.backend.coapp.*']
 
 	excludedTestClasses = [
 			'com.backend.coapp.CoAppApplicationTests',
 			'com.backend.coapp._integration.*',
 			'com.backend.coapp.repository.*',
 			'com.backend.coapp.config.*',
-
 			'com.backend.coapp.service.*',
 			'com.backend.coapp.controller.*',
 	]
@@ -102,13 +87,8 @@ pitest {
 	threads = 4
 	timestampedReports = false
 	outputFormats = ['XML', 'HTML']
-
-	// Correct property — replaces the invalid "withHistory = true"
 	enableDefaultIncrementalAnalysis = true
-
-	mutationThreshold = 70
-	coverageThreshold = 50
-
-	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED',
-			   '-XX:+EnableDynamicAgentLoading']
+	mutationThreshold = 100
+	coverageThreshold = 85
+	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED', '-XX:+EnableDynamicAgentLoading']
 }
