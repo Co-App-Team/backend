@@ -60,7 +60,7 @@ public class GenAIResumeAdvisorController {
    * @return the remaining quota
    */
   @GetMapping("/remaining-quota")
-  public ResponseEntity<Map<String, Object>> resumeAdvisor(Authentication authentication) {
+  public ResponseEntity<Map<String, Object>> getRemainingQuota(Authentication authentication) {
     UserModel user = (UserModel) authentication.getPrincipal();
     String userID = user.getId();
     int numberOfRequestLeft = this.genAIUsageManagementService.getNumberOfRequestLeft(userID);
