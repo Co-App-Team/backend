@@ -1,7 +1,7 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.EmailInvalidAddressException;
-import com.backend.coapp.exception.EmailServiceException;
+import com.backend.coapp.exception.auth.EmailInvalidAddressException;
+import com.backend.coapp.exception.auth.EmailServiceException;
 import java.util.regex.Pattern;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;

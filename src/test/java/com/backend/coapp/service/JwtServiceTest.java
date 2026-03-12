@@ -3,9 +3,9 @@ package com.backend.coapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.JwtExpiredException;
-import com.backend.coapp.exception.JwtInvalidTokenException;
-import com.backend.coapp.exception.JwtServiceFailException;
+import com.backend.coapp.exception.auth.JwtExpiredException;
+import com.backend.coapp.exception.auth.JwtInvalidTokenException;
+import com.backend.coapp.exception.auth.JwtServiceFailException;
 import com.backend.coapp.model.document.UserModel;
 import io.jsonwebtoken.*;
 import java.security.Key;

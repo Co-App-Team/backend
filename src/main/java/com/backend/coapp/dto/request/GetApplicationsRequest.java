@@ -1,6 +1,6 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import com.backend.coapp.util.ApplicationValidSearchParameters;

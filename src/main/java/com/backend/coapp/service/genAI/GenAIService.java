@@ -1,6 +1,6 @@
 package com.backend.coapp.service.genAI;
 
-import com.backend.coapp.exception.GenAIServiceException;
+import com.backend.coapp.exception.genai.GenAIServiceException;
 
 /**
  * Interface for GenAI service integrations.

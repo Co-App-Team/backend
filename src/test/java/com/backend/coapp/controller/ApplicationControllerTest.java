@@ -10,7 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.CreateApplicationRequest;
 import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.*;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.service.ApplicationService;
