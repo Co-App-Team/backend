@@ -330,7 +330,7 @@ public class ApplicationService {
     // validation has already ensured sortOrder is either asc or desc
     Sort.Direction direction =
         "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
-    return Sort.by(direction, sortBy);
+    return Sort.by(new Sort.Order(direction, sortBy).nullsLast());
   }
 
   /** Executes the paginated MongoDB query and returns the matching ApplicationModel documents. */
