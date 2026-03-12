@@ -4,11 +4,13 @@ import com.backend.coapp.model.document.UserExperienceModel;
 import java.time.LocalDate;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 /** Response DTO for User Experience */
 @Getter
 @AllArgsConstructor
+@Builder
 public class UserExperienceResponse implements IResponse {
 
   // JSON keys
@@ -42,12 +44,13 @@ public class UserExperienceResponse implements IResponse {
    * @return UserExperience DTO
    */
   public static UserExperienceResponse fromModel(UserExperienceModel userExperienceModel) {
-    return new UserExperienceResponse(
-        userExperienceModel.getId(),
-        userExperienceModel.getCompanyId(),
-        userExperienceModel.getRoleTitle(),
-        userExperienceModel.getRoleDescription(),
-        userExperienceModel.getStartDate(),
-        userExperienceModel.getEndDate());
+    return UserExperienceResponse.builder()
+        .experienceId(userExperienceModel.getId())
+        .companyId(userExperienceModel.getCompanyId())
+        .roleTitle(userExperienceModel.getRoleTitle())
+        .roleDescription(userExperienceModel.getRoleDescription())
+        .startDate(userExperienceModel.getStartDate())
+        .endDate(userExperienceModel.getEndDate())
+        .build();
   }
 }

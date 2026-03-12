@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -56,14 +55,15 @@ public class UserController {
    * Update user's password if user provides the old password right
    *
    * @param request UpdatePasswordWithOldPasswordRequest
+   * @param authentication authentication object
    * @return ResponseEntity
    */
   @PatchMapping("/update-password")
   public ResponseEntity<Map<String, Object>> updatePassword(
-      @RequestBody UpdatePasswordWithOldPasswordRequest request) {
+      @RequestBody UpdatePasswordWithOldPasswordRequest request, Authentication authentication) {
     request.validateRequest();
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userID = auth.getName();
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userID = user.getId();
     this.userService.updateUserPassword(userID, request.getOldPassword(), request.getNewPassword());
 
     return ResponseEntity.ok().body(Map.of("message", "Updated password successfully."));
@@ -72,12 +72,13 @@ public class UserController {
   /**
    * Get basic information about user
    *
+   * @param authentication authentication object
    * @return ResponseEntity user information
    */
   @GetMapping("/about-me")
-  public ResponseEntity<Map<String, Object>> aboutMe() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userID = auth.getName();
+  public ResponseEntity<Map<String, Object>> aboutMe(Authentication authentication) {
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userID = user.getId();
 
     UserModel userModel = this.userService.getUserInformationFromUserID(userID);
     UserResponse userResponse = UserResponse.fromModel(userModel);
@@ -88,12 +89,13 @@ public class UserController {
   /**
    * Get all experience of the user
    *
+   * @param authentication authentication object
    * @return ResponseEntity - list of experiences of the user.
    */
   @GetMapping("/experience")
-  public ResponseEntity<Map<String, Object>> getAllUserExperience() {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userID = auth.getName();
+  public ResponseEntity<Map<String, Object>> getAllUserExperience(Authentication authentication) {
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userID = user.getId();
 
     List<UserExperienceModel> userExperienceModelList =
         this.userService.getAllUserExperience(userID);
@@ -109,13 +111,14 @@ public class UserController {
    * Create new experience
    *
    * @param request UserExperienceRequest
+   * @param authentication authentication object
    * @return ID of the new experience
    */
   @PostMapping("/experience")
   public ResponseEntity<Map<String, Object>> createNewUserExperience(
-      @RequestBody UserExperienceRequest request) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userID = auth.getName();
+      @RequestBody UserExperienceRequest request, Authentication authentication) {
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userID = user.getId();
     request.validateRequest();
 
     UserExperienceModel experience =
@@ -134,13 +137,14 @@ public class UserController {
    * Delete a user experience
    *
    * @param experienceId Path variable
+   * @param authentication authentication object
    * @return ResponseEntity: Deleted successfully when successfully deletes
    */
   @DeleteMapping("/experience/{experienceId}")
   public ResponseEntity<Map<String, Object>> deleteUserExperience(
-      @PathVariable String experienceId) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userID = auth.getName();
+      @PathVariable String experienceId, Authentication authentication) {
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userID = user.getId();
     if (experienceId.isBlank()) {
       throw new InvalidRequestException("Experience ID can NOT be null or empty");
     }
@@ -155,13 +159,16 @@ public class UserController {
    *
    * @param experienceId path id of the experience
    * @param request UserExperienceRequest
+   * @param authentication authentication object
    * @return Update successfully message
    */
   @PatchMapping("/experience/{experienceId}")
   public ResponseEntity<Map<String, Object>> updateUserExperience(
-      @PathVariable String experienceId, @RequestBody UserExperienceRequest request) {
-    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    String userId = auth.getName();
+      @PathVariable String experienceId,
+      @RequestBody UserExperienceRequest request,
+      Authentication authentication) {
+    UserModel user = (UserModel) authentication.getPrincipal();
+    String userID = user.getId();
     request.validateRequest();
     if (experienceId.isBlank()) {
       throw new InvalidRequestException("Experience ID can NOT be null or empty");
@@ -169,7 +176,7 @@ public class UserController {
 
     userService.updateUserExperience(
         experienceId,
-        userId,
+        userID,
         request.getCompanyId(),
         request.getRoleTitle(),
         request.getRoleDescription(),
