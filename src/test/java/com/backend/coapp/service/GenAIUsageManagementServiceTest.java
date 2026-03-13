@@ -355,6 +355,18 @@ public class GenAIUsageManagementServiceTest {
   }
 
   @Test
+  public void getNumberOfRequestLeft_whenRequestCountOverLimit_expectZeroRequestLeft() {
+    UserGenAIUsageModel userRecord =
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 1);
+    this.userGenAIUsageRepository.save(userRecord);
+
+    int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
+
+    assertEquals(0, result);
+  }
+
+  @Test
   public void
       getNumberOfRequestLeft_whenRepoOperationFails_expectGenAIUsageManagementServiceException() {
     UserGenAIUsageRepository userGenAIUsageRepositoryMock =

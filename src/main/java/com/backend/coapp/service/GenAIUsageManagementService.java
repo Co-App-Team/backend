@@ -126,6 +126,10 @@ public class GenAIUsageManagementService {
         numberOfRequestLeft = userUsageRecord.getMonthlyLimit() - userUsageRecord.getRequestCount();
       }
 
+      if (numberOfRequestLeft < 0) {
+        numberOfRequestLeft = 0;
+      }
+
     } catch (Exception e) {
       throw new GenAIUsageManagementServiceException(e.getMessage());
     }
