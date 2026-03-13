@@ -76,7 +76,7 @@ class GeminiGenAIServiceTest {
   }
 
   @Test
-  void generateResponse_whenGeminiClientThrows_expectGenAIServiceException() throws Exception {
+  void generateResponse_whenGeminiClientThrows_expectGenAIServiceException() {
     when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
         .thenThrow(new RuntimeException("Gemini API failed"));
 
