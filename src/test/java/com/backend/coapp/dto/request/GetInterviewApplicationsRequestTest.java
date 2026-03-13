@@ -8,8 +8,8 @@ import org.junit.jupiter.api.Test;
 
 public class GetInterviewApplicationsRequestTest {
 
-  private final LocalDate VALID_DATE = LocalDate.now();
-  private final String EXCEPTION_PREFIX = "Invalid inputs of the request. ";
+  private static final LocalDate VALID_DATE = LocalDate.now();
+  private static final String EXCEPTION_PREFIX = "Invalid inputs of the request. ";
 
   @Test
   public void getMethods_expectInitValues() {
