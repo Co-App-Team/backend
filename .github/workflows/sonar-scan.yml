@@ -1,0 +1,42 @@
+name: Sonar scan
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 21
+        uses: actions/setup-java@v1
+        with:
+          java-version: 21
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Build and analyze
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew build sonar --info
+      - name: SonarQube Quality Gate Check
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
