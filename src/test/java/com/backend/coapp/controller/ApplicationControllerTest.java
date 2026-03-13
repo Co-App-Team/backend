@@ -827,24 +827,24 @@ public class ApplicationControllerTest {
   @WithMockUser(username = "user1")
   public void getInterviewApplications_whenNoParams_expect200WithApplications() throws Exception {
     ApplicationModel mockApp =
-            ApplicationModel.builder()
-                    .userId("user1")
-                    .jobTitle("Interview Role")
-                    .status(ApplicationStatus.INTERVIEWING)
-                    .interviewDate(DATE)
-                    .build();
+        ApplicationModel.builder()
+            .userId("user1")
+            .jobTitle("Interview Role")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDate(DATE)
+            .build();
 
     when(this.applicationService.getInterviewApplications(eq("user1"), isNull(), isNull()))
-            .thenReturn(List.of(mockApp));
+        .thenReturn(List.of(mockApp));
 
     mockMvc
-            .perform(get("/api/application/interviews"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].jobTitle").value("Interview Role"))
-            .andExpect(jsonPath("$[0].status").value("INTERVIEWING"));
+        .perform(get("/api/application/interviews"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].jobTitle").value("Interview Role"))
+        .andExpect(jsonPath("$[0].status").value("INTERVIEWING"));
 
     verify(this.applicationService, times(1))
-            .getInterviewApplications(eq("user1"), isNull(), isNull());
+        .getInterviewApplications(eq("user1"), isNull(), isNull());
   }
 
   @Test
@@ -854,30 +854,29 @@ public class ApplicationControllerTest {
     LocalDate end = DATE.plusDays(1);
 
     when(this.applicationService.getInterviewApplications(eq("user1"), eq(start), eq(end)))
-            .thenReturn(Collections.emptyList());
+        .thenReturn(Collections.emptyList());
 
     mockMvc
-            .perform(
-                    get("/api/application/interviews")
-                            .param("startDate", start.toString())
-                            .param("endDate", end.toString()))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$").isArray());
+        .perform(
+            get("/api/application/interviews")
+                .param("startDate", start.toString())
+                .param("endDate", end.toString()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray());
 
     verify(this.applicationService, times(1))
-            .getInterviewApplications(eq("user1"), eq(start), eq(end));
+        .getInterviewApplications(eq("user1"), eq(start), eq(end));
   }
 
   @Test
   @WithMockUser(username = "user1")
   public void getInterviewApplications_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.getInterviewApplications(anyString(), any(), any()))
-            .thenThrow(new ApplicationServiceFailException("DB error"));
+        .thenThrow(new ApplicationServiceFailException("DB error"));
 
     mockMvc
-            .perform(get("/api/application/interviews"))
-            .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"));
+        .perform(get("/api/application/interviews"))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"));
   }
-
 }

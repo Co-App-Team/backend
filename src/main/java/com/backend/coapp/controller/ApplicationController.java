@@ -8,7 +8,6 @@ import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ApplicationService;
-
 import java.util.List;
 import java.util.Map;
 import lombok.Getter;
@@ -150,8 +149,7 @@ public class ApplicationController {
     return ResponseEntity.ok(response);
   }
 
-  /**
-   */
+  /** */
   @GetMapping("/interviews")
   public ResponseEntity<List<ApplicationModel>> getInterviewApplications(
       @ModelAttribute GetInterviewApplicationsRequest interviewApplicationsRequest) {

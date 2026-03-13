@@ -11,7 +11,7 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @SuperBuilder
-public class GetInterviewApplicationsRequest extends ApplicationPaginationRequest {
+public class GetInterviewApplicationsRequest implements IRequest {
 
   // optional, however, there are validation rules if provided
   private LocalDate startDate;

@@ -362,11 +362,11 @@ public class ApplicationService {
             .is(userId)
             .and("status")
             .is(ApplicationStatus.INTERVIEWING)
-                .and("interviewDate")
-                .exists(true);
+            .and("interviewDate")
+            .exists(true);
 
     if (startDate != null && endDate != null) {
-        criteria.gte(startDate).lte(endDate);
+      criteria.gte(startDate).lte(endDate);
     }
 
     return mongoTemplate.find(new Query(criteria), ApplicationModel.class);
