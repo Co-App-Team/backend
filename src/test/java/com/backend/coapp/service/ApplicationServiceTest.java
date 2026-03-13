@@ -3,6 +3,7 @@ package com.backend.coapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -900,5 +902,164 @@ public class ApplicationServiceTest {
 
     assertNotNull(responses);
     assertTrue(responses.isEmpty());
+  }
+
+  // Tests for getInterviewApplications
+
+  @Test
+  public void getInterviewApplications_whenNoDateRange_returnInterviewingApps() {
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId(testCompany.getId())
+            .jobTitle("Interviewing Role")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDate(DATE)
+            .applicationDeadline(DATE)
+            .build();
+    applicationRepository.save(interviewingApp);
+
+    List<ApplicationModel> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertEquals(1, result.size());
+    assertEquals("Interviewing Role", result.get(0).getJobTitle());
+  }
+
+  @Test
+  public void getInterviewApplications_whenDateRangeProvided_returnFilteredApps() {
+    LocalDate start = DATE.minusDays(1);
+    LocalDate end = DATE.plusDays(1);
+
+    ApplicationModel insideRange =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId(testCompany.getId())
+            .jobTitle("Inside Range")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDate(DATE)
+            .applicationDeadline(DATE)
+            .build();
+
+    ApplicationModel outsideRange =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId(testCompany.getId())
+            .jobTitle("Outside Range")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDate(DATE.plusDays(10))
+            .applicationDeadline(DATE)
+            .build();
+
+    applicationRepository.save(insideRange);
+    applicationRepository.save(outsideRange);
+
+    List<ApplicationModel> result =
+        applicationService.getInterviewApplications("user_001", start, end);
+
+    assertEquals(1, result.size());
+    assertEquals("Inside Range", result.get(0).getJobTitle());
+  }
+
+  @Test
+  public void getInterviewApplications_whenStatusNotInterviewing_returnEmpty() {
+    List<ApplicationModel> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void getInterviewApplications_whenInterviewDateNull_returnEmpty() {
+    ApplicationModel noDateApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId(testCompany.getId())
+            .jobTitle("No Date")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDate(null)
+            .applicationDeadline(DATE)
+            .build();
+    applicationRepository.save(noDateApp);
+
+    List<ApplicationModel> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void getInterviewApplications_whenWrongUser_returnEmpty() {
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId(testCompany.getId())
+            .jobTitle("Interviewing Role")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDate(DATE)
+            .applicationDeadline(DATE)
+            .build();
+    applicationRepository.save(interviewingApp);
+
+    List<ApplicationModel> result =
+        applicationService.getInterviewApplications("wrong_user", null, null);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void getInterviewApplications_unitTest_whenDatesProvided() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn(Collections.emptyList());
+
+    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", DATE, DATE);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  public void getInterviewApplications_unitTest_whenDatesNull() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn(Collections.emptyList());
+
+    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", null, null);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  public void getInterviewApplications_unitTest_whenStartDateOnly() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn(Collections.emptyList());
+
+    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", DATE, null);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  public void getInterviewApplications_unitTest_whenEndDateOnly() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn(Collections.emptyList());
+
+    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", null, DATE);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
   }
 }
