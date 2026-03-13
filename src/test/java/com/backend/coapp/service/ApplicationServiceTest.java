@@ -878,4 +878,27 @@ public class ApplicationServiceTest {
     assertEquals(true, pagination.get("hasPrevious"));
     assertEquals(false, pagination.get("hasNext"));
   }
+
+  @Test
+  public void getApplications_whenUserHasApplications_expectList() {
+    List<ApplicationResponse> responses = this.applicationService.getApplications("user_001");
+
+    assertNotNull(responses);
+    assertFalse(responses.isEmpty());
+    assertEquals(1, responses.size());
+    assertEquals(existingApp.getJobTitle(), responses.get(0).getJobTitle());
+  }
+
+  @Test
+  public void getApplications_whenUserHasNoApplications_expectEmptyList() {
+    // Create a user with no apps
+    UserModel user2 =
+        new UserModel("user_002", "test2@example.com", "pwd", "Jane", "Doe", true, 5678);
+    userRepository.save(user2);
+
+    List<ApplicationResponse> responses = this.applicationService.getApplications("user_002");
+
+    assertNotNull(responses);
+    assertTrue(responses.isEmpty());
+  }
 }
