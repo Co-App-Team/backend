@@ -69,3 +69,11 @@ jacocoTestReport {
 		html.required = true
 	}
 }
+
+sonar {
+	properties {
+		property "sonar.projectKey", "Co-App-Team_backend"
+		property "sonar.organization", "co-app-team"
+		property "sonar.host.url", "https://sonarcloud.io"
+	}
+}
