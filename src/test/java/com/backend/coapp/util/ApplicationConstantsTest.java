@@ -1,7 +1,6 @@
 package com.backend.coapp.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -18,6 +17,5 @@ class ApplicationConstantsTest {
 
     assertEquals("dateApplied", ApplicationConstants.SORT_BY_DATE_APPLIED);
     assertEquals("desc", ApplicationConstants.DEFAULT_SORT_ORDER);
-
   }
 }
