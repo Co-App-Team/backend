@@ -26,8 +26,8 @@ jobs:
           SONAR_HOST_URL: https://sonarcloud.io
         with:
           args: >
-            -Dsonar.organization=Co-App-Team_backend
-            -Dsonar.projectKey=co-app-team
+            -Dsonar.organization=co-app-team
+            -Dsonar.projectKey=Co-App-Team_backend
 
       - name: SonarQube Quality Gate Check
         uses: sonarsource/sonarqube-quality-gate-action@v1
