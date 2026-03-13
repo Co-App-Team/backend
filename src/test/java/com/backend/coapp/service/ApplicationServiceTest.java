@@ -868,7 +868,7 @@ public class ApplicationServiceTest {
   public void getApplications_whenUserHasNoApplications_expectEmptyList() {
     // Create a user with no apps
     UserModel user2 =
-      new UserModel("user_002", "test2@example.com", "pwd", "Jane", "Doe", true, 5678);
+        new UserModel("user_002", "test2@example.com", "pwd", "Jane", "Doe", true, 5678);
     userRepository.save(user2);
 
     List<ApplicationResponse> responses = this.applicationService.getApplications("user_002");
