@@ -16,14 +16,14 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import tools.jackson.databind.ObjectMapper;
 
 /** Parts of these tests is written with help of Claude (Sonnet 4.6) */
-public class SecurityConfigTest {
+class SecurityConfigTest {
 
   private AuthenticationEntryPoint authenticationEntryPoint;
   private MockHttpServletRequest request;
   private MockHttpServletResponse response;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     SecurityConfig securityConfig =
         new SecurityConfig(null, null); // pass nulls since we only test the entry point
     this.authenticationEntryPoint = securityConfig.customAuthenticationEntryPoint();
@@ -32,7 +32,7 @@ public class SecurityConfigTest {
   }
 
   @Test
-  public void customAuthenticationEntryPoint_whenCalled_expect401Status() throws Exception {
+  void customAuthenticationEntryPoint_whenCalled_expect401Status() throws Exception {
     authenticationEntryPoint.commence(
         request, response, new AuthenticationException("Unauthorized") {});
 
@@ -40,7 +40,7 @@ public class SecurityConfigTest {
   }
 
   @Test
-  public void customAuthenticationEntryPoint_whenCalled_expectJsonContentType() throws Exception {
+  void customAuthenticationEntryPoint_whenCalled_expectJsonContentType() throws Exception {
     authenticationEntryPoint.commence(
         request, response, new AuthenticationException("Unauthorized") {});
 
@@ -48,8 +48,7 @@ public class SecurityConfigTest {
   }
 
   @Test
-  public void customAuthenticationEntryPoint_whenCalled_expectCorrectResponseBody()
-      throws Exception {
+  void customAuthenticationEntryPoint_whenCalled_expectCorrectResponseBody() throws Exception {
     authenticationEntryPoint.commence(
         request, response, new AuthenticationException("Unauthorized") {});
 
@@ -62,7 +61,7 @@ public class SecurityConfigTest {
   }
 
   @Test
-  public void customAuthenticationEntryPoint_whenCalled_expectBothErrorAndMessageFieldsPresent()
+  void customAuthenticationEntryPoint_whenCalled_expectBothErrorAndMessageFieldsPresent()
       throws Exception {
     authenticationEntryPoint.commence(
         request, response, new AuthenticationException("Unauthorized") {});

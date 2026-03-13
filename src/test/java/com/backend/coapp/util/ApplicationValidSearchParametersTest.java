@@ -8,10 +8,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
-public class ApplicationValidSearchParametersTest {
+class ApplicationValidSearchParametersTest {
 
   @Test
-  public void validSortByValues_expectContainsDateApplied() {
+  void validSortByValues_expectContainsDateApplied() {
     List<String> values = ApplicationValidSearchParameters.VALID_SORT_BY_VALUES;
 
     assertNotNull(values);
@@ -20,7 +20,7 @@ public class ApplicationValidSearchParametersTest {
   }
 
   @Test
-  public void validSortOrderValues_expectContainsAscAndDesc() {
+  void validSortOrderValues_expectContainsAscAndDesc() {
     List<String> values = ApplicationValidSearchParameters.VALID_SORT_ORDER_VALUES;
 
     assertNotNull(values);
@@ -30,7 +30,7 @@ public class ApplicationValidSearchParametersTest {
   }
 
   @Test
-  public void validStatusValues_expectContainsAllEnumValues() {
+  void validStatusValues_expectContainsAllEnumValues() {
     List<String> values = ApplicationValidSearchParameters.VALID_STATUS_VALUES;
     List<String> expectedValues =
         Arrays.stream(ApplicationStatus.values()).map(Enum::name).toList();

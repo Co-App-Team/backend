@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class AuthAccountAlreadyVerifyExceptionTest {
+class AuthAccountAlreadyVerifyExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     AuthAccountAlreadyVerifyException exception = new AuthAccountAlreadyVerifyException();
 
     assertNotNull(exception);
@@ -17,7 +17,7 @@ public class AuthAccountAlreadyVerifyExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     AuthAccountAlreadyVerifyException exception = new AuthAccountAlreadyVerifyException("foo");
 
     assertNotNull(exception);

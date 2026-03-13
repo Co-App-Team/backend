@@ -1,6 +1,7 @@
 package com.backend.coapp.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.backend.coapp.model.document.UserModel;
@@ -17,7 +18,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Unit tests for UserModel and its repository. Proof of concept, for now. */
 @SpringBootTest
 @Testcontainers
-public class UserRepositoryTests {
+class UserRepositoryTests {
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
@@ -29,7 +30,7 @@ public class UserRepositoryTests {
 
   /** Runs before each test to reset the data. */
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     repository.deleteAll();
 
     john = repository.save(new UserModel("john@mail.com", "password123", "John", "Johnson", 123));
@@ -38,48 +39,48 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
+  void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
     UserModel user = repository.save(new UserModel("user@mail.com", "secret", "foo", "woof", 123));
 
     assertThat(user.getId()).isNotNull();
   }
 
   @Test
-  public void findsUserById_expectReturnJohn() {
+  void findsUserById_expectReturnJohn() {
     UserModel found = repository.findUserModelById(john.getId());
 
     assertThat(found).isNotNull();
     assertThat(found.getFirstName()).isEqualTo("John");
     assertThat(found.getLastName()).isEqualTo("Johnson");
     assertThat(found.getId() != null);
-    assertThat(found.getEmail().equals(john.getEmail()));
-    assertThat(found.getPassword().equals(john.getPassword()));
-    assertThat(found.getVerificationCode().equals(john.getVerificationCode()));
-    assertThat(found.getVerified().equals(john.getVerified()));
+    assertThat(found.getEmail()).isEqualTo(john.getEmail());
+    assertThat(found.getPassword()).isEqualTo(john.getPassword());
+    assertThat(found.getVerificationCode()).isEqualTo(john.getVerificationCode());
+    assertThat(found.getVerified()).isEqualTo(john.getVerified());
   }
 
   @Test
-  public void findUserModelByEmail_whenFindByJohnEmail_expectJohnUserModel() {
+  void findUserModelByEmail_whenFindByJohnEmail_expectJohnUserModel() {
     UserModel found = repository.findUserModelByEmail(john.getEmail());
 
     assertThat(found).isNotNull();
     assertThat(found.getFirstName()).isEqualTo("John");
     assertThat(found.getLastName()).isEqualTo("Johnson");
-    assertThat(found.getId() != null);
-    assertThat(found.getEmail().equals(john.getEmail()));
-    assertThat(found.getPassword().equals(john.getPassword()));
-    assertThat(found.getVerificationCode().equals(john.getVerificationCode()));
-    assertThat(found.getVerified().equals(john.getVerified()));
+    assertNotNull(found.getId());
+    assertThat(found.getEmail()).isEqualTo(john.getEmail());
+    assertThat(found.getPassword()).isEqualTo(john.getPassword());
+    assertThat(found.getVerificationCode()).isEqualTo(john.getVerificationCode());
+    assertThat(found.getVerified()).isEqualTo(john.getVerified());
   }
 
   @Test
-  public void findUserModelByEmail_whenFindNonExistEmail_expectNull() {
+  void findUserModelByEmail_whenFindNonExistEmail_expectNull() {
     UserModel found = repository.findUserModelByEmail("foo@mail.com");
     assertNull(found);
   }
 
   @Test
-  public void findsAllUsers_expectReturn3Users() {
+  void findsAllUsers_expectReturn3Users() {
     List<UserModel> users = repository.findAll();
 
     assertThat(users).hasSize(3).extracting("firstName").contains("John", "Jane", "Bob");
@@ -95,7 +96,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void deleteById_whenDeleteBob_expectDeleteBob() {
+  void deleteById_whenDeleteBob_expectDeleteBob() {
     repository.deleteById(bob.getId());
 
     List<UserModel> users = repository.findAll();
@@ -106,7 +107,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void updatesUser_whenUpdateJohnFirstAndLastName_expectJohnNameUpdate() {
+  void updatesUser_whenUpdateJohnFirstAndLastName_expectJohnNameUpdate() {
     john.setFirstName("Jonathan");
     john.setLastName("Dorothy");
     repository.save(john);
@@ -117,7 +118,7 @@ public class UserRepositoryTests {
   }
 
   @Test
-  public void findUserModelById_whenUserNotExist_expectReturnNull() {
+  void findUserModelById_whenUserNotExist_expectReturnNull() {
     UserModel notFound = repository.findUserModelById("fake-id");
 
     assertThat(notFound).isNull();

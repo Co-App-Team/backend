@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class CompanyServiceFailExceptionTest {
+class CompanyServiceFailExceptionTest {
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     CompanyServiceFailException exception =
         new CompanyServiceFailException("Database connection failed");
     assertNotNull(exception);

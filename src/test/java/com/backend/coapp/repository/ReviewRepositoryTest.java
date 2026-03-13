@@ -23,7 +23,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Unit tests for ReviewModel repository */
 @SpringBootTest
 @Testcontainers
-public class ReviewRepositoryTest {
+class ReviewRepositoryTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -36,7 +36,7 @@ public class ReviewRepositoryTest {
 
   /** reset data before each test */
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     repository.deleteAll();
 
     review1 =
@@ -77,7 +77,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
+  void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
     ReviewModel review =
         repository.save(
             new ReviewModel(
@@ -93,7 +93,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findById_expectReturnReview() {
+  void findById_expectReturnReview() {
     Optional<ReviewModel> found = repository.findById(review1.getId());
     assertThat(found).isPresent();
     assertThat(found.get().getCompanyId()).isEqualTo("company1");
@@ -107,7 +107,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findByCompanyId_expectReturnReviewsForCompany() {
+  void findByCompanyId_expectReturnReviewsForCompany() {
     List<ReviewModel> reviews = repository.findByCompanyId("company1");
     assertThat(reviews).hasSize(2);
     assertThat(reviews).extracting("companyId").containsOnly("company1");
@@ -115,7 +115,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findByCompanyId_withPagination_expectPagedResults() {
+  void findByCompanyId_withPagination_expectPagedResults() {
     Page<ReviewModel> page = repository.findByCompanyId("company1", PageRequest.of(0, 1));
     assertThat(page.getContent()).hasSize(1);
     assertThat(page.getTotalElements()).isEqualTo(2);
@@ -123,13 +123,13 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findByCompanyId_whenNoReviews_expectEmptyList() {
+  void findByCompanyId_whenNoReviews_expectEmptyList() {
     List<ReviewModel> reviews = repository.findByCompanyId("fakeId");
     assertThat(reviews).isEmpty();
   }
 
   @Test
-  public void findByUserIdAndCompanyId_expectReturnReview() {
+  void findByUserIdAndCompanyId_expectReturnReview() {
     Optional<ReviewModel> found = repository.findByUserIdAndCompanyId("user1", "company1");
     assertThat(found).isPresent();
     assertThat(found.get().getUserId()).isEqualTo("user1");
@@ -138,25 +138,25 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findByUserIdAndCompanyId_whenNotExists_expectEmpty() {
+  void findByUserIdAndCompanyId_whenNotExists_expectEmpty() {
     Optional<ReviewModel> found = repository.findByUserIdAndCompanyId("user3", "company1");
     assertThat(found).isEmpty();
   }
 
   @Test
-  public void existsByUserIdAndCompanyId_whenExists_expectTrue() {
+  void existsByUserIdAndCompanyId_whenExists_expectTrue() {
     boolean exists = repository.existsByUserIdAndCompanyId("user1", "company1");
     assertThat(exists).isTrue();
   }
 
   @Test
-  public void existsByUserIdAndCompanyId_whenNotExists_expectFalse() {
+  void existsByUserIdAndCompanyId_whenNotExists_expectFalse() {
     boolean exists = repository.existsByUserIdAndCompanyId("user3", "company1");
     assertThat(exists).isFalse();
   }
 
   @Test
-  public void findByUserId_expectReturnAllReviewsByUser() {
+  void findByUserId_expectReturnAllReviewsByUser() {
     List<ReviewModel> reviews = repository.findByUserId("user1");
     assertThat(reviews).hasSize(2);
     assertThat(reviews).extracting("userId").containsOnly("user1");
@@ -164,32 +164,32 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findByUserId_whenNoReviews_expectEmptyList() {
+  void findByUserId_whenNoReviews_expectEmptyList() {
     List<ReviewModel> reviews = repository.findByUserId("userFake");
     assertThat(reviews).isEmpty();
   }
 
   @Test
-  public void countByCompanyId_expectCorrectCount() {
+  void countByCompanyId_expectCorrectCount() {
     long count = repository.countByCompanyId("company1");
     assertThat(count).isEqualTo(2);
   }
 
   @Test
-  public void countByCompanyId_whenNoReviews_expectZero() {
+  void countByCompanyId_whenNoReviews_expectZero() {
     long count = repository.countByCompanyId("companyFake");
     assertThat(count).isEqualTo(0);
   }
 
   @Test
-  public void findsAllReviews_expectReturn3Reviews() {
+  void findsAllReviews_expectReturn3Reviews() {
     List<ReviewModel> reviews = repository.findAll();
     assertThat(reviews).hasSize(3);
     assertThat(reviews).extracting("authorName").contains("Eric Hodgson", "Not Eric");
   }
 
   @Test
-  public void deleteById_expectDeleteReview() {
+  void deleteById_expectDeleteReview() {
     repository.deleteById(review1.getId());
     List<ReviewModel> reviews = repository.findAll();
     assertThat(reviews).hasSize(2);
@@ -198,7 +198,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void updatesReview_whenUpdateRating_expectRatingUpdate() {
+  void updatesReview_whenUpdateRating_expectRatingUpdate() {
     review1.setRating(ReviewConstants.MAX_RATING - 2);
     repository.save(review1);
     Optional<ReviewModel> updated = repository.findById(review1.getId());
@@ -208,7 +208,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void updatesReview_whenUpdateComment_expectCommentUpdate() {
+  void updatesReview_whenUpdateComment_expectCommentUpdate() {
     review1.setComment("Updated comment");
     repository.save(review1);
     Optional<ReviewModel> updated = repository.findById(review1.getId());
@@ -217,7 +217,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void updatesReview_whenUpdateMultipleFields_expectAllFieldsUpdate() {
+  void updatesReview_whenUpdateMultipleFields_expectAllFieldsUpdate() {
     review1.setRating(ReviewConstants.MAX_RATING - 1);
     review1.setComment("Updated!!!");
     review1.setJobTitle("Senior Developer");
@@ -236,13 +236,13 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void findById_whenReviewNotExist_expectEmpty() {
+  void findById_whenReviewNotExist_expectEmpty() {
     Optional<ReviewModel> notFound = repository.findById("fakeId");
     assertThat(notFound).isEmpty();
   }
 
   @Test
-  public void save_whenDuplicateUserAndCompany_expectUniqueConstraintViolation() {
+  void save_whenDuplicateUserAndCompany_expectUniqueConstraintViolation() {
     assertThrows(
         DuplicateKeyException.class,
         () ->
@@ -259,7 +259,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void save_whenSameUserDifferentCompany_expectSuccess() {
+  void save_whenSameUserDifferentCompany_expectSuccess() {
     ReviewModel review =
         repository.save(
             new ReviewModel(
@@ -275,7 +275,7 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void save_whenDifferentUserSameCompany_expectSuccess() {
+  void save_whenDifferentUserSameCompany_expectSuccess() {
     ReviewModel review =
         repository.save(
             new ReviewModel(
@@ -291,13 +291,13 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void count_expectReturnsCorrectCount() {
+  void count_expectReturnsCorrectCount() {
     long count = repository.count();
     assertThat(count).isEqualTo(3);
   }
 
   @Test
-  public void deleteAll_expectEmptyRepository() {
+  void deleteAll_expectEmptyRepository() {
     repository.deleteAll();
     List<ReviewModel> reviews = repository.findAll();
     assertThat(reviews).isEmpty();
@@ -305,14 +305,14 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void existsByUserIdAndCompanyId_afterDelete_expectFalse() {
+  void existsByUserIdAndCompanyId_afterDelete_expectFalse() {
     repository.delete(review1);
     boolean exists = repository.existsByUserIdAndCompanyId("user1", "company1");
     assertThat(exists).isFalse();
   }
 
   @Test
-  public void findAll_whenEmpty_expectEmptyList() {
+  void findAll_whenEmpty_expectEmptyList() {
     repository.deleteAll();
     List<ReviewModel> reviews = repository.findAll();
     assertThat(reviews).isEmpty();

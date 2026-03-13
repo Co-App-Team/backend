@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class NoChangesDetectedExceptionTest {
+class NoChangesDetectedExceptionTest {
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     String message = "No fields were updated.";
     NoChangesDetectedException exception = new NoChangesDetectedException(message);
 
