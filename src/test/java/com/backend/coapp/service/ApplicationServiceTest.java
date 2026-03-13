@@ -853,4 +853,107 @@ public class ApplicationServiceTest {
     assertEquals(true, pagination.get("hasPrevious"));
     assertEquals(false, pagination.get("hasNext"));
   }
+
+  // Tests for getInterviewApplications
+
+  @Test
+  public void getInterviewApplications_whenNoDateRange_returnInterviewingApps() {
+    ApplicationModel interviewingApp =
+            ApplicationModel.builder()
+                    .userId("user_001")
+                    .companyId(testCompany.getId())
+                    .jobTitle("Interviewing Role")
+                    .status(ApplicationStatus.INTERVIEWING)
+                    .interviewDate(DATE)
+                    .applicationDeadline(DATE)
+                    .build();
+    applicationRepository.save(interviewingApp);
+
+    List<ApplicationModel> result =
+            applicationService.getInterviewApplications("user_001", null, null);
+
+    assertEquals(1, result.size());
+    assertEquals("Interviewing Role", result.get(0).getJobTitle());
+  }
+
+  @Test
+  public void getInterviewApplications_whenDateRangeProvided_returnFilteredApps() {
+    LocalDate start = DATE.minusDays(1);
+    LocalDate end = DATE.plusDays(1);
+
+    ApplicationModel insideRange =
+            ApplicationModel.builder()
+                    .userId("user_001")
+                    .companyId(testCompany.getId())
+                    .jobTitle("Inside Range")
+                    .status(ApplicationStatus.INTERVIEWING)
+                    .interviewDate(DATE)
+                    .applicationDeadline(DATE)
+                    .build();
+
+    ApplicationModel outsideRange =
+            ApplicationModel.builder()
+                    .userId("user_001")
+                    .companyId(testCompany.getId())
+                    .jobTitle("Outside Range")
+                    .status(ApplicationStatus.INTERVIEWING)
+                    .interviewDate(DATE.plusDays(10))
+                    .applicationDeadline(DATE)
+                    .build();
+
+    applicationRepository.save(insideRange);
+    applicationRepository.save(outsideRange);
+
+    List<ApplicationModel> result =
+            applicationService.getInterviewApplications("user_001", start, end);
+
+    assertEquals(1, result.size());
+    assertEquals("Inside Range", result.get(0).getJobTitle());
+  }
+
+  @Test
+  public void getInterviewApplications_whenStatusNotInterviewing_returnEmpty() {
+    List<ApplicationModel> result =
+            applicationService.getInterviewApplications("user_001", null, null);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void getInterviewApplications_whenInterviewDateNull_returnEmpty() {
+    ApplicationModel noDateApp =
+            ApplicationModel.builder()
+                    .userId("user_001")
+                    .companyId(testCompany.getId())
+                    .jobTitle("No Date")
+                    .status(ApplicationStatus.INTERVIEWING)
+                    .interviewDate(null)
+                    .applicationDeadline(DATE)
+                    .build();
+    applicationRepository.save(noDateApp);
+
+    List<ApplicationModel> result =
+            applicationService.getInterviewApplications("user_001", null, null);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void getInterviewApplications_whenWrongUser_returnEmpty() {
+    ApplicationModel interviewingApp =
+            ApplicationModel.builder()
+                    .userId("user_001")
+                    .companyId(testCompany.getId())
+                    .jobTitle("Interviewing Role")
+                    .status(ApplicationStatus.INTERVIEWING)
+                    .interviewDate(DATE)
+                    .applicationDeadline(DATE)
+                    .build();
+    applicationRepository.save(interviewingApp);
+
+    List<ApplicationModel> result =
+            applicationService.getInterviewApplications("wrong_user", null, null);
+
+    assertTrue(result.isEmpty());
+  }
 }

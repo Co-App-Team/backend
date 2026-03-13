@@ -354,4 +354,21 @@ public class ApplicationService {
     return new PaginationResponse(
         page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
   }
+
+  public List<ApplicationModel> getInterviewApplications(
+      String userId, LocalDate startDate, LocalDate endDate) {
+    Criteria criteria =
+        Criteria.where("userId")
+            .is(userId)
+            .and("status")
+            .is(ApplicationStatus.INTERVIEWING)
+                .and("interviewDate")
+                .exists(true);
+
+    if (startDate != null && endDate != null) {
+        criteria.gte(startDate).lte(endDate);
+    }
+
+    return mongoTemplate.find(new Query(criteria), ApplicationModel.class);
+  }
 }
