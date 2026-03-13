@@ -586,6 +586,31 @@ public class ApplicationServiceTest {
   }
 
   @Test
+  public void updateApplication_whenStatusChangesToDateApplied_dateAppliedChanges() {
+    this.existingApp.setDateApplied(null);
+    this.existingApp.setStatus(ApplicationStatus.NOT_APPLIED);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDate());
+
+    assertNotNull(response.getDateApplied());
+  }
+
+  @Test
   public void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
     CompanyModel secondCompany = new CompanyModel("Amazon", "Seattle", "https://amazon.com");
     companyRepository.save(secondCompany);
