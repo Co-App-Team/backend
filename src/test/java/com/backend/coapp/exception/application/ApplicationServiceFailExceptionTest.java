@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class ApplicationServiceFailExceptionTest {
+class ApplicationServiceFailExceptionTest {
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     String message = "Service layer failure";
     ApplicationServiceFailException exception = new ApplicationServiceFailException(message);
 

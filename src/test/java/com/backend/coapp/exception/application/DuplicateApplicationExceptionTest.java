@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class DuplicateApplicationExceptionTest {
+class DuplicateApplicationExceptionTest {
 
   @Test
-  public void constructor_whenInitParams_expectFormattedMessage() {
+  void constructor_whenInitParams_expectFormattedMessage() {
     String jobTitle = "Dev";
     String companyId = "comp1";
 

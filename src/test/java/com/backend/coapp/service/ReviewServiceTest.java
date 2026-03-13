@@ -30,7 +30,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 @SpringBootTest
 @Testcontainers
-public class ReviewServiceTest {
+class ReviewServiceTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -48,7 +48,7 @@ public class ReviewServiceTest {
   private ReviewModel testReview;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.companyRepository.deleteAll();
     this.reviewRepository.deleteAll();
 
@@ -75,7 +75,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(this.reviewRepository, this.reviewService.getReviewRepository());
     assertSame(this.companyRepository, this.reviewService.getCompanyRepository());
     assertSame(this.companyService, this.reviewService.getCompanyService());
@@ -84,7 +84,7 @@ public class ReviewServiceTest {
   // test creating reviews
 
   @Test
-  public void createReview_whenValidData_expectSuccess() {
+  void createReview_whenValidData_expectSuccess() {
     ReviewModel review =
         this.reviewService.createReview(
             this.nicheCompany.getId(),
@@ -113,7 +113,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void createReview_whenCompanyNotFound_expectException() {
+  void createReview_whenCompanyNotFound_expectException() {
     assertThrows(
         CompanyNotFoundException.class,
         () ->
@@ -122,7 +122,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void createReview_whenReviewAlreadyExists_expectException() {
+  void createReview_whenReviewAlreadyExists_expectException() {
     Exception exception =
         assertThrows(
             ReviewAlreadyExistsException.class,
@@ -140,7 +140,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void createReview_whenDuplicateKeyExceptionAndReviewExists_expectException() {
+  void createReview_whenDuplicateKeyExceptionAndReviewExists_expectException() {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
@@ -159,7 +159,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void createReview_whenDuplicateKeyExceptionButNoReview_expectServiceFailException() {
+  void createReview_whenDuplicateKeyExceptionButNoReview_expectServiceFailException() {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
@@ -177,7 +177,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void createReview_whenDatabaseSaveFails_expectException() {
+  void createReview_whenDatabaseSaveFails_expectException() {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
@@ -198,7 +198,7 @@ public class ReviewServiceTest {
   // test updating reviews
 
   @Test
-  public void updateReview_whenValidDataWithRatingChange_expectSuccess() {
+  void updateReview_whenValidDataWithRatingChange_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
             this.testReview.getCompanyId(), "user1", 3, "Updated comment", null, null, null);
@@ -215,7 +215,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenAllFieldsUpdated_expectSuccess() {
+  void updateReview_whenAllFieldsUpdated_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
             this.testReview.getCompanyId(),
@@ -235,7 +235,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenNoRatingChange_expectNoAvgRatingUpdate() {
+  void updateReview_whenNoRatingChange_expectNoAvgRatingUpdate() {
     this.reviewService =
         new ReviewService(this.reviewRepository, this.companyRepository, this.mockCompanyService);
 
@@ -259,7 +259,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenReviewNotFound_expectException() {
+  void updateReview_whenReviewNotFound_expectException() {
     assertThrows(
         ReviewNotFoundException.class,
         () ->
@@ -268,7 +268,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenUserNotOwner_expectException() {
+  void updateReview_whenUserNotOwner_expectException() {
     assertThrows(
         ReviewNotFoundException.class,
         () ->
@@ -277,7 +277,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenDatabaseSaveFails_expectException() {
+  void updateReview_whenDatabaseSaveFails_expectException() {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
@@ -297,7 +297,7 @@ public class ReviewServiceTest {
   // test deleting reviews
 
   @Test
-  public void deleteReview_whenValidData_expectSuccess() {
+  void deleteReview_whenValidData_expectSuccess() {
     String reviewCompanyId = this.testReview.getCompanyId();
 
     assertDoesNotThrow(() -> this.reviewService.deleteReview(reviewCompanyId, "user1"));
@@ -311,14 +311,14 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void deleteReview_whenReviewNotFound_expectException() {
+  void deleteReview_whenReviewNotFound_expectException() {
     assertThrows(
         ReviewNotFoundException.class,
         () -> this.reviewService.deleteReview("nonexistent", "user1"));
   }
 
   @Test
-  public void deleteReview_whenUserNotOwner_expectException() {
+  void deleteReview_whenUserNotOwner_expectException() {
     Exception exception =
         assertThrows(
             ReviewNotFoundException.class,
@@ -326,7 +326,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void deleteReview_whenDatabaseDeleteFails_expectException() {
+  void deleteReview_whenDatabaseDeleteFails_expectException() {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
@@ -343,7 +343,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenOnlyCommentUpdated_expectSuccess() {
+  void updateReview_whenOnlyCommentUpdated_expectSuccess() {
     ReviewModel updated =
         this.reviewService.updateReview(
             this.nicheCompany.getId(), "user1", null, "Only comment changed", null, null, null);
@@ -354,7 +354,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenCommentHasWhitespace_expectTrimmed() {
+  void updateReview_whenCommentHasWhitespace_expectTrimmed() {
     ReviewModel updated =
         this.reviewService.updateReview(
             this.nicheCompany.getId(),
@@ -370,7 +370,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenCommentIsNull_expectNoCommentUpdate() {
+  void updateReview_whenCommentIsNull_expectNoCommentUpdate() {
     String originalComment = this.testReview.getComment();
 
     ReviewModel updated =
@@ -384,7 +384,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_whenReviewsExist_expectPageOfReviews() {
+  void getReviewsByCompanyId_whenReviewsExist_expectPageOfReviews() {
     ReviewModel review2 =
         new ReviewModel(
             this.nicheCompany.getId(),
@@ -407,7 +407,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_whenNoReviews_expectEmptyPage() {
+  void getReviewsByCompanyId_whenNoReviews_expectEmptyPage() {
     CompanyModel emptyCompany = new CompanyModel("Empty Co", "Toronto", "https://empty.com");
     this.companyRepository.save(emptyCompany);
 
@@ -421,7 +421,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_whenDatabaseFails_expectException() {
+  void getReviewsByCompanyId_whenDatabaseFails_expectException() {
     this.reviewService =
         new ReviewService(
             this.mockReviewRepository, this.mockCompanyRepository, this.mockCompanyService);
@@ -436,7 +436,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_withPagination_expectCorrectPage() {
+  void getReviewsByCompanyId_withPagination_expectCorrectPage() {
     for (int i = 2; i <= 5; i++) {
       ReviewModel review =
           new ReviewModel(
@@ -462,13 +462,13 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_withNullReviewId_expectException() {
+  void verifyReviewBelongsToCompany_withNullReviewId_expectException() {
     assertThrows(
         Exception.class, () -> this.reviewService.verifyReviewBelongsToCompany(null, "companyId"));
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
+  void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
     assertDoesNotThrow(
         () ->
             this.reviewService.verifyReviewBelongsToCompany(
@@ -476,14 +476,14 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenReviewNotFound_expectReviewNotFoundException() {
+  void verifyReviewBelongsToCompany_whenReviewNotFound_expectReviewNotFoundException() {
     assertThrows(
         ReviewNotFoundException.class,
         () -> this.reviewService.verifyReviewBelongsToCompany("nonexistent-id", "company1"));
   }
 
   @Test
-  public void
+  void
       verifyReviewBelongsToCompany_whenReviewBelongsToDifferentCompany_expectInvalidRequestException() {
     // Create a second company
     CompanyModel otherCompany = new CompanyModel("Other Company", "Toronto", "https://other.com");
@@ -501,7 +501,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenMultipleReviewsForCompany_expectNoException() {
+  void verifyReviewBelongsToCompany_whenMultipleReviewsForCompany_expectNoException() {
     // Create another review for the same company
     ReviewModel review2 =
         new ReviewModel(

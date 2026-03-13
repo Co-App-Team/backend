@@ -6,10 +6,10 @@ import com.backend.coapp.util.ApplicationConstants;
 import org.junit.jupiter.api.Test;
 
 /* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
-public class ApplicationPaginationRequestTest {
+class ApplicationPaginationRequestTest {
 
   @Test
-  public void getMethods_expectInitValues() {
+  void getMethods_expectInitValues() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(2).size(50).build();
 
@@ -18,7 +18,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenAllValid_expectNoChange() {
+  void validateRequest_whenAllValid_expectNoChange() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(1).size(10).build();
     request.validateRequest();
@@ -28,7 +28,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenPageNull_expectDefaultPage() {
+  void validateRequest_whenPageNull_expectDefaultPage() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(null).size(10).build();
     request.validateRequest();
@@ -37,7 +37,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenPageNegative_expectDefaultPage() {
+  void validateRequest_whenPageNegative_expectDefaultPage() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(-1).size(10).build();
     request.validateRequest();
@@ -46,7 +46,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSizeNull_expectDefaultSize() {
+  void validateRequest_whenSizeNull_expectDefaultSize() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(0).size(null).build();
     request.validateRequest();
@@ -55,7 +55,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSizeTooSmall_expectDefaultSize() {
+  void validateRequest_whenSizeTooSmall_expectDefaultSize() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(0).size(0).build();
     request.validateRequest();
@@ -64,7 +64,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSizeTooLarge_expectCappedToMax() {
+  void validateRequest_whenSizeTooLarge_expectCappedToMax() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(0).size(999).build();
     request.validateRequest();
@@ -73,7 +73,7 @@ public class ApplicationPaginationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenMultipleIssues_expectAllFixed() {
+  void validateRequest_whenMultipleIssues_expectAllFixed() {
     ApplicationPaginationRequest request =
         ApplicationPaginationRequest.builder().page(-3).size(999).build();
     request.validateRequest();

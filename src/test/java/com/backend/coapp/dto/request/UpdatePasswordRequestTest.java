@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.backend.coapp.exception.global.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
-public class UpdatePasswordRequestTest {
+class UpdatePasswordRequestTest {
   @Test
-  public void getMethod_expectInitValue() {
+  void getMethod_expectInitValue() {
     UpdatePasswordRequest request = new UpdatePasswordRequest("foo@mail.com", 123, "newPassword");
     assertEquals("foo@mail.com", request.getEmail());
     assertEquals(123, request.getVerifyCode());
@@ -16,13 +16,13 @@ public class UpdatePasswordRequestTest {
   }
 
   @Test
-  public void validateRequest_whenValidRequest_expectNoException() {
+  void validateRequest_whenValidRequest_expectNoException() {
     UpdatePasswordRequest request = new UpdatePasswordRequest("foo@mail.com", 123, "newPassword");
     assertDoesNotThrow(request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenInvalidEmail_expectException() {
+  void validateRequest_whenInvalidEmail_expectException() {
     UpdatePasswordRequest requestEmailNull = new UpdatePasswordRequest(null, 123, "newPassword");
     assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
 
@@ -31,7 +31,7 @@ public class UpdatePasswordRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidNewPassword_expectException() {
+  void validateRequest_whenInvalidNewPassword_expectException() {
     UpdatePasswordRequest requestEmailNull = new UpdatePasswordRequest("foo@mail.com", 123, "");
     assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
 
@@ -40,7 +40,7 @@ public class UpdatePasswordRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidVerifyCode_expectException() {
+  void validateRequest_whenInvalidVerifyCode_expectException() {
     UpdatePasswordRequest requestVerificationNull =
         new UpdatePasswordRequest("foo@mail.com", null, "newPassword");
     assertThrows(InvalidRequestException.class, requestVerificationNull::validateRequest);

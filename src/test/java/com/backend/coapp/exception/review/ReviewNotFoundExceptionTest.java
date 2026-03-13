@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class ReviewNotFoundExceptionTest {
+class ReviewNotFoundExceptionTest {
 
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     ReviewNotFoundException exception = new ReviewNotFoundException();
     assertNotNull(exception);
     assertEquals(

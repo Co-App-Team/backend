@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class InvalidRequestExceptionTest {
+class InvalidRequestExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     InvalidRequestException exception = new InvalidRequestException();
 
     assertNotNull(exception);
@@ -17,7 +17,7 @@ public class InvalidRequestExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     InvalidRequestException exception = new InvalidRequestException("foo");
 
     assertNotNull(exception);
