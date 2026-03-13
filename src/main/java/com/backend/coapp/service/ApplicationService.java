@@ -194,6 +194,10 @@ public class ApplicationService {
       throw new CompanyNotFoundException();
     }
 
+    if (statusChanged && newStatus == ApplicationStatus.APPLIED) {
+      newDateApplied = LocalDate.now();
+    }
+
     existingApp.setCompanyId(newCompanyId);
     existingApp.setJobTitle(newJobTitle);
     existingApp.setStatus(newStatus);

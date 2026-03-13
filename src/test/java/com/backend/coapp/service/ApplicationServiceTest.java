@@ -588,6 +588,31 @@ public class ApplicationServiceTest {
   }
 
   @Test
+  public void updateApplication_whenStatusChangesToDateApplied_dateAppliedChanges() {
+    this.existingApp.setDateApplied(null);
+    this.existingApp.setStatus(ApplicationStatus.NOT_APPLIED);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDate());
+
+    assertNotNull(response.getDateApplied());
+  }
+
+  @Test
   public void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
     CompanyModel secondCompany = new CompanyModel("Amazon", "Seattle", "https://amazon.com");
     companyRepository.save(secondCompany);
@@ -854,6 +879,29 @@ public class ApplicationServiceTest {
     assertEquals(1, pagination.get("currentPage"));
     assertEquals(true, pagination.get("hasPrevious"));
     assertEquals(false, pagination.get("hasNext"));
+  }
+
+  @Test
+  public void getApplications_whenUserHasApplications_expectList() {
+    List<ApplicationResponse> responses = this.applicationService.getApplications("user_001");
+
+    assertNotNull(responses);
+    assertFalse(responses.isEmpty());
+    assertEquals(1, responses.size());
+    assertEquals(existingApp.getJobTitle(), responses.get(0).getJobTitle());
+  }
+
+  @Test
+  public void getApplications_whenUserHasNoApplications_expectEmptyList() {
+    // Create a user with no apps
+    UserModel user2 =
+        new UserModel("user_002", "test2@example.com", "pwd", "Jane", "Doe", true, 5678);
+    userRepository.save(user2);
+
+    List<ApplicationResponse> responses = this.applicationService.getApplications("user_002");
+
+    assertNotNull(responses);
+    assertTrue(responses.isEmpty());
   }
 
   // Tests for getInterviewApplications
