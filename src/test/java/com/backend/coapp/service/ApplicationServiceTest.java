@@ -986,4 +986,32 @@ public class ApplicationServiceTest {
     assertTrue(result.isEmpty());
     verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
   }
+
+  @Test
+  public void getInterviewApplications_unitTest_whenStartDateOnly() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn(Collections.emptyList());
+
+    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", DATE, null);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  public void getInterviewApplications_unitTest_whenEndDateOnly() {
+    ApplicationService serviceWithMocks =
+        new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
+
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn(Collections.emptyList());
+
+    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", null, DATE);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
 }
