@@ -266,4 +266,20 @@ class CreateApplicationRequestTest {
 
     assertDoesNotThrow(request::validateRequest);
   }
+
+  @Test
+  void validateRequest_whenDateAppliedAfterDeadline_expectException() {
+    LocalDate applied = LocalDate.now().plusDays(5);
+    LocalDate deadline = LocalDate.now();
+
+    CreateApplicationRequest request =
+        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX + "Date applied cannot be after application deadline.",
+        exception.getMessage());
+  }
 }

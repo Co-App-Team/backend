@@ -121,6 +121,12 @@ class UpdateApplicationRequestTest {
                 .validateRequest());
     assertDoesNotThrow(
         () -> UpdateApplicationRequest.builder().notes("Notes").build().validateRequest());
+    assertDoesNotThrow(
+        () ->
+            UpdateApplicationRequest.builder()
+                .interviewDate(LocalDate.now())
+                .build()
+                .validateRequest());
   }
 
   @Test
@@ -284,7 +290,7 @@ class UpdateApplicationRequestTest {
   @Test
   void validateRequest_whenNumPositionsIsZero_expectNoException() {
     UpdateApplicationRequest request =
-        UpdateApplicationRequest.builder().jobTitle(validJobTitle).numPositions(0).build();
+        UpdateApplicationRequest.builder().jobTitle(validJobTitle).interviewDate(null).build();
     assertDoesNotThrow(request::validateRequest);
   }
 
