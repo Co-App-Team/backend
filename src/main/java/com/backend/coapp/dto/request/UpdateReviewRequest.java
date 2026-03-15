@@ -41,12 +41,12 @@ public class UpdateReviewRequest implements IRequest {
   }
 
   private void validateRatingIfProvided() throws InvalidRequestException {
-    if (this.rating != null) {
-      if (this.rating < ReviewConstants.MIN_RATING || this.rating > ReviewConstants.MAX_RATING) {
-        throw new InvalidRequestException("Rating must be between 1 and 5.");
-      }
+    if (this.rating != null
+      && (this.rating < ReviewConstants.MIN_RATING || this.rating > ReviewConstants.MAX_RATING)) {
+      throw new InvalidRequestException("Rating must be between 1 and 5.");
     }
   }
+
 
   private void validateCommentIfProvided() throws InvalidRequestException {
     if (this.comment != null && this.comment.length() > ReviewConstants.MAX_COMMENT_LENGTH) {
