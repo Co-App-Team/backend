@@ -16,27 +16,27 @@ import org.junit.jupiter.api.Test;
 
 /** Unit tests for ReviewModel */
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
-public class ReviewModelTest {
+class ReviewModelTest {
 
   private static ValidatorFactory validatorFactory;
   private static Validator validator;
   private ReviewModel validReview;
 
   @BeforeAll
-  public static void setUpValidator() {
+  static void setUpValidator() {
     validatorFactory = Validation.buildDefaultValidatorFactory();
     validator = validatorFactory.getValidator();
   }
 
   @AfterAll
-  public static void tearDownValidator() {
+  static void tearDownValidator() {
     if (validatorFactory != null) {
       validatorFactory.close();
     }
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.validReview =
         new ReviewModel(
             "123",
@@ -52,7 +52,7 @@ public class ReviewModelTest {
   /* test constructor */
 
   @Test
-  public void constructor_whenAllValid_expectSuccess() {
+  void constructor_whenAllValid_expectSuccess() {
     ReviewModel review =
         new ReviewModel(
             "company1",
@@ -74,7 +74,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenTrimsWhitespace_expectTrimmed() {
+  void constructor_whenTrimsWhitespace_expectTrimmed() {
     ReviewModel review =
         new ReviewModel(
             "  company1  ",
@@ -94,7 +94,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenNullComment_expectNull() {
+  void constructor_whenNullComment_expectNull() {
     ReviewModel review =
         new ReviewModel(
             "company1",
@@ -110,7 +110,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenInvalidSeason_expectThrowsException() {
+  void constructor_whenInvalidSeason_expectThrowsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -126,7 +126,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenInvalidYear_expectThrowsException() {
+  void constructor_whenInvalidYear_expectThrowsException() {
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -142,7 +142,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenNullCompanyId_expectNull() {
+  void constructor_whenNullCompanyId_expectNull() {
     ReviewModel review =
         new ReviewModel(
             null,
@@ -159,7 +159,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenNullUserId_expectNull() {
+  void constructor_whenNullUserId_expectNull() {
     ReviewModel review =
         new ReviewModel(
             "company1",
@@ -175,7 +175,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenNullAuthorName_expectNull() {
+  void constructor_whenNullAuthorName_expectNull() {
     ReviewModel review =
         new ReviewModel(
             "company1",
@@ -192,7 +192,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenNullJobTitle_expectNull() {
+  void constructor_whenNullJobTitle_expectNull() {
     ReviewModel review =
         new ReviewModel(
             "company1",
@@ -211,13 +211,13 @@ public class ReviewModelTest {
   /* test jakarta validation annotations with a validator */
 
   @Test
-  public void validate_whenAllFieldsValid_expectNoViolations() {
+  void validate_whenAllFieldsValid_expectNoViolations() {
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
     assertTrue(violations.isEmpty());
   }
 
   @Test
-  public void validate_whenCompanyIdNull_expectViolation() {
+  void validate_whenCompanyIdNull_expectViolation() {
     validReview.setCompanyId(null);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -228,7 +228,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenCompanyIdBlank_expectViolation() {
+  void validate_whenCompanyIdBlank_expectViolation() {
     validReview.setCompanyId("   ");
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -236,7 +236,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenUserIdNull_expectViolation() {
+  void validate_whenUserIdNull_expectViolation() {
     validReview.setUserId(null);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -247,7 +247,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenUserIdBlank_expectViolation() {
+  void validate_whenUserIdBlank_expectViolation() {
     validReview.setUserId("");
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -255,7 +255,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenAuthorNameNull_expectViolation() {
+  void validate_whenAuthorNameNull_expectViolation() {
     validReview.setAuthorName(null);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -263,7 +263,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenAuthorNameBlank_expectViolation() {
+  void validate_whenAuthorNameBlank_expectViolation() {
     validReview.setAuthorName("");
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -271,7 +271,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenRatingNull_expectViolation() {
+  void validate_whenRatingNull_expectViolation() {
     validReview.setRating(null);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -282,7 +282,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenRatingTooLow_expectViolation() {
+  void validate_whenRatingTooLow_expectViolation() {
     validReview.setRating(ReviewConstants.MIN_RATING - 1);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -293,7 +293,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenRatingTooHigh_expectViolation() {
+  void validate_whenRatingTooHigh_expectViolation() {
     validReview.setRating(6);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -301,7 +301,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenJobTitleNull_expectViolation() {
+  void validate_whenJobTitleNull_expectViolation() {
     validReview.setJobTitle(null);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -309,7 +309,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenJobTitleBlank_expectViolation() {
+  void validate_whenJobTitleBlank_expectViolation() {
     validReview.setJobTitle("");
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -317,7 +317,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenCommentTooLong_expectViolation() {
+  void validate_whenCommentTooLong_expectViolation() {
     String longComment = "a".repeat(ReviewConstants.MAX_COMMENT_LENGTH + 1);
     validReview.setComment(longComment);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
@@ -326,7 +326,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void validate_whenCommentNull_expectNoViolation() {
+  void validate_whenCommentNull_expectNoViolation() {
     validReview.setComment(null);
     Set<ConstraintViolation<ReviewModel>> violations = validator.validate(validReview);
 
@@ -336,31 +336,31 @@ public class ReviewModelTest {
   /* custom setters */
 
   @Test
-  public void setWorkTermSeason_whenValid_expectSuccess() {
+  void setWorkTermSeason_whenValid_expectSuccess() {
     validReview.setWorkTermSeason("Summer");
     assertEquals("Summer", validReview.getWorkTermSeason());
   }
 
   @Test
-  public void setWorkTermSeason_whenInvalid_expectThrowsException() {
+  void setWorkTermSeason_whenInvalid_expectThrowsException() {
     assertThrows(IllegalArgumentException.class, () -> validReview.setWorkTermSeason("Spring"));
   }
 
   @Test
-  public void setWorkTermYear_whenValid_expectSuccess() {
+  void setWorkTermYear_whenValid_expectSuccess() {
     validReview.setWorkTermYear(WorkTermValidator.getMaxYear());
     assertEquals(WorkTermValidator.getMaxYear(), validReview.getWorkTermYear());
   }
 
   @Test
-  public void setWorkTermYear_whenTooLow_expectThrowsException() {
+  void setWorkTermYear_whenTooLow_expectThrowsException() {
     assertThrows(
         IllegalArgumentException.class,
         () -> validReview.setWorkTermYear(WorkTermValidator.getMinYear() - 1));
   }
 
   @Test
-  public void setWorkTermYear_whenTooHigh_expectThrowsException() {
+  void setWorkTermYear_whenTooHigh_expectThrowsException() {
     assertThrows(
         IllegalArgumentException.class,
         () -> validReview.setWorkTermYear(WorkTermValidator.getMaxYear() + 1));
@@ -369,7 +369,7 @@ public class ReviewModelTest {
   /* lombok setters / getters */
 
   @Test
-  public void lombokSetters_expectWork() {
+  void lombokSetters_expectWork() {
     ReviewModel review = new ReviewModel();
     review.setCompanyId("comp1");
     review.setUserId("user1");
@@ -387,7 +387,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void lombokGetters_expectWork() {
+  void lombokGetters_expectWork() {
     assertNotNull(validReview.getCompanyId());
     assertNotNull(validReview.getUserId());
     assertNotNull(validReview.getAuthorName());

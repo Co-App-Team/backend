@@ -19,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Unit tests for ApplicationModel and its repository. */
 @SpringBootTest
 @Testcontainers
-public class ApplicationRepositoryTest {
+class ApplicationRepositoryTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -31,7 +31,7 @@ public class ApplicationRepositoryTest {
   ApplicationModel app3;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     repository.deleteAll();
 
     app1 = new ApplicationModel();
@@ -64,13 +64,13 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void saveNew_expectIdGenerated() {
+  void saveNew_expectIdGenerated() {
     assertThat(app1.getId()).isNotNull();
     assertThat(app2.getId()).isNotNull();
   }
 
   @Test
-  public void findByUserId_whenUserHasTwoApps_expectReturnTwo() {
+  void findByUserId_whenUserHasTwoApps_expectReturnTwo() {
     List<ApplicationModel> found = repository.findByUserId("user1");
 
     assertThat(found).hasSize(2);
@@ -80,13 +80,13 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void findByUserId_whenUserHasNoApps_expectEmpty() {
+  void findByUserId_whenUserHasNoApps_expectEmpty() {
     List<ApplicationModel> found = repository.findByUserId("nonexistentUser");
     assertThat(found).isEmpty();
   }
 
   @Test
-  public void findByCompanyId_whenCompanyHasTwoApps_expectReturnTwo() {
+  void findByCompanyId_whenCompanyHasTwoApps_expectReturnTwo() {
     List<ApplicationModel> found = repository.findByCompanyId("companyA");
 
     assertThat(found).hasSize(2); // app1 and app3
@@ -94,7 +94,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void findByUserIdAndStatus_whenMatchExists_expectReturnOne() {
+  void findByUserIdAndStatus_whenMatchExists_expectReturnOne() {
     List<ApplicationModel> found =
         repository.findByUserIdAndStatus("user1", ApplicationStatus.INTERVIEWING);
 
@@ -103,7 +103,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void findByUserIdAndStatus_whenNoMatch_expectEmpty() {
+  void findByUserIdAndStatus_whenNoMatch_expectEmpty() {
     List<ApplicationModel> found =
         repository.findByUserIdAndStatus("user1", ApplicationStatus.REJECTED);
 
@@ -111,7 +111,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void deleteById_expectApplicationDeleted() {
+  void deleteById_expectApplicationDeleted() {
     repository.deleteById(app1.getId());
 
     Optional<ApplicationModel> deleted = repository.findById(app1.getId());
@@ -122,7 +122,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void updateStatus_expectStatusChanged() {
+  void updateStatus_expectStatusChanged() {
     app1.setStatus(ApplicationStatus.ACCEPTED);
     repository.save(app1);
 
@@ -132,7 +132,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void existsByUserIdAndCompanyIdAndJobTitle_whenMatchExists_expectTrue() {
+  void existsByUserIdAndCompanyIdAndJobTitle_whenMatchExists_expectTrue() {
     boolean exists =
         repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Software Engineer");
 
@@ -140,7 +140,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void existsByUserIdAndCompanyIdAndJobTitle_whenPartialMatch_expectFalse() {
+  void existsByUserIdAndCompanyIdAndJobTitle_whenPartialMatch_expectFalse() {
     boolean wrongTitle =
         repository.existsByUserIdAndCompanyIdAndJobTitle("user1", "companyA", "Backend Developer");
 
@@ -157,7 +157,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void existsByUserIdAndCompanyIdAndJobTitle_whenCaseDoesNotMatch_expectFalse() {
+  void existsByUserIdAndCompanyIdAndJobTitle_whenCaseDoesNotMatch_expectFalse() {
     boolean exists =
         repository.existsByUserIdAndCompanyIdAndJobTitle("USER1", "companyA", "Software Engineer");
 
@@ -165,7 +165,7 @@ public class ApplicationRepositoryTest {
   }
 
   @Test
-  public void existsByUserIdAndCompanyIdAndJobTitle_afterDelete_expectFalse() {
+  void existsByUserIdAndCompanyIdAndJobTitle_afterDelete_expectFalse() {
     repository.delete(app1);
 
     boolean exists =

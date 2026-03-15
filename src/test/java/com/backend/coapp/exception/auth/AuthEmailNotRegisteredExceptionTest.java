@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class AuthEmailNotRegisteredExceptionTest {
+class AuthEmailNotRegisteredExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     AuthEmailNotRegisteredException exception = new AuthEmailNotRegisteredException();
 
     assertNotNull(exception);
@@ -17,7 +17,7 @@ public class AuthEmailNotRegisteredExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     AuthEmailNotRegisteredException exception = new AuthEmailNotRegisteredException("foo");
 
     assertNotNull(exception);

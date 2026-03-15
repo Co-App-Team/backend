@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class UserNotFoundExceptionTest {
+class UserNotFoundExceptionTest {
 
   @Test
-  public void constructor_whenNoArgConstructor_expectDefaultMessage() {
+  void constructor_whenNoArgConstructor_expectDefaultMessage() {
     UserNotFoundException exception = new UserNotFoundException();
 
     assertNotNull(exception);

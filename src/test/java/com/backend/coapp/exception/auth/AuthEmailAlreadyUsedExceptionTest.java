@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class AuthEmailAlreadyUsedExceptionTest {
+class AuthEmailAlreadyUsedExceptionTest {
 
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     AuthEmailAlreadyUsedException exception = new AuthEmailAlreadyUsedException();
 
     assertNotNull(exception);
@@ -16,7 +16,7 @@ public class AuthEmailAlreadyUsedExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     AuthEmailAlreadyUsedException exception = new AuthEmailAlreadyUsedException("foo");
 
     assertNotNull(exception);

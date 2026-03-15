@@ -31,7 +31,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 @SpringBootTest
 @Testcontainers
-public class CompanyServiceTest {
+class CompanyServiceTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -46,7 +46,7 @@ public class CompanyServiceTest {
   private CompanyModel nicheCompany;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.companyRepository.deleteAll();
     this.reviewRepository.deleteAll();
 
@@ -63,7 +63,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(this.companyRepository, this.companyService.getCompanyRepository());
     assertSame(this.reviewRepository, this.companyService.getReviewRepository());
   }
@@ -71,7 +71,7 @@ public class CompanyServiceTest {
   // test creating companies
 
   @Test
-  public void createCompany_whenValidData_expectSuccess() {
+  void createCompany_whenValidData_expectSuccess() {
     CompanyResponse response =
         this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com");
     assertNotNull(response);
@@ -82,7 +82,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void createCompany_whenCompanyAlreadyExists_expectException() {
+  void createCompany_whenCompanyAlreadyExists_expectException() {
     Exception exception =
         assertThrows(
             CompanyAlreadyExistsException.class,
@@ -91,7 +91,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void createCompany_whenCompanyExistsCaseInsensitive_expectException() {
+  void createCompany_whenCompanyExistsCaseInsensitive_expectException() {
     Exception exception =
         assertThrows(
             CompanyAlreadyExistsException.class,
@@ -100,14 +100,14 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void createCompany_whenInvalidWebsite_expectException() {
+  void createCompany_whenInvalidWebsite_expectException() {
     assertThrows(
         InvalidWebsiteException.class,
         () -> this.companyService.createCompany("Test", "City", "invalidurl.com"));
   }
 
   @Test
-  public void createCompany_whenDatabaseSaveFails_expectException() {
+  void createCompany_whenDatabaseSaveFails_expectException() {
     this.companyService = new CompanyService(this.mockCompanyRepository, this.mockReviewRepository);
     when(this.mockCompanyRepository.findByCompanyNameLower(anyString()))
         .thenReturn(Optional.empty());
@@ -123,7 +123,7 @@ public class CompanyServiceTest {
   // test get all companies
 
   @Test
-  public void getAllCompanies_withPagination_expectSuccess() {
+  void getAllCompanies_withPagination_expectSuccess() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyResponse> page = this.companyService.getAllCompanies(null, pageable);
     assertNotNull(page);
@@ -132,7 +132,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void getAllCompanies_withSearch_expectFilteredResults() {
+  void getAllCompanies_withSearch_expectFilteredResults() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyResponse> page = this.companyService.getAllCompanies("niche", pageable);
     assertNotNull(page);
@@ -141,7 +141,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void getAllCompanies_withSearchNoResults_expectEmpty() {
+  void getAllCompanies_withSearchNoResults_expectEmpty() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyResponse> page = this.companyService.getAllCompanies("nonexistent", pageable);
     assertNotNull(page);
@@ -149,14 +149,14 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void getAllCompanies_withoutPagination_expectAllResults() {
+  void getAllCompanies_withoutPagination_expectAllResults() {
     List<CompanyResponse> companies = this.companyService.getAllCompanies(null);
     assertNotNull(companies);
     assertTrue(companies.size() >= 2);
   }
 
   @Test
-  public void getAllCompanies_whenDatabaseFails_expectException() {
+  void getAllCompanies_whenDatabaseFails_expectException() {
     this.companyService = new CompanyService(this.mockCompanyRepository, this.mockReviewRepository);
     when(this.mockCompanyRepository.findAll(any(Pageable.class)))
         .thenThrow(new RuntimeException("Database error"));
@@ -170,7 +170,7 @@ public class CompanyServiceTest {
   // test get company by id
 
   @Test
-  public void getCompanyById_whenExists_expectSuccess() {
+  void getCompanyById_whenExists_expectSuccess() {
     CompanyResponse response = this.companyService.getCompanyById(this.nicheCompany.getId());
     assertNotNull(response);
     assertEquals("Niche", response.getCompanyName());
@@ -178,13 +178,13 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void getCompanyById_whenNotExists_expectException() {
+  void getCompanyById_whenNotExists_expectException() {
     assertThrows(
         CompanyNotFoundException.class, () -> this.companyService.getCompanyById("nonexistentid"));
   }
 
   @Test
-  public void getCompanyById_whenDatabaseFails_expectException() {
+  void getCompanyById_whenDatabaseFails_expectException() {
     this.companyService = new CompanyService(this.mockCompanyRepository, this.mockReviewRepository);
     when(this.mockCompanyRepository.findById(anyString()))
         .thenThrow(new RuntimeException("Database error"));
@@ -196,7 +196,7 @@ public class CompanyServiceTest {
   // test updating average rating
 
   @Test
-  public void updateAvgRating_whenNoReviews_expectZeroRating() {
+  void updateAvgRating_whenNoReviews_expectZeroRating() {
     assertDoesNotThrow(() -> this.companyService.updateAvgRating(this.nicheCompany.getId()));
 
     CompanyModel updated = this.companyRepository.findById(this.nicheCompany.getId()).get();
@@ -204,7 +204,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void updateAvgRating_whenOneReview_expectCorrectRating() {
+  void updateAvgRating_whenOneReview_expectCorrectRating() {
     ReviewModel review =
         new ReviewModel(
             this.nicheCompany.getId(),
@@ -224,7 +224,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void updateAvgRating_whenMultipleReviews_expectCorrectAverage() {
+  void updateAvgRating_whenMultipleReviews_expectCorrectAverage() {
     ReviewModel review1 =
         new ReviewModel(
             this.nicheCompany.getId(),
@@ -251,13 +251,13 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void updateAvgRating_whenCompanyNotFound_expectException() {
+  void updateAvgRating_whenCompanyNotFound_expectException() {
     assertThrows(
         CompanyNotFoundException.class, () -> this.companyService.updateAvgRating("nonexistentid"));
   }
 
   @Test
-  public void updateAvgRating_whenDatabaseFindFails_expectException() {
+  void updateAvgRating_whenDatabaseFindFails_expectException() {
     this.companyService = new CompanyService(this.mockCompanyRepository, this.mockReviewRepository);
     when(this.mockCompanyRepository.findById(anyString()))
         .thenThrow(new RuntimeException("Database error"));
@@ -267,7 +267,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void updateAvgRating_whenDatabaseSaveFails_expectException() {
+  void updateAvgRating_whenDatabaseSaveFails_expectException() {
     this.companyService = new CompanyService(this.mockCompanyRepository, this.mockReviewRepository);
     when(this.mockCompanyRepository.findById(anyString()))
         .thenReturn(Optional.of(this.nicheCompany));
@@ -282,7 +282,7 @@ public class CompanyServiceTest {
   }
 
   @Test
-  public void getAllCompanies_withBlankSearch_expectAllResults() {
+  void getAllCompanies_withBlankSearch_expectAllResults() {
     Pageable pageable = PageRequest.of(0, 10);
 
     Page<CompanyResponse> page1 = this.companyService.getAllCompanies("", pageable);

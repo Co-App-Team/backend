@@ -52,7 +52,6 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
 
   @Autowired private PasswordEncoder passwordEncoder;
 
-  private String testUserId;
   private String testUserEmail;
   private String amazonId;
   private String googleId;
@@ -87,7 +86,6 @@ class WikiSearchAndApplyCrossFeatureIntegrationTest {
             true,
             1234);
     this.userRepository.save(testUser);
-    this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 

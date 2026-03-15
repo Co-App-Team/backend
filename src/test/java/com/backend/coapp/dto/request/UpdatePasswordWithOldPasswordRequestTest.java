@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.backend.coapp.exception.global.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
-public class UpdatePasswordWithOldPasswordRequestTest {
+class UpdatePasswordWithOldPasswordRequestTest {
   @Test
-  public void getterMethod_expectInitValues() {
+  void getterMethod_expectInitValues() {
     UpdatePasswordWithOldPasswordRequest request =
         new UpdatePasswordWithOldPasswordRequest("oldPassword", "newPassword");
 
@@ -16,7 +16,7 @@ public class UpdatePasswordWithOldPasswordRequestTest {
   }
 
   @Test
-  public void validateRequest_whenOldPassword_expectException() {
+  void validateRequest_whenOldPassword_expectException() {
     UpdatePasswordWithOldPasswordRequest requestBlank =
         new UpdatePasswordWithOldPasswordRequest("", "newPassword");
     assertThrows(InvalidRequestException.class, requestBlank::validateRequest);
@@ -27,7 +27,7 @@ public class UpdatePasswordWithOldPasswordRequestTest {
   }
 
   @Test
-  public void validateRequest_whenNewPassword_expectException() {
+  void validateRequest_whenNewPassword_expectException() {
     UpdatePasswordWithOldPasswordRequest requestBlank =
         new UpdatePasswordWithOldPasswordRequest("oldPassword", "");
     assertThrows(InvalidRequestException.class, requestBlank::validateRequest);

@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class UserResponseTest {
+class UserResponseTest {
   @Test
-  public void getterMethod_expectInitValues() {
+  void getterMethod_expectInitValues() {
     UserResponse response = new UserResponse("foo", "woof", "foo@mail.com");
 
     assertEquals("foo", response.getFirstName());
@@ -16,7 +16,7 @@ public class UserResponseTest {
   }
 
   @Test
-  public void toMap_expectMapWithInitValues() {
+  void toMap_expectMapWithInitValues() {
     UserResponse response = new UserResponse("foo", "woof", "foo@mail.com");
     Map<String, Object> expectMap =
         Map.of("firstName", "foo", "lastName", "woof", "email", "foo@mail.com");

@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class UnauthorizedApplicationAccessExceptionTest {
+class UnauthorizedApplicationAccessExceptionTest {
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     String message = "User does not own this application.";
     UnauthorizedApplicationAccessException exception =
         new UnauthorizedApplicationAccessException(message);

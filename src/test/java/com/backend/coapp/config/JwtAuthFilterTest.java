@@ -36,7 +36,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import tools.jackson.databind.ObjectMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class JwtAuthFilterTest {
+class JwtAuthFilterTest {
   @Mock private JwtService jwtService;
 
   @Mock private UserDetailsService userDetailsService;
@@ -52,7 +52,7 @@ public class JwtAuthFilterTest {
   private MockHttpServletResponse response;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.request = new MockHttpServletRequest();
     this.response = new MockHttpServletResponse();
     SecurityContextHolder.clearContext();
@@ -65,7 +65,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenEverythingSuccess() throws Exception {
+  void doFilterInternal_whenEverythingSuccess() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
@@ -95,7 +95,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenJwtExpire_expect401() throws Exception {
+  void doFilterInternal_whenJwtExpire_expect401() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtExpiredException());
 
@@ -116,7 +116,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenJwtInvalid_expect401() throws Exception {
+  void doFilterInternal_whenJwtInvalid_expect401() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtInvalidTokenException());
 
@@ -137,7 +137,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenJwtServiceFail_expect500() throws Exception {
+  void doFilterInternal_whenJwtServiceFail_expect500() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenThrow(new JwtServiceFailException("foo"));
 
@@ -158,7 +158,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenExtractUserEmailNull_expect401() throws Exception {
+  void doFilterInternal_whenExtractUserEmailNull_expect401() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(null);
 
@@ -173,7 +173,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenExtractUserEmailBlank_expect401() throws Exception {
+  void doFilterInternal_whenExtractUserEmailBlank_expect401() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn("");
 
@@ -188,7 +188,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenJwtInvalidFromIsTokenValid_expect401() throws Exception {
+  void doFilterInternal_whenJwtInvalidFromIsTokenValid_expect401() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString())).thenReturn(this.userDetails);
@@ -211,7 +211,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenUserEmailNotFound_expect401() throws Exception {
+  void doFilterInternal_whenUserEmailNotFound_expect401() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     when(userDetailsService.loadUserByUsername(anyString()))
@@ -234,7 +234,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenAlreadyAuth_expect200() throws Exception {
+  void doFilterInternal_whenAlreadyAuth_expect200() throws Exception {
     request.setCookies(new Cookie("Authorization", JWT_TOKEN));
     when(jwtService.extractUserIdentity(anyString())).thenReturn(USER_EMAIL);
     UsernamePasswordAuthenticationToken authToken =
@@ -250,8 +250,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenMultipleCookiesButNoAuthCookie_shouldSkipAuth()
-      throws Exception {
+  void doFilterInternal_whenMultipleCookiesButNoAuthCookie_shouldSkipAuth() throws Exception {
     request.setCookies(
         new Cookie("session", "abc"), new Cookie("theme", "dark"), new Cookie("lang", "en"));
 
@@ -263,8 +262,7 @@ public class JwtAuthFilterTest {
   }
 
   @Test
-  public void doFilterInternal_whenAuthCookieAmongMultipleCookies_shouldAuthenticate()
-      throws Exception {
+  void doFilterInternal_whenAuthCookieAmongMultipleCookies_shouldAuthenticate() throws Exception {
     request.setCookies(
         new Cookie("session", "abc"),
         new Cookie("Authorization", JWT_TOKEN),

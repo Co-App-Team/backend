@@ -19,7 +19,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Unit tests for CompanyModel and its repository. */
 @SpringBootTest
 @Testcontainers
-public class CompanyRepositoryTest {
+class CompanyRepositoryTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -32,7 +32,7 @@ public class CompanyRepositoryTest {
 
   /** Runs before each test to reset the data. */
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     repository.deleteAll();
     niche = repository.save(new CompanyModel("Niche", "Winnipeg", "https://niche.com"));
     varian = repository.save(new CompanyModel("Varian", "Winnipeg", "https://varian.com"));
@@ -40,21 +40,21 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
+  void saveNew_whenNoIdDefined_expectSetsIdOnSave() {
     CompanyModel company =
         repository.save(new CompanyModel("Priceline", "Winnipeg", "https://priceline.com"));
     assertThat(company.getId()).isNotNull();
   }
 
   @Test
-  public void saveNew_expectAvgRatingDefaultsToZero() {
+  void saveNew_expectAvgRatingDefaultsToZero() {
     CompanyModel company =
         repository.save(new CompanyModel("Priceline", "Winnipeg", "https://priceline.com"));
     assertThat(company.getAvgRating()).isEqualTo(0.0);
   }
 
   @Test
-  public void findById_expectReturnNiche() {
+  void findById_expectReturnNiche() {
     Optional<CompanyModel> found = repository.findById(niche.getId());
     assertThat(found).isPresent();
     assertThat(found.get().getCompanyName()).isEqualTo("Niche");
@@ -65,7 +65,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void findByCompanyNameLower_whenFindNiche_expectNicheCompanyModel() {
+  void findByCompanyNameLower_whenFindNiche_expectNicheCompanyModel() {
     Optional<CompanyModel> found = repository.findByCompanyNameLower("niche");
     assertThat(found).isPresent();
     assertThat(found.get().getCompanyName()).isEqualTo("Niche");
@@ -74,32 +74,32 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void findByCompanyNameLower_caseInsensitive_expectFindsCompany() {
+  void findByCompanyNameLower_caseInsensitive_expectFindsCompany() {
     Optional<CompanyModel> found = repository.findByCompanyNameLower("niche");
     assertThat(found).isPresent();
     assertThat(found.get().getCompanyName()).isEqualTo("Niche");
   }
 
   @Test
-  public void findByCompanyNameLower_whenNonExistent_expectEmpty() {
+  void findByCompanyNameLower_whenNonExistent_expectEmpty() {
     Optional<CompanyModel> found = repository.findByCompanyNameLower("nonexistent");
     assertThat(found).isEmpty();
   }
 
   @Test
-  public void existsByCompanyNameLower_whenExists_expectTrue() {
+  void existsByCompanyNameLower_whenExists_expectTrue() {
     boolean exists = repository.existsByCompanyNameLower("niche");
     assertTrue(exists);
   }
 
   @Test
-  public void existsByCompanyNameLower_whenNotExists_expectFalse() {
+  void existsByCompanyNameLower_whenNotExists_expectFalse() {
     boolean exists = repository.existsByCompanyNameLower("nonexistent");
     assertThat(exists).isFalse();
   }
 
   @Test
-  public void findsAllCompanies_expectReturn3Companies() {
+  void findsAllCompanies_expectReturn3Companies() {
     List<CompanyModel> companies = repository.findAll();
     assertThat(companies)
         .hasSize(3)
@@ -116,7 +116,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void deleteById_whenDeletePayworks_expectDeletePayworks() {
+  void deleteById_whenDeletePayworks_expectDeletePayworks() {
     repository.deleteById(payworks.getId());
     List<CompanyModel> companies = repository.findAll();
     assertThat(companies).hasSize(2);
@@ -125,7 +125,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void updatesCompany_whenUpdateNicheLocation_expectLocationUpdate() {
+  void updatesCompany_whenUpdateNicheLocation_expectLocationUpdate() {
     niche.setLocation("Toronto");
     repository.save(niche);
     Optional<CompanyModel> updated = repository.findById(niche.getId());
@@ -135,7 +135,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void updatesCompany_whenUpdateAvgRating_expectRatingUpdate() {
+  void updatesCompany_whenUpdateAvgRating_expectRatingUpdate() {
     niche.setAvgRating(4.5);
     repository.save(niche);
     Optional<CompanyModel> updated = repository.findById(niche.getId());
@@ -144,13 +144,13 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void findById_whenCompanyNotExist_expectEmpty() {
+  void findById_whenCompanyNotExist_expectEmpty() {
     Optional<CompanyModel> notFound = repository.findById("fakeId");
     assertThat(notFound).isEmpty();
   }
 
   @Test
-  public void save_whenDuplicateCompanyNameLower_expectUniqueConstraintViolation() {
+  void save_whenDuplicateCompanyNameLower_expectUniqueConstraintViolation() {
     // verifies that the unique index on companyNameLower works
     assertThat(repository.findAll()).hasSize(3);
 
@@ -166,7 +166,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void save_whenCompanyNameWithWhitespace_expectTrimmedAndSaved() {
+  void save_whenCompanyNameWithWhitespace_expectTrimmedAndSaved() {
     CompanyModel company =
         repository.save(new CompanyModel("  Priceline Inc  ", "Winnipeg", "https://priceline.com"));
 
@@ -176,7 +176,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void save_whenDuplicateNameDifferentCase_expectConstraintViolation() {
+  void save_whenDuplicateNameDifferentCase_expectConstraintViolation() {
     repository.save(new CompanyModel("TestCompany", "Winnipeg", "https://testcompany.com"));
 
     // Try to save duplicate with different case
@@ -192,7 +192,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void save_whenSameCompanyNameWithSpaces_expectDuplicateDetection() {
+  void save_whenSameCompanyNameWithSpaces_expectDuplicateDetection() {
     repository.save(new CompanyModel("Priceline Inc", "Winnipeg", "https://bold.com"));
 
     // Try to save duplicate with whitespace and different case
@@ -207,7 +207,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void updateCompanyName_expectBothFieldsUpdate() {
+  void updateCompanyName_expectBothFieldsUpdate() {
     niche.setCompanyName("Niche Updated");
     CompanyModel updated = repository.save(niche);
 
@@ -216,7 +216,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void updateCompanyName_whenChangingCase_expectLowerCaseUpdates() {
+  void updateCompanyName_whenChangingCase_expectLowerCaseUpdates() {
     niche.setCompanyName("NICHE");
     CompanyModel updated = repository.save(niche);
 
@@ -225,20 +225,20 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void count_expectReturnsCorrectCount() {
+  void count_expectReturnsCorrectCount() {
     long count = repository.count();
     assertThat(count).isEqualTo(3);
   }
 
   @Test
-  public void count_whenEmpty_expectReturnsZero() {
+  void count_whenEmpty_expectReturnsZero() {
     repository.deleteAll();
     long count = repository.count();
     assertThat(count).isEqualTo(0);
   }
 
   @Test
-  public void deleteAll_expectEmptyRepository() {
+  void deleteAll_expectEmptyRepository() {
     repository.deleteAll();
     List<CompanyModel> companies = repository.findAll();
     assertThat(companies).isEmpty();
@@ -246,7 +246,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void findByCompanyNameLower_whenMixedCase_expectFindsRegardless() {
+  void findByCompanyNameLower_whenMixedCase_expectFindsRegardless() {
     repository.save(new CompanyModel("MixedCaseCompany", "Winnipeg", "https://test.com"));
 
     Optional<CompanyModel> found = repository.findByCompanyNameLower("mixedcasecompany");
@@ -255,21 +255,21 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void existsByCompanyNameLower_afterDelete_expectFalse() {
+  void existsByCompanyNameLower_afterDelete_expectFalse() {
     repository.delete(niche);
     boolean exists = repository.existsByCompanyNameLower("niche");
     assertThat(exists).isFalse();
   }
 
   @Test
-  public void findAll_whenEmpty_expectEmptyList() {
+  void findAll_whenEmpty_expectEmptyList() {
     repository.deleteAll();
     List<CompanyModel> companies = repository.findAll();
     assertThat(companies).isEmpty();
   }
 
   @Test
-  public void save_expectAllFieldsPersist() {
+  void save_expectAllFieldsPersist() {
     CompanyModel company = new CompanyModel("Test Test", "Winnipeg", "https://test.com");
     company.setAvgRating(3.75);
 
@@ -284,7 +284,7 @@ public class CompanyRepositoryTest {
   }
 
   @Test
-  public void updateMultipleFields_expectAllFieldsUpdate() {
+  void updateMultipleFields_expectAllFieldsUpdate() {
     niche.setCompanyName("Niche Inc");
     niche.setLocation("Vancouver");
     niche.setWebsite("https://niche-new.com");
