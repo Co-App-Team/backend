@@ -81,14 +81,14 @@ public class ReviewControllerTest {
   @Test
   public void createReview_whenValid_expect201AndReview() throws Exception {
     when(this.reviewService.createReview(
-            eq("company1"),
-            eq("user1"),
-            eq("John Doe"),
-            eq(5),
-            eq("Great company"),
-            eq("Software Developer"),
-            eq("Summer"),
-            eq(2024)))
+            "company1",
+            "user1",
+            "John Doe",
+            5,
+            "Great company",
+            "Software Developer",
+            "Summer",
+            2024))
         .thenReturn(this.mockReview);
 
     mockMvc
@@ -110,14 +110,14 @@ public class ReviewControllerTest {
 
     verify(this.reviewService, times(1))
         .createReview(
-            eq("company1"),
-            eq("user1"),
-            eq("John Doe"),
-            eq(5),
-            eq("Great company"),
-            eq("Software Developer"),
-            eq("Summer"),
-            eq(2024));
+            "company1",
+            "user1",
+            "John Doe",
+            5,
+            "Great company",
+            "Software Developer",
+            "Summer",
+            2024);
   }
 
   @Test
@@ -319,7 +319,7 @@ public class ReviewControllerTest {
 
   @Test
   public void deleteReview_whenValid_expect200WithSuccessMessage() throws Exception {
-    doNothing().when(this.reviewService).deleteReview(eq("company1"), eq("user1"));
+    doNothing().when(this.reviewService).deleteReview("company1", "user1");
 
     mockMvc
         .perform(
@@ -329,7 +329,7 @@ public class ReviewControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Review deleted successfully."));
 
-    verify(this.reviewService, times(1)).deleteReview(eq("company1"), eq("user1"));
+    verify(this.reviewService, times(1)).deleteReview("company1", "user1");
   }
 
   @Test
@@ -411,7 +411,7 @@ public class ReviewControllerTest {
   @Test
   public void createReview_withInvalidRating_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
-        new CreateReviewRequest(6, "Comment", "Developer", "Summer", 2024); // rating > 5
+        new CreateReviewRequest(6, "Comment", "Developer", "Summer", 2024);
 
     mockMvc
         .perform(
@@ -424,7 +424,7 @@ public class ReviewControllerTest {
 
   @Test
   public void createReview_withCommentTooLong_expect400() throws Exception {
-    String longComment = "a".repeat(2001); // exceeds 2000 char limit
+    String longComment = "a".repeat(2001);
     CreateReviewRequest invalidRequest =
         new CreateReviewRequest(5, longComment, "Developer", "Summer", 2024);
 
@@ -440,7 +440,7 @@ public class ReviewControllerTest {
   @Test
   public void createReview_withInvalidWorkTermSeason_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
-        new CreateReviewRequest(5, "Comment", "Developer", "Spring", 2024); // invalid season
+        new CreateReviewRequest(5, "Comment", "Developer", "Spring", 2024);
 
     mockMvc
         .perform(
@@ -454,7 +454,7 @@ public class ReviewControllerTest {
   @Test
   public void createReview_withYearOutOfRange_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
-        new CreateReviewRequest(5, "Comment", "Developer", "Summer", 1949); // year < 1950
+        new CreateReviewRequest(5, "Comment", "Developer", "Summer", 1949);
 
     mockMvc
         .perform(
@@ -493,6 +493,6 @@ public class ReviewControllerTest {
                 .principal(this.authentication))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.rating").value(3))
-        .andExpect(jsonPath("$.comment").value("Great company")); // Original value kept
+        .andExpect(jsonPath("$.comment").value("Great company"));
   }
 }
