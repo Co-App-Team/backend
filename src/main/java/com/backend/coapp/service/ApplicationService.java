@@ -157,7 +157,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -225,7 +225,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
