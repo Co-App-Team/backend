@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class EmailServiceExceptionTest {
+class EmailServiceExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     EmailServiceException exception = new EmailServiceException();
 
     assertNotNull(exception);
@@ -17,7 +17,7 @@ public class EmailServiceExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     EmailServiceException exception = new EmailServiceException("foo");
 
     assertNotNull(exception);

@@ -4,9 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-public class ExperienceConstantsTest {
+class ExperienceConstantsTest {
   @Test
-  public void testConstants() {
+  void testConstants() {
     assertEquals(1000, ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH);
   }
 }

@@ -17,7 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-public class UserExperienceRepositoryTest {
+class UserExperienceRepositoryTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -32,7 +32,7 @@ public class UserExperienceRepositoryTest {
   UserExperienceModel woofExp1;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     repository.deleteAll();
     fooExp1 =
         repository.save(
@@ -64,7 +64,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void save_whenNoIdDefined_expectSetsIdOnSave() {
+  void save_whenNoIdDefined_expectSetsIdOnSave() {
     UserExperienceModel model =
         repository.save(
             new UserExperienceModel(
@@ -80,7 +80,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findAllByUserId_whenUserHasMultipleExperiences_expectReturnAll() {
+  void findAllByUserId_whenUserHasMultipleExperiences_expectReturnAll() {
     List<UserExperienceModel> results = repository.findAllByUserId(fooExp1.getUserId());
 
     assertThat(results)
@@ -90,7 +90,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findAllByUserId_whenUserHasOneExperience_expectReturnOne() {
+  void findAllByUserId_whenUserHasOneExperience_expectReturnOne() {
     List<UserExperienceModel> results = repository.findAllByUserId(woofExp1.getUserId());
 
     assertThat(results).hasSize(1);
@@ -99,14 +99,14 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findAllByUserId_whenUserDoesNotExist_expectReturnEmptyList() {
+  void findAllByUserId_whenUserDoesNotExist_expectReturnEmptyList() {
     List<UserExperienceModel> results = repository.findAllByUserId("nonExistentId");
 
     assertThat(results).isEmpty();
   }
 
   @Test
-  public void findAllByUserId_whenEndDateIsNull_expectReturnCorrectly() {
+  void findAllByUserId_whenEndDateIsNull_expectReturnCorrectly() {
     List<UserExperienceModel> results = repository.findAllByUserId(fooExp1.getUserId());
 
     assertThat(results)
@@ -117,7 +117,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findAll_expectReturnAllExperiences() {
+  void findAll_expectReturnAllExperiences() {
     List<UserExperienceModel> all = repository.findAll();
 
     assertThat(all)
@@ -127,7 +127,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void save_whenUpdateRoleDescription_expectRoleDescriptionUpdated() {
+  void save_whenUpdateRoleDescription_expectRoleDescriptionUpdated() {
     fooExp1.setRoleDescription("Developing new application");
     repository.save(fooExp1);
 
@@ -137,7 +137,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void save_whenUpdateStartDate_expectStartDateUpdated() {
+  void save_whenUpdateStartDate_expectStartDateUpdated() {
     LocalDate newStartDate = LocalDate.now().minusYears(2);
     fooExp1.setStartDate(newStartDate);
     repository.save(fooExp1);
@@ -148,7 +148,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void save_whenUpdateEndDate_expectEndDateUpdated() {
+  void save_whenUpdateEndDate_expectEndDateUpdated() {
     LocalDate newEndDate = LocalDate.now().plusMonths(6);
     fooExp1.setEndDate(newEndDate);
     repository.save(fooExp1);
@@ -159,7 +159,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void save_whenClearEndDate_expectEndDateIsNull() {
+  void save_whenClearEndDate_expectEndDateIsNull() {
     fooExp1.setEndDate(null);
     repository.save(fooExp1);
 
@@ -169,7 +169,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findUserExperienceModelById_whenExists_expectReturnCorrectModel() {
+  void findUserExperienceModelById_whenExists_expectReturnCorrectModel() {
     UserExperienceModel found = repository.findUserExperienceModelById(fooExp1.getId());
 
     assertNotNull(found);
@@ -180,14 +180,14 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findUserExperienceModelById_whenNotExists_expectReturnNull() {
+  void findUserExperienceModelById_whenNotExists_expectReturnNull() {
     UserExperienceModel found = repository.findUserExperienceModelById("nonExistentId");
 
     assertThat(found).isNull();
   }
 
   @Test
-  public void findUserExperienceModelById_whenMultipleExperiencesExist_expectReturnCorrectOne() {
+  void findUserExperienceModelById_whenMultipleExperiencesExist_expectReturnCorrectOne() {
     UserExperienceModel found = repository.findUserExperienceModelById(fooExp2.getId());
 
     assertNotNull(found);
@@ -196,7 +196,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void deleteUserExperienceModelById_whenExists_expectDeleted() {
+  void deleteUserExperienceModelById_whenExists_expectDeleted() {
     repository.deleteUserExperienceModelById(fooExp1.getId());
 
     UserExperienceModel deleted = repository.findUserExperienceModelById(fooExp1.getId());
@@ -204,12 +204,12 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void deleteUserExperienceModelById_whenNotExists_expectNoException() {
+  void deleteUserExperienceModelById_whenNotExists_expectNoException() {
     assertDoesNotThrow(() -> repository.deleteUserExperienceModelById("nonExistentId"));
   }
 
   @Test
-  public void deleteUserExperienceModelById_whenDeleteOne_expectOthersUnaffected() {
+  void deleteUserExperienceModelById_whenDeleteOne_expectOthersUnaffected() {
     repository.deleteUserExperienceModelById(fooExp1.getId());
 
     List<UserExperienceModel> fooRemaining = repository.findAllByUserId(fooExp1.getUserId());
@@ -218,7 +218,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void save_whenUpdateRoleTitle_expectRoleTitleUpdated() {
+  void save_whenUpdateRoleTitle_expectRoleTitleUpdated() {
     fooExp1.setRoleTitle("Senior Software Engineer");
     repository.save(fooExp1);
 
@@ -228,7 +228,7 @@ public class UserExperienceRepositoryTest {
   }
 
   @Test
-  public void findAllByUserId_whenUserHasMultipleExperiences_expectCorrectRoleTitles() {
+  void findAllByUserId_whenUserHasMultipleExperiences_expectCorrectRoleTitles() {
     List<UserExperienceModel> results = repository.findAllByUserId(fooExp1.getUserId());
 
     assertThat(results)

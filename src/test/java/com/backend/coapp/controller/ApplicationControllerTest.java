@@ -35,7 +35,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(ApplicationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class ApplicationControllerTest {
+class ApplicationControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
@@ -51,7 +51,7 @@ public class ApplicationControllerTest {
   private final LocalDate DATE = LocalDate.of(2800, 1, 1);
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     UserModel mockUser = mock(UserModel.class);
     when(mockUser.getId()).thenReturn("user1");
     when(mockUser.getFirstName()).thenReturn("John");
@@ -103,14 +103,14 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertEquals(this.applicationController.getApplicationService(), this.applicationService);
   }
 
   // test create application
 
   @Test
-  public void createApplication_whenValid_expect201AndApplication() throws Exception {
+  void createApplication_whenValid_expect201AndApplication() throws Exception {
     when(this.applicationService.createApplication(
             eq("user1"),
             eq("comp456"),
@@ -154,7 +154,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void createApplication_whenCompanyNotFound_expect404() throws Exception {
+  void createApplication_whenCompanyNotFound_expect404() throws Exception {
     when(this.applicationService.createApplication(
             anyString(),
             anyString(),
@@ -181,7 +181,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void createApplication_whenApplicationAlreadyExists_expect409() throws Exception {
+  void createApplication_whenApplicationAlreadyExists_expect409() throws Exception {
     when(this.applicationService.createApplication(
             anyString(),
             anyString(),
@@ -208,7 +208,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void createApplication_whenMissingRequiredFields_expect400() throws Exception {
+  void createApplication_whenMissingRequiredFields_expect400() throws Exception {
     CreateApplicationRequest invalidRequest = new CreateApplicationRequest();
 
     mockMvc
@@ -235,7 +235,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void createApplication_whenServiceFails_expect500() throws Exception {
+  void createApplication_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.createApplication(
             anyString(),
             anyString(),
@@ -264,7 +264,7 @@ public class ApplicationControllerTest {
   // test update application
 
   @Test
-  public void updateApplication_whenValid_expect200AndUpdatedApplication() throws Exception {
+  void updateApplication_whenValid_expect200AndUpdatedApplication() throws Exception {
     ApplicationResponse updatedResponse =
         new ApplicationResponse(
             "app789",
@@ -322,7 +322,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void updateApplication_whenApplicationNotFound_expect404() throws Exception {
+  void updateApplication_whenApplicationNotFound_expect404() throws Exception {
     when(this.applicationService.updateApplication(
             anyString(),
             anyString(),
@@ -350,7 +350,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void updateApplication_whenNotOwned_expect403() throws Exception {
+  void updateApplication_whenNotOwned_expect403() throws Exception {
     when(this.applicationService.updateApplication(
             anyString(),
             anyString(),
@@ -378,7 +378,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void updateApplication_whenNoFieldsProvided_expect400() throws Exception {
+  void updateApplication_whenNoFieldsProvided_expect400() throws Exception {
     UpdateApplicationRequest emptyRequest = new UpdateApplicationRequest();
 
     mockMvc
@@ -406,7 +406,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void updateApplication_whenServiceFails_expect500() throws Exception {
+  void updateApplication_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.updateApplication(
             anyString(),
             anyString(),
@@ -434,7 +434,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void updateApplication_whenNoChanges_expect400() throws Exception {
+  void updateApplication_whenNoChanges_expect400() throws Exception {
     when(this.applicationService.updateApplication(
             anyString(),
             anyString(),
@@ -479,7 +479,7 @@ public class ApplicationControllerTest {
   // test delete application
 
   @Test
-  public void deleteApplication_whenValid_expect200WithSuccessMessage() throws Exception {
+  void deleteApplication_whenValid_expect200WithSuccessMessage() throws Exception {
     doNothing().when(this.applicationService).deleteApplication(eq("app789"), eq("user1"));
 
     mockMvc
@@ -494,7 +494,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void deleteApplication_whenApplicationNotFound_expect404() throws Exception {
+  void deleteApplication_whenApplicationNotFound_expect404() throws Exception {
     doThrow(new ApplicationNotFoundException())
         .when(this.applicationService)
         .deleteApplication(anyString(), anyString());
@@ -510,7 +510,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void deleteApplication_whenNotOwned_expect403() throws Exception {
+  void deleteApplication_whenNotOwned_expect403() throws Exception {
     doThrow(new UnauthorizedApplicationAccessException("delete"))
         .when(this.applicationService)
         .deleteApplication(anyString(), anyString());
@@ -526,7 +526,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void deleteApplication_whenServiceFails_expect500() throws Exception {
+  void deleteApplication_whenServiceFails_expect500() throws Exception {
     doThrow(new ApplicationServiceFailException("Database error"))
         .when(this.applicationService)
         .deleteApplication(anyString(), anyString());
@@ -542,7 +542,7 @@ public class ApplicationControllerTest {
   }
 
   @Test
-  public void createApplication_withoutNotes_expect201() throws Exception {
+  void createApplication_withoutNotes_expect201() throws Exception {
     CreateApplicationRequest requestWithoutNotes =
         CreateApplicationRequest.builder()
             .companyId("comp456")
@@ -612,8 +612,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenNoParams_expect200WithApplicationsAndPagination()
-      throws Exception {
+  void getApplications_whenNoParams_expect200WithApplicationsAndPagination() throws Exception {
     Map<String, Object> mockServiceResponse =
         Map.of(
             "applications",
@@ -652,7 +651,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenSearchParam_expectPassedToService() throws Exception {
+  void getApplications_whenSearchParam_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
             eq("user1"), eq("Google"), isNull(), anyString(), anyString(), anyInt(), anyInt()))
         .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
@@ -666,7 +665,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenStatusParam_expectPassedToService() throws Exception {
+  void getApplications_whenStatusParam_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
             eq("user1"),
             isNull(),
@@ -692,7 +691,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenMultipleStatuses_expectPassedToService() throws Exception {
+  void getApplications_whenMultipleStatuses_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
             eq("user1"),
             isNull(),
@@ -710,7 +709,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenInvalidStatus_expect400() throws Exception {
+  void getApplications_whenInvalidStatus_expect400() throws Exception {
     mockMvc
         .perform(get("/api/application").param("status", "INVALID_STATUS"))
         .andExpect(status().isBadRequest());
@@ -722,7 +721,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenInvalidSortBy_expect400() throws Exception {
+  void getApplications_whenInvalidSortBy_expect400() throws Exception {
     mockMvc
         .perform(get("/api/application").param("sortBy", "invalidField"))
         .andExpect(status().isBadRequest());
@@ -734,7 +733,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenInvalidSortOrder_expect400() throws Exception {
+  void getApplications_whenInvalidSortOrder_expect400() throws Exception {
     mockMvc
         .perform(get("/api/application").param("sortOrder", "sideways"))
         .andExpect(status().isBadRequest());
@@ -746,7 +745,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenSortParams_expectPassedToService() throws Exception {
+  void getApplications_whenSortParams_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
             eq("user1"), isNull(), isNull(), eq("dateApplied"), eq("asc"), anyInt(), anyInt()))
         .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
@@ -762,7 +761,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenPaginationParams_expectPassedToService() throws Exception {
+  void getApplications_whenPaginationParams_expectPassedToService() throws Exception {
     when(this.applicationService.getFilteredApplications(
             eq("user1"), isNull(), isNull(), anyString(), anyString(), eq(2), eq(10)))
         .thenReturn(Map.of("applications", Collections.emptyList(), "pagination", Map.of()));
@@ -778,7 +777,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenServiceFails_expect500() throws Exception {
+  void getApplications_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.getFilteredApplications(
             anyString(), any(), any(), anyString(), anyString(), anyInt(), anyInt()))
         .thenThrow(new ApplicationServiceFailException("Database error"));
@@ -792,7 +791,7 @@ public class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getApplications_whenEmpty_expect200WithEmptyList() throws Exception {
+  void getApplications_whenEmpty_expect200WithEmptyList() throws Exception {
     when(this.applicationService.getFilteredApplications(
             eq("user1"), isNull(), isNull(), anyString(), anyString(), anyInt(), anyInt()))
         .thenReturn(

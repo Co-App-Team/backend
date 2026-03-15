@@ -38,7 +38,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class UserControllerTest {
+class UserControllerTest {
 
   @Autowired private MockMvc mockMvc;
 
@@ -58,7 +58,7 @@ public class UserControllerTest {
   private UserModel mockUser;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockUser = mock(UserModel.class);
     when(mockUser.getId()).thenReturn("testUserID");
     when(mockUser.getFirstName()).thenReturn("Foo");
@@ -88,12 +88,12 @@ public class UserControllerTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertEquals(this.userController.getUserService(), this.userService);
   }
 
   @Test
-  public void getDummyUser_expect200AndDummyUser() throws Exception {
+  void getDummyUser_expect200AndDummyUser() throws Exception {
     UserResponse dummyUser = new UserResponse("Dummy Firstname", "Dummy Lastname", "foo@mail.com");
     when(this.userService.getDummyUser()).thenReturn(dummyUser);
 
@@ -106,7 +106,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updatePassword_whenSuccess_expectNoException() throws Exception {
+  void updatePassword_whenSuccess_expectNoException() throws Exception {
     doNothing().when(this.userService).updateUserPassword(anyString(), anyString(), anyString());
     mockMvc
         .perform(
@@ -122,7 +122,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updatePassword_whenIncorrectOldPassword_expect401() throws Exception {
+  void updatePassword_whenIncorrectOldPassword_expect401() throws Exception {
     doThrow(new AuthBadCredentialException())
         .when(this.userService)
         .updateUserPassword(anyString(), anyString(), anyString());
@@ -142,7 +142,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updatePassword_whenNewPasswordSameWithOldPassword_expect400() throws Exception {
+  void updatePassword_whenNewPasswordSameWithOldPassword_expect400() throws Exception {
     doThrow(new UserInvalidPasswordChangeException())
         .when(this.userService)
         .updateUserPassword(anyString(), anyString(), anyString());
@@ -160,7 +160,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updatePassword_whenUserServiceFail_expect500() throws Exception {
+  void updatePassword_whenUserServiceFail_expect500() throws Exception {
     doThrow(new UserServiceFailException("foo"))
         .when(this.userService)
         .updateUserPassword(anyString(), anyString(), anyString());
@@ -179,7 +179,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void aboutMe_whenSuccess_expectNoException() throws Exception {
+  void aboutMe_whenSuccess_expectNoException() throws Exception {
     UserModel dummyUser =
         new UserModel("123", "foo@mail.com", "dummyPassword", "foo", "woof", true, 123);
     doReturn(dummyUser).when(this.userService).getUserInformationFromUserID(anyString());
@@ -197,7 +197,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void aboutMe_whenNoUserExist_expectException() throws Exception {
+  void aboutMe_whenNoUserExist_expectException() throws Exception {
     doThrow(new UserNotFoundException())
         .when(this.userService)
         .getUserInformationFromUserID(anyString());
@@ -214,7 +214,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void aboutMe_whenUserServiceFail_expectException() throws Exception {
+  void aboutMe_whenUserServiceFail_expectException() throws Exception {
     doThrow(new UserServiceFailException("foo"))
         .when(this.userService)
         .getUserInformationFromUserID(anyString());
@@ -231,7 +231,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void getAllUserExperience_whenSuccess_expect200AndExperienceList() throws Exception {
+  void getAllUserExperience_whenSuccess_expect200AndExperienceList() throws Exception {
     List<UserExperienceModel> experiences = List.of(this.DUMMY_USER_EXPERIENCE_MODEL);
     when(userService.getAllUserExperience(any())).thenReturn(experiences);
 
@@ -248,7 +248,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void getAllUserExperience_whenNoExperience_expect200AndEmptyList() throws Exception {
+  void getAllUserExperience_whenNoExperience_expect200AndEmptyList() throws Exception {
     when(userService.getAllUserExperience(any())).thenReturn(Collections.emptyList());
 
     mockMvc
@@ -263,7 +263,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void getAllUserExperience_whenServiceThrows_expect500() throws Exception {
+  void getAllUserExperience_whenServiceThrows_expect500() throws Exception {
     when(userService.getAllUserExperience(any()))
         .thenThrow(new UserServiceFailException("DB failed"));
 
@@ -278,7 +278,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void createNewUserExperience_whenSuccess_expect200AndExperienceId() throws Exception {
+  void createNewUserExperience_whenSuccess_expect200AndExperienceId() throws Exception {
     when(userService.createNewUserExperience(any(), any(), any(), any(), any(), any()))
         .thenReturn(DUMMY_USER_EXPERIENCE_MODEL);
 
@@ -302,7 +302,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void createNewUserExperience_whenInvalidRequest_expect400() throws Exception {
+  void createNewUserExperience_whenInvalidRequest_expect400() throws Exception {
     UserExperienceRequest invalidRequest = UserExperienceRequest.builder().build();
 
     mockMvc
@@ -318,7 +318,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyNotFound_expect404() throws Exception {
+  void createNewUserExperience_whenCompanyNotFound_expect404() throws Exception {
     when(userService.createNewUserExperience(any(), any(), any(), any(), any(), any()))
         .thenThrow(new CompanyNotFoundException());
 
@@ -342,7 +342,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void createNewUserExperience_whenServiceFails_expect500() throws Exception {
+  void createNewUserExperience_whenServiceFails_expect500() throws Exception {
     when(userService.createNewUserExperience(any(), any(), any(), any(), any(), any()))
         .thenThrow(new UserServiceFailException("DB failed"));
 
@@ -365,7 +365,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserExperience_whenSuccess_expect200() throws Exception {
+  void deleteUserExperience_whenSuccess_expect200() throws Exception {
     doNothing().when(userService).deleteUserExperience(any(), any());
 
     mockMvc
@@ -379,7 +379,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserExperience_whenExperienceNotFound_expect404() throws Exception {
+  void deleteUserExperience_whenExperienceNotFound_expect404() throws Exception {
     doThrow(new ExperienceNotFoundException()).when(userService).deleteUserExperience(any(), any());
 
     mockMvc
@@ -393,7 +393,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserExperience_whenNotOwned_expect403() throws Exception {
+  void deleteUserExperience_whenNotOwned_expect403() throws Exception {
     doThrow(new ExperienceNotOwnedException("Can NOT delete."))
         .when(userService)
         .deleteUserExperience(any(), any());
@@ -409,7 +409,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserExperience_whenServiceFails_expect500() throws Exception {
+  void deleteUserExperience_whenServiceFails_expect500() throws Exception {
     doThrow(new UserServiceFailException("DB failed"))
         .when(userService)
         .deleteUserExperience(any(), any());
@@ -425,7 +425,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void deleteUserExperience_whenMissingExperienceId_expect400() throws Exception {
+  void deleteUserExperience_whenMissingExperienceId_expect400() throws Exception {
 
     mockMvc
         .perform(delete("/api/user/experience/{experienceId}", "  ").principal(this.authentication))
@@ -436,7 +436,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenSuccess_expect200() throws Exception {
+  void updateUserExperience_whenSuccess_expect200() throws Exception {
     doNothing()
         .when(userService)
         .updateUserExperience(any(), any(), any(), any(), any(), any(), any());
@@ -461,7 +461,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenInvalidRequest_expect400() throws Exception {
+  void updateUserExperience_whenInvalidRequest_expect400() throws Exception {
     UserExperienceRequest invalidRequest = UserExperienceRequest.builder().build();
 
     mockMvc
@@ -477,7 +477,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenExperienceNotFound_expect404() throws Exception {
+  void updateUserExperience_whenExperienceNotFound_expect404() throws Exception {
     doThrow(new ExperienceNotFoundException())
         .when(userService)
         .updateUserExperience(any(), any(), any(), any(), any(), any(), any());
@@ -503,7 +503,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenNotOwned_expect403() throws Exception {
+  void updateUserExperience_whenNotOwned_expect403() throws Exception {
     doThrow(new ExperienceNotOwnedException("Cannot update."))
         .when(userService)
         .updateUserExperience(any(), any(), any(), any(), any(), any(), any());
@@ -528,7 +528,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyNotFound_expect404() throws Exception {
+  void updateUserExperience_whenCompanyNotFound_expect404() throws Exception {
     doThrow(new CompanyNotFoundException())
         .when(userService)
         .updateUserExperience(any(), any(), any(), any(), any(), any(), any());
@@ -553,7 +553,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenServiceFails_expect500() throws Exception {
+  void updateUserExperience_whenServiceFails_expect500() throws Exception {
     doThrow(new UserServiceFailException("DB failed"))
         .when(userService)
         .updateUserExperience(any(), any(), any(), any(), any(), any(), any());
@@ -578,7 +578,7 @@ public class UserControllerTest {
   }
 
   @Test
-  public void updateUserExperience_whenMissingExperienceId_expect400() throws Exception {
+  void updateUserExperience_whenMissingExperienceId_expect400() throws Exception {
 
     mockMvc
         .perform(

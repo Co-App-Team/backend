@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class CompanyNotFoundExceptionTest {
+class CompanyNotFoundExceptionTest {
 
   @Test
-  public void constructor_whenNoArgs_expectDefaultMessage() {
+  void constructor_whenNoArgs_expectDefaultMessage() {
     CompanyNotFoundException exception = new CompanyNotFoundException();
 
     assertNotNull(exception);

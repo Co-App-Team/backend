@@ -13,34 +13,34 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CompanyModel */
-public class CompanyModelTest {
+class CompanyModelTest {
 
   private static ValidatorFactory validatorFactory;
   private static Validator validator;
   private CompanyModel validCompany;
 
   @BeforeAll
-  public static void setUpValidator() {
+  static void setUpValidator() {
     validatorFactory = Validation.buildDefaultValidatorFactory();
     validator = validatorFactory.getValidator();
   }
 
   @AfterAll
-  public static void tearDownValidator() {
+  static void tearDownValidator() {
     if (validatorFactory != null) {
       validatorFactory.close();
     }
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.validCompany = new CompanyModel("Niche", "Winnipeg", "https://niche.com");
   }
 
   /* test constructor */
 
   @Test
-  public void constructor_whenAllValid_expectSuccess() {
+  void constructor_whenAllValid_expectSuccess() {
     CompanyModel company = new CompanyModel("Priceline", "Winnipeg", "https://priceline.com");
 
     assertNotNull(company);
@@ -52,7 +52,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void constructor_whenTrimsWhitespace_expectTrimmed() {
+  void constructor_whenTrimsWhitespace_expectTrimmed() {
     CompanyModel company =
         new CompanyModel("  Priceline  ", "  Winnipeg  ", "  https://priceline.com  ");
 
@@ -63,13 +63,13 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void constructor_expectAvgRatingDefaultsToZero() {
+  void constructor_expectAvgRatingDefaultsToZero() {
     CompanyModel company = new CompanyModel("Test Co", "Location", "https://test.com");
     assertEquals(0.0, company.getAvgRating());
   }
 
   @Test
-  public void noArgsConstructor_expectFieldsNull() {
+  void noArgsConstructor_expectFieldsNull() {
     CompanyModel company = new CompanyModel();
 
     assertNull(company.getCompanyName());
@@ -80,7 +80,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void constructor_whenNullCompanyName_expectBothNull() {
+  void constructor_whenNullCompanyName_expectBothNull() {
     CompanyModel company = new CompanyModel(null, "Location", "https://test.com");
 
     assertNull(company.getCompanyName());
@@ -91,7 +91,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void constructor_whenNullLocation_expectNull() {
+  void constructor_whenNullLocation_expectNull() {
     CompanyModel company = new CompanyModel("Test", null, "https://test.com");
 
     assertEquals("Test", company.getCompanyName());
@@ -100,7 +100,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void constructor_whenNullWebsite_expectNull() {
+  void constructor_whenNullWebsite_expectNull() {
     CompanyModel company = new CompanyModel("Test", "Location", null);
 
     assertEquals("Test", company.getCompanyName());
@@ -109,20 +109,20 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void constructor_whenNullCompanyName_expectHandled() {
+  void constructor_whenNullCompanyName_expectHandled() {
     CompanyModel company = new CompanyModel(null, "Location", "https://test.com");
     assertNull(company.getCompanyName());
     assertNull(company.getCompanyNameLower());
   }
 
   @Test
-  public void constructor_whenNullLocation_expectHandled() {
+  void constructor_whenNullLocation_expectHandled() {
     CompanyModel company = new CompanyModel("Test", null, "https://test.com");
     assertNull(company.getLocation());
   }
 
   @Test
-  public void constructor_whenNullWebsite_expectHandled() {
+  void constructor_whenNullWebsite_expectHandled() {
     CompanyModel company = new CompanyModel("Test", "Location", null);
     assertNull(company.getWebsite());
   }
@@ -130,7 +130,7 @@ public class CompanyModelTest {
   /* test custom setters */
 
   @Test
-  public void setCompanyName_expectUpdatesBothFields() {
+  void setCompanyName_expectUpdatesBothFields() {
     validCompany.setCompanyName("Priceline");
 
     assertEquals("Priceline", validCompany.getCompanyName());
@@ -138,7 +138,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void setCompanyName_expectTrimsWhitespace() {
+  void setCompanyName_expectTrimsWhitespace() {
     validCompany.setCompanyName("  Priceline Inc  ");
 
     assertEquals("Priceline Inc", validCompany.getCompanyName());
@@ -146,7 +146,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void setCompanyName_whenNull_expectBothNull() {
+  void setCompanyName_whenNull_expectBothNull() {
     validCompany.setCompanyName(null);
 
     assertNull(validCompany.getCompanyName());
@@ -154,7 +154,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void setCompanyName_whenCaseChanges_expectLowerUpdated() {
+  void setCompanyName_whenCaseChanges_expectLowerUpdated() {
     validCompany.setCompanyName("PAYWORKS");
     assertEquals("PAYWORKS", validCompany.getCompanyName());
     assertEquals("payworks", validCompany.getCompanyNameLower());
@@ -167,13 +167,13 @@ public class CompanyModelTest {
   /* test jakarta validation annotations with a validator */
 
   @Test
-  public void validate_whenAllFieldsValid_expectNoViolations() {
+  void validate_whenAllFieldsValid_expectNoViolations() {
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
     assertTrue(violations.isEmpty());
   }
 
   @Test
-  public void validate_whenCompanyNameNull_expectViolation() {
+  void validate_whenCompanyNameNull_expectViolation() {
     validCompany.setCompanyName(null);
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -181,7 +181,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenCompanyNameBlank_expectViolation() {
+  void validate_whenCompanyNameBlank_expectViolation() {
     validCompany.setCompanyName("");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -192,7 +192,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenLocationNull_expectViolation() {
+  void validate_whenLocationNull_expectViolation() {
     validCompany.setLocation(null);
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -200,7 +200,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenLocationBlank_expectViolation() {
+  void validate_whenLocationBlank_expectViolation() {
     validCompany.setLocation("   ");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -208,7 +208,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenWebsiteNull_expectViolation() {
+  void validate_whenWebsiteNull_expectViolation() {
     validCompany.setWebsite(null);
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -216,7 +216,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenWebsiteBlank_expectViolation() {
+  void validate_whenWebsiteBlank_expectViolation() {
     validCompany.setWebsite("");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -224,7 +224,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenInvalidUrl_expectViolation() {
+  void validate_whenInvalidUrl_expectViolation() {
     validCompany.setWebsite("not-a-url");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -235,7 +235,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenUrlWithoutProtocol_expectViolation() { // Changed name
+  void validate_whenUrlWithoutProtocol_expectViolation() { // Changed name
     validCompany.setWebsite("niche.com");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -246,7 +246,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenValidUrlWithHttp_expectNoViolation() {
+  void validate_whenValidUrlWithHttp_expectNoViolation() {
     validCompany.setWebsite("http://niche.com");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -254,7 +254,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void validate_whenValidUrlWithHttps_expectNoViolation() {
+  void validate_whenValidUrlWithHttps_expectNoViolation() {
     validCompany.setWebsite("https://niche.com");
     Set<ConstraintViolation<CompanyModel>> violations = validator.validate(validCompany);
 
@@ -264,7 +264,7 @@ public class CompanyModelTest {
   /* test lombok getters and setters */
 
   @Test
-  public void lombokSetters_expectWork() {
+  void lombokSetters_expectWork() {
     CompanyModel company = new CompanyModel();
     company.setLocation("Toronto");
     company.setWebsite("https://example.com");
@@ -276,7 +276,7 @@ public class CompanyModelTest {
   }
 
   @Test
-  public void lombokGetters_expectWork() {
+  void lombokGetters_expectWork() {
     assertNotNull(validCompany.getCompanyName());
     assertNotNull(validCompany.getLocation());
     assertNotNull(validCompany.getWebsite());

@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class IncorrectCodeExceptionTest {
+class IncorrectCodeExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     IncorrectCodeException exception = new IncorrectCodeException();
 
     assertNotNull(exception);
@@ -18,7 +18,7 @@ public class IncorrectCodeExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     IncorrectCodeException exception = new IncorrectCodeException("foo");
 
     assertNotNull(exception);

@@ -6,9 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
-public class AuthAccountNotYetActivatedExceptionTest {
+class AuthAccountNotYetActivatedExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     AuthAccountNotYetActivatedException exception = new AuthAccountNotYetActivatedException();
 
     assertNotNull(exception);
@@ -19,7 +19,7 @@ public class AuthAccountNotYetActivatedExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     AuthAccountNotYetActivatedException exception = new AuthAccountNotYetActivatedException("foo");
 
     assertNotNull(exception);

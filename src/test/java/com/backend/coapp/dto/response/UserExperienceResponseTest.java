@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 /* These tests were written with the help of Claude Sonnet 4.5 and revised by Bao Ngo */
 
-public class UserExperienceResponseTest {
+class UserExperienceResponseTest {
   private final String EXPERIENCE_ID = "fooExperienceId";
   private final String COMPANY_ID = "fooCompanyId";
   private final String ROLE_TITLE = "Foo Software Engineer";
@@ -31,7 +31,7 @@ public class UserExperienceResponseTest {
   }
 
   @Test
-  public void getMethod_expectInitValues() {
+  void getMethod_expectInitValues() {
     UserExperienceResponse response = buildResponse();
     assertEquals(EXPERIENCE_ID, response.getExperienceId());
     assertEquals(COMPANY_ID, response.getCompanyId());
@@ -42,7 +42,7 @@ public class UserExperienceResponseTest {
   }
 
   @Test
-  public void toMap_expectCorrectKeys() {
+  void toMap_expectCorrectKeys() {
     Map<String, Object> map = buildResponse().toMap();
     assertTrue(map.containsKey("experienceId"));
     assertTrue(map.containsKey("companyId"));
@@ -53,7 +53,7 @@ public class UserExperienceResponseTest {
   }
 
   @Test
-  public void toMap_expectCorrectValues() {
+  void toMap_expectCorrectValues() {
     Map<String, Object> map = buildResponse().toMap();
     assertEquals(EXPERIENCE_ID, map.get("experienceId"));
     assertEquals(COMPANY_ID, map.get("companyId"));
@@ -64,7 +64,7 @@ public class UserExperienceResponseTest {
   }
 
   @Test
-  public void fromModel_expectCorrectMapping() {
+  void fromModel_expectCorrectMapping() {
     UserExperienceResponse response = UserExperienceResponse.fromModel(buildModel());
     assertEquals(EXPERIENCE_ID, response.getExperienceId());
     assertEquals(COMPANY_ID, response.getCompanyId());
@@ -75,7 +75,7 @@ public class UserExperienceResponseTest {
   }
 
   @Test
-  public void fromModel_whenEndDateIsNull_expectNullEndDate() {
+  void fromModel_whenEndDateIsNull_expectNullEndDate() {
     UserExperienceModel model =
         new UserExperienceModel(
             "someUserId", COMPANY_ID, ROLE_TITLE, ROLE_DESCRIPTION, START_DATE, null);
