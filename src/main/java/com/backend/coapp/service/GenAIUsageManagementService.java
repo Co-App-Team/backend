@@ -108,4 +108,31 @@ public class GenAIUsageManagementService {
       throw new GenAIUsageManagementServiceException(e.getMessage());
     }
   }
+
+  /**
+   * Given the user, get the number of request left for a month
+   *
+   * @param userId ID of the user
+   * @return number of request left
+   * @throws GenAIUsageManagementServiceException when database operation fails.
+   */
+  public int getNumberOfRequestLeft(String userId) throws GenAIUsageManagementServiceException {
+    int numberOfRequestLeft = GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT;
+    try {
+      UserGenAIUsageModel userUsageRecord =
+          this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(userId);
+
+      if (userUsageRecord != null) {
+        numberOfRequestLeft = userUsageRecord.getMonthlyLimit() - userUsageRecord.getRequestCount();
+      }
+
+      if (numberOfRequestLeft < 0) {
+        numberOfRequestLeft = 0;
+      }
+
+    } catch (Exception e) {
+      throw new GenAIUsageManagementServiceException(e.getMessage());
+    }
+    return numberOfRequestLeft;
+  }
 }
