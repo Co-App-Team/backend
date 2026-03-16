@@ -173,10 +173,11 @@ class GenAIResumeAdvisorServiceTest {
   @Test
   void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
     String oversizedPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS + 1);
+    String fooUserId = fooUser.getId();
 
     assertThrows(
         OverCharacterLimitException.class,
-        () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, oversizedPrompt));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, null, oversizedPrompt));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
@@ -193,10 +194,10 @@ class GenAIResumeAdvisorServiceTest {
 
   @Test
   void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
+    String fooUserId = fooUser.getId();
     assertThrows(
         ApplicationNotFoundException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(fooUser.getId(), "nonExistentAppId", VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, "nonExistentAppId", VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);

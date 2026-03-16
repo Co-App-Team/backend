@@ -309,7 +309,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenNoUsageRecordExists_expectDefaultLimit() {
+  void getNumberOfRequestLeft_whenNoUsageRecordExists_expectDefaultLimit() {
     this.userGenAIUsageRepository.deleteAll();
 
     int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
@@ -318,7 +318,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenUsageRecordExists_expectCorrectRemainingCount() {
+  void getNumberOfRequestLeft_whenUsageRecordExists_expectCorrectRemainingCount() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(3);
@@ -330,7 +330,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountIsZero_expectFullLimit() {
+  void getNumberOfRequestLeft_whenRequestCountIsZero_expectFullLimit() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(0);
@@ -342,7 +342,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountAtLimit_expectZeroRequestLeft() {
+  void getNumberOfRequestLeft_whenRequestCountAtLimit_expectZeroRequestLeft() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT);
@@ -354,7 +354,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountOverLimit_expectZeroRequestLeft() {
+  void getNumberOfRequestLeft_whenRequestCountOverLimit_expectZeroRequestLeft() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 1);
@@ -366,8 +366,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void
-      getNumberOfRequestLeft_whenRepoOperationFails_expectGenAIUsageManagementServiceException() {
+  void getNumberOfRequestLeft_whenRepoOperationFails_expectGenAIUsageManagementServiceException() {
     UserGenAIUsageRepository userGenAIUsageRepositoryMock =
         Mockito.mock(UserGenAIUsageRepository.class);
     this.genAIUsageManagementService =

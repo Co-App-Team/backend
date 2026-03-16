@@ -7,6 +7,9 @@ import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.util.ExperienceConstants;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /* These tests were written with the help of Claude Sonnet 4.5 and revised by Bao Ngo */
 
@@ -55,33 +58,19 @@ class UserExperienceRequestTest {
     assertDoesNotThrow(request::validateRequest);
   }
 
-  @Test
-  void validateRequest_whenCompanyIdIsNull_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().companyId(null).build();
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void validateRequest_whenCompanyIdIsInvalid_expectInvalidRequestException(String companyId) {
+    UserExperienceRequest request = buildValidRequest().toBuilder().companyId(companyId).build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
-  @Test
-  void validateRequest_whenCompanyIdIsBlank_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().companyId("   ").build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  void validateRequest_whenCompanyIdIsEmpty_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().companyId("").build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  void validateRequest_whenRoleTitleIsNull_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().roleTitle(null).build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  void validateRequest_whenRoleTitleIsBlank_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().roleTitle("   ").build();
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void validateRequest_whenRoleTitleIsInvalid_expectInvalidRequestException(String companyId) {
+    UserExperienceRequest request = buildValidRequest().toBuilder().roleTitle(companyId).build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
