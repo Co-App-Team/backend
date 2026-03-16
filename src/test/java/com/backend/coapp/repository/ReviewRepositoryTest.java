@@ -178,7 +178,7 @@ public class ReviewRepositoryTest {
   @Test
   public void countByCompanyId_whenNoReviews_expectZero() {
     long count = repository.countByCompanyId("companyFake");
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test
@@ -301,7 +301,7 @@ public class ReviewRepositoryTest {
     repository.deleteAll();
     List<ReviewModel> reviews = repository.findAll();
     assertThat(reviews).isEmpty();
-    assertThat(repository.count()).isEqualTo(0);
+    assertThat(repository.count()).isZero();
   }
 
   @Test
