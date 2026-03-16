@@ -7,10 +7,10 @@ import com.backend.coapp.exception.global.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
-public class CreateCompanyRequestTest {
+class CreateCompanyRequestTest {
 
   @Test
-  public void getMethods_expectInitValues() {
+  void getMethods_expectInitValues() {
     CreateCompanyRequest request =
         new CreateCompanyRequest("Niche", "Winnipeg", "https://niche.com");
     assertEquals("Niche", request.getCompanyName());
@@ -19,14 +19,14 @@ public class CreateCompanyRequestTest {
   }
 
   @Test
-  public void validateRequest_whenValidRequest_expectNoException() {
+  void validateRequest_whenValidRequest_expectNoException() {
     CreateCompanyRequest request =
         new CreateCompanyRequest("Niche", "Winnipeg", "https://niche.com");
     assertDoesNotThrow(request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenInvalidCompanyName_expectException() {
+  void validateRequest_whenInvalidCompanyName_expectException() {
     CreateCompanyRequest requestNameNull =
         new CreateCompanyRequest(null, "Winnipeg", "https://niche.com");
     assertThrows(InvalidRequestException.class, requestNameNull::validateRequest);
@@ -37,7 +37,7 @@ public class CreateCompanyRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidLocation_expectException() {
+  void validateRequest_whenInvalidLocation_expectException() {
     CreateCompanyRequest requestLocationNull =
         new CreateCompanyRequest("Niche", null, "https://niche.com");
     assertThrows(InvalidRequestException.class, requestLocationNull::validateRequest);
@@ -48,7 +48,7 @@ public class CreateCompanyRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidWebsite_expectException() {
+  void validateRequest_whenInvalidWebsite_expectException() {
     CreateCompanyRequest requestWebsiteNull = new CreateCompanyRequest("Niche", "Winnipeg", null);
     assertThrows(InvalidRequestException.class, requestWebsiteNull::validateRequest);
 

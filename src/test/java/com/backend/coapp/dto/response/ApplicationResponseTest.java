@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-public class ApplicationResponseTest {
+class ApplicationResponseTest {
 
   private final String applicationId = "app123";
   private final String companyId = "comp456";
@@ -54,7 +54,7 @@ public class ApplicationResponseTest {
   }
 
   @Test
-  public void constructorAndGetters_expectCorrectValues() {
+  void constructorAndGetters_expectCorrectValues() {
     ApplicationResponse response = getValidResponseBuilder().build();
 
     assertEquals(applicationId, response.getApplicationId());
@@ -71,7 +71,7 @@ public class ApplicationResponseTest {
   }
 
   @Test
-  public void fromModel_whenValidModel_expectCorrectMapping() {
+  void fromModel_whenValidModel_expectCorrectMapping() {
     ApplicationModel model = getValidModelBuilder().build();
 
     ApplicationResponse response = ApplicationResponse.fromModel(model);
@@ -86,7 +86,7 @@ public class ApplicationResponseTest {
   }
 
   @Test
-  public void toMap_expectKeysAndValuesMatch() {
+  void toMap_expectKeysAndValuesMatch() {
     ApplicationResponse response = getValidResponseBuilder().build();
 
     Map<String, Object> map = response.toMap();
@@ -107,7 +107,7 @@ public class ApplicationResponseTest {
   }
 
   @Test
-  public void toMap_withNullValues_expectKeysExistWithNulls() {
+  void toMap_withNullValues_expectKeysExistWithNulls() {
     ApplicationResponse response =
         getValidResponseBuilder()
             .jobDescription(null)

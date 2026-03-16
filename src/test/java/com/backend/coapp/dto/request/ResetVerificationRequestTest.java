@@ -5,16 +5,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.backend.coapp.exception.global.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
-public class ResetVerificationRequestTest {
+class ResetVerificationRequestTest {
   @Test
-  public void getterMethod_expectInitValues() {
+  void getterMethod_expectInitValues() {
     ResetVerificationRequest request = new ResetVerificationRequest("foo@mail.com");
 
     assertEquals("foo@mail.com", request.getEmail());
   }
 
   @Test
-  public void validateRequest_whenInvalidEmail_expectException() {
+  void validateRequest_whenInvalidEmail_expectException() {
     ResetVerificationRequest requestBlank = new ResetVerificationRequest("");
     assertThrows(InvalidRequestException.class, requestBlank::validateRequest);
 
@@ -23,7 +23,7 @@ public class ResetVerificationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenValidEmail_expectNoException() {
+  void validateRequest_whenValidEmail_expectNoException() {
     ResetVerificationRequest request = new ResetVerificationRequest("foo@mail.com");
     assertDoesNotThrow(request::validateRequest);
   }

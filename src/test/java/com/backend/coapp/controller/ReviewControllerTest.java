@@ -31,7 +31,7 @@ import tools.jackson.databind.ObjectMapper;
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 @WebMvcTest(ReviewController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class ReviewControllerTest {
+class ReviewControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
@@ -45,7 +45,7 @@ public class ReviewControllerTest {
   private UpdateReviewRequest updateRequest;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     UserModel mockUser = mock(UserModel.class);
     when(mockUser.getId()).thenReturn("user1");
     when(mockUser.getFirstName()).thenReturn("John");
@@ -72,14 +72,14 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertEquals(this.reviewController.getReviewService(), this.reviewService);
   }
 
   // test create review
 
   @Test
-  public void createReview_whenValid_expect201AndReview() throws Exception {
+  void createReview_whenValid_expect201AndReview() throws Exception {
     when(this.reviewService.createReview(
             "company1",
             "user1",
@@ -121,7 +121,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_whenCompanyNotFound_expect404() throws Exception {
+  void createReview_whenCompanyNotFound_expect404() throws Exception {
     when(this.reviewService.createReview(
             anyString(),
             anyString(),
@@ -145,7 +145,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_whenReviewAlreadyExists_expect409() throws Exception {
+  void createReview_whenReviewAlreadyExists_expect409() throws Exception {
     when(this.reviewService.createReview(
             anyString(),
             anyString(),
@@ -169,7 +169,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_whenMissingRequiredFields_expect400() throws Exception {
+  void createReview_whenMissingRequiredFields_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
         new CreateReviewRequest(null, "Comment", "Developer", "Summer", 2024);
 
@@ -194,7 +194,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_whenServiceFails_expect500() throws Exception {
+  void createReview_whenServiceFails_expect500() throws Exception {
     when(this.reviewService.createReview(
             anyString(),
             anyString(),
@@ -220,7 +220,7 @@ public class ReviewControllerTest {
   // test update review
 
   @Test
-  public void updateReview_whenValid_expect200AndUpdatedReview() throws Exception {
+  void updateReview_whenValid_expect200AndUpdatedReview() throws Exception {
     ReviewModel updatedReview =
         new ReviewModel(
             "company1",
@@ -266,7 +266,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void updateReview_whenReviewNotFound_expect404() throws Exception {
+  void updateReview_whenReviewNotFound_expect404() throws Exception {
     when(this.reviewService.updateReview(
             anyString(), anyString(), any(), any(), any(), any(), any()))
         .thenThrow(new ReviewNotFoundException());
@@ -283,7 +283,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void updateReview_whenNoFieldsProvided_expect400() throws Exception {
+  void updateReview_whenNoFieldsProvided_expect400() throws Exception {
     UpdateReviewRequest emptyRequest = new UpdateReviewRequest(null, null, null, null, null);
 
     mockMvc
@@ -299,7 +299,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void updateReview_whenServiceFails_expect500() throws Exception {
+  void updateReview_whenServiceFails_expect500() throws Exception {
     when(this.reviewService.updateReview(
             anyString(), anyString(), any(), any(), any(), any(), any()))
         .thenThrow(new ReviewServiceFailException("Database error"));
@@ -333,7 +333,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void deleteReview_whenReviewNotFound_expect404() throws Exception {
+  void deleteReview_whenReviewNotFound_expect404() throws Exception {
     doThrow(new ReviewNotFoundException())
         .when(this.reviewService)
         .deleteReview(anyString(), anyString());
@@ -349,7 +349,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void deleteReview_whenServiceFails_expect500() throws Exception {
+  void deleteReview_whenServiceFails_expect500() throws Exception {
     doThrow(new ReviewServiceFailException("Database error"))
         .when(this.reviewService)
         .deleteReview(anyString(), anyString());
@@ -365,7 +365,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_withoutComment_expect201() throws Exception {
+  void createReview_withoutComment_expect201() throws Exception {
     CreateReviewRequest requestWithoutComment =
         new CreateReviewRequest(5, null, "Software Developer", "Summer", 2024);
 
@@ -409,7 +409,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_withInvalidRating_expect400() throws Exception {
+  void createReview_withInvalidRating_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
         new CreateReviewRequest(6, "Comment", "Developer", "Summer", 2024);
 
@@ -423,8 +423,8 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_withCommentTooLong_expect400() throws Exception {
-    String longComment = "a".repeat(2001);
+  void createReview_withCommentTooLong_expect400() throws Exception {
+    String longComment = "a".repeat(2001); // exceeds 2000 char limit
     CreateReviewRequest invalidRequest =
         new CreateReviewRequest(5, longComment, "Developer", "Summer", 2024);
 
@@ -438,7 +438,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_withInvalidWorkTermSeason_expect400() throws Exception {
+  void createReview_withInvalidWorkTermSeason_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
         new CreateReviewRequest(5, "Comment", "Developer", "Spring", 2024);
 
@@ -452,7 +452,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void createReview_withYearOutOfRange_expect400() throws Exception {
+  void createReview_withYearOutOfRange_expect400() throws Exception {
     CreateReviewRequest invalidRequest =
         new CreateReviewRequest(5, "Comment", "Developer", "Summer", 1949);
 
@@ -466,7 +466,7 @@ public class ReviewControllerTest {
   }
 
   @Test
-  public void updateReview_withOnlyRating_expect200() throws Exception {
+  void updateReview_withOnlyRating_expect200() throws Exception {
     UpdateReviewRequest partialUpdate = new UpdateReviewRequest(3, null, null, null, null);
 
     ReviewModel updatedReview =

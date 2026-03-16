@@ -18,7 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 
 /** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
-public class JwtServiceTest {
+class JwtServiceTest {
   private JwtService jwtService;
   private UserDetails userDetails;
   private String validToken;
@@ -27,7 +27,7 @@ public class JwtServiceTest {
   private static final long EXPIRATION_TIME = 3600000; // 1 hour in milliseconds
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.jwtService = new JwtService();
     ReflectionTestUtils.setField(jwtService, "secretKey", TEST_SECRET_KEY);
     ReflectionTestUtils.setField(jwtService, "jwtExpirationInMilliseconds", EXPIRATION_TIME);
@@ -47,7 +47,7 @@ public class JwtServiceTest {
 
     assertNotNull(token);
     assertFalse(token.isEmpty());
-    assertTrue(token.split("\\.").length == 3); // JWT has 3 parts separated by dots
+    assertEquals(3, token.split("\\.").length); // JWT has 3 parts separated by dots
   }
 
   @Test
@@ -61,7 +61,7 @@ public class JwtServiceTest {
 
     assertNotNull(token);
     assertFalse(token.isEmpty());
-    assertTrue(token.split("\\.").length == 3); // JWT has 3 parts separated by dots
+    assertEquals(3, token.split("\\.").length); // JWT has 3 parts separated by dots
   }
 
   @Test
@@ -72,7 +72,7 @@ public class JwtServiceTest {
 
     assertNotNull(token);
     assertFalse(token.isEmpty());
-    assertTrue(token.split("\\.").length == 3); // JWT has 3 parts separated by dots
+    assertEquals(3, token.split("\\.").length); // JWT has 3 parts separated by dots
   }
 
   @Test
@@ -138,7 +138,7 @@ public class JwtServiceTest {
 
     assertNotNull(token);
     assertFalse(token.isEmpty());
-    assertTrue(token.split("\\.").length == 3); // JWT has 3 parts separated by dots
+    assertEquals(3, token.split("\\.").length); // JWT has 3 parts separated by dots
   }
 
   @Test
@@ -164,7 +164,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void generateToken_whenUnexpectedException_expectException() {
+  void generateToken_whenUnexpectedException_expectException() {
     // This test is written with MockedStatic suggested by Claude
     try (MockedStatic<Jwts> jwtsMock = mockStatic(Jwts.class)) {
       JwtBuilder mockJwtBuilder = mock(JwtBuilder.class);
@@ -187,13 +187,13 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_expectMatchIdentity() {
+  void extractUserIdentity_expectMatchIdentity() {
     assertEquals(
         this.userDetails.getUsername(), this.jwtService.extractUserIdentity(this.validToken));
   }
 
   @Test
-  public void extractUserIdentity_whenTokenNull_expectException() {
+  void extractUserIdentity_whenTokenNull_expectException() {
     JwtInvalidTokenException ex =
         assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(null));
 
@@ -203,7 +203,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_whenTokenBlank_expectException() {
+  void extractUserIdentity_whenTokenBlank_expectException() {
     JwtInvalidTokenException ex =
         assertThrows(JwtInvalidTokenException.class, () -> jwtService.extractUserIdentity(""));
 
@@ -213,7 +213,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_whenTokenAlreadyExpired_expectException() {
+  void extractUserIdentity_whenTokenAlreadyExpired_expectException() {
     ReflectionTestUtils.setField(
         jwtService, "jwtExpirationInMilliseconds", -1000L); // Set expiration date to the past
     String expiredToken = jwtService.generateToken(userDetails);
@@ -226,7 +226,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_whenBadToken_expectException() {
+  void extractUserIdentity_whenBadToken_expectException() {
     String badToken = "this.is.not.a.valid.jwt";
     JwtInvalidTokenException ex =
         assertThrows(
@@ -238,7 +238,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_whenUnsupportedToken_expectException() {
+  void extractUserIdentity_whenUnsupportedToken_expectException() {
     String badToken = "eyJhbGciOiJub25lIn0.eyJzdWIiOiJ0ZXN0In0.";
     JwtInvalidTokenException ex =
         assertThrows(
@@ -250,7 +250,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_whenDifferentSignature_expectException() {
+  void extractUserIdentity_whenDifferentSignature_expectException() {
     ReflectionTestUtils.setField(
         jwtService, "secretKey", "9CSl1rBlVaK0rugrqEH1YcdMeFAITc4a87wK5tgLR3a");
 
@@ -264,7 +264,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void extractUserIdentity_whenUnexpectedException_expectException() {
+  void extractUserIdentity_whenUnexpectedException_expectException() {
     // This test is written with MockedStatic suggested by Claude
     try (MockedStatic<Jwts> jwtsMock = mockStatic(Jwts.class)) {
       JwtParserBuilder mockParserBuilder = mock(JwtParserBuilder.class);
@@ -291,13 +291,13 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void isTokenValid_whenUserDetailMatch_expectTrue() {
+  void isTokenValid_whenUserDetailMatch_expectTrue() {
     boolean isValid = this.jwtService.isTokenValid(this.validToken, this.userDetails);
     assertTrue(isValid);
   }
 
   @Test
-  public void isTokenValid_whenUserDetailNotMatch_expectFalse() {
+  void isTokenValid_whenUserDetailNotMatch_expectFalse() {
     UserDetails fooUser =
         new UserModel("789", "notFoo@mail.com", "password123", "foo", "woof", true, 123);
     boolean isValid = this.jwtService.isTokenValid(this.validToken, fooUser);
@@ -305,7 +305,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void isTokenValid_whenTokenAlreadyExpired_expectException() {
+  void isTokenValid_whenTokenAlreadyExpired_expectException() {
     ReflectionTestUtils.setField(
         jwtService, "jwtExpirationInMilliseconds", -1000L); // Set expiration date to the past
     String expiredToken = this.jwtService.generateToken(userDetails);
@@ -320,7 +320,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void isTokenValid_whenTokenWasModified_expectException() {
+  void isTokenValid_whenTokenWasModified_expectException() {
     String badToken = "this.is.not.a.valid.jwt";
     JwtInvalidTokenException ex =
         assertThrows(
@@ -333,7 +333,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void isTokenValid_whenTokenNull_expectException() {
+  void isTokenValid_whenTokenNull_expectException() {
     JwtInvalidTokenException ex =
         assertThrows(
             JwtInvalidTokenException.class, () -> jwtService.isTokenValid(null, this.userDetails));
@@ -344,7 +344,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void isTokenValid_whenTokenBlank_expectException() {
+  void isTokenValid_whenTokenBlank_expectException() {
     JwtInvalidTokenException ex =
         assertThrows(
             JwtInvalidTokenException.class, () -> jwtService.isTokenValid("", this.userDetails));
@@ -355,7 +355,7 @@ public class JwtServiceTest {
   }
 
   @Test
-  public void getExpirationDurationInMilliseconds_expectCorrectExpirationDuration() {
+  void getExpirationDurationInMilliseconds_expectCorrectExpirationDuration() {
     assertEquals(EXPIRATION_TIME, this.jwtService.getExpirationDurationInMilliseconds());
   }
 }

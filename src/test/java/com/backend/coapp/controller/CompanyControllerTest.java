@@ -36,7 +36,7 @@ import tools.jackson.databind.ObjectMapper;
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
 @WebMvcTest(CompanyController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class CompanyControllerTest {
+class CompanyControllerTest {
 
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
@@ -52,7 +52,7 @@ public class CompanyControllerTest {
   private ReviewModel review2;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.nicheResponse = new CompanyResponse("1", "Niche", "Winnipeg", "https://niche.com", 4.5);
     this.varianResponse = new CompanyResponse("2", "Varian", "Winnipeg", "https://varian.com", 3.5);
     this.createRequest = new CreateCompanyRequest("Amazon", "Seattle", "https://amazon.com");
@@ -69,7 +69,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertEquals(this.companyController.getCompanyService(), this.companyService);
     assertEquals(this.companyController.getReviewService(), this.reviewService);
   }
@@ -77,7 +77,7 @@ public class CompanyControllerTest {
   // test get all companies
 
   @Test
-  public void getAllCompanies_withoutPagination_expect200AndCompaniesList() throws Exception {
+  void getAllCompanies_withoutPagination_expect200AndCompaniesList() throws Exception {
     List<CompanyResponse> companies = List.of(this.nicheResponse, this.varianResponse);
     when(this.companyService.getAllCompanies(isNull())).thenReturn(companies);
 
@@ -94,7 +94,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_withPagination_expect200AndPaginatedResponse() throws Exception {
+  void getAllCompanies_withPagination_expect200AndPaginatedResponse() throws Exception {
     List<CompanyResponse> companies = List.of(this.nicheResponse);
     Page<CompanyResponse> page = new PageImpl<>(companies, PageRequest.of(0, 20), 1);
 
@@ -116,7 +116,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_withSearch_expect200AndFilteredResults() throws Exception {
+  void getAllCompanies_withSearch_expect200AndFilteredResults() throws Exception {
     List<CompanyResponse> companies = List.of(this.nicheResponse);
     when(this.companyService.getAllCompanies("niche")).thenReturn(companies);
 
@@ -131,7 +131,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_withCustomPageSize_expectCappedSize() throws Exception {
+  void getAllCompanies_withCustomPageSize_expectCappedSize() throws Exception {
     Page<CompanyResponse> page =
         new PageImpl<>(
             List.of(this.nicheResponse),
@@ -153,7 +153,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_withInvalidSize_expectDefaultSize() throws Exception {
+  void getAllCompanies_withInvalidSize_expectDefaultSize() throws Exception {
     Page<CompanyResponse> page =
         new PageImpl<>(
             List.of(this.nicheResponse),
@@ -175,7 +175,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_withNegativePage_expectDefaultPage() throws Exception {
+  void getAllCompanies_withNegativePage_expectDefaultPage() throws Exception {
     Page<CompanyResponse> page =
         new PageImpl<>(List.of(this.nicheResponse), PageRequest.of(0, 20), 1);
     when(this.companyService.getAllCompanies(isNull(), any())).thenReturn(page);
@@ -195,7 +195,7 @@ public class CompanyControllerTest {
   // test get company by id
 
   @Test
-  public void getCompanyById_whenExists_expect200WithCompanyAndReviews() throws Exception {
+  void getCompanyById_whenExists_expect200WithCompanyAndReviews() throws Exception {
     when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
 
     Page<ReviewModel> reviewsPage =
@@ -220,7 +220,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getCompanyById_withNoReviews_expect200WithEmptyReviews() throws Exception {
+  void getCompanyById_withNoReviews_expect200WithEmptyReviews() throws Exception {
     when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
 
     Page<ReviewModel> emptyReviewsPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
@@ -239,7 +239,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getCompanyById_withCustomPaginationParams_expectCorrectPageable() throws Exception {
+  void getCompanyById_withCustomPaginationParams_expectCorrectPageable() throws Exception {
     when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
 
     Page<ReviewModel> reviewsPage = new PageImpl<>(List.of(this.review1), PageRequest.of(1, 5), 10);
@@ -261,7 +261,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getCompanyById_withInvalidPageSize_expectCappedToMax() throws Exception {
+  void getCompanyById_withInvalidPageSize_expectCappedToMax() throws Exception {
     when(this.companyService.getCompanyById("1")).thenReturn(this.nicheResponse);
 
     Page<ReviewModel> reviewsPage = new PageImpl<>(List.of(), PageRequest.of(0, 50), 0);
@@ -280,7 +280,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getCompanyById_whenNotFound_expect404() throws Exception {
+  void getCompanyById_whenNotFound_expect404() throws Exception {
     when(this.companyService.getCompanyById("999")).thenThrow(new CompanyNotFoundException());
 
     mockMvc
@@ -293,7 +293,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getCompanyById_whenServiceFails_expect500() throws Exception {
+  void getCompanyById_whenServiceFails_expect500() throws Exception {
     when(this.companyService.getCompanyById("1"))
         .thenThrow(new CompanyServiceFailException("Database error"));
 
@@ -309,7 +309,7 @@ public class CompanyControllerTest {
   // test creation of companies
 
   @Test
-  public void createCompany_whenValid_expect201AndCompany() throws Exception {
+  void createCompany_whenValid_expect201AndCompany() throws Exception {
     CompanyResponse response =
         new CompanyResponse("3", "Amazon", "Seattle", "https://amazon.com", 0.0);
     when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
@@ -365,7 +365,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void createCompany_whenMissingFields_expect400() throws Exception {
+  void createCompany_whenMissingFields_expect400() throws Exception {
     CreateCompanyRequest invalidRequest =
         new CreateCompanyRequest(null, "Seattle", "https://amazon.com");
 
@@ -397,7 +397,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_whenNoCompanies_expectEmptyList() throws Exception {
+  void getAllCompanies_whenNoCompanies_expectEmptyList() throws Exception {
     when(this.companyService.getAllCompanies(isNull())).thenReturn(List.of());
 
     mockMvc
@@ -411,8 +411,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void getAllCompanies_whenNoCompaniesWithPagination_expectEmptyWithPagination()
-      throws Exception {
+  void getAllCompanies_whenNoCompaniesWithPagination_expectEmptyWithPagination() throws Exception {
     Page<CompanyResponse> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 20), 0);
     when(this.companyService.getAllCompanies(isNull(), any())).thenReturn(emptyPage);
 

@@ -5,38 +5,38 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.time.Year;
 import org.junit.jupiter.api.Test;
 
-public class WorkTermValidatorTest {
+class WorkTermValidatorTest {
 
   @Test
-  public void validateSeason_whenValidSeasons_expectNoException() {
+  void validateSeason_whenValidSeasons_expectNoException() {
     assertDoesNotThrow(() -> WorkTermValidator.validateSeason("Fall"));
     assertDoesNotThrow(() -> WorkTermValidator.validateSeason("Winter"));
     assertDoesNotThrow(() -> WorkTermValidator.validateSeason("Summer"));
   }
 
   @Test
-  public void validateSeason_whenNull_expectThrowsException() {
+  void validateSeason_whenNull_expectThrowsException() {
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> WorkTermValidator.validateSeason(null));
     assertEquals("Work term season cannot be null or empty", exception.getMessage());
   }
 
   @Test
-  public void validateSeason_whenEmpty_expectThrowsException() {
+  void validateSeason_whenEmpty_expectThrowsException() {
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> WorkTermValidator.validateSeason(""));
     assertEquals("Work term season cannot be null or empty", exception.getMessage());
   }
 
   @Test
-  public void validateSeason_whenWhitespace_expectThrowsException() {
+  void validateSeason_whenWhitespace_expectThrowsException() {
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> WorkTermValidator.validateSeason("   "));
     assertEquals("Work term season cannot be null or empty", exception.getMessage());
   }
 
   @Test
-  public void validateSeason_whenInvalidSeason_expectThrowsException() {
+  void validateSeason_whenInvalidSeason_expectThrowsException() {
     Exception exception =
         assertThrows(
             IllegalArgumentException.class, () -> WorkTermValidator.validateSeason("Spring"));
@@ -44,7 +44,7 @@ public class WorkTermValidatorTest {
   }
 
   @Test
-  public void validateSeason_whenInvalidCase_expectThrowsException() {
+  void validateSeason_whenInvalidCase_expectThrowsException() {
     Exception exception =
         assertThrows(
             IllegalArgumentException.class, () -> WorkTermValidator.validateSeason("fall"));
@@ -52,7 +52,7 @@ public class WorkTermValidatorTest {
   }
 
   @Test
-  public void validateYear_whenValidYear_expectNoException() {
+  void validateYear_whenValidYear_expectNoException() {
     int currentYear = Year.now().getValue();
     assertDoesNotThrow(() -> WorkTermValidator.validateYear(1950));
     assertDoesNotThrow(() -> WorkTermValidator.validateYear(2000));
@@ -60,7 +60,7 @@ public class WorkTermValidatorTest {
   }
 
   @Test
-  public void validateYear_whenNull_expectThrowsException() {
+  void validateYear_whenNull_expectThrowsException() {
     Exception exception =
         assertThrows(IllegalArgumentException.class, () -> WorkTermValidator.validateYear(null));
     assertEquals("Work term year cannot be null", exception.getMessage());
@@ -76,7 +76,7 @@ public class WorkTermValidatorTest {
   }
 
   @Test
-  public void validateYear_whenTooHigh_expectThrowsException() {
+  void validateYear_whenTooHigh_expectThrowsException() {
     int futureYear = Year.now().getValue() + 1;
     int currentYear = Year.now().getValue();
     Exception exception =
@@ -86,12 +86,12 @@ public class WorkTermValidatorTest {
   }
 
   @Test
-  public void getMinYear_expectReturns1950() {
+  void getMinYear_expectReturns1950() {
     assertEquals(1950, WorkTermValidator.getMinYear());
   }
 
   @Test
-  public void getMaxYear_expectReturnsCurrentYear() {
+  void getMaxYear_expectReturnsCurrentYear() {
     int currentYear = Year.now().getValue();
     assertEquals(currentYear, WorkTermValidator.getMaxYear());
   }

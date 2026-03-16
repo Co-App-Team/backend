@@ -35,7 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 @SpringBootTest
 @Testcontainers
-public class GenAIResumeAdvisorServiceTest {
+class GenAIResumeAdvisorServiceTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -59,7 +59,7 @@ public class GenAIResumeAdvisorServiceTest {
   private final String VALID_RESPONSE = "Here are some improvements...";
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     applicationRepository.deleteAll();
     userExperienceRepository.deleteAll();
     userRepository.deleteAll();
@@ -100,7 +100,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void constructor_expectInitCorrectInstance() {
+  void constructor_expectInitCorrectInstance() {
     assertEquals(geminiGenAIService, genAIResumeAdvisorService.getGenAIService());
     assertEquals(
         genAIUsageManagementService, genAIResumeAdvisorService.getGenAIUsageManagementService());
@@ -109,7 +109,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptNoApplicationNoExperience_expectReturnResponse() {
+  void getAdvice_whenValidPromptNoApplicationNoExperience_expectReturnResponse() {
     when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
     String result = genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT);
@@ -125,7 +125,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptWithApplicationNoExperience_expectReturnResponse() {
+  void getAdvice_whenValidPromptWithApplicationNoExperience_expectReturnResponse() {
     when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
     String result =
@@ -143,7 +143,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
+  void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
     ApplicationModel fooApplicationNoDescription =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -171,7 +171,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
+  void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
     String oversizedPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS + 1);
 
     assertThrows(
@@ -183,7 +183,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenPromptExactlyAtLimit_expectNoException() {
+  void getAdvice_whenPromptExactlyAtLimit_expectNoException() {
     String exactPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS);
     when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
@@ -192,7 +192,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
+  void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
     assertThrows(
         ApplicationNotFoundException.class,
         () ->
@@ -203,7 +203,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
+  void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
     assertThrows(
         ApplicationNotOwnedException.class,
         () ->
@@ -215,8 +215,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void
-      getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
     ApplicationModel longDescApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -243,7 +242,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobTitleExceedsLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenApplicationJobTitleExceedsLimit_expectOverCharacterLimitException() {
     ApplicationModel longTitleApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -265,7 +264,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobDescriptionExactlyAtLimit_expectNoException() {
+  void getAdvice_whenApplicationJobDescriptionExactlyAtLimit_expectNoException() {
     ApplicationModel exactDescApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -284,7 +283,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobTitleExactlyAtLimit_expectNoException() {
+  void getAdvice_whenApplicationJobTitleExactlyAtLimit_expectNoException() {
     ApplicationModel exactTitleApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -303,8 +302,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void
-      getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
     ApplicationModel bothExceedApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -326,7 +324,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenUserHasExperience_expectExperienceIncludedInPrompt() {
+  void getAdvice_whenUserHasExperience_expectExperienceIncludedInPrompt() {
     UserExperienceModel experience =
         new UserExperienceModel(
             fooUser.getId(),
@@ -350,7 +348,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenUsageCheckThrows_expectExceptionPropagated() {
+  void getAdvice_whenUsageCheckThrows_expectExceptionPropagated() {
     doThrow(new GenAIQuotaExceededException())
         .when(genAIUsageManagementService)
         .checkAndIncrementUsage(anyString());
@@ -363,7 +361,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
+  void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
     when(geminiGenAIService.generateResponse(anyString()))
         .thenThrow(new GenAIServiceException("Gemini failed"));
 
@@ -375,7 +373,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenMultipleExperiences_expectSortedByMostRecent() {
+  void getAdvice_whenMultipleExperiences_expectSortedByMostRecent() {
     UserExperienceModel firstExperience =
         new UserExperienceModel(
             fooUser.getId(),
@@ -413,7 +411,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenMultipleExperiencesWithOnExceedChar_expectSortedByMostRecent() {
+  void getAdvice_whenMultipleExperiencesWithOnExceedChar_expectSortedByMostRecent() {
     UserExperienceModel firstExperience =
         new UserExperienceModel(
             fooUser.getId(),

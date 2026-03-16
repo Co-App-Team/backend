@@ -11,10 +11,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
-public class PaginationResponseTest {
+class PaginationResponseTest {
 
   @Test
-  public void getterMethod_expectInitValues() {
+  void getterMethod_expectInitValues() {
     PaginationResponse response = new PaginationResponse(0, 5, 100, 20, true, false);
     assertEquals(0, response.getCurrentPage());
     assertEquals(5, response.getTotalPages());
@@ -25,7 +25,7 @@ public class PaginationResponseTest {
   }
 
   @Test
-  public void toMap_expectMapWithInitValues() {
+  void toMap_expectMapWithInitValues() {
     PaginationResponse response = new PaginationResponse(0, 5, 100L, 20, true, false);
     Map<String, Object> expectedMap =
         Map.of(
@@ -45,7 +45,7 @@ public class PaginationResponseTest {
   }
 
   @Test
-  public void fromPage_expectCorrectMapping() {
+  void fromPage_expectCorrectMapping() {
     // Create a real Page object using PageImpl
     List<String> content = List.of("item1", "item2");
     PageRequest pageRequest = PageRequest.of(2, 20);
@@ -62,7 +62,7 @@ public class PaginationResponseTest {
   }
 
   @Test
-  public void fromPage_whenFirstPage_expectNoPrevious() {
+  void fromPage_whenFirstPage_expectNoPrevious() {
     List<String> content = List.of("item1", "item2");
     PageRequest pageRequest = PageRequest.of(0, 20);
     Page<String> page = new PageImpl<>(content, pageRequest, 100);
@@ -75,7 +75,7 @@ public class PaginationResponseTest {
   }
 
   @Test
-  public void fromPage_whenLastPage_expectNoNext() {
+  void fromPage_whenLastPage_expectNoNext() {
     List<String> content = List.of("item1", "item2");
     PageRequest pageRequest = PageRequest.of(4, 20); // Last page (5th page, 0-indexed)
     Page<String> page = new PageImpl<>(content, pageRequest, 82); // 82 items = 5 pages
@@ -88,7 +88,7 @@ public class PaginationResponseTest {
   }
 
   @Test
-  public void fromPage_whenEmptyPage_expectCorrectValues() {
+  void fromPage_whenEmptyPage_expectCorrectValues() {
     Page<String> page = new PageImpl<>(Collections.emptyList(), PageRequest.of(0, 20), 0);
 
     PaginationResponse response = PaginationResponse.fromPage(page);

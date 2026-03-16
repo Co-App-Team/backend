@@ -32,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Parts of the unit test are generated with help of Claude (Sonnet 4.6) and revised by Bao Ngo */
 @SpringBootTest
 @Testcontainers
-public class UserServiceTest {
+class UserServiceTest {
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
@@ -88,7 +88,7 @@ public class UserServiceTest {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.userRepository.deleteAll();
     this.userExperienceRepository.deleteAll();
     this.companyRepository.deleteAll();
@@ -122,12 +122,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(this.userRepository, this.userService.getUserRepository());
   }
 
   @Test
-  public void getDummyUser_expectInitValues() {
+  void getDummyUser_expectInitValues() {
     UserResponse user = this.userService.getDummyUser();
 
     assertNotNull(user);
@@ -137,7 +137,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserPassword_whenOldPasswordMatch_expectNoException() {
+  void updateUserPassword_whenOldPasswordMatch_expectNoException() {
     assertDoesNotThrow(
         () ->
             this.userService.updateUserPassword(
@@ -148,14 +148,14 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updatePassword_whenNoAccountFound_expectException() {
+  void updatePassword_whenNoAccountFound_expectException() {
     assertThrows(
         AuthEmailNotRegisteredException.class,
         () -> this.userService.updateUserPassword("notExistUser", "1", "2"));
   }
 
   @Test
-  public void updatePassword_whenNoAccountNotYetActivated_expectException() {
+  void updatePassword_whenNoAccountNotYetActivated_expectException() {
     assertThrows(
         AuthAccountNotYetActivatedException.class,
         () ->
@@ -166,7 +166,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updatePassword_whenOldPasswordNotMatch_expectException() {
+  void updatePassword_whenOldPasswordNotMatch_expectException() {
     assertThrows(
         AuthBadCredentialException.class,
         () ->
@@ -175,7 +175,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
+  void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
     assertThrows(
         UserInvalidPasswordChangeException.class,
         () ->
@@ -184,7 +184,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void udpatePassword_whenDatabaseSaveOperationFail_expectException() {
+  void udpatePassword_whenDatabaseSaveOperationFail_expectException() {
     this.userService =
         new UserService(
             this.mockUserRepository,
@@ -205,7 +205,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void udpatePassword_whenDatabaseFindOperationFail_expectException() {
+  void udpatePassword_whenDatabaseFindOperationFail_expectException() {
     this.userService =
         new UserService(
             this.mockUserRepository,
@@ -225,20 +225,20 @@ public class UserServiceTest {
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserExit_expectReturnUser() {
+  void getUserInformationFromUserID_whenUserExit_expectReturnUser() {
     UserModel user = this.userService.getUserInformationFromUserID(this.fooUserActivated.getId());
 
     assertThat(this.fooUserActivated).usingRecursiveComparison().isEqualTo(user);
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserNotExit_expectException() {
+  void getUserInformationFromUserID_whenUserNotExit_expectException() {
     assertThrows(
         UserNotFoundException.class, () -> this.userService.getUserInformationFromUserID("999"));
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserRepoFail_expectException() {
+  void getUserInformationFromUserID_whenUserRepoFail_expectException() {
     this.userService =
         new UserService(
             this.mockUserRepository,
@@ -254,7 +254,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void getAllUserExperience_whenUserHasExperiences_expectReturnAll() {
+  void getAllUserExperience_whenUserHasExperiences_expectReturnAll() {
     setUpExperiences();
 
     List<UserExperienceModel> results =
@@ -264,7 +264,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void getAllUserExperience_whenUserHasNoExperiences_expectReturnEmptyList() {
+  void getAllUserExperience_whenUserHasNoExperiences_expectReturnEmptyList() {
     this.userExperienceRepository.deleteAll();
 
     List<UserExperienceModel> results =
@@ -274,7 +274,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void getAllUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void getAllUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     UserService serviceWithMockRepo =
         new UserService(
             this.userRepository,
@@ -290,7 +290,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenValidArgs_expectReturnSavedModel() {
+  void createNewUserExperience_whenValidArgs_expectReturnSavedModel() {
     setUpCompany();
 
     UserExperienceModel result =
@@ -313,7 +313,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsNull_expectReturnSavedModel() {
+  void createNewUserExperience_whenEndDateIsNull_expectReturnSavedModel() {
     setUpCompany();
 
     UserExperienceModel result =
@@ -330,7 +330,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
+  void createNewUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
     this.companyRepository.deleteAll();
 
     assertThrows(
@@ -346,7 +346,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void createNewUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     setUpCompany();
 
     UserService serviceWithMockRepo =
@@ -371,7 +371,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCalled_expectPersistedInDatabase() {
+  void createNewUserExperience_whenCalled_expectPersistedInDatabase() {
     setUpCompany();
 
     this.userService.createNewUserExperience(
@@ -389,7 +389,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -403,7 +403,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -417,7 +417,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -431,7 +431,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -445,8 +445,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void
-      createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+  void createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -460,7 +459,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
+  void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
     setUpCompany();
 
     UserExperienceModel result =
@@ -477,7 +476,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsNull_expectSuccess() {
+  void createNewUserExperience_whenEndDateIsNull_expectSuccess() {
     setUpCompany();
 
     UserExperienceModel result =
@@ -494,7 +493,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
+  void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
     setUpExperiences();
 
     this.userService.deleteUserExperience(fooExperience1.getId(), fooUserActivated.getId());
@@ -506,7 +505,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
+  void deleteUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
     assertThrows(
         ExperienceNotFoundException.class,
         () ->
@@ -515,7 +514,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
+  void deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
     setUpExperiences();
 
     assertThrows(
@@ -526,7 +525,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void deleteUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     setUpExperiences();
 
     UserService serviceWithMockRepo =
@@ -546,7 +545,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenDeleted_expectNotFoundInDatabase() {
+  void deleteUserExperience_whenDeleted_expectNotFoundInDatabase() {
     setUpExperiences();
 
     this.userService.deleteUserExperience(fooExperience1.getId(), fooUserActivated.getId());
@@ -557,7 +556,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenDeleteOne_expectOtherExperiencesUnaffected() {
+  void deleteUserExperience_whenDeleteOne_expectOtherExperiencesUnaffected() {
     setUpExperiences();
 
     this.userService.deleteUserExperience(fooExperience1.getId(), fooUserActivated.getId());
@@ -569,7 +568,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenValidArgs_expectAllFieldsUpdated() {
+  void updateUserExperience_whenValidArgs_expectAllFieldsUpdated() {
     setUpExperiences();
     setUpCompany();
     LocalDate newStartDate = LocalDate.now().minusYears(2);
@@ -594,7 +593,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenEndDateIsNull_expectEndDateCleared() {
+  void updateUserExperience_whenEndDateIsNull_expectEndDateCleared() {
     setUpExperiences();
     setUpCompany();
 
@@ -613,7 +612,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
     setUpExperiences();
 
     assertThrows(
@@ -630,7 +629,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
     setUpExperiences();
 
     assertThrows(
@@ -647,7 +646,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
     setUpExperiences();
 
     assertThrows(
@@ -664,7 +663,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
     setUpExperiences();
 
     assertThrows(
@@ -681,7 +680,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
+  void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
     setUpExperiences();
 
     assertThrows(
@@ -698,7 +697,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
+  void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
     assertThrows(
         ExperienceNotFoundException.class,
         () ->
@@ -713,7 +712,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
+  void updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
     setUpExperiences();
     setUpCompany();
 
@@ -731,7 +730,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
+  void updateUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
     setUpExperiences();
 
     assertThrows(
@@ -748,7 +747,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void updateUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     setUpExperiences();
     setUpCompany();
 
@@ -775,7 +774,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenUpdated_expectPersistedInDatabase() {
+  void updateUserExperience_whenUpdated_expectPersistedInDatabase() {
     setUpExperiences();
     setUpCompany();
 

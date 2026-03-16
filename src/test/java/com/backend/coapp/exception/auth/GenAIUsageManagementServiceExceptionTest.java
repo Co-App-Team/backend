@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
 import org.junit.jupiter.api.Test;
 
-public class GenAIUsageManagementServiceExceptionTest {
+class GenAIUsageManagementServiceExceptionTest {
   @Test
-  public void constructor_whenInitNoArgs_expectDefaultMessage() {
+  void constructor_whenInitNoArgs_expectDefaultMessage() {
     GenAIUsageManagementServiceException exception = new GenAIUsageManagementServiceException();
 
     assertNotNull(exception);
@@ -18,7 +18,7 @@ public class GenAIUsageManagementServiceExceptionTest {
   }
 
   @Test
-  public void constructor_whenInitMessage_expectWithMessage() {
+  void constructor_whenInitMessage_expectWithMessage() {
     GenAIUsageManagementServiceException exception =
         new GenAIUsageManagementServiceException("foo");
 

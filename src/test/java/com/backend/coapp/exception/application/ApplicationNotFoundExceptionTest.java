@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class ApplicationNotFoundExceptionTest {
+class ApplicationNotFoundExceptionTest {
 
   @Test
-  public void noArgsConstructor_expectDefaultMessage() {
+  void noArgsConstructor_expectDefaultMessage() {
     ApplicationNotFoundException exception = new ApplicationNotFoundException();
 
     assertNotNull(exception);
