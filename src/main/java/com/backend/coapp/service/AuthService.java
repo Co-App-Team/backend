@@ -250,8 +250,7 @@ public class AuthService {
       throw new AuthAccountNotYetActivatedException();
     }
 
-    String token = this.jwtService.generateToken(user);
-    return token;
+    return this.jwtService.generateToken(user);
   }
 
   /**

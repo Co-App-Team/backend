@@ -39,7 +39,7 @@ import tools.jackson.databind.ObjectMapper;
 /** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 @WebMvcTest(GenAIResumeAdvisorController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class GenAIResumeAdvisorControllerTest {
+class GenAIResumeAdvisorControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
 
@@ -54,7 +54,7 @@ public class GenAIResumeAdvisorControllerTest {
   private GenAIResumeAdvisorRequest validRequestNoApplication;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockUser = mock(UserModel.class);
     when(mockUser.getId()).thenReturn("testUserID");
     when(mockUser.getFirstName()).thenReturn("Foo");
