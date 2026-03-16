@@ -139,7 +139,7 @@ public class AuthService {
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
     } else {
-      if (user.getVerified()) {
+      if (Boolean.TRUE.equals(user.getVerified())) {
         throw new AuthAccountAlreadyVerifyException();
       }
       int newVerifyCode = this.generateVerificationCode();
