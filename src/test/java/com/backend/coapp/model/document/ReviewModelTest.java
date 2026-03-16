@@ -110,7 +110,8 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenInvalidSeason_expectThrowsException() {
+  void constructor_whenInvalidSeason_expectThrowsException() {
+    int validYear = WorkTermValidator.getMaxYear() - 1;
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -122,11 +123,12 @@ public class ReviewModelTest {
                 "Good",
                 "Dev",
                 "Spring",
-                WorkTermValidator.getMaxYear() - 1));
+                validYear));
   }
 
   @Test
   public void constructor_whenInvalidYear_expectThrowsException() {
+    int invalidYear = WorkTermValidator.getMinYear() - 1;
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -138,7 +140,7 @@ public class ReviewModelTest {
                 "Good",
                 "Dev",
                 "Fall",
-                WorkTermValidator.getMinYear() - 1));
+                invalidYear));
   }
 
   @Test
