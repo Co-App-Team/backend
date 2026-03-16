@@ -14,6 +14,9 @@ import com.google.genai.types.GenerateContentResponse;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
 class GeminiGenAIServiceTest {
@@ -54,23 +57,11 @@ class GeminiGenAIServiceTest {
     verify(models, times(1)).generateContent(MODEL, VALID_PROMPT, null);
   }
 
-  @Test
-  void generateResponse_whenPromptIsNull_expectIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse(null));
-
-    verifyNoInteractions(models);
-  }
-
-  @Test
-  void generateResponse_whenPromptIsBlank_expectIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse("   "));
-
-    verifyNoInteractions(models);
-  }
-
-  @Test
-  void generateResponse_whenPromptIsEmpty_expectIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse(""));
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void generateResponse_whenPromptIsInvalid_expectIllegalArgumentException(String prompt) {
+    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse(prompt));
 
     verifyNoInteractions(models);
   }

@@ -205,11 +205,10 @@ class GenAIResumeAdvisorServiceTest {
 
   @Test
   void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
+    String fooApplicationId = fooApplication.getId();
     assertThrows(
         ApplicationNotOwnedException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(
-                "anotherUserId", fooApplication.getId(), VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice("anotherUserId", fooApplicationId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
@@ -217,6 +216,7 @@ class GenAIResumeAdvisorServiceTest {
 
   @Test
   void getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
+
     ApplicationModel longDescApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -226,13 +226,12 @@ class GenAIResumeAdvisorServiceTest {
                 .jobDescription("a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1))
                 .status(ApplicationStatus.APPLIED)
                 .build());
-
+    String fooUserId = fooUser.getId();
+    String longDescAppId = longDescApp.getId();
     OverCharacterLimitException ex =
         assertThrows(
             OverCharacterLimitException.class,
-            () ->
-                genAIResumeAdvisorService.getAdvice(
-                    fooUser.getId(), longDescApp.getId(), VALID_PROMPT));
+            () -> genAIResumeAdvisorService.getAdvice(fooUserId, longDescAppId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
@@ -253,12 +252,11 @@ class GenAIResumeAdvisorServiceTest {
                 .jobDescription("Normal job description")
                 .status(ApplicationStatus.APPLIED)
                 .build());
-
+    String fooUserId = fooUser.getId();
+    String longTitleAppId = longTitleApp.getId();
     assertThrows(
         OverCharacterLimitException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(
-                fooUser.getId(), longTitleApp.getId(), VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, longTitleAppId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
@@ -313,12 +311,11 @@ class GenAIResumeAdvisorServiceTest {
                 .jobDescription("a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1))
                 .status(ApplicationStatus.APPLIED)
                 .build());
-
+    String foouserId = fooUser.getId();
+    String bothExceedAppId = bothExceedApp.getId();
     assertThrows(
         OverCharacterLimitException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(
-                fooUser.getId(), bothExceedApp.getId(), VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(foouserId, bothExceedAppId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
@@ -354,9 +351,11 @@ class GenAIResumeAdvisorServiceTest {
         .when(genAIUsageManagementService)
         .checkAndIncrementUsage(anyString());
 
+    String fooUserId = fooUser.getId();
+
     assertThrows(
         GenAIQuotaExceededException.class,
-        () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, null, VALID_PROMPT));
 
     verifyNoInteractions(geminiGenAIService);
   }
@@ -365,12 +364,12 @@ class GenAIResumeAdvisorServiceTest {
   void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
     when(geminiGenAIService.generateResponse(anyString()))
         .thenThrow(new GenAIServiceException("Gemini failed"));
-
+    String fooUserId = fooUser.getId();
     assertThrows(
         GenAIServiceException.class,
-        () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT));
-    verify(genAIUsageManagementService, times(1)).checkAndIncrementUsage(fooUser.getId());
-    verify(genAIUsageManagementService, times(1)).decrementUsage(fooUser.getId());
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, null, VALID_PROMPT));
+    verify(genAIUsageManagementService, times(1)).checkAndIncrementUsage(fooUserId);
+    verify(genAIUsageManagementService, times(1)).decrementUsage(fooUserId);
   }
 
   @Test
