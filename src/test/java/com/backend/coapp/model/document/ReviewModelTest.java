@@ -355,17 +355,15 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void setWorkTermYear_whenTooLow_expectThrowsException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> validReview.setWorkTermYear(WorkTermValidator.getMinYear() - 1));
+  void setWorkTermYear_whenTooLow_expectThrowsException() {
+    int tooLow = WorkTermValidator.getMinYear() - 1;
+    assertThrows(IllegalArgumentException.class, () -> validReview.setWorkTermYear(tooLow));
   }
 
   @Test
-  public void setWorkTermYear_whenTooHigh_expectThrowsException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> validReview.setWorkTermYear(WorkTermValidator.getMaxYear() + 1));
+  void setWorkTermYear_whenTooHigh_expectThrowsException() {
+    int tooHigh = WorkTermValidator.getMaxYear() + 1;
+    assertThrows(IllegalArgumentException.class, () -> validReview.setWorkTermYear(tooHigh));
   }
 
   /* lombok setters / getters */
