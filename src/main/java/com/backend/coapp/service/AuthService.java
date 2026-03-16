@@ -169,7 +169,7 @@ public class AuthService {
     UserModel user = this.userRepository.findUserModelByEmail(email);
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
-    } else if (!user.getVerified()) {
+    } else if (Boolean.FALSE.equals(user.getVerified())) {
       throw new AuthAccountNotYetActivatedException();
     }
     int newVerifyCode = this.generateVerificationCode();
@@ -203,7 +203,7 @@ public class AuthService {
     UserModel user = this.userRepository.findUserModelByEmail(email);
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
-    } else if (!user.getVerified()) {
+    } else if (Boolean.FALSE.equals(user.getVerified())) {
       throw new AuthAccountNotYetActivatedException();
     }
 
@@ -246,7 +246,7 @@ public class AuthService {
       throw new AuthBadCredentialException();
     }
 
-    if (!user.getVerified()) {
+    if (Boolean.FALSE.equals(user.getVerified())) {
       throw new AuthAccountNotYetActivatedException();
     }
 
