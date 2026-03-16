@@ -274,10 +274,9 @@ public class CompanyServiceTest {
     when(this.mockReviewRepository.findByCompanyId(anyString())).thenReturn(new ArrayList<>());
     when(this.mockCompanyRepository.save(any(CompanyModel.class)))
         .thenThrow(new RuntimeException("Database error"));
-
+    String companyId = this.nicheCompany.getId();
     assertThrows(
-        CompanyServiceFailException.class,
-        () -> this.companyService.updateAvgRating(this.nicheCompany.getId()));
+        CompanyServiceFailException.class, () -> this.companyService.updateAvgRating(companyId));
     verify(this.mockCompanyRepository, times(1)).save(any(CompanyModel.class));
   }
 

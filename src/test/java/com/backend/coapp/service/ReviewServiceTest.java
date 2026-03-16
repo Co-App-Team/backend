@@ -123,12 +123,13 @@ public class ReviewServiceTest {
 
   @Test
   public void createReview_whenReviewAlreadyExists_expectException() {
+    String companyId = this.nicheCompany.getId();
     Exception exception =
         assertThrows(
             ReviewAlreadyExistsException.class,
             () ->
                 this.reviewService.createReview(
-                    this.nicheCompany.getId(),
+                    companyId,
                     "user1",
                     "John Doe",
                     3,
@@ -241,20 +242,13 @@ public class ReviewServiceTest {
 
     ReviewModel updated =
         this.reviewService.updateReview(
-            this.testReview.getCompanyId(),
-            "user1",
-            5, // same rating
-            "New comment",
-            "New Job Title",
-            null,
-            null);
+            this.testReview.getCompanyId(), "user1", 5, "New comment", "New Job Title", null, null);
 
     assertNotNull(updated);
     assertEquals(5, updated.getRating());
     assertEquals("New comment", updated.getComment());
     assertEquals("New Job Title", updated.getJobTitle());
 
-    // verify updateAvgRating was never called since rating didn't change
     verify(this.mockCompanyService, never()).updateAvgRating(anyString());
   }
 
@@ -269,11 +263,10 @@ public class ReviewServiceTest {
 
   @Test
   public void updateReview_whenUserNotOwner_expectException() {
+    String companyId = this.testReview.getCompanyId();
     assertThrows(
         ReviewNotFoundException.class,
-        () ->
-            this.reviewService.updateReview(
-                this.testReview.getCompanyId(), "user2", 4, "Comment", null, null, null));
+        () -> this.reviewService.updateReview(companyId, "user2", 4, "Comment", null, null, null));
   }
 
   @Test
@@ -286,11 +279,10 @@ public class ReviewServiceTest {
     when(this.mockReviewRepository.save(any(ReviewModel.class)))
         .thenThrow(new RuntimeException("Database error"));
 
+    String companyId = this.testReview.getCompanyId();
     assertThrows(
         ReviewServiceFailException.class,
-        () ->
-            this.reviewService.updateReview(
-                this.testReview.getCompanyId(), "user1", 4, "Comment", null, null, null));
+        () -> this.reviewService.updateReview(companyId, "user1", 4, "Comment", null, null, null));
     verify(this.mockReviewRepository, times(1)).save(any(ReviewModel.class));
   }
 
@@ -319,10 +311,9 @@ public class ReviewServiceTest {
 
   @Test
   public void deleteReview_whenUserNotOwner_expectException() {
-    Exception exception =
-        assertThrows(
-            ReviewNotFoundException.class,
-            () -> this.reviewService.deleteReview(this.nicheCompany.getId(), "user2"));
+    String companyId = this.nicheCompany.getId();
+    assertThrows(
+        ReviewNotFoundException.class, () -> this.reviewService.deleteReview(companyId, "user2"));
   }
 
   @Test
@@ -336,9 +327,10 @@ public class ReviewServiceTest {
         .when(this.mockReviewRepository)
         .deleteById(anyString());
 
+    String companyId = this.nicheCompany.getId();
     assertThrows(
         ReviewServiceFailException.class,
-        () -> this.reviewService.deleteReview(this.nicheCompany.getId(), "user1"));
+        () -> this.reviewService.deleteReview(companyId, "user1"));
     verify(this.mockReviewRepository, times(1)).deleteById(anyString());
   }
 
@@ -469,10 +461,9 @@ public class ReviewServiceTest {
 
   @Test
   public void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
-    assertDoesNotThrow(
-        () ->
-            this.reviewService.verifyReviewBelongsToCompany(
-                this.testReview.getId(), this.nicheCompany.getId()));
+    String reviewId = this.testReview.getId();
+    String companyId = this.nicheCompany.getId();
+    assertDoesNotThrow(() -> this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId));
   }
 
   @Test
@@ -490,12 +481,12 @@ public class ReviewServiceTest {
     this.companyRepository.save(otherCompany);
 
     // testReview belongs to nicheCompany, not otherCompany
+    String reviewId = this.testReview.getId();
+    String otherCompanyId = otherCompany.getId();
     InvalidRequestException exception =
         assertThrows(
             InvalidRequestException.class,
-            () ->
-                this.reviewService.verifyReviewBelongsToCompany(
-                    this.testReview.getId(), otherCompany.getId()));
+            () -> this.reviewService.verifyReviewBelongsToCompany(reviewId, otherCompanyId));
 
     assertTrue(exception.getMessage().contains("does not belong to the specified company"));
   }
@@ -516,14 +507,14 @@ public class ReviewServiceTest {
     this.reviewRepository.save(review2);
 
     // Verify both reviews belong to nicheCompany
-    assertDoesNotThrow(
-        () ->
-            this.reviewService.verifyReviewBelongsToCompany(
-                this.testReview.getId(), this.nicheCompany.getId()));
+    String testReviewId = this.testReview.getId();
+    String nicheCompanyId = this.nicheCompany.getId();
+    String review2Id = review2.getId();
 
     assertDoesNotThrow(
-        () ->
-            this.reviewService.verifyReviewBelongsToCompany(
-                review2.getId(), this.nicheCompany.getId()));
+        () -> this.reviewService.verifyReviewBelongsToCompany(testReviewId, nicheCompanyId));
+
+    assertDoesNotThrow(
+        () -> this.reviewService.verifyReviewBelongsToCompany(review2Id, nicheCompanyId));
   }
 }

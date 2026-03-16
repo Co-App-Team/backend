@@ -242,20 +242,19 @@ public class ReviewRepositoryTest {
   }
 
   @Test
-  public void save_whenDuplicateUserAndCompany_expectUniqueConstraintViolation() {
-    assertThrows(
-        DuplicateKeyException.class,
-        () ->
-            repository.save(
-                new ReviewModel(
-                    "company1",
-                    "user1",
-                    "Eric Hodgson",
-                    ReviewConstants.MAX_RATING - 2,
-                    "Another review",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear())));
+  void save_whenDuplicateUserAndCompany_expectUniqueConstraintViolation() {
+    int maxYear = WorkTermValidator.getMaxYear();
+    ReviewModel duplicate =
+        new ReviewModel(
+            "company1",
+            "user1",
+            "Eric Hodgson",
+            ReviewConstants.MAX_RATING - 2,
+            "Another review",
+            "Developer",
+            "Summer",
+            maxYear);
+    assertThrows(DuplicateKeyException.class, () -> repository.save(duplicate));
   }
 
   @Test
