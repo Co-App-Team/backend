@@ -857,7 +857,7 @@ class ApplicationControllerTest {
     LocalDate start = DATE.minusDays(1);
     LocalDate end = DATE.plusDays(1);
 
-    when(this.applicationService.getInterviewApplications(eq("user1"), eq(start), eq(end)))
+    when(this.applicationService.getInterviewApplications("user1", start, end))
         .thenReturn(Collections.emptyList());
 
     mockMvc
@@ -868,8 +868,7 @@ class ApplicationControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$").isArray());
 
-    verify(this.applicationService, times(1))
-        .getInterviewApplications(eq("user1"), eq(start), eq(end));
+    verify(this.applicationService, times(1)).getInterviewApplications("user1", start, end);
   }
 
   @Test
