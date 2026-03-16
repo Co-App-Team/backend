@@ -122,7 +122,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void createReview_whenReviewAlreadyExists_expectException() {
+  void createReview_whenReviewAlreadyExists_expectException() {
     String companyId = this.nicheCompany.getId();
     Exception exception =
         assertThrows(
@@ -262,7 +262,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void updateReview_whenUserNotOwner_expectException() {
+  void updateReview_whenUserNotOwner_expectException() {
     String companyId = this.testReview.getCompanyId();
     assertThrows(
         ReviewNotFoundException.class,
@@ -310,7 +310,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void deleteReview_whenUserNotOwner_expectException() {
+  void deleteReview_whenUserNotOwner_expectException() {
     String companyId = this.nicheCompany.getId();
     assertThrows(
         ReviewNotFoundException.class, () -> this.reviewService.deleteReview(companyId, "user2"));
@@ -460,7 +460,7 @@ public class ReviewServiceTest {
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
+  void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
     String reviewId = this.testReview.getId();
     String companyId = this.nicheCompany.getId();
     assertDoesNotThrow(() -> this.reviewService.verifyReviewBelongsToCompany(reviewId, companyId));

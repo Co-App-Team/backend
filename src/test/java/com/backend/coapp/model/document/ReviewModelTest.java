@@ -127,7 +127,7 @@ public class ReviewModelTest {
   }
 
   @Test
-  public void constructor_whenInvalidYear_expectThrowsException() {
+  void constructor_whenInvalidYear_expectThrowsException() {
     int invalidYear = WorkTermValidator.getMinYear() - 1;
     assertThrows(
         IllegalArgumentException.class,

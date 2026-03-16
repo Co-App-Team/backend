@@ -318,7 +318,7 @@ public class ReviewControllerTest {
   // test delete review
 
   @Test
-  public void deleteReview_whenValid_expect200WithSuccessMessage() throws Exception {
+  void deleteReview_whenValid_expect200WithSuccessMessage() throws Exception {
     doNothing().when(this.reviewService).deleteReview("company1", "user1");
 
     mockMvc

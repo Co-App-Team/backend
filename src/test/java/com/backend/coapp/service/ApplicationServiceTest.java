@@ -147,7 +147,7 @@ public class ApplicationServiceTest {
   }
 
   @Test
-  public void createApplication_whenUserNotFound_expectException() {
+  void createApplication_whenUserNotFound_expectException() {
     String companyId = testCompany.getId();
     assertThrows(
         UserNotFoundException.class,
@@ -167,7 +167,7 @@ public class ApplicationServiceTest {
   }
 
   @Test
-  public void createApplication_whenDuplicate_expectException() {
+  void createApplication_whenDuplicate_expectException() {
     String companyId = testCompany.getId();
     assertThrows(
         DuplicateApplicationException.class,
@@ -212,7 +212,7 @@ public class ApplicationServiceTest {
   }
 
   @Test
-  public void updateApplication_whenNotOwner_expectUnauthorized() {
+  void updateApplication_whenNotOwner_expectUnauthorized() {
     String appId = existingApp.getId();
     String companyId = testCompany.getId();
     assertThrows(
@@ -234,7 +234,7 @@ public class ApplicationServiceTest {
   }
 
   @Test
-  public void updateApplication_whenNoChanges_expectException() {
+  void updateApplication_whenNoChanges_expectException() {
     String appId = existingApp.getId();
     String companyId = testCompany.getId();
     assertThrows(
@@ -276,7 +276,7 @@ public class ApplicationServiceTest {
   }
 
   @Test
-  public void updateApplication_whenNewCompanyNotFound_expectException() {
+  void updateApplication_whenNewCompanyNotFound_expectException() {
     String appId = existingApp.getId();
     assertThrows(
         CompanyNotFoundException.class,

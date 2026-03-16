@@ -331,7 +331,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void createCompany_whenAlreadyExists_expect409() throws Exception {
+  void createCompany_whenAlreadyExists_expect409() throws Exception {
     when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenThrow(new CompanyAlreadyExistsException("1"));
 
@@ -348,7 +348,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void createCompany_whenInvalidWebsite_expect400() throws Exception {
+  void createCompany_whenInvalidWebsite_expect400() throws Exception {
     when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenThrow(new InvalidWebsiteException());
 
@@ -380,7 +380,7 @@ public class CompanyControllerTest {
   }
 
   @Test
-  public void createCompany_whenServiceFails_expect500() throws Exception {
+  void createCompany_whenServiceFails_expect500() throws Exception {
     when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenThrow(new CompanyServiceFailException("Database error"));
 
