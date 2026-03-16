@@ -290,7 +290,6 @@ class JwtAuthFilterTest {
       throws UnsupportedEncodingException {
     String content = response.getContentAsString();
     ObjectMapper mapper = new ObjectMapper();
-    Map<String, String> errorResponse = mapper.readValue(content, Map.class);
-    return errorResponse;
+    return mapper.readValue(content, Map.class);
   }
 }

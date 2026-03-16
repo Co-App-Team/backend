@@ -446,6 +446,7 @@ class UserServiceTest {
 
   @Test
   void createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+    LocalDate invalidEndDate = START_DATE.minusDays(1);
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -455,7 +456,7 @@ class UserServiceTest {
                 "Software Engineer",
                 "Some description",
                 START_DATE,
-                START_DATE.minusDays(1))); // endDate before startDate
+                invalidEndDate)); // endDate before startDate
   }
 
   @Test
@@ -687,6 +688,7 @@ class UserServiceTest {
     setUpExperiences();
 
     String fooExperience1Id = fooExperience1.getId();
+    LocalDate invalidEndDate = START_DATE.minusDays(1);
 
     assertThrows(
         UserServiceFailException.class,
@@ -698,7 +700,7 @@ class UserServiceTest {
                 "Software Engineer",
                 "Some description",
                 START_DATE,
-                START_DATE.minusDays(1)));
+                invalidEndDate));
   }
 
   @Test
