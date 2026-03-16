@@ -359,20 +359,30 @@ public class ApplicationService {
         page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
   }
 
-  public List<ApplicationModel> getInterviewApplications(
+  /**
+   * Retrieves a list of applications for a user that are currently in the interview stage.
+   *
+   * <p>Filters applications where {@code interviewDate} exists. If both startDate and endDate are
+   * provided, results are further filtered to include only interviews within that specific date
+   * range.
+   *
+   * @param userId The ID of the user whose applications are being retrieved
+   * @param startDate Optional start date to filter interview dates (inclusive)
+   * @param endDate Optional end date to filter interview dates (inclusive)
+   * @return A list of {@link ApplicationResponse} objects representing the matching applications
+   * @throws ApplicationServiceFailException If the database query fails
+   */
+  public List<ApplicationResponse> getInterviewApplications(
       String userId, LocalDate startDate, LocalDate endDate) {
-    Criteria criteria =
-        Criteria.where("userId")
-            .is(userId)
-            .and("status")
-            .is(ApplicationStatus.INTERVIEWING)
-            .and("interviewDate")
-            .exists(true);
+    Criteria criteria = Criteria.where("userId").is(userId).and("interviewDate").exists(true);
 
     if (startDate != null && endDate != null) {
       criteria.gte(startDate).lte(endDate);
     }
 
-    return mongoTemplate.find(new Query(criteria), ApplicationModel.class);
+    List<ApplicationModel> applicationModels =
+        mongoTemplate.find(new Query(criteria), ApplicationModel.class);
+
+    return applicationModels.stream().map(ApplicationResponse::fromModel).toList();
   }
 }

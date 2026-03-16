@@ -74,6 +74,8 @@ class ApplicationServiceTest {
         new UserModel("user_001", "test@example.com", "password123", "John", "Doe", true, 1234);
     this.userRepository.save(testUser);
 
+    // This app has status APPLIED but contains an interviewDate.
+    // Under the new logic, it SHOULD be returned by getInterviewApplications.
     this.existingApp =
         ApplicationModel.builder()
             .userId("user_001")
@@ -907,7 +909,8 @@ class ApplicationServiceTest {
   // Tests for getInterviewApplications
 
   @Test
-  public void getInterviewApplications_whenNoDateRange_returnInterviewingApps() {
+  void getInterviewApplications_whenNoDateRange_returnInterviewingApps() {
+
     ApplicationModel interviewingApp =
         ApplicationModel.builder()
             .userId("user_001")
@@ -919,15 +922,17 @@ class ApplicationServiceTest {
             .build();
     applicationRepository.save(interviewingApp);
 
-    List<ApplicationModel> result =
+    List<ApplicationResponse> result =
         applicationService.getInterviewApplications("user_001", null, null);
 
-    assertEquals(1, result.size());
-    assertEquals("Interviewing Role", result.get(0).getJobTitle());
+    // Should return 2: existingApp (APPLIED + date) + interviewingApp (INTERVIEWING + date)
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(app -> "Interviewing Role".equals(app.getJobTitle())));
+    assertTrue(result.stream().anyMatch(app -> "Software Engineer".equals(app.getJobTitle())));
   }
 
   @Test
-  public void getInterviewApplications_whenDateRangeProvided_returnFilteredApps() {
+  void getInterviewApplications_whenDateRangeProvided_returnFilteredApps() {
     LocalDate start = DATE.minusDays(1);
     LocalDate end = DATE.plusDays(1);
 
@@ -954,23 +959,28 @@ class ApplicationServiceTest {
     applicationRepository.save(insideRange);
     applicationRepository.save(outsideRange);
 
-    List<ApplicationModel> result =
+    List<ApplicationResponse> result =
         applicationService.getInterviewApplications("user_001", start, end);
 
-    assertEquals(1, result.size());
-    assertEquals("Inside Range", result.get(0).getJobTitle());
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(app -> "Inside Range".equals(app.getJobTitle())));
+    assertTrue(result.stream().anyMatch(app -> "Software Engineer".equals(app.getJobTitle())));
   }
 
   @Test
-  public void getInterviewApplications_whenStatusNotInterviewing_returnEmpty() {
-    List<ApplicationModel> result =
+  void getInterviewApplications_whenStatusNotInterviewingButDateExists_returnResults() {
+
+    List<ApplicationResponse> result =
         applicationService.getInterviewApplications("user_001", null, null);
 
-    assertTrue(result.isEmpty());
+    assertFalse(result.isEmpty());
+    assertEquals(1, result.size());
+    assertEquals("Software Engineer", result.get(0).getJobTitle());
   }
 
   @Test
-  public void getInterviewApplications_whenInterviewDateNull_returnEmpty() {
+  void getInterviewApplications_whenInterviewDateNull_notReturned() {
+
     ApplicationModel noDateApp =
         ApplicationModel.builder()
             .userId("user_001")
@@ -982,14 +992,16 @@ class ApplicationServiceTest {
             .build();
     applicationRepository.save(noDateApp);
 
-    List<ApplicationModel> result =
+    List<ApplicationResponse> result =
         applicationService.getInterviewApplications("user_001", null, null);
 
-    assertTrue(result.isEmpty());
+    assertEquals(1, result.size());
+    assertNotEquals("No Date", result.get(0).getJobTitle());
+    assertEquals("Software Engineer", result.get(0).getJobTitle());
   }
 
   @Test
-  public void getInterviewApplications_whenWrongUser_returnEmpty() {
+  void getInterviewApplications_whenWrongUser_returnEmpty() {
     ApplicationModel interviewingApp =
         ApplicationModel.builder()
             .userId("user_001")
@@ -1001,63 +1013,67 @@ class ApplicationServiceTest {
             .build();
     applicationRepository.save(interviewingApp);
 
-    List<ApplicationModel> result =
+    List<ApplicationResponse> result =
         applicationService.getInterviewApplications("wrong_user", null, null);
 
     assertTrue(result.isEmpty());
   }
 
   @Test
-  public void getInterviewApplications_unitTest_whenDatesProvided() {
+  void getInterviewApplications_unitTest_whenDatesProvided() {
     ApplicationService serviceWithMocks =
         new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
 
     when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
         .thenReturn(Collections.emptyList());
 
-    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", DATE, DATE);
+    List<ApplicationResponse> result =
+        serviceWithMocks.getInterviewApplications("user1", DATE, DATE);
 
     assertTrue(result.isEmpty());
     verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
   }
 
   @Test
-  public void getInterviewApplications_unitTest_whenDatesNull() {
+  void getInterviewApplications_unitTest_whenDatesNull() {
     ApplicationService serviceWithMocks =
         new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
 
     when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
         .thenReturn(Collections.emptyList());
 
-    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", null, null);
+    List<ApplicationResponse> result =
+        serviceWithMocks.getInterviewApplications("user1", null, null);
 
     assertTrue(result.isEmpty());
     verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
   }
 
   @Test
-  public void getInterviewApplications_unitTest_whenStartDateOnly() {
+  void getInterviewApplications_unitTest_whenStartDateOnly() {
     ApplicationService serviceWithMocks =
         new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
 
     when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
         .thenReturn(Collections.emptyList());
 
-    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", DATE, null);
+    List<ApplicationResponse> result =
+        serviceWithMocks.getInterviewApplications("user1", DATE, null);
 
     assertTrue(result.isEmpty());
     verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
   }
 
   @Test
-  public void getInterviewApplications_unitTest_whenEndDateOnly() {
+  void getInterviewApplications_unitTest_whenEndDateOnly() {
     ApplicationService serviceWithMocks =
         new ApplicationService(mockAppRepo, mockCompRepo, mockUserRepo, mockMongoTemplate);
 
     when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
         .thenReturn(Collections.emptyList());
 
-    List<ApplicationModel> result = serviceWithMocks.getInterviewApplications("user1", null, DATE);
+    List<ApplicationResponse> result =
+        serviceWithMocks.getInterviewApplications("user1", null, DATE);
 
     assertTrue(result.isEmpty());
     verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));

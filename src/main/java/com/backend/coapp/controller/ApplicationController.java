@@ -5,7 +5,6 @@ import com.backend.coapp.dto.request.GetApplicationsRequest;
 import com.backend.coapp.dto.request.GetInterviewApplicationsRequest;
 import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
-import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.ApplicationService;
 import java.util.List;
@@ -149,16 +148,24 @@ public class ApplicationController {
     return ResponseEntity.ok(response);
   }
 
-  /** */
+  /**
+   * Retrieves a list of job applications with scheduled interviews for the authenticated user.
+   *
+   * <p>Applications are filtered by the existence of an interview date. Supports optional filtering
+   * by a date range for the interview date. User ID is extracted from the security context.
+   *
+   * @param interviewApplicationsRequest The request object containing optional start and end dates
+   * @return ResponseEntity containing a list of {@link ApplicationResponse}
+   */
   @GetMapping("/interviews")
-  public ResponseEntity<List<ApplicationModel>> getInterviewApplications(
+  public ResponseEntity<List<ApplicationResponse>> getInterviewApplications(
       @ModelAttribute GetInterviewApplicationsRequest interviewApplicationsRequest) {
 
     interviewApplicationsRequest.validateRequest();
     Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     String userId = auth.getName();
 
-    List<ApplicationModel> response =
+    List<ApplicationResponse> response =
         this.applicationService.getInterviewApplications(
             userId,
             interviewApplicationsRequest.getStartDate(),

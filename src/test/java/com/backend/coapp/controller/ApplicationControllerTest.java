@@ -12,7 +12,6 @@ import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.exception.application.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
-import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.service.ApplicationService;
@@ -824,17 +823,23 @@ class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getInterviewApplications_whenNoParams_expect200WithApplications() throws Exception {
-    ApplicationModel mockApp =
-        ApplicationModel.builder()
-            .userId("user1")
-            .jobTitle("Interview Role")
-            .status(ApplicationStatus.INTERVIEWING)
-            .interviewDate(DATE)
-            .build();
+  void getInterviewApplications_whenNoParams_expect200WithApplications() throws Exception {
+    ApplicationResponse interviewResponse =
+        new ApplicationResponse(
+            "appInterview",
+            "comp456",
+            "Interview Role",
+            ApplicationStatus.INTERVIEWING,
+            DATE,
+            "Great role",
+            1,
+            "https://linkedin.com",
+            DATE,
+            "I think it's not that good.",
+            DATE);
 
     when(this.applicationService.getInterviewApplications(eq("user1"), isNull(), isNull()))
-        .thenReturn(List.of(mockApp));
+        .thenReturn(List.of(interviewResponse));
 
     mockMvc
         .perform(get("/api/application/interviews"))
@@ -848,7 +853,7 @@ class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getInterviewApplications_whenDateRangeProvided_expect200() throws Exception {
+  void getInterviewApplications_whenDateRangeProvided_expect200() throws Exception {
     LocalDate start = DATE.minusDays(1);
     LocalDate end = DATE.plusDays(1);
 
@@ -869,7 +874,7 @@ class ApplicationControllerTest {
 
   @Test
   @WithMockUser(username = "user1")
-  public void getInterviewApplications_whenServiceFails_expect500() throws Exception {
+  void getInterviewApplications_whenServiceFails_expect500() throws Exception {
     when(this.applicationService.getInterviewApplications(anyString(), any(), any()))
         .thenThrow(new ApplicationServiceFailException("DB error"));
 
