@@ -118,7 +118,7 @@ class CompanyControllerTest {
   @Test
   void getAllCompanies_withSearch_expect200AndFilteredResults() throws Exception {
     List<CompanyResponse> companies = List.of(this.nicheResponse);
-    when(this.companyService.getAllCompanies(eq("niche"))).thenReturn(companies);
+    when(this.companyService.getAllCompanies("niche")).thenReturn(companies);
 
     mockMvc
         .perform(
@@ -127,7 +127,7 @@ class CompanyControllerTest {
         .andExpect(jsonPath("$.companies").isArray())
         .andExpect(jsonPath("$.companies[0].companyName").value("Niche"));
 
-    verify(this.companyService, times(1)).getAllCompanies(eq("niche"));
+    verify(this.companyService, times(1)).getAllCompanies("niche");
   }
 
   @Test
@@ -169,7 +169,6 @@ class CompanyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
         .andExpect(status().isOk());
 
-    // Verify that size was set to default (20)
     verify(this.companyService, times(1))
         .getAllCompanies(
             isNull(), argThat(p -> p.getPageSize() == PaginationConstants.COMPANY_DEFAULT_SIZE));
@@ -313,7 +312,7 @@ class CompanyControllerTest {
   void createCompany_whenValid_expect201AndCompany() throws Exception {
     CompanyResponse response =
         new CompanyResponse("3", "Amazon", "Seattle", "https://amazon.com", 0.0);
-    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
+    when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenReturn(response);
 
     mockMvc
@@ -328,13 +327,12 @@ class CompanyControllerTest {
         .andExpect(jsonPath("$.website").value("https://amazon.com"))
         .andExpect(jsonPath("$.avgRating").value(0.0));
 
-    verify(this.companyService, times(1))
-        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
+    verify(this.companyService, times(1)).createCompany("Amazon", "Seattle", "https://amazon.com");
   }
 
   @Test
   void createCompany_whenAlreadyExists_expect409() throws Exception {
-    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
+    when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenThrow(new CompanyAlreadyExistsException("1"));
 
     mockMvc
@@ -346,13 +344,12 @@ class CompanyControllerTest {
         .andExpect(jsonPath("$.error").value("COMPANY_ALREADY_EXISTS"))
         .andExpect(jsonPath("$.message").exists());
 
-    verify(this.companyService, times(1))
-        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
+    verify(this.companyService, times(1)).createCompany("Amazon", "Seattle", "https://amazon.com");
   }
 
   @Test
   void createCompany_whenInvalidWebsite_expect400() throws Exception {
-    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
+    when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenThrow(new InvalidWebsiteException());
 
     mockMvc
@@ -364,8 +361,7 @@ class CompanyControllerTest {
         .andExpect(jsonPath("$.error").value("INVALID_WEBSITE"))
         .andExpect(jsonPath("$.message").exists());
 
-    verify(this.companyService, times(1))
-        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
+    verify(this.companyService, times(1)).createCompany("Amazon", "Seattle", "https://amazon.com");
   }
 
   @Test
@@ -385,7 +381,7 @@ class CompanyControllerTest {
 
   @Test
   void createCompany_whenServiceFails_expect500() throws Exception {
-    when(this.companyService.createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com")))
+    when(this.companyService.createCompany("Amazon", "Seattle", "https://amazon.com"))
         .thenThrow(new CompanyServiceFailException("Database error"));
 
     mockMvc
@@ -397,8 +393,7 @@ class CompanyControllerTest {
         .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"))
         .andExpect(jsonPath("$.message").exists());
 
-    verify(this.companyService, times(1))
-        .createCompany(eq("Amazon"), eq("Seattle"), eq("https://amazon.com"));
+    verify(this.companyService, times(1)).createCompany("Amazon", "Seattle", "https://amazon.com");
   }
 
   @Test

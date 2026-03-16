@@ -148,12 +148,13 @@ class ApplicationServiceTest {
 
   @Test
   void createApplication_whenUserNotFound_expectException() {
+    String companyId = testCompany.getId();
     assertThrows(
         UserNotFoundException.class,
         () ->
             this.applicationService.createApplication(
                 "invalid_user",
-                testCompany.getId(),
+                companyId,
                 "Title",
                 ApplicationStatus.APPLIED,
                 DATE,
@@ -167,12 +168,13 @@ class ApplicationServiceTest {
 
   @Test
   void createApplication_whenDuplicate_expectException() {
+    String companyId = testCompany.getId();
     assertThrows(
         DuplicateApplicationException.class,
         () ->
             this.applicationService.createApplication(
                 "user_001",
-                testCompany.getId(),
+                companyId,
                 "Software Engineer",
                 ApplicationStatus.APPLIED,
                 DATE,
@@ -211,13 +213,15 @@ class ApplicationServiceTest {
 
   @Test
   void updateApplication_whenNotOwner_expectUnauthorized() {
+    String appId = existingApp.getId();
+    String companyId = testCompany.getId();
     assertThrows(
         UnauthorizedApplicationAccessException.class,
         () ->
             this.applicationService.updateApplication(
                 "wrong_user",
-                existingApp.getId(),
-                testCompany.getId(),
+                appId,
+                companyId,
                 "Title",
                 ApplicationStatus.APPLIED,
                 DATE,
@@ -231,13 +235,15 @@ class ApplicationServiceTest {
 
   @Test
   void updateApplication_whenNoChanges_expectException() {
+    String appId = existingApp.getId();
+    String companyId = testCompany.getId();
     assertThrows(
         NoChangesDetectedException.class,
         () ->
             this.applicationService.updateApplication(
                 "user_001",
-                existingApp.getId(),
-                testCompany.getId(),
+                appId,
+                companyId,
                 "Software Engineer",
                 ApplicationStatus.APPLIED,
                 DATE,
@@ -271,12 +277,13 @@ class ApplicationServiceTest {
 
   @Test
   void updateApplication_whenNewCompanyNotFound_expectException() {
+    String appId = existingApp.getId();
     assertThrows(
         CompanyNotFoundException.class,
         () ->
             this.applicationService.updateApplication(
                 "user_001",
-                existingApp.getId(),
+                appId,
                 "non_existent_company",
                 "Title",
                 ApplicationStatus.APPLIED,

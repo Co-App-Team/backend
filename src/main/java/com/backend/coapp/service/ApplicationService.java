@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -157,7 +156,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -225,7 +224,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -323,7 +322,7 @@ public class ApplicationService {
   private List<String> resolveCompanyIds(String search) {
     return this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
         .map(CompanyModel::getId)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   /**

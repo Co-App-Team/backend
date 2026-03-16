@@ -178,7 +178,7 @@ class ReviewRepositoryTest {
   @Test
   void countByCompanyId_whenNoReviews_expectZero() {
     long count = repository.countByCompanyId("companyFake");
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test
@@ -243,19 +243,18 @@ class ReviewRepositoryTest {
 
   @Test
   void save_whenDuplicateUserAndCompany_expectUniqueConstraintViolation() {
-    assertThrows(
-        DuplicateKeyException.class,
-        () ->
-            repository.save(
-                new ReviewModel(
-                    "company1",
-                    "user1",
-                    "Eric Hodgson",
-                    ReviewConstants.MAX_RATING - 2,
-                    "Another review",
-                    "Developer",
-                    "Summer",
-                    WorkTermValidator.getMaxYear())));
+    int maxYear = WorkTermValidator.getMaxYear();
+    ReviewModel duplicate =
+        new ReviewModel(
+            "company1",
+            "user1",
+            "Eric Hodgson",
+            ReviewConstants.MAX_RATING - 2,
+            "Another review",
+            "Developer",
+            "Summer",
+            maxYear);
+    assertThrows(DuplicateKeyException.class, () -> repository.save(duplicate));
   }
 
   @Test
@@ -301,7 +300,7 @@ class ReviewRepositoryTest {
     repository.deleteAll();
     List<ReviewModel> reviews = repository.findAll();
     assertThat(reviews).isEmpty();
-    assertThat(repository.count()).isEqualTo(0);
+    assertThat(repository.count()).isZero();
   }
 
   @Test

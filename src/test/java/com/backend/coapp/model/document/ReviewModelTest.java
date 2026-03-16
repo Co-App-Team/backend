@@ -111,6 +111,7 @@ class ReviewModelTest {
 
   @Test
   void constructor_whenInvalidSeason_expectThrowsException() {
+    int validYear = WorkTermValidator.getMaxYear() - 1;
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -122,11 +123,12 @@ class ReviewModelTest {
                 "Good",
                 "Dev",
                 "Spring",
-                WorkTermValidator.getMaxYear() - 1));
+                validYear));
   }
 
   @Test
   void constructor_whenInvalidYear_expectThrowsException() {
+    int invalidYear = WorkTermValidator.getMinYear() - 1;
     assertThrows(
         IllegalArgumentException.class,
         () ->
@@ -138,7 +140,7 @@ class ReviewModelTest {
                 "Good",
                 "Dev",
                 "Fall",
-                WorkTermValidator.getMinYear() - 1));
+                invalidYear));
   }
 
   @Test
@@ -354,16 +356,14 @@ class ReviewModelTest {
 
   @Test
   void setWorkTermYear_whenTooLow_expectThrowsException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> validReview.setWorkTermYear(WorkTermValidator.getMinYear() - 1));
+    int tooLow = WorkTermValidator.getMinYear() - 1;
+    assertThrows(IllegalArgumentException.class, () -> validReview.setWorkTermYear(tooLow));
   }
 
   @Test
   void setWorkTermYear_whenTooHigh_expectThrowsException() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> validReview.setWorkTermYear(WorkTermValidator.getMaxYear() + 1));
+    int tooHigh = WorkTermValidator.getMaxYear() + 1;
+    assertThrows(IllegalArgumentException.class, () -> validReview.setWorkTermYear(tooHigh));
   }
 
   /* lombok setters / getters */

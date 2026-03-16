@@ -68,10 +68,9 @@ class WorkTermValidatorTest {
 
   @Test
   void validateYear_whenTooLow_expectThrowsException() {
+    int tooLow = WorkTermValidator.getMinYear() - 1;
     Exception exception =
-        assertThrows(
-            IllegalArgumentException.class,
-            () -> WorkTermValidator.validateYear(WorkTermValidator.getMinYear() - 1));
+        assertThrows(IllegalArgumentException.class, () -> WorkTermValidator.validateYear(tooLow));
     assertEquals(
         "Work term year must be between 1950 and " + Year.now().getValue(), exception.getMessage());
   }

@@ -234,7 +234,7 @@ class CompanyRepositoryTest {
   void count_whenEmpty_expectReturnsZero() {
     repository.deleteAll();
     long count = repository.count();
-    assertThat(count).isEqualTo(0);
+    assertThat(count).isZero();
   }
 
   @Test
@@ -242,7 +242,7 @@ class CompanyRepositoryTest {
     repository.deleteAll();
     List<CompanyModel> companies = repository.findAll();
     assertThat(companies).isEmpty();
-    assertThat(repository.count()).isEqualTo(0);
+    assertThat(repository.count()).isZero();
   }
 
   @Test
