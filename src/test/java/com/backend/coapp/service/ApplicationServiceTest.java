@@ -18,6 +18,7 @@ import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +59,7 @@ class ApplicationServiceTest {
   private ApplicationModel existingApp;
 
   private final LocalDate DATE = LocalDate.of(2800, 1, 1);
+  private final LocalDateTime DATETIME = LocalDateTime.of(2800, 1, 1, 12, 0, 0);
 
   @BeforeEach
   void setUp() {
@@ -74,7 +76,7 @@ class ApplicationServiceTest {
         new UserModel("user_001", "test@example.com", "password123", "John", "Doe", true, 1234);
     this.userRepository.save(testUser);
 
-    // This app has status APPLIED but contains an interviewDate.
+    // This app has status APPLIED but contains an interviewDateTime.
     // Under the new logic, it SHOULD be returned by getInterviewApplications.
     this.existingApp =
         ApplicationModel.builder()
@@ -83,7 +85,7 @@ class ApplicationServiceTest {
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
             .applicationDeadline(DATE)
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .build();
     this.applicationRepository.save(existingApp);
 
@@ -124,7 +126,7 @@ class ApplicationServiceTest {
             "https://link.com",
             DATE,
             "Notes",
-            DATE);
+            DATETIME);
 
     assertNotNull(response);
     assertEquals("Data Scientist", response.getJobTitle());
@@ -147,7 +149,7 @@ class ApplicationServiceTest {
                 null,
                 null,
                 null,
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -166,7 +168,7 @@ class ApplicationServiceTest {
                 null,
                 null,
                 null,
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -185,7 +187,7 @@ class ApplicationServiceTest {
                 null,
                 null,
                 null,
-                DATE));
+                DATETIME));
   }
 
   // Update Application Integration Tests
@@ -205,7 +207,7 @@ class ApplicationServiceTest {
             "https://new.link",
             DATE,
             "New Notes",
-            DATE);
+            DATETIME);
 
     assertEquals("Senior SE", response.getJobTitle());
     assertEquals("New Desc", response.getJobDescription());
@@ -230,7 +232,7 @@ class ApplicationServiceTest {
                 "Link",
                 DATE,
                 "Notes",
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -250,7 +252,7 @@ class ApplicationServiceTest {
                 null,
                 null,
                 null,
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -270,7 +272,7 @@ class ApplicationServiceTest {
                 "l",
                 DATE,
                 "n",
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -290,7 +292,7 @@ class ApplicationServiceTest {
                 "Link",
                 DATE,
                 "Notes",
-                DATE));
+                DATETIME));
   }
 
   // Delete Application Integration Tests
@@ -388,7 +390,7 @@ class ApplicationServiceTest {
             .jobTitle("Product Manager")
             .status(ApplicationStatus.REJECTED)
             .applicationDeadline(DATE)
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .build();
     this.applicationRepository.save(rejectedApp);
 
@@ -415,7 +417,7 @@ class ApplicationServiceTest {
             .jobTitle("Designer")
             .status(ApplicationStatus.APPLIED)
             .applicationDeadline(DATE)
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .build();
     this.applicationRepository.save(otherApp);
 
@@ -437,7 +439,7 @@ class ApplicationServiceTest {
               .jobTitle("Role " + i)
               .status(ApplicationStatus.APPLIED)
               .applicationDeadline(DATE)
-              .interviewDate(DATE)
+              .interviewDateTime(DATETIME)
               .build());
     }
 
@@ -460,7 +462,7 @@ class ApplicationServiceTest {
               .jobTitle("Role " + i)
               .status(ApplicationStatus.APPLIED)
               .applicationDeadline(DATE)
-              .interviewDate(DATE)
+              .interviewDateTime(DATETIME)
               .build());
     }
 
@@ -525,7 +527,7 @@ class ApplicationServiceTest {
                 null,
                 null,
                 null,
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -544,7 +546,7 @@ class ApplicationServiceTest {
     when(mockApp.getSourceLink()).thenReturn("http://old.com");
     when(mockApp.getDateApplied()).thenReturn(DATE);
     when(mockApp.getNotes()).thenReturn("Old Notes");
-    when(mockApp.getInterviewDate()).thenReturn(DATE);
+    when(mockApp.getInterviewDateTime()).thenReturn(DATETIME);
 
     when(mockAppRepo.findById(anyString())).thenReturn(Optional.of(mockApp));
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
@@ -565,7 +567,7 @@ class ApplicationServiceTest {
                 "Link",
                 DATE,
                 "Notes",
-                DATE));
+                DATETIME));
   }
 
   @Test
@@ -583,7 +585,7 @@ class ApplicationServiceTest {
             null,
             null,
             null,
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals("Brand New Title", response.getJobTitle());
     assertEquals(testCompany.getId(), response.getCompanyId());
@@ -609,7 +611,7 @@ class ApplicationServiceTest {
             null,
             null,
             null,
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertNotNull(response.getDateApplied());
   }
@@ -632,7 +634,7 @@ class ApplicationServiceTest {
             null,
             null,
             null,
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals(secondCompany.getId(), response.getCompanyId());
   }
@@ -652,7 +654,7 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
             existingApp.getNotes(),
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals("Brand New Description", response.getJobDescription());
   }
@@ -672,7 +674,7 @@ class ApplicationServiceTest {
             "https://new-job-link.com",
             existingApp.getDateApplied(),
             existingApp.getNotes(),
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals("https://new-job-link.com", response.getSourceLink());
   }
@@ -693,7 +695,7 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             newDate,
             existingApp.getNotes(),
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals(newDate, response.getDateApplied());
   }
@@ -713,7 +715,7 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
             "Updated internal notes",
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals("Updated internal notes", response.getNotes());
   }
@@ -733,7 +735,7 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
             existingApp.getNotes(),
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals(ApplicationStatus.ACCEPTED, response.getStatus());
   }
@@ -754,7 +756,7 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
             existingApp.getNotes(),
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals(newDeadline, response.getApplicationDeadline());
   }
@@ -774,14 +776,14 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
             existingApp.getNotes(),
-            existingApp.getInterviewDate());
+            existingApp.getInterviewDateTime());
 
     assertEquals(99, response.getNumPositions());
   }
 
   @Test
   void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
-    LocalDate newInterviewDate = DATE.plusDays(1);
+    LocalDateTime newInterviewDateTime = DATETIME.plusDays(1);
     ApplicationResponse response =
         this.applicationService.updateApplication(
             "user_001",
@@ -795,10 +797,10 @@ class ApplicationServiceTest {
             existingApp.getSourceLink(),
             existingApp.getDateApplied(),
             existingApp.getNotes(),
-            newInterviewDate);
+            newInterviewDateTime);
 
     assertNotNull(response);
-    assertEquals(newInterviewDate, response.getInterviewDate());
+    assertEquals(newInterviewDateTime, response.getInterviewDateTime());
     assertEquals(existingApp.getJobTitle(), response.getJobTitle());
   }
 
@@ -827,7 +829,7 @@ class ApplicationServiceTest {
             .status(ApplicationStatus.APPLIED)
             .applicationDeadline(DATE)
             .dateApplied(DATE.plusDays(1))
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .build();
     this.applicationRepository.save(laterApp);
 
@@ -869,7 +871,7 @@ class ApplicationServiceTest {
               .jobTitle("Role " + i)
               .status(ApplicationStatus.APPLIED)
               .applicationDeadline(DATE)
-              .interviewDate(DATE)
+              .interviewDateTime(DATETIME)
               .build());
     }
 
@@ -917,7 +919,7 @@ class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Interviewing Role")
             .status(ApplicationStatus.INTERVIEWING)
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .applicationDeadline(DATE)
             .build();
     applicationRepository.save(interviewingApp);
@@ -942,7 +944,7 @@ class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Inside Range")
             .status(ApplicationStatus.INTERVIEWING)
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .applicationDeadline(DATE)
             .build();
 
@@ -952,7 +954,7 @@ class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Outside Range")
             .status(ApplicationStatus.INTERVIEWING)
-            .interviewDate(DATE.plusDays(10))
+            .interviewDateTime(DATETIME.plusDays(10))
             .applicationDeadline(DATE)
             .build();
 
@@ -987,7 +989,7 @@ class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("No Date")
             .status(ApplicationStatus.INTERVIEWING)
-            .interviewDate(null)
+            .interviewDateTime(null)
             .applicationDeadline(DATE)
             .build();
     applicationRepository.save(noDateApp);
@@ -1008,7 +1010,7 @@ class ApplicationServiceTest {
             .companyId(testCompany.getId())
             .jobTitle("Interviewing Role")
             .status(ApplicationStatus.INTERVIEWING)
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .applicationDeadline(DATE)
             .build();
     applicationRepository.save(interviewingApp);

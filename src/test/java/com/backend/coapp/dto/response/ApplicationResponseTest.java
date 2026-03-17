@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
@@ -20,7 +21,7 @@ class ApplicationResponseTest {
   private final String source = "https://example.com";
   private final LocalDate appliedDate = LocalDate.now();
   private final String notes = "Some important notes";
-  private final LocalDate interviewDate = LocalDate.now().plusDays(1);
+  private final LocalDateTime interviewDateTime = LocalDateTime.now().plusDays(1);
 
   /** Helper methods. */
   private ApplicationResponse.ApplicationResponseBuilder getValidResponseBuilder() {
@@ -35,7 +36,7 @@ class ApplicationResponseTest {
         .sourceLink(source)
         .dateApplied(appliedDate)
         .notes(notes)
-        .interviewDate(interviewDate);
+        .interviewDateTime(interviewDateTime);
   }
 
   private ApplicationModel.ApplicationModelBuilder getValidModelBuilder() {
@@ -50,7 +51,7 @@ class ApplicationResponseTest {
         .sourceLink(source)
         .dateApplied(appliedDate)
         .notes(notes)
-        .interviewDate(interviewDate);
+        .interviewDateTime(interviewDateTime);
   }
 
   @Test
@@ -67,7 +68,7 @@ class ApplicationResponseTest {
     assertEquals(source, response.getSourceLink());
     assertEquals(appliedDate, response.getDateApplied());
     assertEquals(notes, response.getNotes());
-    assertEquals(interviewDate, response.getInterviewDate());
+    assertEquals(interviewDateTime, response.getInterviewDateTime());
   }
 
   @Test
@@ -82,7 +83,7 @@ class ApplicationResponseTest {
     assertEquals(jobTitle, response.getJobTitle());
     assertEquals(notes, response.getNotes());
     assertEquals(status, response.getStatus());
-    assertEquals(interviewDate, response.getInterviewDate());
+    assertEquals(interviewDateTime, response.getInterviewDateTime());
   }
 
   @Test
@@ -103,7 +104,7 @@ class ApplicationResponseTest {
     assertEquals(source, map.get("sourceLink"));
     assertEquals(appliedDate, map.get("dateApplied"));
     assertEquals(notes, map.get("notes"));
-    assertEquals(interviewDate, map.get("interviewDate"));
+    assertEquals(interviewDateTime, map.get("interviewDateTime"));
   }
 
   @Test
@@ -115,7 +116,7 @@ class ApplicationResponseTest {
             .sourceLink(null)
             .dateApplied(null)
             .notes(null)
-            .interviewDate(null)
+            .interviewDateTime(null)
             .build();
 
     Map<String, Object> map = response.toMap();
@@ -124,8 +125,8 @@ class ApplicationResponseTest {
     assertNull(map.get("jobDescription"));
     assertTrue(map.containsKey("notes"));
     assertNull(map.get("notes"));
-    assertTrue(map.containsKey("interviewDate"));
-    assertNull(map.get("interviewDate"));
+    assertTrue(map.containsKey("interviewDateTime"));
+    assertNull(map.get("interviewDateTime"));
     assertEquals(applicationId, map.get("applicationId"));
   }
 }

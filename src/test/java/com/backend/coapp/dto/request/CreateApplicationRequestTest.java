@@ -6,6 +6,7 @@ import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 class CreateApplicationRequestTest {
@@ -16,7 +17,7 @@ class CreateApplicationRequestTest {
 
   private final LocalDate validDateApplied = LocalDate.now();
   private final LocalDate validDeadline = LocalDate.now().plusMonths(1);
-  private final LocalDate validInterviewDate = LocalDate.now().plusMonths(1);
+  private final LocalDateTime validInterviewDateTime = LocalDateTime.now().plusMonths(1);
 
   private final String validUrl = "https://careers.google.com";
 
@@ -29,7 +30,7 @@ class CreateApplicationRequestTest {
         .jobTitle(validJobTitle)
         .status(validStatus)
         .applicationDeadline(validDeadline)
-        .interviewDate(validInterviewDate)
+        .interviewDateTime(validInterviewDateTime)
         .dateApplied(validDateApplied);
   }
 
@@ -248,21 +249,22 @@ class CreateApplicationRequestTest {
 
   // Interview Date Validation
   @Test
-  void validateRequest_whenInterviewDateInThePast_expectException() {
+  void validateRequest_whenInterviewDateTooFarInThePast_expectException() {
     CreateApplicationRequest request =
-        getValidRequestBuilder().interviewDate(LocalDate.now().minusDays(1)).build();
+        getValidRequestBuilder().interviewDateTime(LocalDateTime.now().minusYears(1)).build();
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Interview Date cannot be in the past.", exception.getMessage());
+        EXCEPTION_PREFIX + "Interview Date cannot be set 3 months in the past.",
+        exception.getMessage());
   }
 
   @Test
   void validateRequest_whenInterviewDateIsToday_expectSuccess() {
     CreateApplicationRequest request =
-        getValidRequestBuilder().interviewDate(LocalDate.now()).build();
+        getValidRequestBuilder().interviewDateTime(LocalDateTime.now()).build();
 
     assertDoesNotThrow(request::validateRequest);
   }

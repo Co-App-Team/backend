@@ -17,6 +17,7 @@ import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.service.ApplicationService;
 import com.backend.coapp.service.JwtService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,7 @@ class ApplicationControllerTest {
   private UpdateApplicationRequest updateRequest;
 
   private final LocalDate DATE = LocalDate.of(2800, 1, 1);
+  private final LocalDateTime DATETIME = LocalDateTime.of(2800, 1, 1, 12, 0, 0);
 
   @BeforeEach
   void setUp() {
@@ -68,7 +70,7 @@ class ApplicationControllerTest {
             "https://linkedin.com",
             DATE,
             "I think it's not that good.",
-            DATE);
+            DATETIME);
 
     this.createRequest =
         CreateApplicationRequest.builder()
@@ -81,7 +83,7 @@ class ApplicationControllerTest {
             .sourceLink("https://linkedin.com")
             .dateApplied(DATE)
             .notes("I think it's not that good.")
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .build();
 
     this.updateRequest =
@@ -95,7 +97,7 @@ class ApplicationControllerTest {
             .sourceLink("https://linkedin.com")
             .dateApplied(DATE)
             .notes("Updated notes.")
-            .interviewDate(DATE)
+            .interviewDateTime(DATETIME)
             .build();
 
     when(this.authentication.getPrincipal()).thenReturn(mockUser);
@@ -121,7 +123,7 @@ class ApplicationControllerTest {
             eq("https://linkedin.com"),
             eq(DATE),
             eq("I think it's not that good."),
-            eq(DATE)))
+            eq(DATETIME)))
         .thenReturn(this.mockResponse);
 
     mockMvc
@@ -149,7 +151,7 @@ class ApplicationControllerTest {
             eq("https://linkedin.com"),
             eq(DATE),
             eq("I think it's not that good."),
-            eq(DATE));
+            eq(DATETIME));
   }
 
   @Test
@@ -165,7 +167,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new CompanyNotFoundException());
 
     mockMvc
@@ -192,7 +194,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new DuplicateApplicationException("job", "comp"));
 
     mockMvc
@@ -230,7 +232,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class));
+            any(LocalDateTime.class));
   }
 
   @Test
@@ -246,7 +248,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
@@ -276,7 +278,7 @@ class ApplicationControllerTest {
             "https://linkedin.com",
             DATE,
             "Updated notes.",
-            DATE);
+            DATETIME);
 
     when(this.applicationService.updateApplication(
             eq("user1"),
@@ -290,7 +292,7 @@ class ApplicationControllerTest {
             eq("https://linkedin.com"),
             eq(DATE),
             eq("Updated notes."),
-            eq(DATE)))
+            eq(DATETIME)))
         .thenReturn(updatedResponse);
 
     mockMvc
@@ -317,7 +319,7 @@ class ApplicationControllerTest {
             eq("https://linkedin.com"),
             eq(DATE),
             eq("Updated notes."),
-            eq(DATE));
+            eq(DATETIME));
   }
 
   @Test
@@ -334,7 +336,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new ApplicationNotFoundException());
 
     mockMvc
@@ -362,7 +364,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new UnauthorizedApplicationAccessException("update"));
 
     mockMvc
@@ -401,7 +403,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class));
+            any(LocalDateTime.class));
   }
 
   @Test
@@ -418,7 +420,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
@@ -836,7 +838,7 @@ class ApplicationControllerTest {
             "https://linkedin.com",
             DATE,
             "I think it's not that good.",
-            DATE);
+            DATETIME);
 
     when(this.applicationService.getInterviewApplications(eq("user1"), isNull(), isNull()))
         .thenReturn(List.of(interviewResponse));

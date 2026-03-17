@@ -34,7 +34,7 @@ Additionally, added interviewDate as a paramter for applications, also updated i
 
 **Method:** `GET`
 
-**Description:** Retrieves a list of job applications that have an interview scheduled (status `INTERVIEWING` and `interviewDate` exists) for the currently authenticated user. Supports optional filtering by date range.
+**Description:** Retrieves a list of job applications that for which an `interviewDate` exists for the currently authenticated user. Supports optional filtering by date range.
 
 **Query Parameters:**
 
@@ -59,7 +59,7 @@ Array of applications:
     "jobTitle": "jobTitle",
     "status": "INTERVIEWING",
     "applicationDeadline": "applicationDeadline",
-    "interviewDate": "interviewDate",
+    "interviewDateTime": "interviewDateTime",
     "jobDescription": "jobDescription (optional)",
     "numPositions": "numPositions (optional)",
     "sourceLink": "sourceLink (optional)",

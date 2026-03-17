@@ -20,7 +20,7 @@ This document outlines the API endpoints for the log job applications feature of
   "sourceLink": "string (optional)",
   "dateApplied": "datetime string (optional)",
   "notes": "string (optional)",
-  "interviewDate": "datetime string (optional)"
+  "interviewDateTime": "datetime string (optional)"
 }
 ```
 
@@ -77,7 +77,7 @@ This document outlines the API endpoints for the log job applications feature of
   "sourceLink": "link (optional)", 
   "dateApplied": "applied (optional)",
   "notes": "notes (optional)",
-  "interviewDate": "interview date (optional)"
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -96,7 +96,7 @@ Response body:
   "sourceLink": "sourceLink (optional)",
   "dateApplied": "dateApplied (optional)",
   "notes": "notes (optional)",
-  "interviewDate": "interview date (optional)"
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -168,7 +168,7 @@ Response body:
   "sourceLink": "link (optional)", 
   "dateApplied": "applied (optional)",
   "notes": "notes (optional)",
-  "interviewDate": "interview date (optional)"
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -186,7 +186,7 @@ Response body:
   "sourceLink": "sourceLink (optional)",
   "dateApplied": "dateApplied (optional)",
   "notes": "notes (optional)",
-  "interviewDate": "interview date (optional)"
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -301,7 +301,7 @@ Array of applications:
     "sourceLink": "sourceLink (optional)",
     "dateApplied": "dateApplied (optional)",
     "notes": "notes (optional)",
-    "interviewDate": "interview date (optional)"
+    "interviewDateTime": "interview date (optional)"
   }
 ]
 ```
@@ -330,7 +330,7 @@ Array of applications:
 
 **Method:** `GET`
 
-**Description:** Retrieves a list of job applications that have an interview scheduled (status `INTERVIEWING` and `interviewDate` exists) for the currently authenticated user. Supports optional filtering by date range.
+**Description:** Retrieves a list of job applications that have an interview scheduled (status `INTERVIEWING` and `interviewDateTime` exists) for the currently authenticated user. Supports optional filtering by date range.
 
 **Query Parameters:**
 
@@ -355,7 +355,7 @@ Array of applications:
     "jobTitle": "jobTitle",
     "status": "INTERVIEWING",
     "applicationDeadline": "applicationDeadline",
-    "interviewDate": "interviewDate",
+    "interviewDateTime": "interviewDateTime",
     "jobDescription": "jobDescription (optional)",
     "numPositions": "numPositions (optional)",
     "sourceLink": "sourceLink (optional)",

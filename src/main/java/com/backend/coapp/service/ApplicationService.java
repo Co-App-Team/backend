@@ -12,6 +12,7 @@ import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +59,7 @@ public class ApplicationService {
    * @param sourceLink URL to job posting (nullable)
    * @param dateApplied Date application was submitted (non-null)
    * @param notes Additional notes (nullable)
-   * @param interviewDate Date of interview (nullable)
+   * @param interviewDateTime Date of interview (nullable)
    * @return ApplicationResponse DTO containing created application data
    * @throws CompanyNotFoundException If company doesn't exist
    * @throws UserNotFoundException If user doesn't exist
@@ -76,7 +77,7 @@ public class ApplicationService {
       String sourceLink,
       LocalDate dateApplied,
       String notes,
-      LocalDate interviewDate) {
+      LocalDateTime interviewDateTime) {
     if (this.companyRepository.findById(companyId).isEmpty()) {
       throw new CompanyNotFoundException();
     }
@@ -106,7 +107,7 @@ public class ApplicationService {
               .sourceLink(sourceLink)
               .dateApplied(dateApplied)
               .notes(notes)
-              .interviewDate(interviewDate)
+              .interviewDateTime(interviewDateTime)
               .build();
 
       ApplicationModel savedApplication = this.applicationRepository.save(applicationModel);
@@ -132,7 +133,7 @@ public class ApplicationService {
    * @param newSourceLink Updated source link (nullable)
    * @param newDateApplied Updated date applied (nullable)
    * @param newNotes Updated notes (nullable)
-   * @param newInterviewDate Updated interview date (nullable)
+   * @param newInterviewDateTime Updated interview date (nullable)
    * @return ApplicationResponse DTO containing updated application data
    * @throws ApplicationNotFoundException If application doesn't exist
    * @throws UnauthorizedApplicationAccessException If user doesn't own application
@@ -151,7 +152,7 @@ public class ApplicationService {
       String newSourceLink,
       LocalDate newDateApplied,
       String newNotes,
-      LocalDate newInterviewDate) {
+      LocalDateTime newInterviewDateTime) {
 
     ApplicationModel existingApp =
         this.applicationRepository
@@ -174,7 +175,7 @@ public class ApplicationService {
     boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
     boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
     boolean interviewDateChanged =
-        !Objects.equals(existingApp.getInterviewDate(), newInterviewDate);
+        !Objects.equals(existingApp.getInterviewDateTime(), newInterviewDateTime);
 
     if (!companyChanged
         && !titleChanged
@@ -206,7 +207,7 @@ public class ApplicationService {
     existingApp.setSourceLink(newSourceLink);
     existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
-    existingApp.setInterviewDate(newInterviewDate);
+    existingApp.setInterviewDateTime(newInterviewDateTime);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);
     return ApplicationResponse.fromModel(updatedApp);
@@ -361,8 +362,8 @@ public class ApplicationService {
   /**
    * Retrieves a list of applications for a user that are currently in the interview stage.
    *
-   * <p>Filters applications where {@code interviewDate} exists. If both startDate and endDate are
-   * provided, results are further filtered to include only interviews within that specific date
+   * <p>Filters applications where {@code interviewDateTime} exists. If both startDate and endDate
+   * are provided, results are further filtered to include only interviews within that specific date
    * range.
    *
    * @param userId The ID of the user whose applications are being retrieved
@@ -373,7 +374,7 @@ public class ApplicationService {
    */
   public List<ApplicationResponse> getInterviewApplications(
       String userId, LocalDate startDate, LocalDate endDate) {
-    Criteria criteria = Criteria.where("userId").is(userId).and("interviewDate").exists(true);
+    Criteria criteria = Criteria.where("userId").is(userId).and("interviewDateTime").exists(true);
 
     if (startDate != null && endDate != null) {
       criteria.gte(startDate).lte(endDate);

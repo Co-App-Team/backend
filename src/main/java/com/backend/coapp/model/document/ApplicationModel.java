@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.CreatedDate;
@@ -75,5 +76,5 @@ public class ApplicationModel {
           ("Notes cannot exceed " + ApplicationConstants.MAX_JOB_NOTES_LENGTH + " characters"))
   private String notes;
 
-  private LocalDate interviewDate;
+  private LocalDateTime interviewDateTime;
 }
