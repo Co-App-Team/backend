@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.genai.ConcurrencyException;
+import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
+import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserGenAIUsageModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserGenAIUsageRepository;
@@ -90,7 +93,7 @@ public class GenAIUsageManagementServiceUnitTest {
     when(mockUserRepository.findUserModelById(USER_ID)).thenReturn(null);
 
     assertThrows(
-        UserNotExistException.class,
+        UserNotFoundException.class,
         () -> genAIUsageManagementService.checkAndIncrementUsage(USER_ID));
   }
 

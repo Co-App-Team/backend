@@ -4,7 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.ApplicationNotFoundException;
+import com.backend.coapp.exception.application.ApplicationNotOwnedException;
+import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
+import com.backend.coapp.exception.genai.GenAIServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;

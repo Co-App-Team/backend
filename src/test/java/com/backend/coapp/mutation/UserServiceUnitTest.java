@@ -6,7 +6,11 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotOwnedException;
+import com.backend.coapp.exception.global.*;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.document.UserModel;
@@ -202,7 +206,7 @@ public class UserServiceUnitTest {
     when(mockUserRepository.findUserModelById("999")).thenReturn(null);
 
     assertThrows(
-        UserNotExistException.class, () -> userService.getUserInformationFromUserID("999"));
+        UserNotFoundException.class, () -> userService.getUserInformationFromUserID("999"));
   }
 
   @Test

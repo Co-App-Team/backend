@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.EmailInvalidAddressException;
-import com.backend.coapp.exception.EmailServiceException;
+import com.backend.coapp.exception.auth.EmailInvalidAddressException;
+import com.backend.coapp.exception.auth.EmailServiceException;
 import com.backend.coapp.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
