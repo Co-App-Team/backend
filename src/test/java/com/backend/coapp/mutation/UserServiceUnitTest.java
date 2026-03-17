@@ -29,7 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class UserServiceUnitTest {
+class UserServiceUnitTest {
 
   private UserService userService;
   private UserRepository mockUserRepository;

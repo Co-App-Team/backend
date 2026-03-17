@@ -27,7 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class CompanyServiceUnitTest {
+class CompanyServiceUnitTest {
 
   private CompanyService companyService;
   private CompanyRepository mockCompanyRepository;

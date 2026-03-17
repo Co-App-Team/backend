@@ -21,7 +21,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.dao.OptimisticLockingFailureException;
 
-public class GenAIUsageManagementServiceUnitTest {
+class GenAIUsageManagementServiceUnitTest {
 
   private GenAIUsageManagementService genAIUsageManagementService;
   private UserGenAIUsageRepository mockUserGenAIUsageRepository;

@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class GenAIResumeAdvisorServiceUnitTest {
+class GenAIResumeAdvisorServiceUnitTest {
 
   private GenAIResumeAdvisorService genAIResumeAdvisorService;
   private GenAIUsageManagementService mockUsageManagementService;

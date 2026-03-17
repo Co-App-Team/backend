@@ -29,7 +29,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.util.ReflectionTestUtils;
 
-public class ApplicationServiceUnitTest {
+class ApplicationServiceUnitTest {
 
   private ApplicationService applicationService;
 

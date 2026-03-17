@@ -15,7 +15,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-public class EmailServiceUnitTest {
+class EmailServiceUnitTest {
 
   private EmailService emailService;
   private JavaMailSender mockMailSender;

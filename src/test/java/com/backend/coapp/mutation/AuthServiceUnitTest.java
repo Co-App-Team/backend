@@ -22,7 +22,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class AuthServiceUnitTest {
+class AuthServiceUnitTest {
 
   private AuthService authService;
   private UserRepository mockUserRepo;
