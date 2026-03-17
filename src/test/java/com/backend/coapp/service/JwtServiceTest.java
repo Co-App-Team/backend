@@ -358,4 +358,12 @@ public class JwtServiceTest {
   public void getExpirationDurationInMilliseconds_expectCorrectExpirationDuration() {
     assertEquals(EXPIRATION_TIME, this.jwtService.getExpirationDurationInMilliseconds());
   }
+
+  // Verifies that validateUserDetail is called in isTokenValid before token parsing.
+  // Added to kill the mutation "removed call to validateUserDetail"
+  // without this test, passing null userDetails would not be caught before
+  @Test
+  public void isTokenValid_whenNullUserDetails_expectException() {
+    assertThrows(JwtServiceFailException.class, () -> jwtService.isTokenValid(validToken, null));
+  }
 }
