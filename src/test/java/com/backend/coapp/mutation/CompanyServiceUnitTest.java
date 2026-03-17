@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.util.ReflectionTestUtils;
 
+/* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
 class CompanyServiceUnitTest {
 
   private CompanyService companyService;

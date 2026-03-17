@@ -28,6 +28,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.test.util.ReflectionTestUtils;
 
+/* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
 class GenAIResumeAdvisorServiceUnitTest {
 
   private GenAIResumeAdvisorService genAIResumeAdvisorService;

@@ -29,6 +29,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+/* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
 class UserServiceUnitTest {
 
   private UserService userService;

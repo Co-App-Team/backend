@@ -23,6 +23,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.dao.OptimisticLockingFailureException;
 
+/* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
 class GenAIUsageManagementServiceUnitTest {
 
   private GenAIUsageManagementService genAIUsageManagementService;

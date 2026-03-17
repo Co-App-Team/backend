@@ -19,6 +19,7 @@ import org.springframework.mail.MailSendException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+/* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
 class EmailServiceUnitTest {
 
   private EmailService emailService;

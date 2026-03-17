@@ -10,6 +10,7 @@ import com.backend.coapp.repository.UserRepository;
 import com.backend.coapp.service.AuthService;
 import com.backend.coapp.service.EmailService;
 import com.backend.coapp.service.JwtService;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +22,9 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
+/* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
 class AuthServiceUnitTest {
 
   private AuthService authService;
@@ -417,5 +420,24 @@ class AuthServiceUnitTest {
     assertThrows(
         AuthenticationServiceException.class,
         () -> authService.login("fooActivated@mail.com", encodedPassword));
+  }
+
+  @Test
+  void createNewUser_whenNewEmail_expectVerificationCodeUsesFullRange() {
+    Random mockRandom = mock(Random.class);
+    when(mockRandom.nextInt(anyInt())).thenAnswer(i -> i.getArgument(0, Integer.class) - 1);
+    ReflectionTestUtils.setField(authService, "randomGenerator", mockRandom);
+
+    when(mockUserRepo.findUserModelByEmail("newUser@mail.com")).thenReturn(null);
+    when(mockPasswordEncoder.encode(anyString())).thenReturn("encodedPassword");
+    when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    authService.createNewUser("newUser@mail.com", "newPassword", "user", "new");
+
+    ArgumentCaptor<UserModel> captor = ArgumentCaptor.forClass(UserModel.class);
+    verify(mockUserRepo).save(captor.capture());
+
+    int expectedMaxCode = (int) Math.pow(10, AuthService.NUMS_VERIFICATION_CODE) - 1; // 999999
+    assertEquals(expectedMaxCode, captor.getValue().getVerificationCode());
   }
 }
