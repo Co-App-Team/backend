@@ -4,7 +4,7 @@ import com.backend.coapp.dto.request.UpdatePasswordWithOldPasswordRequest;
 import com.backend.coapp.dto.request.UserExperienceRequest;
 import com.backend.coapp.dto.response.UserExperienceResponse;
 import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.service.UserService;

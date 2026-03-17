@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.GenAIServiceException;
-import com.backend.coapp.exception.OverCharacterLimitException;
+import com.backend.coapp.exception.genai.GenAIServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.util.GenAIConstants;
 import com.google.genai.Client;
 import com.google.genai.Models;
@@ -14,9 +14,12 @@ import com.google.genai.types.GenerateContentResponse;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
 
-public class GeminiGenAIServiceTest {
+class GeminiGenAIServiceTest {
 
   private Client geminiClient;
   private Models models;
@@ -27,7 +30,7 @@ public class GeminiGenAIServiceTest {
   private final String VALID_RESPONSE = "Spring Boot is a framework...";
 
   @BeforeEach
-  public void setUp() throws Exception {
+  void setUp() throws Exception {
     geminiClient = Mockito.mock(Client.class);
     models = Mockito.mock(Models.class);
 
@@ -43,7 +46,7 @@ public class GeminiGenAIServiceTest {
   }
 
   @Test
-  public void generateResponse_whenValidPrompt_expectReturnResponse() throws Exception {
+  void generateResponse_whenValidPrompt_expectReturnResponse() throws Exception {
     GenerateContentResponse mockResponse = Mockito.mock(GenerateContentResponse.class);
     when(mockResponse.text()).thenReturn(VALID_RESPONSE);
     when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull())).thenReturn(mockResponse);
@@ -54,30 +57,17 @@ public class GeminiGenAIServiceTest {
     verify(models, times(1)).generateContent(MODEL, VALID_PROMPT, null);
   }
 
-  @Test
-  public void generateResponse_whenPromptIsNull_expectIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse(null));
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void generateResponse_whenPromptIsInvalid_expectIllegalArgumentException(String prompt) {
+    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse(prompt));
 
     verifyNoInteractions(models);
   }
 
   @Test
-  public void generateResponse_whenPromptIsBlank_expectIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse("   "));
-
-    verifyNoInteractions(models);
-  }
-
-  @Test
-  public void generateResponse_whenPromptIsEmpty_expectIllegalArgumentException() {
-    assertThrows(IllegalArgumentException.class, () -> geminiGenAIService.generateResponse(""));
-
-    verifyNoInteractions(models);
-  }
-
-  @Test
-  public void generateResponse_whenGeminiClientThrows_expectGenAIServiceException()
-      throws Exception {
+  void generateResponse_whenGeminiClientThrows_expectGenAIServiceException() {
     when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
         .thenThrow(new RuntimeException("Gemini API failed"));
 
@@ -89,7 +79,7 @@ public class GeminiGenAIServiceTest {
   }
 
   @Test
-  public void generateResponse_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
+  void generateResponse_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
     String oversizedPrompt = "a".repeat(GenAIConstants.MAX_TOTAL_CHARACTERS + 1);
 
     OverCharacterLimitException ex =

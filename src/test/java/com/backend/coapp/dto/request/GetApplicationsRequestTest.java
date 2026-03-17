@@ -2,17 +2,17 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /* these tests were written with the help of Claude Sonnet 4.6 and revised by Eric Hodgson */
-public class GetApplicationsRequestTest {
+class GetApplicationsRequestTest {
 
   @Test
-  public void builder_expectInitValues() {
+  void builder_expectInitValues() {
     GetApplicationsRequest request =
         GetApplicationsRequest.builder()
             .search("niche")
@@ -32,7 +32,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenAllNull_expectDefaults() {
+  void validateRequest_whenAllNull_expectDefaults() {
     GetApplicationsRequest request = new GetApplicationsRequest();
 
     request.validateRequest();
@@ -45,7 +45,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenAllValid_expectNoChange() {
+  void validateRequest_whenAllValid_expectNoChange() {
     GetApplicationsRequest request =
         GetApplicationsRequest.builder()
             .status("APPLIED")
@@ -65,7 +65,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStatusNull_expectParsedStatusesNull() {
+  void validateRequest_whenStatusNull_expectParsedStatusesNull() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus(null);
 
@@ -75,7 +75,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStatusBlank_expectParsedStatusesNull() {
+  void validateRequest_whenStatusBlank_expectParsedStatusesNull() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("   ");
 
@@ -85,7 +85,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStatusSingleValid_expectParsedStatuses() {
+  void validateRequest_whenStatusSingleValid_expectParsedStatuses() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("INTERVIEWING");
 
@@ -95,7 +95,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStatusMultipleValid_expectAllParsed() {
+  void validateRequest_whenStatusMultipleValid_expectAllParsed() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("APPLIED,REJECTED,OFFER_RECEIVED");
 
@@ -110,7 +110,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStatusMultipleWithSpaces_expectTrimmedAndParsed() {
+  void validateRequest_whenStatusMultipleWithSpaces_expectTrimmedAndParsed() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("APPLIED , REJECTED");
 
@@ -122,7 +122,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStatusInvalid_expectException() {
+  void validateRequest_whenStatusInvalid_expectException() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setStatus("INVALID_STATUS");
 
@@ -130,7 +130,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortByNull_expectDefaultSortBy() {
+  void validateRequest_whenSortByNull_expectDefaultSortBy() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy(null);
 
@@ -140,7 +140,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortByBlank_expectDefaultSortBy() {
+  void validateRequest_whenSortByBlank_expectDefaultSortBy() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("   ");
 
@@ -150,7 +150,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortByValid_expectUnchanged() {
+  void validateRequest_whenSortByValid_expectUnchanged() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("dateApplied");
 
@@ -160,7 +160,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortByInvalid_expectException() {
+  void validateRequest_whenSortByInvalid_expectException() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortBy("invalidField");
 
@@ -168,7 +168,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortOrderNull_expectDefaultSortOrder() {
+  void validateRequest_whenSortOrderNull_expectDefaultSortOrder() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder(null);
 
@@ -178,7 +178,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortOrderBlank_expectDefaultSortOrder() {
+  void validateRequest_whenSortOrderBlank_expectDefaultSortOrder() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("   ");
 
@@ -188,7 +188,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortOrderDesc_expectUnchanged() {
+  void validateRequest_whenSortOrderDesc_expectUnchanged() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("desc");
 
@@ -198,7 +198,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortOrderUpperCase_expectNormalisedToLower() {
+  void validateRequest_whenSortOrderUpperCase_expectNormalisedToLower() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("ASC");
 
@@ -208,7 +208,7 @@ public class GetApplicationsRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSortOrderInvalid_expectException() {
+  void validateRequest_whenSortOrderInvalid_expectException() {
     GetApplicationsRequest request = new GetApplicationsRequest();
     request.setSortOrder("sideways");
 

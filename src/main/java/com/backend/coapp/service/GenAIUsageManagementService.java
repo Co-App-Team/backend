@@ -1,9 +1,9 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.ConcurrencyException;
-import com.backend.coapp.exception.GenAIQuotaExceededException;
-import com.backend.coapp.exception.GenAIUsageManagementServiceException;
-import com.backend.coapp.exception.UserNotExistException;
+import com.backend.coapp.exception.genai.ConcurrencyException;
+import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
+import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserGenAIUsageModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserGenAIUsageRepository;
@@ -34,13 +34,13 @@ public class GenAIUsageManagementService {
    *
    * @param userId ID of user request using GenAI
    * @throws GenAIUsageManagementServiceException when something goes wrong (Internal)
-   * @throws UserNotExistException when the ID of the user doesn't exist in the database
+   * @throws UserNotFoundException when the ID of the user doesn't exist in the database
    * @throws GenAIQuotaExceededException when the user exceeds GenAI usage limit
    * @throws ConcurrencyException when the user request at the same time
    */
   public void checkAndIncrementUsage(String userId)
       throws GenAIUsageManagementServiceException,
-          UserNotExistException,
+          UserNotFoundException,
           GenAIQuotaExceededException,
           ConcurrencyException {
     try {
@@ -50,7 +50,7 @@ public class GenAIUsageManagementService {
       if (userUsageRecord == null) {
         UserModel user = this.userRepository.findUserModelById(userId);
         if (user == null) {
-          throw new UserNotExistException();
+          throw new UserNotFoundException();
         }
 
         userUsageRecord =
@@ -71,7 +71,7 @@ public class GenAIUsageManagementService {
 
       userUsageRecord.setRequestCount(userUsageRecord.getRequestCount() + 1);
       userGenAIUsageRepository.save(userUsageRecord);
-    } catch (UserNotExistException | GenAIQuotaExceededException e) {
+    } catch (UserNotFoundException | GenAIQuotaExceededException e) {
       throw e;
     } catch (OptimisticLockingFailureException e) {
       throw new ConcurrencyException("Another request is in progress, please try again.");
@@ -107,5 +107,32 @@ public class GenAIUsageManagementService {
     } catch (Exception e) {
       throw new GenAIUsageManagementServiceException(e.getMessage());
     }
+  }
+
+  /**
+   * Given the user, get the number of request left for a month
+   *
+   * @param userId ID of the user
+   * @return number of request left
+   * @throws GenAIUsageManagementServiceException when database operation fails.
+   */
+  public int getNumberOfRequestLeft(String userId) throws GenAIUsageManagementServiceException {
+    int numberOfRequestLeft = GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT;
+    try {
+      UserGenAIUsageModel userUsageRecord =
+          this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(userId);
+
+      if (userUsageRecord != null) {
+        numberOfRequestLeft = userUsageRecord.getMonthlyLimit() - userUsageRecord.getRequestCount();
+      }
+
+      if (numberOfRequestLeft < 0) {
+        numberOfRequestLeft = 0;
+      }
+
+    } catch (Exception e) {
+      throw new GenAIUsageManagementServiceException(e.getMessage());
+    }
+    return numberOfRequestLeft;
   }
 }

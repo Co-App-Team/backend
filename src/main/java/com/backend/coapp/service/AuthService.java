@@ -1,8 +1,9 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
+import java.security.SecureRandom;
 import java.util.Random;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,8 @@ public class AuthService {
   private final JwtService jwtService;
 
   private final PasswordEncoder passwordEncoder;
+
+  private final Random randomGenerator = new SecureRandom();
 
   @Autowired
   public AuthService(
@@ -136,7 +139,7 @@ public class AuthService {
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
     } else {
-      if (user.getVerified()) {
+      if (Boolean.TRUE.equals(user.getVerified())) {
         throw new AuthAccountAlreadyVerifyException();
       }
       int newVerifyCode = this.generateVerificationCode();
@@ -166,7 +169,7 @@ public class AuthService {
     UserModel user = this.userRepository.findUserModelByEmail(email);
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
-    } else if (!user.getVerified()) {
+    } else if (Boolean.FALSE.equals(user.getVerified())) {
       throw new AuthAccountNotYetActivatedException();
     }
     int newVerifyCode = this.generateVerificationCode();
@@ -200,7 +203,7 @@ public class AuthService {
     UserModel user = this.userRepository.findUserModelByEmail(email);
     if (user == null) {
       throw new AuthEmailNotRegisteredException();
-    } else if (!user.getVerified()) {
+    } else if (Boolean.FALSE.equals(user.getVerified())) {
       throw new AuthAccountNotYetActivatedException();
     }
 
@@ -243,12 +246,11 @@ public class AuthService {
       throw new AuthBadCredentialException();
     }
 
-    if (!user.getVerified()) {
+    if (Boolean.FALSE.equals(user.getVerified())) {
       throw new AuthAccountNotYetActivatedException();
     }
 
-    String token = this.jwtService.generateToken(user);
-    return token;
+    return this.jwtService.generateToken(user);
   }
 
   /**
@@ -266,10 +268,9 @@ public class AuthService {
    * @return int
    */
   private int generateVerificationCode() {
-    Random random = new Random();
     int lowerBound = (int) Math.pow(10, NUMS_VERIFICATION_CODE - 1);
     int upperRange = lowerBound * 9;
-    return lowerBound + random.nextInt(upperRange);
+    return lowerBound + this.randomGenerator.nextInt(upperRange);
   }
 
   /**

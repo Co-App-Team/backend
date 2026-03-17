@@ -1,6 +1,6 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import com.backend.coapp.util.UrlValidator;
@@ -30,6 +30,7 @@ public class CreateApplicationRequest implements IRequest {
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
+  private LocalDate interviewDate;
 
   private boolean isBlank(String value) {
     return value == null || value.trim().isEmpty();
@@ -79,6 +80,9 @@ public class CreateApplicationRequest implements IRequest {
     }
     if (sourceLink != null && !isBlank(sourceLink) && !UrlValidator.isValidUrl(sourceLink.trim())) {
       throw new InvalidRequestException("Source link is not a valid URL.");
+    }
+    if (interviewDate != null && interviewDate.isBefore(LocalDate.now())) {
+      throw new InvalidRequestException("Interview Date cannot be in the past.");
     }
   }
 }

@@ -4,7 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.ApplicationNotFoundException;
+import com.backend.coapp.exception.application.ApplicationNotOwnedException;
+import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
+import com.backend.coapp.exception.genai.GenAIServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserExperienceModel;
@@ -28,9 +32,10 @@ import org.testcontainers.containers.MongoDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 @SpringBootTest
 @Testcontainers
-public class GenAIResumeAdvisorServiceTest {
+class GenAIResumeAdvisorServiceTest {
 
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
@@ -54,7 +59,7 @@ public class GenAIResumeAdvisorServiceTest {
   private final String VALID_RESPONSE = "Here are some improvements...";
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     applicationRepository.deleteAll();
     userExperienceRepository.deleteAll();
     userRepository.deleteAll();
@@ -95,7 +100,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void constructor_expectInitCorrectInstance() {
+  void constructor_expectInitCorrectInstance() {
     assertEquals(geminiGenAIService, genAIResumeAdvisorService.getGenAIService());
     assertEquals(
         genAIUsageManagementService, genAIResumeAdvisorService.getGenAIUsageManagementService());
@@ -104,7 +109,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptNoApplicationNoExperience_expectReturnResponse() {
+  void getAdvice_whenValidPromptNoApplicationNoExperience_expectReturnResponse() {
     when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
     String result = genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT);
@@ -120,7 +125,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptWithApplicationNoExperience_expectReturnResponse() {
+  void getAdvice_whenValidPromptWithApplicationNoExperience_expectReturnResponse() {
     when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
     String result =
@@ -138,7 +143,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
+  void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
     ApplicationModel fooApplicationNoDescription =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -166,19 +171,20 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
+  void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
     String oversizedPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS + 1);
+    String fooUserId = fooUser.getId();
 
     assertThrows(
         OverCharacterLimitException.class,
-        () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, oversizedPrompt));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, null, oversizedPrompt));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
   }
 
   @Test
-  public void getAdvice_whenPromptExactlyAtLimit_expectNoException() {
+  void getAdvice_whenPromptExactlyAtLimit_expectNoException() {
     String exactPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS);
     when(geminiGenAIService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
@@ -187,31 +193,30 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
+  void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
+    String fooUserId = fooUser.getId();
     assertThrows(
         ApplicationNotFoundException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(fooUser.getId(), "nonExistentAppId", VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, "nonExistentAppId", VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
   }
 
   @Test
-  public void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
+  void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
+    String fooApplicationId = fooApplication.getId();
     assertThrows(
         ApplicationNotOwnedException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(
-                "anotherUserId", fooApplication.getId(), VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice("anotherUserId", fooApplicationId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
   }
 
   @Test
-  public void
-      getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
+
     ApplicationModel longDescApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -221,13 +226,12 @@ public class GenAIResumeAdvisorServiceTest {
                 .jobDescription("a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1))
                 .status(ApplicationStatus.APPLIED)
                 .build());
-
+    String fooUserId = fooUser.getId();
+    String longDescAppId = longDescApp.getId();
     OverCharacterLimitException ex =
         assertThrows(
             OverCharacterLimitException.class,
-            () ->
-                genAIResumeAdvisorService.getAdvice(
-                    fooUser.getId(), longDescApp.getId(), VALID_PROMPT));
+            () -> genAIResumeAdvisorService.getAdvice(fooUserId, longDescAppId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
@@ -238,7 +242,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobTitleExceedsLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenApplicationJobTitleExceedsLimit_expectOverCharacterLimitException() {
     ApplicationModel longTitleApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -248,19 +252,18 @@ public class GenAIResumeAdvisorServiceTest {
                 .jobDescription("Normal job description")
                 .status(ApplicationStatus.APPLIED)
                 .build());
-
+    String fooUserId = fooUser.getId();
+    String longTitleAppId = longTitleApp.getId();
     assertThrows(
         OverCharacterLimitException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(
-                fooUser.getId(), longTitleApp.getId(), VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, longTitleAppId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
   }
 
   @Test
-  public void getAdvice_whenApplicationJobDescriptionExactlyAtLimit_expectNoException() {
+  void getAdvice_whenApplicationJobDescriptionExactlyAtLimit_expectNoException() {
     ApplicationModel exactDescApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -279,7 +282,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobTitleExactlyAtLimit_expectNoException() {
+  void getAdvice_whenApplicationJobTitleExactlyAtLimit_expectNoException() {
     ApplicationModel exactTitleApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -298,8 +301,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void
-      getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
     ApplicationModel bothExceedApp =
         applicationRepository.save(
             ApplicationModel.builder()
@@ -309,19 +311,18 @@ public class GenAIResumeAdvisorServiceTest {
                 .jobDescription("a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1))
                 .status(ApplicationStatus.APPLIED)
                 .build());
-
+    String foouserId = fooUser.getId();
+    String bothExceedAppId = bothExceedApp.getId();
     assertThrows(
         OverCharacterLimitException.class,
-        () ->
-            genAIResumeAdvisorService.getAdvice(
-                fooUser.getId(), bothExceedApp.getId(), VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(foouserId, bothExceedAppId, VALID_PROMPT));
 
     verifyNoInteractions(genAIUsageManagementService);
     verifyNoInteractions(geminiGenAIService);
   }
 
   @Test
-  public void getAdvice_whenUserHasExperience_expectExperienceIncludedInPrompt() {
+  void getAdvice_whenUserHasExperience_expectExperienceIncludedInPrompt() {
     UserExperienceModel experience =
         new UserExperienceModel(
             fooUser.getId(),
@@ -345,32 +346,34 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenUsageCheckThrows_expectExceptionPropagated() {
+  void getAdvice_whenUsageCheckThrows_expectExceptionPropagated() {
     doThrow(new GenAIQuotaExceededException())
         .when(genAIUsageManagementService)
         .checkAndIncrementUsage(anyString());
 
+    String fooUserId = fooUser.getId();
+
     assertThrows(
         GenAIQuotaExceededException.class,
-        () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT));
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, null, VALID_PROMPT));
 
     verifyNoInteractions(geminiGenAIService);
   }
 
   @Test
-  public void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
+  void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
     when(geminiGenAIService.generateResponse(anyString()))
         .thenThrow(new GenAIServiceException("Gemini failed"));
-
+    String fooUserId = fooUser.getId();
     assertThrows(
         GenAIServiceException.class,
-        () -> genAIResumeAdvisorService.getAdvice(fooUser.getId(), null, VALID_PROMPT));
-    verify(genAIUsageManagementService, times(1)).checkAndIncrementUsage(fooUser.getId());
-    verify(genAIUsageManagementService, times(1)).decrementUsage(fooUser.getId());
+        () -> genAIResumeAdvisorService.getAdvice(fooUserId, null, VALID_PROMPT));
+    verify(genAIUsageManagementService, times(1)).checkAndIncrementUsage(fooUserId);
+    verify(genAIUsageManagementService, times(1)).decrementUsage(fooUserId);
   }
 
   @Test
-  public void getAdvice_whenMultipleExperiences_expectSortedByMostRecent() {
+  void getAdvice_whenMultipleExperiences_expectSortedByMostRecent() {
     UserExperienceModel firstExperience =
         new UserExperienceModel(
             fooUser.getId(),
@@ -408,7 +411,7 @@ public class GenAIResumeAdvisorServiceTest {
   }
 
   @Test
-  public void getAdvice_whenMultipleExperiencesWithOnExceedChar_expectSortedByMostRecent() {
+  void getAdvice_whenMultipleExperiencesWithOnExceedChar_expectSortedByMostRecent() {
     UserExperienceModel firstExperience =
         new UserExperienceModel(
             fooUser.getId(),

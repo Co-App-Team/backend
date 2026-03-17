@@ -1,6 +1,6 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.util.ReviewConstants;
 import com.backend.coapp.util.WorkTermValidator;
 import lombok.AllArgsConstructor;
@@ -41,10 +41,9 @@ public class UpdateReviewRequest implements IRequest {
   }
 
   private void validateRatingIfProvided() throws InvalidRequestException {
-    if (this.rating != null) {
-      if (this.rating < ReviewConstants.MIN_RATING || this.rating > ReviewConstants.MAX_RATING) {
-        throw new InvalidRequestException("Rating must be between 1 and 5.");
-      }
+    if (this.rating != null
+        && (this.rating < ReviewConstants.MIN_RATING || this.rating > ReviewConstants.MAX_RATING)) {
+      throw new InvalidRequestException("Rating must be between 1 and 5.");
     }
   }
 

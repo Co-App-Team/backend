@@ -7,7 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.backend.coapp.dto.request.*;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.AuthErrorCode;
 import com.backend.coapp.model.enumeration.RequestErrorCode;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
@@ -26,7 +27,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @WebMvcTest(AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class AuthControllerTest {
+class AuthControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @Autowired private ObjectMapper objectMapper;
@@ -57,12 +58,12 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstances() {
+  void constructor_expectSameInitInstances() {
     assertEquals(this.authService, this.authController.getAuthService());
   }
 
   @Test
-  public void createAccount_whenInvalidRequest_expect400Response() throws Exception {
+  void createAccount_whenInvalidRequest_expect400Response() throws Exception {
     UserRegisterRequest request = mock(UserRegisterRequest.class);
     doThrow(new InvalidRequestException()).when(request).validateRequest();
     UserRegisterRequest invalidRequest = new UserRegisterRequest(null, null, null, null);
@@ -81,7 +82,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void createAccount_whenEmailInvalidAddress_expect400Response() throws Exception {
+  void createAccount_whenEmailInvalidAddress_expect400Response() throws Exception {
     doThrow(new EmailInvalidAddressException())
         .when(this.authService)
         .createNewUser(anyString(), anyString(), anyString(), anyString());
@@ -104,7 +105,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void createAccount_whenEmailServiceFail_expect500Response() throws Exception {
+  void createAccount_whenEmailServiceFail_expect500Response() throws Exception {
     doThrow(new EmailServiceException())
         .when(this.authService)
         .createNewUser(anyString(), anyString(), anyString(), anyString());
@@ -127,7 +128,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void createAccount_whenEmailAlreadyUsed_expect409Response() throws Exception {
+  void createAccount_whenEmailAlreadyUsed_expect409Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new AuthEmailAlreadyUsedException(errorMessage))
         .when(this.authService)
@@ -151,7 +152,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void createAccount_whenUnknowFailure_expect500Response() throws Exception {
+  void createAccount_whenUnknowFailure_expect500Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new RuntimeException(errorMessage))
         .when(this.authService)
@@ -175,7 +176,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void createAccount_whenEverythingSuccess_expect200Response() throws Exception {
+  void createAccount_whenEverythingSuccess_expect200Response() throws Exception {
 
     doNothing().when(authService).createNewUser(anyString(), anyString(), anyString(), anyString());
 
@@ -195,7 +196,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void verifyEmail_whenInvalidRequest_expect400Response() throws Exception {
+  void verifyEmail_whenInvalidRequest_expect400Response() throws Exception {
     VerifyEmailRequest invalidRequest = new VerifyEmailRequest(null, null);
     mockMvc
         .perform(
@@ -210,7 +211,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void verifyEmail_whenAccountAlreadyVerified_expect405Response() throws Exception {
+  void verifyEmail_whenAccountAlreadyVerified_expect405Response() throws Exception {
     doThrow(new AuthAccountAlreadyVerifyException())
         .when(this.authService)
         .verifyUser(anyString(), anyInt());
@@ -228,7 +229,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void verifyEmail_whenEmailNotRegistered_expect400Response() throws Exception {
+  void verifyEmail_whenEmailNotRegistered_expect400Response() throws Exception {
     String errorMessage = "foo message.";
     doThrow(new AuthEmailNotRegisteredException(errorMessage))
         .when(this.authService)
@@ -248,7 +249,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void verifyEmail_whenUnknowFailure_expect500Response() throws Exception {
+  void verifyEmail_whenUnknowFailure_expect500Response() throws Exception {
     doThrow(new RuntimeException()).when(this.authService).verifyUser(anyString(), anyInt());
 
     mockMvc
@@ -265,7 +266,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void verifyEmail_whenCorrectCode_expect200Response() throws Exception {
+  void verifyEmail_whenCorrectCode_expect200Response() throws Exception {
     doNothing().when(this.authService).verifyUser(anyString(), anyInt());
     mockMvc
         .perform(
@@ -280,7 +281,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void verifyEmail_whenIncorrectCode_expect400Response() throws Exception {
+  void verifyEmail_whenIncorrectCode_expect400Response() throws Exception {
     doThrow(new IncorrectCodeException()).when(this.authService).verifyUser(anyString(), anyInt());
     mockMvc
         .perform(
@@ -296,7 +297,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void resetVerificationCode_whenInvalidRequest_expect400Response() throws Exception {
+  void resetVerificationCode_whenInvalidRequest_expect400Response() throws Exception {
     ResetVerificationRequest invalidRequest = new ResetVerificationRequest(null);
     mockMvc
         .perform(
@@ -311,7 +312,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void resetVerificationCode_whenEmailNotRegistered_expect400Response() throws Exception {
+  void resetVerificationCode_whenEmailNotRegistered_expect400Response() throws Exception {
     doThrow(new AuthEmailNotRegisteredException())
         .when(this.authService)
         .resetVerifyCode(anyString());
@@ -329,7 +330,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void resetVerificationCode_whenEmailServiceFail_expect500Response() throws Exception {
+  void resetVerificationCode_whenEmailServiceFail_expect500Response() throws Exception {
     doThrow(new EmailServiceException()).when(this.authService).resetVerifyCode(anyString());
 
     mockMvc
@@ -345,7 +346,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void resetVerificationCode_whenUnknowFailure_expect500Response() throws Exception {
+  void resetVerificationCode_whenUnknowFailure_expect500Response() throws Exception {
     doThrow(new RuntimeException()).when(this.authService).resetVerifyCode(anyString());
 
     mockMvc
@@ -375,7 +376,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void forgotPassword_whenAccountNotActivatedYet_expect401Response() throws Exception {
+  void forgotPassword_whenAccountNotActivatedYet_expect401Response() throws Exception {
     doThrow(new AuthAccountNotYetActivatedException())
         .when(this.authService)
         .forgotPassword(anyString());
@@ -408,7 +409,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void updatePassword_whenCorrectCode_expect200Response() throws Exception {
+  void updatePassword_whenCorrectCode_expect200Response() throws Exception {
     doNothing().when(this.authService).updatePassword(anyString(), anyInt(), anyString());
     mockMvc
         .perform(
@@ -425,7 +426,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void updatePassword_whenIncorrectCode_expect400Response() throws Exception {
+  void updatePassword_whenIncorrectCode_expect400Response() throws Exception {
     doThrow(new IncorrectCodeException())
         .when(this.authService)
         .updatePassword(anyString(), anyInt(), anyString());
@@ -445,7 +446,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void login_whenBadCredential_expect401Response() throws Exception {
+  void login_whenBadCredential_expect401Response() throws Exception {
     doThrow(new AuthBadCredentialException())
         .when(this.authService)
         .login(anyString(), anyString());
@@ -463,7 +464,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void login_whenAccountNotYetActivated_expect401Response() throws Exception {
+  void login_whenAccountNotYetActivated_expect401Response() throws Exception {
     doThrow(new AuthAccountNotYetActivatedException())
         .when(this.authService)
         .login(anyString(), anyString());
@@ -481,7 +482,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void login_whenJwtServiceFail_expect500Response() throws Exception {
+  void login_whenJwtServiceFail_expect500Response() throws Exception {
     doThrow(new JwtServiceFailException("foo message"))
         .when(this.authService)
         .login(anyString(), anyString());
@@ -499,7 +500,7 @@ public class AuthControllerTest {
   }
 
   @Test
-  public void login_whenAuthFail_expect500Response() throws Exception {
+  void login_whenAuthFail_expect500Response() throws Exception {
     doThrow(
             new LockedException(
                 "foo")) // Since we don't support lock user account yet. This should be internal

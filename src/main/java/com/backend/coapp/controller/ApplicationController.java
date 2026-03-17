@@ -56,7 +56,8 @@ public class ApplicationController {
             applicationRequest.getNumPositions(),
             applicationRequest.getSourceLink(),
             applicationRequest.getDateApplied(),
-            applicationRequest.getNotes());
+            applicationRequest.getNotes(),
+            applicationRequest.getInterviewDate());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(application.toMap());
   }
@@ -92,7 +93,8 @@ public class ApplicationController {
             applicationRequest.getNumPositions(),
             applicationRequest.getSourceLink(),
             applicationRequest.getDateApplied(),
-            applicationRequest.getNotes());
+            applicationRequest.getNotes(),
+            applicationRequest.getInterviewDate());
 
     return ResponseEntity.ok(application.toMap());
   }

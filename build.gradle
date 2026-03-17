@@ -5,6 +5,7 @@ plugins {
 	id 'com.diffplug.spotless' version '6.25.0'
 	id 'jacoco'
 	id 'info.solidsoft.pitest' version '1.19.0-rc.2'
+	id "org.sonarqube" version "7.2.3.7755"
 }
 
 group = 'com.backend'
@@ -88,3 +89,9 @@ pitest {
 	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED', '-XX:+EnableDynamicAgentLoading']
 }
 
+sonar {
+	properties {
+		property "sonar.projectKey", "Co-App-Team_backend"
+		property "sonar.organization", "co-app-team"
+	}
+}

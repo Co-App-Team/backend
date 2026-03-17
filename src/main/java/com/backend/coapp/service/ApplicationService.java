@@ -2,7 +2,9 @@ package com.backend.coapp.service;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.*;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
@@ -14,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -57,6 +58,7 @@ public class ApplicationService {
    * @param sourceLink URL to job posting (nullable)
    * @param dateApplied Date application was submitted (non-null)
    * @param notes Additional notes (nullable)
+   * @param interviewDate Date of interview (nullable)
    * @return ApplicationResponse DTO containing created application data
    * @throws CompanyNotFoundException If company doesn't exist
    * @throws UserNotFoundException If user doesn't exist
@@ -73,7 +75,8 @@ public class ApplicationService {
       Integer numPositions,
       String sourceLink,
       LocalDate dateApplied,
-      String notes) {
+      String notes,
+      LocalDate interviewDate) {
     if (this.companyRepository.findById(companyId).isEmpty()) {
       throw new CompanyNotFoundException();
     }
@@ -103,6 +106,7 @@ public class ApplicationService {
               .sourceLink(sourceLink)
               .dateApplied(dateApplied)
               .notes(notes)
+              .interviewDate(interviewDate)
               .build();
 
       ApplicationModel savedApplication = this.applicationRepository.save(applicationModel);
@@ -128,6 +132,7 @@ public class ApplicationService {
    * @param newSourceLink Updated source link (nullable)
    * @param newDateApplied Updated date applied (nullable)
    * @param newNotes Updated notes (nullable)
+   * @param newInterviewDate Updated interview date (nullable)
    * @return ApplicationResponse DTO containing updated application data
    * @throws ApplicationNotFoundException If application doesn't exist
    * @throws UnauthorizedApplicationAccessException If user doesn't own application
@@ -145,12 +150,13 @@ public class ApplicationService {
       Integer newNumPositions,
       String newSourceLink,
       LocalDate newDateApplied,
-      String newNotes) {
+      String newNotes,
+      LocalDate newInterviewDate) {
 
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -167,6 +173,8 @@ public class ApplicationService {
     boolean linkChanged = !Objects.equals(existingApp.getSourceLink(), newSourceLink);
     boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
     boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
+    boolean interviewDateChanged =
+        !Objects.equals(existingApp.getInterviewDate(), newInterviewDate);
 
     if (!companyChanged
         && !titleChanged
@@ -176,12 +184,17 @@ public class ApplicationService {
         && !notesChanged
         && !statusChanged
         && !deadlineChanged
-        && !positionsChanged) {
+        && !positionsChanged
+        && !interviewDateChanged) {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
     if (companyChanged && this.companyRepository.findById(newCompanyId).isEmpty()) {
       throw new CompanyNotFoundException();
+    }
+
+    if (statusChanged && newStatus == ApplicationStatus.APPLIED) {
+      newDateApplied = LocalDate.now();
     }
 
     existingApp.setCompanyId(newCompanyId);
@@ -193,6 +206,7 @@ public class ApplicationService {
     existingApp.setSourceLink(newSourceLink);
     existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
+    existingApp.setInterviewDate(newInterviewDate);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);
     return ApplicationResponse.fromModel(updatedApp);
@@ -210,7 +224,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -308,7 +322,7 @@ public class ApplicationService {
   private List<String> resolveCompanyIds(String search) {
     return this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
         .map(CompanyModel::getId)
-        .collect(Collectors.toList());
+        .toList();
   }
 
   /**

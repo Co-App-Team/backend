@@ -1,6 +1,17 @@
 package com.backend.coapp.handler;
 
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.application.*;
+import com.backend.coapp.exception.auth.*;
+import com.backend.coapp.exception.company.CompanyAlreadyExistsException;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.company.CompanyServiceFailException;
+import com.backend.coapp.exception.company.InvalidWebsiteException;
+import com.backend.coapp.exception.genai.*;
+import com.backend.coapp.exception.global.InvalidRequestException;
+import com.backend.coapp.exception.global.UserNotFoundException;
+import com.backend.coapp.exception.review.ReviewAlreadyExistsException;
+import com.backend.coapp.exception.review.ReviewNotFoundException;
+import com.backend.coapp.exception.review.ReviewServiceFailException;
 import com.backend.coapp.model.enumeration.*;
 import java.util.HashMap;
 import java.util.Map;
@@ -256,8 +267,8 @@ public class GlobalExceptionHandler {
                 "An unexpected error occurred while processing your review."));
   }
 
-  @ExceptionHandler(UserNotExistException.class)
-  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotExistException ex) {
+  @ExceptionHandler(UserNotFoundException.class)
+  public ResponseEntity<Map<String, Object>> handleUserNotExitException(UserNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(Map.of("error", UserErrorCode.USER_NOT_EXIST, "message", ex.getMessage()));
   }
@@ -284,6 +295,50 @@ public class GlobalExceptionHandler {
                 ApplicationErrorCode.NO_CHANGE_DETECTED_TO_UPDATE,
                 "message",
                 ex.getMessage()));
+  }
+
+  @ExceptionHandler(OverCharacterLimitException.class)
+  public ResponseEntity<Map<String, Object>> handleOverCharacterLimitException(
+      OverCharacterLimitException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(Map.of("error", GenAIErrorCode.OVER_LIMIT_CHARACTER, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ApplicationNotOwnedException.class)
+  public ResponseEntity<Map<String, Object>> handleApplicationNotOwnedException(
+      ApplicationNotOwnedException ex) {
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(
+            Map.of("error", ApplicationErrorCode.APPLICATION_NOT_OWN, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(GenAIQuotaExceededException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIQuotaExceededException(
+      GenAIQuotaExceededException ex) {
+    return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+        .body(
+            Map.of("error", GenAIErrorCode.OVER_LIMIT_CHATBOT_REQUEST, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(ConcurrencyException.class)
+  public ResponseEntity<Map<String, Object>> handleConcurrencyException(ConcurrencyException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT)
+        .body(
+            Map.of("error", GenAIErrorCode.OTHER_REQUEST_IN_PROGRESS, "message", ex.getMessage()));
+  }
+
+  @ExceptionHandler(GenAIUsageManagementServiceException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIUsageManagementServiceException(
+      GenAIUsageManagementServiceException ex) {
+    String errorMessage = "ERROR: Application Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "An unexpected error occurred while processing your request. Please try again later."));
   }
 
   @ExceptionHandler(ExperienceNotOwnedException.class)

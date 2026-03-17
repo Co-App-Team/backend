@@ -2,13 +2,13 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
-public class UserRegisterRequestTest {
+class UserRegisterRequestTest {
 
   @Test
-  public void getMethods_expectInitValues() {
+  void getMethods_expectInitValues() {
     UserRegisterRequest request = new UserRegisterRequest("foo@mail.com", "123", "foo", "woof");
 
     assertEquals("foo@mail.com", request.getEmail());
@@ -18,13 +18,13 @@ public class UserRegisterRequestTest {
   }
 
   @Test
-  public void validateRequest_whenValidRequest_expectNoException() {
+  void validateRequest_whenValidRequest_expectNoException() {
     UserRegisterRequest request = new UserRegisterRequest("foo@mail.com", "123", "foo", "woof");
     assertDoesNotThrow(request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenInvalidEmail_expectException() {
+  void validateRequest_whenInvalidEmail_expectException() {
     UserRegisterRequest requestEmailNull = new UserRegisterRequest(null, "123", "foo", "woof");
     assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
 
@@ -33,7 +33,7 @@ public class UserRegisterRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidPassword_expectException() {
+  void validateRequest_whenInvalidPassword_expectException() {
     UserRegisterRequest requestPasswordNull =
         new UserRegisterRequest("foo@mail.com", null, "foo", "woof");
     assertThrows(InvalidRequestException.class, requestPasswordNull::validateRequest);
@@ -44,7 +44,7 @@ public class UserRegisterRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidFirstname_expectException() {
+  void validateRequest_whenInvalidFirstname_expectException() {
     UserRegisterRequest requestFirstnameNull =
         new UserRegisterRequest("foo@mail.com", "123", null, "woof");
     assertThrows(InvalidRequestException.class, requestFirstnameNull::validateRequest);
@@ -55,7 +55,7 @@ public class UserRegisterRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidLastname_expectException() {
+  void validateRequest_whenInvalidLastname_expectException() {
     UserRegisterRequest requestLastnameNull =
         new UserRegisterRequest("foo@mail.com", "123", "foo", null);
     assertThrows(InvalidRequestException.class, requestLastnameNull::validateRequest);

@@ -1,7 +1,7 @@
 package com.backend.coapp.service.genAI;
 
-import com.backend.coapp.exception.GenAIServiceException;
-import com.backend.coapp.exception.OverCharacterLimitException;
+import com.backend.coapp.exception.genai.GenAIServiceException;
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.util.GenAIConstants;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;

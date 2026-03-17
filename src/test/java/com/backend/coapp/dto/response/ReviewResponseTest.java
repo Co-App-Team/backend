@@ -7,10 +7,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /* these tests were written with the help of Claude Sonnet 4.5 and revised by Eric Hodgson */
-public class ReviewResponseTest {
+class ReviewResponseTest {
 
   @Test
-  public void getterMethod_expectInitValues() {
+  void getterMethod_expectInitValues() {
     ReviewResponse response =
         new ReviewResponse(
             "1", "comp1", "user1", "John Doe", 5, "Great place", "Developer", "Summer", 2024);
@@ -27,7 +27,7 @@ public class ReviewResponseTest {
   }
 
   @Test
-  public void toMap_expectMapWithInitValues() {
+  void toMap_expectMapWithInitValues() {
     ReviewResponse response =
         new ReviewResponse(
             "1", "comp1", "user1", "John Doe", 5, "Great place", "Developer", "Summer", 2024);
@@ -46,7 +46,7 @@ public class ReviewResponseTest {
   }
 
   @Test
-  public void fromModel_expectCorrectMapping() {
+  void fromModel_expectCorrectMapping() {
     ReviewModel review =
         new ReviewModel("comp1", "user1", "John Doe", 5, "Great", "Dev", "Fall", 2023);
 

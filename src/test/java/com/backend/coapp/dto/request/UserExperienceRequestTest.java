@@ -3,14 +3,17 @@ package com.backend.coapp.dto.request;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.util.ExperienceConstants;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /* These tests were written with the help of Claude Sonnet 4.5 and revised by Bao Ngo */
 
-public class UserExperienceRequestTest {
+class UserExperienceRequestTest {
   private final String VALID_COMPANY_ID = "someCompanyId";
   private final String VALID_ROLE_TITLE = "Software Engineer";
   private final String VALID_ROLE_DESCRIPTION = "Built microservices";
@@ -28,7 +31,7 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void getMethod_expectInitValues() {
+  void getMethod_expectInitValues() {
     UserExperienceRequest request = buildValidRequest();
     assertEquals(VALID_COMPANY_ID, request.getCompanyId());
     assertEquals(VALID_ROLE_TITLE, request.getRoleTitle());
@@ -38,12 +41,12 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void validateRequest_whenValidRequest_expectNoException() {
+  void validateRequest_whenValidRequest_expectNoException() {
     assertDoesNotThrow(() -> buildValidRequest().validateRequest());
   }
 
   @Test
-  public void validateRequest_whenEndDateIsNull_expectNoException() {
+  void validateRequest_whenEndDateIsNull_expectNoException() {
     UserExperienceRequest request =
         UserExperienceRequest.builder()
             .companyId(VALID_COMPANY_ID)
@@ -55,38 +58,24 @@ public class UserExperienceRequestTest {
     assertDoesNotThrow(request::validateRequest);
   }
 
-  @Test
-  public void validateRequest_whenCompanyIdIsNull_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().companyId(null).build();
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void validateRequest_whenCompanyIdIsInvalid_expectInvalidRequestException(String companyId) {
+    UserExperienceRequest request = buildValidRequest().toBuilder().companyId(companyId).build();
+    assertThrows(InvalidRequestException.class, request::validateRequest);
+  }
+
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void validateRequest_whenRoleTitleIsInvalid_expectInvalidRequestException(String companyId) {
+    UserExperienceRequest request = buildValidRequest().toBuilder().roleTitle(companyId).build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenCompanyIdIsBlank_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().companyId("   ").build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  public void validateRequest_whenCompanyIdIsEmpty_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().companyId("").build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  public void validateRequest_whenRoleTitleIsNull_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().roleTitle(null).build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  public void validateRequest_whenRoleTitleIsBlank_expectInvalidRequestException() {
-    UserExperienceRequest request = buildValidRequest().toBuilder().roleTitle("   ").build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
-  }
-
-  @Test
-  public void validateRequest_whenRoleTitleExceedsMaxLength_expectInvalidRequestException() {
+  void validateRequest_whenRoleTitleExceedsMaxLength_expectInvalidRequestException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder()
             .roleTitle("a".repeat(ExperienceConstants.MAX_JOB_TITLE_LENGTH + 1))
@@ -95,7 +84,7 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void validateRequest_whenRoleTitleExactlyAtMaxLength_expectNoException() {
+  void validateRequest_whenRoleTitleExactlyAtMaxLength_expectNoException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder()
             .roleTitle("a".repeat(ExperienceConstants.MAX_JOB_TITLE_LENGTH))
@@ -104,19 +93,19 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void validateRequest_whenRoleDescriptionIsNull_expectInvalidRequestException() {
+  void validateRequest_whenRoleDescriptionIsNull_expectInvalidRequestException() {
     UserExperienceRequest request = buildValidRequest().toBuilder().roleDescription(null).build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenRoleDescriptionIsBlank_expectInvalidRequestException() {
+  void validateRequest_whenRoleDescriptionIsBlank_expectInvalidRequestException() {
     UserExperienceRequest request = buildValidRequest().toBuilder().roleDescription("   ").build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenRoleDescriptionExceedsMaxLength_expectInvalidRequestException() {
+  void validateRequest_whenRoleDescriptionExceedsMaxLength_expectInvalidRequestException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder()
             .roleDescription("a".repeat(ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH + 1))
@@ -125,7 +114,7 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void validateRequest_whenRoleDescriptionExactlyAtMaxLength_expectNoException() {
+  void validateRequest_whenRoleDescriptionExactlyAtMaxLength_expectNoException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder()
             .roleDescription("a".repeat(ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH))
@@ -134,20 +123,20 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void validateRequest_whenStartDateIsNull_expectInvalidRequestException() {
+  void validateRequest_whenStartDateIsNull_expectInvalidRequestException() {
     UserExperienceRequest request = buildValidRequest().toBuilder().startDate(null).build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenEndDateIsBeforeStartDate_expectInvalidRequestException() {
+  void validateRequest_whenEndDateIsBeforeStartDate_expectInvalidRequestException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder().endDate(VALID_START_DATE.minusDays(1)).build();
     assertThrows(InvalidRequestException.class, request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenEndDateIsEqualToStartDate_expectInvalidRequestException() {
+  void validateRequest_whenEndDateIsEqualToStartDate_expectInvalidRequestException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder()
             .endDate(VALID_START_DATE)
@@ -157,7 +146,7 @@ public class UserExperienceRequestTest {
   }
 
   @Test
-  public void validateRequest_whenEndDateIsAfterStartDate_expectNoException() {
+  void validateRequest_whenEndDateIsAfterStartDate_expectNoException() {
     UserExperienceRequest request =
         buildValidRequest().toBuilder().endDate(VALID_START_DATE.plusDays(1)).build();
     assertDoesNotThrow(request::validateRequest);

@@ -3,25 +3,25 @@ package com.backend.coapp.dto.request;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import org.junit.jupiter.api.Test;
 
-public class LoginRequestTest {
+class LoginRequestTest {
   @Test
-  public void getMethod_expectInitValue() {
+  void getMethod_expectInitValue() {
     LoginRequest request = new LoginRequest("foo@mail.com", "password");
     assertEquals("foo@mail.com", request.getEmail());
     assertEquals("password", request.getPassword());
   }
 
   @Test
-  public void validateRequest_whenValidRequest_expectNoException() {
+  void validateRequest_whenValidRequest_expectNoException() {
     LoginRequest request = new LoginRequest("foo@mail.com", "password");
     assertDoesNotThrow(request::validateRequest);
   }
 
   @Test
-  public void validateRequest_whenInvalidEmail_expectException() {
+  void validateRequest_whenInvalidEmail_expectException() {
     LoginRequest requestEmailNull = new LoginRequest(null, "password");
     assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
 
@@ -30,7 +30,7 @@ public class LoginRequestTest {
   }
 
   @Test
-  public void validateRequest_whenInvalidPassword_expectException() {
+  void validateRequest_whenInvalidPassword_expectException() {
     LoginRequest requestEmailNull = new LoginRequest("foo@mail.com", "");
     assertThrows(InvalidRequestException.class, requestEmailNull::validateRequest);
 
