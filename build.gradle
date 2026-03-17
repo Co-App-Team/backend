@@ -85,7 +85,7 @@ pitest {
 	outputFormats = ['XML', 'HTML']
 	enableDefaultIncrementalAnalysis = true
 	mutationThreshold = 99
-	coverageThreshold = 0 // unsure if we need a cov threshold
+	coverageThreshold = 0 // unsure if we need a cov threshold here
 	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED', '-XX:+EnableDynamicAgentLoading']
 }
 
