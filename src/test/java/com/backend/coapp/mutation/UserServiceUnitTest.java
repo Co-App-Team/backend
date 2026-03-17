@@ -41,7 +41,6 @@ public class UserServiceUnitTest {
   private UserModel fooUserActivated;
   private UserExperienceModel fooExperience1;
   private UserExperienceModel fooExperience2;
-  private CompanyModel fooCompany;
 
   private final String RAW_PASSWORD = "password123";
   private final LocalDate START_DATE = LocalDate.now().minusYears(1);
@@ -79,7 +78,7 @@ public class UserServiceUnitTest {
             "789", "companyB", "Tech Lead", "Another description", START_DATE, null);
     ReflectionTestUtils.setField(fooExperience2, "id", "exp_002");
 
-    fooCompany = new CompanyModel("Foo Company", "Foo Location", "https://foo.com");
+    CompanyModel fooCompany = new CompanyModel("Foo Company", "Foo Location", "https://foo.com");
     ReflectionTestUtils.setField(fooCompany, "id", "company_001");
 
     userService =

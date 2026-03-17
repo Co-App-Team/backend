@@ -34,7 +34,6 @@ public class ReviewServiceUnitTest {
   private CompanyRepository mockCompanyRepository;
   private CompanyService mockCompanyService;
 
-  private CompanyModel nicheCompany;
   private ReviewModel testReview;
 
   @BeforeEach
@@ -43,7 +42,7 @@ public class ReviewServiceUnitTest {
     mockCompanyRepository = Mockito.mock(CompanyRepository.class);
     mockCompanyService = Mockito.mock(CompanyService.class);
 
-    nicheCompany = new CompanyModel("Niche", "Winnipeg", "https://niche.com");
+    CompanyModel nicheCompany = new CompanyModel("Niche", "Winnipeg", "https://niche.com");
     ReflectionTestUtils.setField(nicheCompany, "id", "company_001");
 
     testReview =

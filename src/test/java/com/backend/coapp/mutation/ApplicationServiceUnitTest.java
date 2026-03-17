@@ -120,41 +120,6 @@ public class ApplicationServiceUnitTest {
       return this;
     }
 
-    CreateBuilder withStatus(ApplicationStatus v) {
-      this.status = v;
-      return this;
-    }
-
-    CreateBuilder withDeadline(LocalDate v) {
-      this.deadline = v;
-      return this;
-    }
-
-    CreateBuilder withDesc(String v) {
-      this.desc = v;
-      return this;
-    }
-
-    CreateBuilder withPositions(Integer v) {
-      this.positions = v;
-      return this;
-    }
-
-    CreateBuilder withLink(String v) {
-      this.link = v;
-      return this;
-    }
-
-    CreateBuilder withDateApplied(LocalDate v) {
-      this.dateApplied = v;
-      return this;
-    }
-
-    CreateBuilder withNotes(String v) {
-      this.notes = v;
-      return this;
-    }
-
     CreateBuilder withInterviewDate(LocalDate v) {
       this.interviewDate = v;
       return this;
