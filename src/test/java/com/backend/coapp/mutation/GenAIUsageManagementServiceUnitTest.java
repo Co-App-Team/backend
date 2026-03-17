@@ -17,6 +17,8 @@ import com.backend.coapp.util.GenAIUsageConstants;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -222,55 +224,25 @@ class GenAIUsageManagementServiceUnitTest {
   // decrementUsage
   // -------------------------------------------------------------------------
 
-  @Test
-  void decrementUsage_whenUserExistsWithCount_expectDecrementByOne() {
-    UserGenAIUsageModel record =
-        new UserGenAIUsageModel(
-            USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
-    record.setRequestCount(5);
-
-    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(record);
+  @ParameterizedTest(name = "decrementUsage [{index}] count {0} -> {1}")
+  @CsvSource({
+    "5, 4",
+    "1, 0",
+    "0, 0"
+  })
+  void decrementUsage_whenUserExists_expectCorrectCount(int initialCount, int expectedCount) {
+    UserGenAIUsageModel usageRecord =
+      new UserGenAIUsageModel(
+        USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
+    usageRecord.setRequestCount(initialCount);
+    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(usageRecord);
     when(mockUserGenAIUsageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
     genAIUsageManagementService.decrementUsage(USER_ID);
 
     ArgumentCaptor<UserGenAIUsageModel> captor = ArgumentCaptor.forClass(UserGenAIUsageModel.class);
     verify(mockUserGenAIUsageRepository).save(captor.capture());
-    assertEquals(4, captor.getValue().getRequestCount());
-  }
-
-  @Test
-  void decrementUsage_whenRequestCountIsOne_expectDecrementToZero() {
-    UserGenAIUsageModel record =
-        new UserGenAIUsageModel(
-            USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
-    record.setRequestCount(1);
-
-    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(record);
-    when(mockUserGenAIUsageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-    genAIUsageManagementService.decrementUsage(USER_ID);
-
-    ArgumentCaptor<UserGenAIUsageModel> captor = ArgumentCaptor.forClass(UserGenAIUsageModel.class);
-    verify(mockUserGenAIUsageRepository).save(captor.capture());
-    assertEquals(0, captor.getValue().getRequestCount());
-  }
-
-  @Test
-  void decrementUsage_whenRequestCountIsZero_expectCountStaysAtZero() {
-    UserGenAIUsageModel record =
-        new UserGenAIUsageModel(
-            USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
-    record.setRequestCount(0);
-
-    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(record);
-    when(mockUserGenAIUsageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
-
-    genAIUsageManagementService.decrementUsage(USER_ID);
-
-    ArgumentCaptor<UserGenAIUsageModel> captor = ArgumentCaptor.forClass(UserGenAIUsageModel.class);
-    verify(mockUserGenAIUsageRepository).save(captor.capture());
-    assertEquals(0, captor.getValue().getRequestCount());
+    assertEquals(expectedCount, captor.getValue().getRequestCount());
   }
 
   @Test
