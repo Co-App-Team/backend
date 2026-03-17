@@ -880,4 +880,27 @@ public class ApplicationServiceUnitTest {
             applicationService.getFilteredApplications(
                 "user_001", null, null, "dateApplied", "desc", 0, 20));
   }
+
+  @Test
+  public void updateApplication_whenStatusChangedToApplied_expectDateAppliedSetToToday() {
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.INTERVIEWING) // starts as non-APPLIED
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .build();
+    ReflectionTestUtils.setField(interviewingApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(interviewingApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        new UpdateBuilder().withStatus(ApplicationStatus.APPLIED).execute();
+
+    assertEquals(ApplicationStatus.APPLIED, response.getStatus());
+    assertEquals(LocalDate.now(), response.getDateApplied()); // ← kills the mutant
+  }
 }

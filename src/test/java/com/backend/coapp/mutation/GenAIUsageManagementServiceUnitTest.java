@@ -327,4 +327,49 @@ public class GenAIUsageManagementServiceUnitTest {
 
     verify(mockUserGenAIUsageRepository, never()).save(any());
   }
+
+  // -------------------------------------------------------------------------
+  // getNumberOfRequestLeft
+  // -------------------------------------------------------------------------
+
+  @Test
+  public void getNumberOfRequestLeft_whenNoUsageRecord_expectDefaultLimit() {
+    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(null);
+
+    int result = genAIUsageManagementService.getNumberOfRequestLeft(USER_ID);
+
+    assertEquals(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, result);
+  }
+
+  @Test
+  public void getNumberOfRequestLeft_whenUsageRecordExists_expectRemainingRequests() {
+    userGenAIUsageModel.setRequestCount(3);
+    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
+        .thenReturn(userGenAIUsageModel);
+
+    int result = genAIUsageManagementService.getNumberOfRequestLeft(USER_ID);
+
+    assertEquals(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT - 3, result);
+  }
+
+  @Test
+  public void getNumberOfRequestLeft_whenRequestCountExceedsLimit_expectZero() {
+    userGenAIUsageModel.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 5);
+    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
+        .thenReturn(userGenAIUsageModel);
+
+    int result = genAIUsageManagementService.getNumberOfRequestLeft(USER_ID);
+
+    assertEquals(0, result);
+  }
+
+  @Test
+  public void getNumberOfRequestLeft_whenDbFails_expectException() {
+    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
+        .thenThrow(new RuntimeException("DB failed"));
+
+    assertThrows(
+        GenAIUsageManagementServiceException.class,
+        () -> genAIUsageManagementService.getNumberOfRequestLeft(USER_ID));
+  }
 }
