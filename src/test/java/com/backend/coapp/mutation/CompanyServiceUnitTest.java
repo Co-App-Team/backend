@@ -303,11 +303,13 @@ class CompanyServiceUnitTest {
     when(mockCompanyRepository.findById(anyString())).thenReturn(Optional.of(nicheCompany));
     when(mockReviewRepository.findByCompanyId(anyString())).thenReturn(List.of(review));
     when(mockCompanyRepository.save(any(CompanyModel.class)))
-        .thenThrow(new RuntimeException("Database error"));
+      .thenThrow(new RuntimeException("Database error"));
+
+    String companyId = nicheCompany.getId();
 
     assertThrows(
-        CompanyServiceFailException.class,
-        () -> companyService.updateAvgRating(nicheCompany.getId()));
+      CompanyServiceFailException.class,
+      () -> companyService.updateAvgRating(companyId));
     verify(mockCompanyRepository, times(1)).save(any(CompanyModel.class));
   }
 }

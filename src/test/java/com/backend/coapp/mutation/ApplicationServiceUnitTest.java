@@ -171,9 +171,9 @@ class ApplicationServiceUnitTest {
   void createApplication_whenCompanyNotFound_expectException() {
     when(mockCompRepo.findById("invalid_id")).thenReturn(Optional.empty());
 
-    assertThrows(
-        CompanyNotFoundException.class,
-        () -> new CreateBuilder().withCompanyId("invalid_id").execute());
+    CreateBuilder builder = new CreateBuilder().withCompanyId("invalid_id");
+
+    assertThrows(CompanyNotFoundException.class, builder::execute);
   }
 
   @Test
@@ -181,9 +181,10 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
     when(mockUserRepo.findById("invalid_user")).thenReturn(Optional.empty());
 
-    assertThrows(
-        UserNotFoundException.class,
-        () -> new CreateBuilder().withUserId("invalid_user").execute());
+    CreateBuilder builder =
+        new CreateBuilder().withCompanyId("company_001").withUserId("invalid_user");
+
+    assertThrows(UserNotFoundException.class, builder::execute);
   }
 
   @Test
@@ -194,9 +195,9 @@ class ApplicationServiceUnitTest {
             "user_001", "company_001", "Software Engineer"))
         .thenReturn(true);
 
-    assertThrows(
-        DuplicateApplicationException.class,
-        () -> new CreateBuilder().withJobTitle("Software Engineer").execute());
+    CreateBuilder builder = new CreateBuilder().withJobTitle("Software Engineer");
+
+    assertThrows(DuplicateApplicationException.class, builder::execute);
   }
 
   @Test
@@ -207,7 +208,9 @@ class ApplicationServiceUnitTest {
         .thenReturn(false);
     when(mockAppRepo.save(any())).thenThrow(new RuntimeException("DB Crash"));
 
-    assertThrows(ApplicationServiceFailException.class, () -> new CreateBuilder().execute());
+    CreateBuilder builder = new CreateBuilder();
+
+    assertThrows(ApplicationServiceFailException.class, builder::execute);
   }
 
   // -------------------------------------------------------------------------
@@ -363,9 +366,9 @@ class ApplicationServiceUnitTest {
   void updateApplication_whenNotOwner_expectUnauthorized() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
 
-    assertThrows(
-        UnauthorizedApplicationAccessException.class,
-        () -> new UpdateBuilder().withUserId("wrong_user").withJobTitle("Title").execute());
+    UpdateBuilder builder = new UpdateBuilder().withUserId("wrong_user").withJobTitle("Title");
+
+    assertThrows(UnauthorizedApplicationAccessException.class, builder::execute);
   }
 
   @Test
@@ -373,16 +376,18 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
 
-    assertThrows(NoChangesDetectedException.class, () -> new UpdateBuilder().execute());
+    UpdateBuilder builder = new UpdateBuilder();
+
+    assertThrows(NoChangesDetectedException.class, builder::execute);
   }
 
   @Test
   void updateApplication_whenAppNotFound_expectException() {
     when(mockAppRepo.findById("invalid_app_id")).thenReturn(Optional.empty());
 
-    assertThrows(
-        ApplicationNotFoundException.class,
-        () -> new UpdateBuilder().withAppId("invalid_app_id").withJobTitle("t").execute());
+    UpdateBuilder builder = new UpdateBuilder().withAppId("invalid_app_id").withJobTitle("t");
+
+    assertThrows(ApplicationNotFoundException.class, builder::execute);
   }
 
   @Test
@@ -390,9 +395,9 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("non_existent_company")).thenReturn(Optional.empty());
 
-    assertThrows(
-        CompanyNotFoundException.class,
-        () -> new UpdateBuilder().withCompanyId("non_existent_company").execute());
+    UpdateBuilder builder = new UpdateBuilder().withCompanyId("non_existent_company");
+
+    assertThrows(CompanyNotFoundException.class, builder::execute);
   }
 
   @Test
@@ -414,8 +419,9 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
     when(mockAppRepo.save(any())).thenThrow(new RuntimeException("Update DB Crash"));
 
-    assertThrows(
-        RuntimeException.class, () -> new UpdateBuilder().withJobTitle("New Title").execute());
+    UpdateBuilder builder = new UpdateBuilder().withJobTitle("New Title");
+
+    assertThrows(RuntimeException.class, builder::execute);
   }
 
   @Test
@@ -853,7 +859,7 @@ class ApplicationServiceUnitTest {
             .userId("user_001")
             .companyId("company_001")
             .jobTitle("Software Engineer")
-            .status(ApplicationStatus.INTERVIEWING) // starts as non-APPLIED
+            .status(ApplicationStatus.INTERVIEWING)
             .applicationDeadline(LocalDate.now().plusDays(5))
             .build();
     ReflectionTestUtils.setField(interviewingApp, "id", "app_001");
@@ -866,6 +872,6 @@ class ApplicationServiceUnitTest {
         new UpdateBuilder().withStatus(ApplicationStatus.APPLIED).execute();
 
     assertEquals(ApplicationStatus.APPLIED, response.getStatus());
-    assertEquals(LocalDate.now(), response.getDateApplied()); // ← kills the mutant
+    assertEquals(LocalDate.now(), response.getDateApplied());
   }
 }

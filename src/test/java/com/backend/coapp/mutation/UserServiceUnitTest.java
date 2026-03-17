@@ -352,17 +352,20 @@ class UserServiceUnitTest {
 
   @Test
   void createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+    LocalDate endDate = START_DATE.minusDays(1);
+
     assertThrows(
-        UserServiceFailException.class,
-        () ->
-            userService.createNewUserExperience(
-                "789",
-                "company_001",
-                "Software Engineer",
-                "Some description",
-                START_DATE,
-                START_DATE.minusDays(1)));
+      UserServiceFailException.class,
+      () ->
+        userService.createNewUserExperience(
+          "789",
+          "company_001",
+          "Software Engineer",
+          "Some description",
+          START_DATE,
+          endDate));
   }
+
 
   @Test
   void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
@@ -511,18 +514,21 @@ class UserServiceUnitTest {
 
   @Test
   void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
+    LocalDate endDate = START_DATE.minusDays(1);
+
     assertThrows(
-        UserServiceFailException.class,
-        () ->
-            userService.updateUserExperience(
-                "exp_001",
-                "789",
-                "company_001",
-                "Software Engineer",
-                "Some description",
-                START_DATE,
-                START_DATE.minusDays(1)));
+      UserServiceFailException.class,
+      () ->
+        userService.updateUserExperience(
+          "exp_001",
+          "789",
+          "company_001",
+          "Software Engineer",
+          "Some description",
+          START_DATE,
+          endDate));
   }
+
 
   @Test
   void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
