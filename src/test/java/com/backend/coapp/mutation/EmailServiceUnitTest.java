@@ -9,6 +9,10 @@ import com.backend.coapp.exception.auth.EmailServiceException;
 import com.backend.coapp.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.mail.MailSendException;
@@ -34,24 +38,12 @@ class EmailServiceUnitTest {
   // sendEmail — subject validation
   // -------------------------------------------------------------------------
 
-  @Test
-  void sendEmail_whenSubjectIsNull_expectException() {
+  @ParameterizedTest(name = "sendEmail_whenSubjectIsInvalid [{index}] subject=\"{0}\"")
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void sendEmail_whenSubjectIsNullOrBlankOrEmpty_expectException(String subject) {
     assertThrows(
-        EmailServiceException.class, () -> emailService.sendEmail(validEmail, null, validBody));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenSubjectIsBlank_expectException() {
-    assertThrows(
-        EmailServiceException.class, () -> emailService.sendEmail(validEmail, "   ", validBody));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenSubjectIsEmpty_expectException() {
-    assertThrows(
-        EmailServiceException.class, () -> emailService.sendEmail(validEmail, "", validBody));
+        EmailServiceException.class, () -> emailService.sendEmail(validEmail, subject, validBody));
     verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
   }
 
@@ -59,24 +51,12 @@ class EmailServiceUnitTest {
   // sendEmail — body validation
   // -------------------------------------------------------------------------
 
-  @Test
-  void sendEmail_whenBodyIsNull_expectException() {
+  @ParameterizedTest(name = "sendEmail_whenBodyIsInvalid [{index}] body=\"{0}\"")
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void sendEmail_whenBodyIsNullOrBlankOrEmpty_expectException(String body) {
     assertThrows(
-        EmailServiceException.class, () -> emailService.sendEmail(validEmail, validSubject, null));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenBodyIsBlank_expectException() {
-    assertThrows(
-        EmailServiceException.class, () -> emailService.sendEmail(validEmail, validSubject, "   "));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenBodyIsEmpty_expectException() {
-    assertThrows(
-        EmailServiceException.class, () -> emailService.sendEmail(validEmail, validSubject, ""));
+        EmailServiceException.class, () -> emailService.sendEmail(validEmail, validSubject, body));
     verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
   }
 
@@ -84,35 +64,13 @@ class EmailServiceUnitTest {
   // sendEmail — email validation
   // -------------------------------------------------------------------------
 
-  @Test
-  void sendEmail_whenEmailIsNull_expectException() {
+  @ParameterizedTest(name = "sendEmail_whenEmailIsInvalid [{index}] email=\"{0}\"")
+  @NullSource
+  @ValueSource(strings = {"notanemail", "user@", "userexample.com"})
+  void sendEmail_whenEmailIsInvalid_expectException(String email) {
     assertThrows(
         EmailInvalidAddressException.class,
-        () -> emailService.sendEmail(null, validSubject, validBody));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenEmailIsInvalid_expectException() {
-    assertThrows(
-        EmailInvalidAddressException.class,
-        () -> emailService.sendEmail("notanemail", validSubject, validBody));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenEmailMissingDomain_expectException() {
-    assertThrows(
-        EmailInvalidAddressException.class,
-        () -> emailService.sendEmail("user@", validSubject, validBody));
-    verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
-  }
-
-  @Test
-  void sendEmail_whenEmailMissingAtSign_expectException() {
-    assertThrows(
-        EmailInvalidAddressException.class,
-        () -> emailService.sendEmail("userexample.com", validSubject, validBody));
+        () -> emailService.sendEmail(email, validSubject, validBody));
     verify(mockMailSender, never()).send(any(SimpleMailMessage.class));
   }
 
