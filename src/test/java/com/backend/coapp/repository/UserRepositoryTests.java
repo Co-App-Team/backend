@@ -52,7 +52,7 @@ class UserRepositoryTests {
     assertThat(found).isNotNull();
     assertThat(found.getFirstName()).isEqualTo("John");
     assertThat(found.getLastName()).isEqualTo("Johnson");
-    assertThat(found.getId() != null);
+    assertThat(found.getId()).isNotNull();
     assertThat(found.getEmail()).isEqualTo(john.getEmail());
     assertThat(found.getPassword()).isEqualTo(john.getPassword());
     assertThat(found.getVerificationCode()).isEqualTo(john.getVerificationCode());

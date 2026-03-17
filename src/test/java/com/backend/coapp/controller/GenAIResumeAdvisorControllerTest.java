@@ -24,6 +24,9 @@ import com.backend.coapp.service.GenAIUsageManagementService;
 import com.backend.coapp.service.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -36,7 +39,7 @@ import tools.jackson.databind.ObjectMapper;
 /** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
 @WebMvcTest(GenAIResumeAdvisorController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class GenAIResumeAdvisorControllerTest {
+class GenAIResumeAdvisorControllerTest {
   @Autowired private MockMvc mockMvc;
   @Autowired private ObjectMapper objectMapper;
 
@@ -51,7 +54,7 @@ public class GenAIResumeAdvisorControllerTest {
   private GenAIResumeAdvisorRequest validRequestNoApplication;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockUser = mock(UserModel.class);
     when(mockUser.getId()).thenReturn("testUserID");
     when(mockUser.getFirstName()).thenReturn("Foo");
@@ -64,7 +67,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenSuccess_expectOkAndResponse() throws Exception {
+  void resumeAdvisor_whenSuccess_expectOkAndResponse() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenReturn("Here is your advice");
 
@@ -82,7 +85,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenNoApplicationId_expectOkAndResponse() throws Exception {
+  void resumeAdvisor_whenNoApplicationId_expectOkAndResponse() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), isNull(), anyString()))
         .thenReturn("Here is your advice");
 
@@ -99,10 +102,12 @@ public class GenAIResumeAdvisorControllerTest {
         .getAdvice(mockUser.getId(), null, validRequestNoApplication.getUserPrompt());
   }
 
-  @Test
-  public void resumeAdvisor_whenPromptIsNull_expect400() throws Exception {
+  @ParameterizedTest
+  @NullAndEmptySource
+  @ValueSource(strings = {"   "})
+  void resumeAdvisor_whenPromptIsInvalid_expect400(String prompt) throws Exception {
     GenAIResumeAdvisorRequest invalidRequest =
-        new GenAIResumeAdvisorRequest(null, "someApplicationId");
+        new GenAIResumeAdvisorRequest(prompt, "someApplicationId");
 
     mockMvc
         .perform(
@@ -116,23 +121,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenPromptIsBlank_expect400() throws Exception {
-    GenAIResumeAdvisorRequest invalidRequest =
-        new GenAIResumeAdvisorRequest("   ", "someApplicationId");
-
-    mockMvc
-        .perform(
-            post("/api/resume-ai-advisor")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidRequest))
-                .principal(this.authentication))
-        .andExpect(status().isBadRequest());
-
-    verifyNoInteractions(genAIResumeAdvisorService);
-  }
-
-  @Test
-  public void resumeAdvisor_whenApplicationIdIsBlank_expect400() throws Exception {
+  void resumeAdvisor_whenApplicationIdIsBlank_expect400() throws Exception {
     GenAIResumeAdvisorRequest invalidRequest = new GenAIResumeAdvisorRequest("Help me", "   ");
 
     mockMvc
@@ -147,7 +136,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenPromptOverLimit_expect400() throws Exception {
+  void resumeAdvisor_whenPromptOverLimit_expect400() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new OverCharacterLimitException("Prompt too long"));
 
@@ -164,7 +153,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenApplicationNotFound_expect404() throws Exception {
+  void resumeAdvisor_whenApplicationNotFound_expect404() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new ApplicationNotFoundException());
 
@@ -181,7 +170,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenApplicationNotOwned_expect403() throws Exception {
+  void resumeAdvisor_whenApplicationNotOwned_expect403() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new ApplicationNotOwnedException());
 
@@ -198,7 +187,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenUserNotExist_expect400() throws Exception {
+  void resumeAdvisor_whenUserNotExist_expect400() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new UserNotFoundException());
 
@@ -216,7 +205,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenQuotaExceeded_expect429() throws Exception {
+  void resumeAdvisor_whenQuotaExceeded_expect429() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new GenAIQuotaExceededException());
 
@@ -233,7 +222,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenConcurrentRequest_expect409() throws Exception {
+  void resumeAdvisor_whenConcurrentRequest_expect409() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new ConcurrencyException("Another request in progress"));
 
@@ -250,7 +239,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void resumeAdvisor_whenServiceFails_expect500() throws Exception {
+  void resumeAdvisor_whenServiceFails_expect500() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new GenAIUsageManagementServiceException("Internal error"));
 
@@ -268,7 +257,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void getRemainingQuota_whenSuccess_expectOkAndRemainingQuota() throws Exception {
+  void getRemainingQuota_whenSuccess_expectOkAndRemainingQuota() throws Exception {
     when(genAIUsageManagementService.getNumberOfRequestLeft(anyString())).thenReturn(7);
 
     mockMvc
@@ -283,7 +272,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void getRemainingQuota_whenQuotaIsZero_expectOkAndZero() throws Exception {
+  void getRemainingQuota_whenQuotaIsZero_expectOkAndZero() throws Exception {
     when(genAIUsageManagementService.getNumberOfRequestLeft(anyString())).thenReturn(0);
 
     mockMvc
@@ -298,7 +287,7 @@ public class GenAIResumeAdvisorControllerTest {
   }
 
   @Test
-  public void getRemainingQuota_whenServiceFails_expect500() throws Exception {
+  void getRemainingQuota_whenServiceFails_expect500() throws Exception {
     when(genAIUsageManagementService.getNumberOfRequestLeft(anyString()))
         .thenThrow(new GenAIUsageManagementServiceException("DB failed"));
 

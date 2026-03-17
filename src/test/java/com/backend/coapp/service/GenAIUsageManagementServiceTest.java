@@ -16,6 +16,8 @@ import com.backend.coapp.util.GenAIUsageConstants;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -88,10 +90,10 @@ class GenAIUsageManagementServiceTest {
   void checkAndIncrementUsage_whenUserNotExistInUserRepoYet_expectException() {
     this.userGenAIUsageRepository.deleteAll();
     this.userRepository.deleteAll();
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         UserNotFoundException.class,
-        () -> this.genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.checkAndIncrementUsage(fooUserId));
   }
 
   @Test
@@ -142,13 +144,13 @@ class GenAIUsageManagementServiceTest {
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 10);
     this.userGenAIUsageRepository.save(userRecord);
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         GenAIQuotaExceededException.class,
-        () -> this.genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.checkAndIncrementUsage(fooUserId));
 
     UserGenAIUsageModel userUsageRecord =
-        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
+        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(fooUserId);
     assertNotNull(userUsageRecord);
     assertEquals(
         GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 10, userUsageRecord.getRequestCount());
@@ -164,10 +166,10 @@ class GenAIUsageManagementServiceTest {
 
     when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
         .thenThrow(new RuntimeException());
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         GenAIUsageManagementServiceException.class,
-        () -> this.genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.checkAndIncrementUsage(fooUserId));
 
     verifyNoInteractions(userRepositoryMock);
     verify(userGenAIUsageRepositoryMock, times(1))
@@ -186,13 +188,13 @@ class GenAIUsageManagementServiceTest {
         .thenReturn(null);
     when(userRepositoryMock.findUserModelById(anyString())).thenThrow(new RuntimeException());
 
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         GenAIUsageManagementServiceException.class,
-        () -> this.genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.checkAndIncrementUsage(fooUserId));
 
-    verify(userRepositoryMock, times(1)).findUserModelById(this.fooUser.getId());
-    verify(userGenAIUsageRepositoryMock, times(1))
-        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    verify(userRepositoryMock, times(1)).findUserModelById(fooUserId);
+    verify(userGenAIUsageRepositoryMock, times(1)).findUserGenAIUsageModelByUserId(fooUserId);
   }
 
   @Test
@@ -208,67 +210,39 @@ class GenAIUsageManagementServiceTest {
 
     when(userGenAIUsageRepositoryMock.save(any()))
         .thenThrow(new OptimisticLockingFailureException("foo"));
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         ConcurrencyException.class,
-        () -> this.genAIUsageManagementService.checkAndIncrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.checkAndIncrementUsage(fooUserId));
 
     verifyNoInteractions(userRepositoryMock);
-    verify(userGenAIUsageRepositoryMock, times(1))
-        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    verify(userGenAIUsageRepositoryMock, times(1)).findUserGenAIUsageModelByUserId(fooUserId);
 
     verify(userGenAIUsageRepositoryMock, times(1)).save(any());
   }
 
-  @Test
-  void decrementUsage_whenUserExistsWithCount_expectDecrementByOne() {
+  @ParameterizedTest
+  @CsvSource({"5, 4", "1, 0", "0, 0"})
+  void decrementUsage_expectCorrectCount(int initialCount, int expectedCount) {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
-    userRecord.setRequestCount(5);
+    userRecord.setRequestCount(initialCount);
     this.userGenAIUsageRepository.save(userRecord);
 
     this.genAIUsageManagementService.decrementUsage(this.fooUser.getId());
 
     UserGenAIUsageModel updatedRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
-    assertEquals(4, updatedRecord.getRequestCount());
-  }
-
-  @Test
-  void decrementUsage_whenRequestCountIsOne_expectDecrementToZero() {
-    UserGenAIUsageModel userRecord =
-        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
-    userRecord.setRequestCount(1);
-    this.userGenAIUsageRepository.save(userRecord);
-
-    this.genAIUsageManagementService.decrementUsage(this.fooUser.getId());
-
-    UserGenAIUsageModel updatedRecord =
-        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
-    assertEquals(0, updatedRecord.getRequestCount());
-  }
-
-  @Test
-  void decrementUsage_whenRequestCountIsZero_expectCountStaysAtZero() {
-    UserGenAIUsageModel userRecord =
-        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
-    userRecord.setRequestCount(0);
-    this.userGenAIUsageRepository.save(userRecord);
-
-    this.genAIUsageManagementService.decrementUsage(this.fooUser.getId());
-
-    UserGenAIUsageModel updatedRecord =
-        this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
-    assertEquals(0, updatedRecord.getRequestCount()); // not decremented below 0
+    assertEquals(expectedCount, updatedRecord.getRequestCount());
   }
 
   @Test
   void decrementUsage_whenUsageRecordNotFound_expectGenAIUsageManagementServiceException() {
     this.userGenAIUsageRepository.deleteAll();
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         GenAIUsageManagementServiceException.class,
-        () -> this.genAIUsageManagementService.decrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.decrementUsage(fooUserId));
   }
 
   @Test
@@ -280,13 +254,12 @@ class GenAIUsageManagementServiceTest {
 
     when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
         .thenThrow(new RuntimeException("DB failed"));
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         GenAIUsageManagementServiceException.class,
-        () -> this.genAIUsageManagementService.decrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.decrementUsage(fooUserId));
 
-    verify(userGenAIUsageRepositoryMock, times(1))
-        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    verify(userGenAIUsageRepositoryMock, times(1)).findUserGenAIUsageModelByUserId(fooUserId);
   }
 
   @Test
@@ -300,16 +273,16 @@ class GenAIUsageManagementServiceTest {
         .thenReturn(this.userGenAIUsageModel);
     when(userGenAIUsageRepositoryMock.save(any()))
         .thenThrow(new OptimisticLockingFailureException("conflict"));
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         ConcurrencyException.class,
-        () -> this.genAIUsageManagementService.decrementUsage(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.decrementUsage(fooUserId));
 
     verify(userGenAIUsageRepositoryMock, times(1)).save(any());
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenNoUsageRecordExists_expectDefaultLimit() {
+  void getNumberOfRequestLeft_whenNoUsageRecordExists_expectDefaultLimit() {
     this.userGenAIUsageRepository.deleteAll();
 
     int result = this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId());
@@ -318,7 +291,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenUsageRecordExists_expectCorrectRemainingCount() {
+  void getNumberOfRequestLeft_whenUsageRecordExists_expectCorrectRemainingCount() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(3);
@@ -330,7 +303,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountIsZero_expectFullLimit() {
+  void getNumberOfRequestLeft_whenRequestCountIsZero_expectFullLimit() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(0);
@@ -342,7 +315,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountAtLimit_expectZeroRequestLeft() {
+  void getNumberOfRequestLeft_whenRequestCountAtLimit_expectZeroRequestLeft() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT);
@@ -354,7 +327,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountOverLimit_expectZeroRequestLeft() {
+  void getNumberOfRequestLeft_whenRequestCountOverLimit_expectZeroRequestLeft() {
     UserGenAIUsageModel userRecord =
         this.userGenAIUsageRepository.findUserGenAIUsageModelByUserId(this.fooUser.getId());
     userRecord.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 1);
@@ -366,8 +339,7 @@ class GenAIUsageManagementServiceTest {
   }
 
   @Test
-  public void
-      getNumberOfRequestLeft_whenRepoOperationFails_expectGenAIUsageManagementServiceException() {
+  void getNumberOfRequestLeft_whenRepoOperationFails_expectGenAIUsageManagementServiceException() {
     UserGenAIUsageRepository userGenAIUsageRepositoryMock =
         Mockito.mock(UserGenAIUsageRepository.class);
     this.genAIUsageManagementService =
@@ -375,12 +347,11 @@ class GenAIUsageManagementServiceTest {
 
     when(userGenAIUsageRepositoryMock.findUserGenAIUsageModelByUserId(anyString()))
         .thenThrow(new RuntimeException("DB failed"));
-
+    String fooUserId = this.fooUser.getId();
     assertThrows(
         GenAIUsageManagementServiceException.class,
-        () -> this.genAIUsageManagementService.getNumberOfRequestLeft(this.fooUser.getId()));
+        () -> this.genAIUsageManagementService.getNumberOfRequestLeft(fooUserId));
 
-    verify(userGenAIUsageRepositoryMock, times(1))
-        .findUserGenAIUsageModelByUserId(this.fooUser.getId());
+    verify(userGenAIUsageRepositoryMock, times(1)).findUserGenAIUsageModelByUserId(fooUserId);
   }
 }

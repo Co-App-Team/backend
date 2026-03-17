@@ -135,7 +135,6 @@ class UserControllerTest {
         .andExpect(status().isUnauthorized())
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(jsonPath("$.error").value(AuthErrorCode.INVALID_EMAIL_OR_PASSWORD.name()));
-    ;
 
     verify(userService, times(1))
         .updateUserPassword(mockUser.getId(), "oldPassword", "newPassword");
@@ -156,7 +155,6 @@ class UserControllerTest {
         .andExpect(jsonPath("$.message").isNotEmpty())
         .andExpect(
             jsonPath("$.error").value(UserErrorCode.NEW_PASSWORD_SAME_WITH_OLD_PASSWORD.name()));
-    ;
   }
 
   @Test

@@ -113,17 +113,17 @@ class ApplicationControllerTest {
   @Test
   void createApplication_whenValid_expect201AndApplication() throws Exception {
     when(this.applicationService.createApplication(
-            eq("user1"),
-            eq("comp456"),
-            eq("Software Engineer"),
-            eq(ApplicationStatus.APPLIED),
-            eq(DATE),
-            eq("Great role"),
-            eq(1),
-            eq("https://linkedin.com"),
-            eq(DATE),
-            eq("I think it's not that good."),
-            eq(DATETIME)))
+            "user1",
+            "comp456",
+            "Software Engineer",
+            ApplicationStatus.APPLIED,
+            DATE,
+            "Great role",
+            1,
+            "https://linkedin.com",
+            DATE,
+            "I think it's not that good.",
+            DATETIME))
         .thenReturn(this.mockResponse);
 
     mockMvc
@@ -141,17 +141,17 @@ class ApplicationControllerTest {
 
     verify(this.applicationService, times(1))
         .createApplication(
-            eq("user1"),
-            eq("comp456"),
-            eq("Software Engineer"),
-            eq(ApplicationStatus.APPLIED),
-            eq(DATE),
-            eq("Great role"),
-            eq(1),
-            eq("https://linkedin.com"),
-            eq(DATE),
-            eq("I think it's not that good."),
-            eq(DATETIME));
+            "user1",
+            "comp456",
+            "Software Engineer",
+            ApplicationStatus.APPLIED,
+            DATE,
+            "Great role",
+            1,
+            "https://linkedin.com",
+            DATE,
+            "I think it's not that good.",
+            DATETIME);
   }
 
   @Test
@@ -281,18 +281,18 @@ class ApplicationControllerTest {
             DATETIME);
 
     when(this.applicationService.updateApplication(
-            eq("user1"),
-            eq("app789"),
-            eq("comp456"),
-            eq("Senior Engineer"),
-            eq(ApplicationStatus.APPLIED),
-            eq(DATE),
-            eq("Great role"),
-            eq(1),
-            eq("https://linkedin.com"),
-            eq(DATE),
-            eq("Updated notes."),
-            eq(DATETIME)))
+            "user1",
+            "app789",
+            "comp456",
+            "Senior Engineer",
+            ApplicationStatus.APPLIED,
+            DATE,
+            "Great role",
+            1,
+            "https://linkedin.com",
+            DATE,
+            "Updated notes.",
+            DATETIME))
         .thenReturn(updatedResponse);
 
     mockMvc
@@ -308,18 +308,18 @@ class ApplicationControllerTest {
 
     verify(this.applicationService, times(1))
         .updateApplication(
-            eq("user1"),
-            eq("app789"),
-            eq("comp456"),
-            eq("Senior Engineer"),
-            eq(ApplicationStatus.APPLIED),
-            eq(DATE),
-            eq("Great role"),
-            eq(1),
-            eq("https://linkedin.com"),
-            eq(DATE),
-            eq("Updated notes."),
-            eq(DATETIME));
+            "user1",
+            "app789",
+            "comp456",
+            "Senior Engineer",
+            ApplicationStatus.APPLIED,
+            DATE,
+            "Great role",
+            1,
+            "https://linkedin.com",
+            DATE,
+            "Updated notes.",
+            DATETIME);
   }
 
   @Test
@@ -481,7 +481,7 @@ class ApplicationControllerTest {
 
   @Test
   void deleteApplication_whenValid_expect200WithSuccessMessage() throws Exception {
-    doNothing().when(this.applicationService).deleteApplication(eq("app789"), eq("user1"));
+    doNothing().when(this.applicationService).deleteApplication("app789", "user1");
 
     mockMvc
         .perform(
@@ -491,7 +491,7 @@ class ApplicationControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.message").value("Application successfully deleted."));
 
-    verify(this.applicationService, times(1)).deleteApplication(eq("app789"), eq("user1"));
+    verify(this.applicationService, times(1)).deleteApplication("app789", "user1");
   }
 
   @Test
