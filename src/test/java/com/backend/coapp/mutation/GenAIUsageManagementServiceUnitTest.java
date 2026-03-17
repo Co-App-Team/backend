@@ -225,17 +225,14 @@ class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @ParameterizedTest(name = "decrementUsage [{index}] count {0} -> {1}")
-  @CsvSource({
-    "5, 4",
-    "1, 0",
-    "0, 0"
-  })
+  @CsvSource({"5, 4", "1, 0", "0, 0"})
   void decrementUsage_whenUserExists_expectCorrectCount(int initialCount, int expectedCount) {
     UserGenAIUsageModel usageRecord =
-      new UserGenAIUsageModel(
-        USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
+        new UserGenAIUsageModel(
+            USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
     usageRecord.setRequestCount(initialCount);
-    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(usageRecord);
+    when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
+        .thenReturn(usageRecord);
     when(mockUserGenAIUsageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
     genAIUsageManagementService.decrementUsage(USER_ID);
