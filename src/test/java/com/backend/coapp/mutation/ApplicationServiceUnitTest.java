@@ -43,7 +43,7 @@ public class ApplicationServiceUnitTest {
   private ApplicationModel existingApp;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.mockAppRepo = Mockito.mock(ApplicationRepository.class);
     this.mockCompRepo = Mockito.mock(CompanyRepository.class);
     this.mockUserRepo = Mockito.mock(UserRepository.class);
@@ -74,7 +74,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(mockAppRepo, applicationService.getApplicationRepository());
     assertSame(mockCompRepo, applicationService.getCompanyRepository());
     assertSame(mockMongoTemplate, applicationService.getMongoTemplate());
@@ -181,7 +181,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void createApplication_whenValid_expectSuccess() {
+  void createApplication_whenValid_expectSuccess() {
     setupCreateMocks("company_001", "user_001", "Data Scientist");
 
     ApplicationResponse response = new CreateBuilder().execute();
@@ -192,7 +192,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void createApplication_whenInterviewDateProvided_expectSuccess() {
+  void createApplication_whenInterviewDateProvided_expectSuccess() {
     LocalDate interview = LocalDate.now().plusDays(14);
     setupCreateMocks("company_001", "user_001", "Data Scientist");
 
@@ -203,7 +203,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void createApplication_whenCompanyNotFound_expectException() {
+  void createApplication_whenCompanyNotFound_expectException() {
     when(mockCompRepo.findById("invalid_id")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -212,7 +212,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void createApplication_whenUserNotFound_expectException() {
+  void createApplication_whenUserNotFound_expectException() {
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
     when(mockUserRepo.findById("invalid_user")).thenReturn(Optional.empty());
 
@@ -222,7 +222,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void createApplication_whenDuplicate_expectException() {
+  void createApplication_whenDuplicate_expectException() {
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
     when(mockUserRepo.findById("user_001")).thenReturn(Optional.of(testUser));
     when(mockAppRepo.existsByUserIdAndCompanyIdAndJobTitle(
@@ -235,7 +235,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void createApplication_whenDatabaseFails_expectServiceFailException() {
+  void createApplication_whenDatabaseFails_expectServiceFailException() {
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
     when(mockUserRepo.findById(anyString())).thenReturn(Optional.of(testUser));
     when(mockAppRepo.existsByUserIdAndCompanyIdAndJobTitle(anyString(), anyString(), anyString()))
@@ -250,7 +250,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getApplications_whenUserHasApplications_expectList() {
+  void getApplications_whenUserHasApplications_expectList() {
     when(mockAppRepo.findByUserId("user_001")).thenReturn(List.of(existingApp));
 
     List<?> result = applicationService.getApplications("user_001");
@@ -259,7 +259,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getApplications_whenNoApplications_expectEmptyList() {
+  void getApplications_whenNoApplications_expectEmptyList() {
     when(mockAppRepo.findByUserId("user_001")).thenReturn(Collections.emptyList());
 
     List<?> result = applicationService.getApplications("user_001");
@@ -373,7 +373,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void updateApplication_whenValid_expectSuccess() {
+  void updateApplication_whenValid_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response =
@@ -395,7 +395,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenNotOwner_expectUnauthorized() {
+  void updateApplication_whenNotOwner_expectUnauthorized() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
 
     assertThrows(
@@ -404,7 +404,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenNoChanges_expectException() {
+  void updateApplication_whenNoChanges_expectException() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
 
@@ -412,7 +412,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenAppNotFound_expectException() {
+  void updateApplication_whenAppNotFound_expectException() {
     when(mockAppRepo.findById("invalid_app_id")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -421,7 +421,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenNewCompanyNotFound_expectException() {
+  void updateApplication_whenNewCompanyNotFound_expectException() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("non_existent_company")).thenReturn(Optional.empty());
 
@@ -431,7 +431,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenDbFails_expectRuntimeException() {
+  void updateApplication_whenDbFails_expectRuntimeException() {
     ApplicationModel mockApp = mock(ApplicationModel.class);
     when(mockApp.getUserId()).thenReturn("user_001");
     when(mockApp.getCompanyId()).thenReturn("c1");
@@ -454,7 +454,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyTitleChanges_expectSuccess() {
+  void updateApplication_whenOnlyTitleChanges_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response = new UpdateBuilder().withJobTitle("Brand New Title").execute();
@@ -463,7 +463,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyStatusChanges_expectSuccess() {
+  void updateApplication_whenOnlyStatusChanges_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response =
@@ -473,7 +473,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyDescriptionChanges_expectSuccess() {
+  void updateApplication_whenOnlyDescriptionChanges_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response = new UpdateBuilder().withDesc("Brand New Description").execute();
@@ -482,7 +482,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyLinkChanges_expectSuccess() {
+  void updateApplication_whenOnlyLinkChanges_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response =
@@ -492,7 +492,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyDateAppliedChanges_expectSuccess() {
+  void updateApplication_whenOnlyDateAppliedChanges_expectSuccess() {
     setupExistingAppMock();
     LocalDate newDate = LocalDate.now().minusDays(1);
 
@@ -502,7 +502,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyNotesChanges_expectSuccess() {
+  void updateApplication_whenOnlyNotesChanges_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response =
@@ -512,7 +512,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyDeadlineChanges_expectSuccess() {
+  void updateApplication_whenOnlyDeadlineChanges_expectSuccess() {
     setupExistingAppMock();
     LocalDate newDeadline = LocalDate.now().plusWeeks(2);
 
@@ -522,7 +522,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyPositionsChanges_expectSuccess() {
+  void updateApplication_whenOnlyPositionsChanges_expectSuccess() {
     setupExistingAppMock();
 
     ApplicationResponse response = new UpdateBuilder().withPositions(99).execute();
@@ -531,7 +531,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
+  void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
     setupExistingAppMock();
     LocalDate newInterview = LocalDate.now().plusDays(7);
 
@@ -541,7 +541,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
+  void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
     CompanyModel secondCompany = new CompanyModel("Amazon", "Seattle", "https://amazon.com");
     ReflectionTestUtils.setField(secondCompany, "id", "company_002");
 
@@ -559,7 +559,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void deleteApplication_whenValid_expectDeleted() {
+  void deleteApplication_whenValid_expectDeleted() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
 
     assertDoesNotThrow(() -> applicationService.deleteApplication("app_001", "user_001"));
@@ -567,7 +567,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void deleteApplication_whenNotOwner_expectUnauthorized() {
+  void deleteApplication_whenNotOwner_expectUnauthorized() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
 
     assertThrows(
@@ -576,7 +576,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void deleteApplication_whenApplicationNotFound_expectException() {
+  void deleteApplication_whenApplicationNotFound_expectException() {
     when(mockAppRepo.findById("non_existent_id")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -599,7 +599,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getFilteredApplications_whenNoFilters_expectAllUserApplications() {
+  void getFilteredApplications_whenNoFilters_expectAllUserApplications() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     Map<?, ?> result =
@@ -610,7 +610,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSearchMatchesCompany_expectResults() {
+  void getFilteredApplications_whenSearchMatchesCompany_expectResults() {
     when(mockCompRepo.findByCompanyNameContainingIgnoreCase("Goo"))
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
@@ -624,7 +624,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSearchMatchesCaseInsensitive_expectResults() {
+  void getFilteredApplications_whenSearchMatchesCaseInsensitive_expectResults() {
     when(mockCompRepo.findByCompanyNameContainingIgnoreCase("google"))
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
@@ -637,7 +637,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSearchMatchesNoCompany_expectEmptyList() {
+  void getFilteredApplications_whenSearchMatchesNoCompany_expectEmptyList() {
     when(mockCompRepo.findByCompanyNameContainingIgnoreCase("nonexistent"))
         .thenReturn(Collections.emptyList());
     mockFilteredQuery(Collections.emptyList(), 0L);
@@ -650,7 +650,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenBlankSearch_expectAllResults() {
+  void getFilteredApplications_whenBlankSearch_expectAllResults() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     applicationService.getFilteredApplications("user_001", " ", null, "dateApplied", "desc", 0, 20);
@@ -659,7 +659,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenStatusMatches_expectFilteredResults() {
+  void getFilteredApplications_whenStatusMatches_expectFilteredResults() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     Map<?, ?> result =
@@ -670,7 +670,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenStatusDoesNotMatch_expectEmptyList() {
+  void getFilteredApplications_whenStatusDoesNotMatch_expectEmptyList() {
     mockFilteredQuery(Collections.emptyList(), 0L);
 
     Map<?, ?> result =
@@ -681,7 +681,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenMultipleStatuses_expectMatchingResults() {
+  void getFilteredApplications_whenMultipleStatuses_expectMatchingResults() {
     mockFilteredQuery(List.of(existingApp, existingApp), 2L);
 
     Map<?, ?> result =
@@ -698,7 +698,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenEmptyStatusList_expectAllResults() {
+  void getFilteredApplications_whenEmptyStatusList_expectAllResults() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     Map<?, ?> result =
@@ -709,7 +709,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSortOrderAsc_expectAscendingResults() {
+  void getFilteredApplications_whenSortOrderAsc_expectAscendingResults() {
     mockFilteredQuery(List.of(existingApp, existingApp), 2L);
 
     Map<?, ?> result =
@@ -720,7 +720,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenPaginated_expectCorrectPage() {
+  void getFilteredApplications_whenPaginated_expectCorrectPage() {
     mockFilteredQuery(List.of(existingApp, existingApp, existingApp), 5L);
 
     Map<?, ?> result =
@@ -735,7 +735,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getFilteredApplications_whenSearchProvided_expectCompanyIdsInQuery() {
+  void getFilteredApplications_whenSearchProvided_expectCompanyIdsInQuery() {
     when(mockCompRepo.findByCompanyNameContainingIgnoreCase("Google"))
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
@@ -749,7 +749,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenStatusProvided_expectStatusInQuery() {
+  void getFilteredApplications_whenStatusProvided_expectStatusInQuery() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     applicationService.getFilteredApplications(
@@ -761,7 +761,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSortAsc_expectAscDirectionInQuery() {
+  void getFilteredApplications_whenSortAsc_expectAscDirectionInQuery() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     applicationService.getFilteredApplications("user_001", null, null, "dateApplied", "asc", 0, 20);
@@ -772,7 +772,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSortDesc_expectDescDirectionInQuery() {
+  void getFilteredApplications_whenSortDesc_expectDescDirectionInQuery() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
     applicationService.getFilteredApplications(
@@ -784,7 +784,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenPage2Size3_expectSkip6() {
+  void getFilteredApplications_whenPage2Size3_expectSkip6() {
     mockFilteredQuery(List.of(existingApp, existingApp), 10L);
 
     applicationService.getFilteredApplications("user_001", null, null, "dateApplied", "desc", 2, 3);
@@ -799,7 +799,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getFilteredApplications_whenPaginated_expectCorrectPaginationMetadata() {
+  void getFilteredApplications_whenPaginated_expectCorrectPaginationMetadata() {
     mockFilteredQuery(List.of(existingApp, existingApp, existingApp), 5L);
 
     Map<?, ?> pagination =
@@ -817,7 +817,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenNoResults_expectZeroTotalPages() {
+  void getFilteredApplications_whenNoResults_expectZeroTotalPages() {
     mockFilteredQuery(Collections.emptyList(), 0L);
 
     Map<?, ?> pagination =
@@ -838,7 +838,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenOnSecondPage_expectHasPreviousTrue() {
+  void getFilteredApplications_whenOnSecondPage_expectHasPreviousTrue() {
     mockFilteredQuery(List.of(existingApp, existingApp), 5L);
 
     Map<?, ?> pagination =
@@ -853,7 +853,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void getFilteredApplications_whenSearchAndStatusCombined_expectFilteredResults() {
+  void getFilteredApplications_whenSearchAndStatusCombined_expectFilteredResults() {
     when(mockCompRepo.findByCompanyNameContainingIgnoreCase("Google"))
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
@@ -870,7 +870,7 @@ public class ApplicationServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getFilteredApplications_whenDbFails_expectServiceFailException() {
+  void getFilteredApplications_whenDbFails_expectServiceFailException() {
     when(mockMongoTemplate.count(any(), eq(ApplicationModel.class)))
         .thenThrow(new RuntimeException("DB Crash"));
 
@@ -882,7 +882,7 @@ public class ApplicationServiceUnitTest {
   }
 
   @Test
-  public void updateApplication_whenStatusChangedToApplied_expectDateAppliedSetToToday() {
+  void updateApplication_whenStatusChangedToApplied_expectDateAppliedSetToToday() {
     ApplicationModel interviewingApp =
         ApplicationModel.builder()
             .userId("user_001")

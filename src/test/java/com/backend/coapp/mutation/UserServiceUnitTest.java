@@ -48,7 +48,7 @@ public class UserServiceUnitTest {
   private final LocalDate END_DATE = LocalDate.now();
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     passwordEncoder = new BCryptPasswordEncoder();
     mockUserRepository = Mockito.mock(UserRepository.class);
     mockUserExperienceRepository = Mockito.mock(UserExperienceRepository.class);
@@ -95,7 +95,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(mockUserRepository, userService.getUserRepository());
   }
 
@@ -104,7 +104,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getDummyUser_expectInitValues() {
+  void getDummyUser_expectInitValues() {
     UserResponse user = userService.getDummyUser();
 
     assertNotNull(user);
@@ -118,7 +118,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void updateUserPassword_whenOldPasswordMatch_expectNoException() {
+  void updateUserPassword_whenOldPasswordMatch_expectNoException() {
     when(mockUserRepository.findUserModelById("789")).thenReturn(fooUserActivated);
     when(mockUserRepository.save(any(UserModel.class))).thenAnswer(i -> i.getArgument(0));
 
@@ -130,7 +130,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenNoAccountFound_expectException() {
+  void updatePassword_whenNoAccountFound_expectException() {
     when(mockUserRepository.findUserModelById("notExistUser")).thenReturn(null);
 
     assertThrows(
@@ -139,7 +139,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenAccountNotYetActivated_expectException() {
+  void updatePassword_whenAccountNotYetActivated_expectException() {
     when(mockUserRepository.findUserModelById("123")).thenReturn(fooUserNotActivated);
 
     assertThrows(
@@ -148,7 +148,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenOldPasswordNotMatch_expectException() {
+  void updatePassword_whenOldPasswordNotMatch_expectException() {
     when(mockUserRepository.findUserModelById("789")).thenReturn(fooUserActivated);
 
     assertThrows(
@@ -157,7 +157,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
+  void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
     when(mockUserRepository.findUserModelById("789")).thenReturn(fooUserActivated);
 
     assertThrows(
@@ -166,7 +166,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenDatabaseSaveOperationFail_expectException() {
+  void updatePassword_whenDatabaseSaveOperationFail_expectException() {
     when(mockUserRepository.findUserModelById("789")).thenReturn(fooUserActivated);
     when(mockUserRepository.save(any(UserModel.class))).thenThrow(new RuntimeException());
 
@@ -178,7 +178,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenDatabaseFindOperationFail_expectException() {
+  void updatePassword_whenDatabaseFindOperationFail_expectException() {
     when(mockUserRepository.findUserModelById(any())).thenThrow(new RuntimeException());
 
     assertThrows(
@@ -193,7 +193,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getUserInformationFromUserID_whenUserExists_expectReturnUser() {
+  void getUserInformationFromUserID_whenUserExists_expectReturnUser() {
     when(mockUserRepository.findUserModelById("789")).thenReturn(fooUserActivated);
 
     UserModel user = userService.getUserInformationFromUserID("789");
@@ -202,7 +202,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserNotExists_expectException() {
+  void getUserInformationFromUserID_whenUserNotExists_expectException() {
     when(mockUserRepository.findUserModelById("999")).thenReturn(null);
 
     assertThrows(
@@ -210,7 +210,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserRepoFail_expectException() {
+  void getUserInformationFromUserID_whenUserRepoFail_expectException() {
     when(mockUserRepository.findUserModelById(any())).thenThrow(new RuntimeException());
 
     assertThrows(
@@ -222,7 +222,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAllUserExperience_whenUserHasExperiences_expectReturnAll() {
+  void getAllUserExperience_whenUserHasExperiences_expectReturnAll() {
     when(mockUserExperienceRepository.findAllByUserId("789"))
         .thenReturn(List.of(fooExperience1, fooExperience2));
 
@@ -232,7 +232,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void getAllUserExperience_whenUserHasNoExperiences_expectReturnEmptyList() {
+  void getAllUserExperience_whenUserHasNoExperiences_expectReturnEmptyList() {
     when(mockUserExperienceRepository.findAllByUserId("789")).thenReturn(List.of());
 
     List<UserExperienceModel> results = userService.getAllUserExperience("789");
@@ -241,7 +241,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void getAllUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void getAllUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     when(mockUserExperienceRepository.findAllByUserId(any())).thenThrow(new RuntimeException());
 
     assertThrows(UserServiceFailException.class, () -> userService.getAllUserExperience("789"));
@@ -252,7 +252,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void createNewUserExperience_whenValidArgs_expectReturnSavedModel() {
+  void createNewUserExperience_whenValidArgs_expectReturnSavedModel() {
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockUserExperienceRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -270,7 +270,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsNull_expectReturnSavedModel() {
+  void createNewUserExperience_whenEndDateIsNull_expectReturnSavedModel() {
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockUserExperienceRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -283,7 +283,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
+  void createNewUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
     when(mockCompanyRepository.existsById("nonExistentCompanyId")).thenReturn(false);
 
     assertThrows(
@@ -299,7 +299,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void createNewUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockUserExperienceRepository.save(any())).thenThrow(new RuntimeException());
 
@@ -316,7 +316,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -325,7 +325,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -334,7 +334,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -343,7 +343,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -352,7 +352,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
@@ -367,7 +367,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
+  void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockUserExperienceRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -383,7 +383,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
+  void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
 
     assertDoesNotThrow(() -> userService.deleteUserExperience("exp_001", "789"));
@@ -392,7 +392,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void deleteUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
+  void deleteUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
     when(mockUserExperienceRepository.findById("nonExistentExperienceId"))
         .thenReturn(Optional.empty());
 
@@ -402,7 +402,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnedException() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
 
@@ -412,7 +412,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void deleteUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void deleteUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     when(mockUserExperienceRepository.findById(any())).thenThrow(new RuntimeException());
 
     assertThrows(
@@ -424,7 +424,7 @@ public class UserServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void updateUserExperience_whenValidArgs_expectAllFieldsUpdated() {
+  void updateUserExperience_whenValidArgs_expectAllFieldsUpdated() {
     LocalDate newStartDate = LocalDate.now().minusYears(2);
     LocalDate newEndDate = LocalDate.now().minusMonths(1);
 
@@ -451,7 +451,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenEndDateIsNull_expectEndDateCleared() {
+  void updateUserExperience_whenEndDateIsNull_expectEndDateCleared() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockUserExperienceRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -465,7 +465,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -480,7 +480,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -489,7 +489,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -498,7 +498,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -513,7 +513,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
+  void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -528,7 +528,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
+  void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
     when(mockUserExperienceRepository.findById("nonExistentExperienceId"))
         .thenReturn(Optional.empty());
 
@@ -546,7 +546,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnedException() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
@@ -565,7 +565,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
+  void updateUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
     when(mockCompanyRepository.existsById("nonExistentCompanyId")).thenReturn(false);
 
@@ -583,7 +583,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void updateUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     when(mockUserExperienceRepository.findById(any())).thenThrow(new RuntimeException());
 
     assertThrows(
@@ -600,7 +600,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  public void updateUserExperience_whenUpdated_expectPersistedInDatabase() {
+  void updateUserExperience_whenUpdated_expectPersistedInDatabase() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockUserExperienceRepository.save(any())).thenAnswer(i -> i.getArgument(0));

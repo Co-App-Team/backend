@@ -38,7 +38,7 @@ public class ReviewServiceUnitTest {
   private ReviewModel testReview;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockReviewRepository = Mockito.mock(ReviewRepository.class);
     mockCompanyRepository = Mockito.mock(CompanyRepository.class);
     mockCompanyService = Mockito.mock(CompanyService.class);
@@ -67,7 +67,7 @@ public class ReviewServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(mockReviewRepository, reviewService.getReviewRepository());
     assertSame(mockCompanyRepository, reviewService.getCompanyRepository());
     assertSame(mockCompanyService, reviewService.getCompanyService());
@@ -78,7 +78,7 @@ public class ReviewServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void createReview_whenValidData_expectSuccess() {
+  void createReview_whenValidData_expectSuccess() {
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockReviewRepository.existsByUserIdAndCompanyId("user2", "company_001")).thenReturn(false);
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -107,7 +107,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void createReview_whenCompanyNotFound_expectException() {
+  void createReview_whenCompanyNotFound_expectException() {
     when(mockCompanyRepository.existsById("nonexistent")).thenReturn(false);
 
     assertThrows(
@@ -120,7 +120,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void createReview_whenReviewAlreadyExists_expectException() {
+  void createReview_whenReviewAlreadyExists_expectException() {
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
     when(mockReviewRepository.existsByUserIdAndCompanyId("user1", "company_001")).thenReturn(true);
 
@@ -143,7 +143,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void createReview_whenDuplicateKeyExceptionAndReviewExists_expectException() {
+  void createReview_whenDuplicateKeyExceptionAndReviewExists_expectException() {
     when(mockCompanyRepository.existsById(anyString())).thenReturn(true);
     when(mockReviewRepository.existsByUserIdAndCompanyId(anyString(), anyString()))
         .thenReturn(false)
@@ -159,7 +159,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void createReview_whenDuplicateKeyExceptionButNoReview_expectServiceFailException() {
+  void createReview_whenDuplicateKeyExceptionButNoReview_expectServiceFailException() {
     when(mockCompanyRepository.existsById(anyString())).thenReturn(true);
     when(mockReviewRepository.existsByUserIdAndCompanyId(anyString(), anyString()))
         .thenReturn(false);
@@ -174,7 +174,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void createReview_whenDatabaseSaveFails_expectException() {
+  void createReview_whenDatabaseSaveFails_expectException() {
     when(mockCompanyRepository.existsById(anyString())).thenReturn(true);
     when(mockReviewRepository.existsByUserIdAndCompanyId(anyString(), anyString()))
         .thenReturn(false);
@@ -195,7 +195,7 @@ public class ReviewServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void updateReview_whenValidDataWithRatingChange_expectSuccess() {
+  void updateReview_whenValidDataWithRatingChange_expectSuccess() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -212,7 +212,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenAllFieldsUpdated_expectSuccess() {
+  void updateReview_whenAllFieldsUpdated_expectSuccess() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -230,7 +230,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenNoRatingChange_expectNoAvgRatingUpdate() {
+  void updateReview_whenNoRatingChange_expectNoAvgRatingUpdate() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -247,7 +247,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenOnlyCommentUpdated_expectSuccess() {
+  void updateReview_whenOnlyCommentUpdated_expectSuccess() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -263,7 +263,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenCommentHasWhitespace_expectTrimmed() {
+  void updateReview_whenCommentHasWhitespace_expectTrimmed() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -283,7 +283,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenCommentIsNull_expectNoCommentUpdate() {
+  void updateReview_whenCommentIsNull_expectNoCommentUpdate() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class))).thenAnswer(i -> i.getArgument(0));
@@ -299,7 +299,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenReviewNotFound_expectException() {
+  void updateReview_whenReviewNotFound_expectException() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "nonexistent"))
         .thenReturn(Optional.empty());
 
@@ -309,7 +309,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenUserNotOwner_expectException() {
+  void updateReview_whenUserNotOwner_expectException() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user2", "company_001"))
         .thenReturn(Optional.empty());
 
@@ -319,7 +319,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void updateReview_whenDatabaseSaveFails_expectException() {
+  void updateReview_whenDatabaseSaveFails_expectException() {
     when(mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString()))
         .thenReturn(Optional.of(testReview));
     when(mockReviewRepository.save(any(ReviewModel.class)))
@@ -337,7 +337,7 @@ public class ReviewServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void deleteReview_whenValidData_expectSuccess() {
+  void deleteReview_whenValidData_expectSuccess() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "company_001"))
         .thenReturn(Optional.of(testReview));
 
@@ -348,7 +348,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void deleteReview_whenReviewNotFound_expectException() {
+  void deleteReview_whenReviewNotFound_expectException() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user1", "nonexistent"))
         .thenReturn(Optional.empty());
 
@@ -359,7 +359,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void deleteReview_whenUserNotOwner_expectException() {
+  void deleteReview_whenUserNotOwner_expectException() {
     when(mockReviewRepository.findByUserIdAndCompanyId("user2", "company_001"))
         .thenReturn(Optional.empty());
 
@@ -370,7 +370,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void deleteReview_whenDatabaseDeleteFails_expectException() {
+  void deleteReview_whenDatabaseDeleteFails_expectException() {
     when(mockReviewRepository.findByUserIdAndCompanyId(anyString(), anyString()))
         .thenReturn(Optional.of(testReview));
     doThrow(new RuntimeException("Database error"))
@@ -388,7 +388,7 @@ public class ReviewServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getReviewsByCompanyId_whenReviewsExist_expectPageOfReviews() {
+  void getReviewsByCompanyId_whenReviewsExist_expectPageOfReviews() {
     ReviewModel review2 =
         new ReviewModel(
             "company_001",
@@ -412,7 +412,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_whenNoReviews_expectEmptyPage() {
+  void getReviewsByCompanyId_whenNoReviews_expectEmptyPage() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<ReviewModel> emptyPage = new PageImpl<>(List.of(), pageable, 0);
 
@@ -426,7 +426,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_withPagination_expectCorrectPage() {
+  void getReviewsByCompanyId_withPagination_expectCorrectPage() {
     Pageable pageable = PageRequest.of(0, 2);
     Page<ReviewModel> mockPage = new PageImpl<>(List.of(testReview), pageable, 5);
 
@@ -440,7 +440,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void getReviewsByCompanyId_whenDatabaseFails_expectException() {
+  void getReviewsByCompanyId_whenDatabaseFails_expectException() {
     Pageable pageable = PageRequest.of(0, 10);
     when(mockReviewRepository.findByCompanyId(anyString(), any()))
         .thenThrow(new RuntimeException("Database error"));
@@ -455,13 +455,13 @@ public class ReviewServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void verifyReviewBelongsToCompany_withNullReviewId_expectException() {
+  void verifyReviewBelongsToCompany_withNullReviewId_expectException() {
     assertThrows(
         Exception.class, () -> reviewService.verifyReviewBelongsToCompany(null, "company_001"));
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
+  void verifyReviewBelongsToCompany_whenReviewBelongsToCompany_expectNoException() {
     when(mockReviewRepository.findById("review_001")).thenReturn(Optional.of(testReview));
 
     assertDoesNotThrow(
@@ -469,7 +469,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenReviewNotFound_expectReviewNotFoundException() {
+  void verifyReviewBelongsToCompany_whenReviewNotFound_expectReviewNotFoundException() {
     when(mockReviewRepository.findById("nonexistent")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -478,7 +478,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       verifyReviewBelongsToCompany_whenReviewBelongsToDifferentCompany_expectInvalidRequestException() {
     when(mockReviewRepository.findById("review_001")).thenReturn(Optional.of(testReview));
 
@@ -491,7 +491,7 @@ public class ReviewServiceUnitTest {
   }
 
   @Test
-  public void verifyReviewBelongsToCompany_whenMultipleReviewsForCompany_expectNoException() {
+  void verifyReviewBelongsToCompany_whenMultipleReviewsForCompany_expectNoException() {
     ReviewModel review2 =
         new ReviewModel(
             "company_001", "user2", "Jane Smith", 4, "Good place", "Developer", "Fall", 2023);

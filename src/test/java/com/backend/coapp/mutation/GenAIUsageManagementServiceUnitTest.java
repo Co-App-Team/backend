@@ -33,7 +33,7 @@ public class GenAIUsageManagementServiceUnitTest {
   private UserGenAIUsageModel userGenAIUsageModel;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockUserGenAIUsageRepository = Mockito.mock(UserGenAIUsageRepository.class);
     mockUserRepository = Mockito.mock(UserRepository.class);
 
@@ -60,7 +60,7 @@ public class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void checkAndIncrementUsage_whenUserExistInUsageRepoAlready_expectIncreaseByOne() {
+  void checkAndIncrementUsage_whenUserExistInUsageRepoAlready_expectIncreaseByOne() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
         .thenReturn(userGenAIUsageModel);
     when(mockUserGenAIUsageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -75,7 +75,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenUserNotExistInUsageRepoYet_expectIncreaseByOne() {
+  void checkAndIncrementUsage_whenUserNotExistInUsageRepoYet_expectIncreaseByOne() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(null);
     when(mockUserRepository.findUserModelById(USER_ID)).thenReturn(fooUser);
     when(mockUserGenAIUsageRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -88,7 +88,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenUserNotExistInUserRepoYet_expectException() {
+  void checkAndIncrementUsage_whenUserNotExistInUserRepoYet_expectException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(null);
     when(mockUserRepository.findUserModelById(USER_ID)).thenReturn(null);
 
@@ -102,7 +102,7 @@ public class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void checkAndIncrementUsage_whenPastMonth_expectResetLimit() {
+  void checkAndIncrementUsage_whenPastMonth_expectResetLimit() {
     UserGenAIUsageModel staleRecord =
         new UserGenAIUsageModel(
             USER_ID,
@@ -126,7 +126,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenPastYear_expectResetLimit() {
+  void checkAndIncrementUsage_whenPastYear_expectResetLimit() {
     UserGenAIUsageModel staleRecord =
         new UserGenAIUsageModel(
             USER_ID,
@@ -154,7 +154,7 @@ public class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void checkAndIncrementUsage_whenOverLimit_expectException() {
+  void checkAndIncrementUsage_whenOverLimit_expectException() {
     UserGenAIUsageModel overLimitRecord =
         new UserGenAIUsageModel(
             USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
@@ -175,7 +175,7 @@ public class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void checkAndIncrementUsage_whenUserUsageRepoOperationFail_expectException() {
+  void checkAndIncrementUsage_whenUserUsageRepoOperationFail_expectException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(anyString()))
         .thenThrow(new RuntimeException("DB failed"));
 
@@ -188,7 +188,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenUserRepoOperationFail_expectException() {
+  void checkAndIncrementUsage_whenUserRepoOperationFail_expectException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(anyString()))
         .thenReturn(null);
     when(mockUserRepository.findUserModelById(anyString()))
@@ -203,7 +203,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenTwoConcurrentRequests_expectException() {
+  void checkAndIncrementUsage_whenTwoConcurrentRequests_expectException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(anyString()))
         .thenReturn(userGenAIUsageModel);
     when(mockUserGenAIUsageRepository.save(any()))
@@ -223,7 +223,7 @@ public class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void decrementUsage_whenUserExistsWithCount_expectDecrementByOne() {
+  void decrementUsage_whenUserExistsWithCount_expectDecrementByOne() {
     UserGenAIUsageModel record =
         new UserGenAIUsageModel(
             USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
@@ -240,7 +240,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void decrementUsage_whenRequestCountIsOne_expectDecrementToZero() {
+  void decrementUsage_whenRequestCountIsOne_expectDecrementToZero() {
     UserGenAIUsageModel record =
         new UserGenAIUsageModel(
             USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
@@ -257,7 +257,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void decrementUsage_whenRequestCountIsZero_expectCountStaysAtZero() {
+  void decrementUsage_whenRequestCountIsZero_expectCountStaysAtZero() {
     UserGenAIUsageModel record =
         new UserGenAIUsageModel(
             USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
@@ -274,7 +274,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void decrementUsage_whenUsageRecordNotFound_expectGenAIUsageManagementServiceException() {
+  void decrementUsage_whenUsageRecordNotFound_expectGenAIUsageManagementServiceException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(null);
 
     assertThrows(
@@ -285,7 +285,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       decrementUsage_whenUsageRepoOperationFails_expectGenAIUsageManagementServiceException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(anyString()))
         .thenThrow(new RuntimeException("DB failed"));
@@ -298,7 +298,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void decrementUsage_whenOptimisticLockingFails_expectConcurrencyException() {
+  void decrementUsage_whenOptimisticLockingFails_expectConcurrencyException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(anyString()))
         .thenReturn(userGenAIUsageModel);
     when(mockUserGenAIUsageRepository.save(any()))
@@ -311,7 +311,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void checkAndIncrementUsage_whenAtExactLimit_expectException() {
+  void checkAndIncrementUsage_whenAtExactLimit_expectException() {
     UserGenAIUsageModel atLimitRecord =
         new UserGenAIUsageModel(
             USER_ID, GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT, LocalDateTime.now());
@@ -333,7 +333,7 @@ public class GenAIUsageManagementServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getNumberOfRequestLeft_whenNoUsageRecord_expectDefaultLimit() {
+  void getNumberOfRequestLeft_whenNoUsageRecord_expectDefaultLimit() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID)).thenReturn(null);
 
     int result = genAIUsageManagementService.getNumberOfRequestLeft(USER_ID);
@@ -342,7 +342,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenUsageRecordExists_expectRemainingRequests() {
+  void getNumberOfRequestLeft_whenUsageRecordExists_expectRemainingRequests() {
     userGenAIUsageModel.setRequestCount(3);
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
         .thenReturn(userGenAIUsageModel);
@@ -353,7 +353,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenRequestCountExceedsLimit_expectZero() {
+  void getNumberOfRequestLeft_whenRequestCountExceedsLimit_expectZero() {
     userGenAIUsageModel.setRequestCount(GenAIUsageConstants.DEFAULT_GEN_AI_USAGE_LIMIT + 5);
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
         .thenReturn(userGenAIUsageModel);
@@ -364,7 +364,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  public void getNumberOfRequestLeft_whenDbFails_expectException() {
+  void getNumberOfRequestLeft_whenDbFails_expectException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(USER_ID))
         .thenThrow(new RuntimeException("DB failed"));
 

@@ -37,7 +37,7 @@ public class AuthServiceUnitTest {
   private final String encodedPassword = "encodedPassword123";
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockUserRepo = Mockito.mock(UserRepository.class);
     mockEmailService = Mockito.mock(EmailService.class);
     mockAuthManager = Mockito.mock(AuthenticationManager.class);
@@ -67,7 +67,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void constructor_expectUsedInstancesPassed() {
+  void constructor_expectUsedInstancesPassed() {
     assertEquals(mockUserRepo, authService.getUserRepository());
     assertEquals(mockEmailService, authService.getEmailService());
   }
@@ -77,7 +77,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void createNewUser_whenEmailAlreadyUsed_expectException() {
+  void createNewUser_whenEmailAlreadyUsed_expectException() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
 
     assertThrows(
@@ -86,7 +86,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void createNewUser_whenNewEmail_expectUserSavedWithCorrectFields() {
+  void createNewUser_whenNewEmail_expectUserSavedWithCorrectFields() {
     when(mockUserRepo.findUserModelByEmail("newUser@mail.com")).thenReturn(null);
     when(mockPasswordEncoder.encode("newPassword")).thenReturn("encodedNewPassword");
     when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -106,7 +106,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void createNewUser_whenNewEmail_expectEmailSentWithVerificationCode() {
+  void createNewUser_whenNewEmail_expectEmailSentWithVerificationCode() {
     when(mockUserRepo.findUserModelByEmail("newUser@mail.com")).thenReturn(null);
     when(mockPasswordEncoder.encode(anyString())).thenReturn("encodedPassword");
     when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -131,7 +131,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void createNewUser_whenNewEmail_expectVerificationCodeIsValidRange() {
+  void createNewUser_whenNewEmail_expectVerificationCodeIsValidRange() {
     when(mockUserRepo.findUserModelByEmail("newUser@mail.com")).thenReturn(null);
     when(mockPasswordEncoder.encode(anyString())).thenReturn("encodedPassword");
     when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -158,7 +158,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void verifyUser_whenUserNotYetRegistered_expectException() {
+  void verifyUser_whenUserNotYetRegistered_expectException() {
     when(mockUserRepo.findUserModelByEmail("notFoo@mail.com")).thenReturn(null);
 
     assertThrows(
@@ -167,7 +167,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void verifyUser_whenUserAlreadyVerified_expectException() {
+  void verifyUser_whenUserAlreadyVerified_expectException() {
     fooUserNotActivated.setVerified(true);
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
 
@@ -177,7 +177,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void verifyUser_whenWrongCode_expectException() {
+  void verifyUser_whenWrongCode_expectException() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
 
     assertThrows(IncorrectCodeException.class, () -> authService.verifyUser("foo@mail.com", 000));
@@ -185,7 +185,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void verifyUser_whenCorrectCode_expectUserSavedAsVerified() {
+  void verifyUser_whenCorrectCode_expectUserSavedAsVerified() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
     when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -202,7 +202,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void resetVerifyCode_whenUserNotYetRegistered_expectException() {
+  void resetVerifyCode_whenUserNotYetRegistered_expectException() {
     when(mockUserRepo.findUserModelByEmail("notFoo@mail.com")).thenReturn(null);
 
     assertThrows(
@@ -211,7 +211,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void resetVerifyCode_whenUserAlreadyVerified_expectException() {
+  void resetVerifyCode_whenUserAlreadyVerified_expectException() {
     fooUserNotActivated.setVerified(true);
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
 
@@ -221,7 +221,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void resetVerifyCode_whenUserRegistered_expectEmailSentWithNewCode() {
+  void resetVerifyCode_whenUserRegistered_expectEmailSentWithNewCode() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
     when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -248,7 +248,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void forgotPassword_whenUserNotYetRegistered_expectException() {
+  void forgotPassword_whenUserNotYetRegistered_expectException() {
     when(mockUserRepo.findUserModelByEmail("notFoo@mail.com")).thenReturn(null);
 
     assertThrows(
@@ -256,7 +256,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void forgotPassword_whenAccountNotActivated_expectException() {
+  void forgotPassword_whenAccountNotActivated_expectException() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
 
     assertThrows(
@@ -266,7 +266,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void forgotPassword_whenAccountActivated_expectEmailSentWithCode() {
+  void forgotPassword_whenAccountActivated_expectEmailSentWithCode() {
     when(mockUserRepo.findUserModelByEmail("fooActivated@mail.com")).thenReturn(fooUserActivated);
     when(mockUserRepo.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -294,7 +294,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void updatePassword_whenUserNotYetRegistered_expectException() {
+  void updatePassword_whenUserNotYetRegistered_expectException() {
     when(mockUserRepo.findUserModelByEmail("notFoo@mail.com")).thenReturn(null);
 
     assertThrows(
@@ -303,7 +303,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenUserNotYetActivated_expectException() {
+  void updatePassword_whenUserNotYetActivated_expectException() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
 
     assertThrows(
@@ -313,7 +313,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenWrongCode_expectException() {
+  void updatePassword_whenWrongCode_expectException() {
     when(mockUserRepo.findUserModelByEmail("fooActivated@mail.com")).thenReturn(fooUserActivated);
 
     assertThrows(
@@ -323,7 +323,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void updatePassword_whenCorrectCode_expectPasswordUpdatedAndCodeReset() {
+  void updatePassword_whenCorrectCode_expectPasswordUpdatedAndCodeReset() {
     fooUserActivated.setVerificationCode(654321); // must be non-default to catch the mutation
     when(mockUserRepo.findUserModelByEmail("fooActivated@mail.com")).thenReturn(fooUserActivated);
     when(mockPasswordEncoder.encode("newPassword123")).thenReturn("encodedNewPassword");
@@ -343,7 +343,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getTokenExpireDurationInSeconds_expectExpireDurationFromJwtService() {
+  void getTokenExpireDurationInSeconds_expectExpireDurationFromJwtService() {
     when(mockJwtService.getExpirationDurationInMilliseconds()).thenReturn(100000L);
 
     assertEquals(100L, authService.getTokenExpireDurationInSeconds());
@@ -354,7 +354,7 @@ public class AuthServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void login_whenSuccess_expectReturnToken() {
+  void login_whenSuccess_expectReturnToken() {
     when(mockUserRepo.findUserModelByEmail("fooActivated@mail.com")).thenReturn(fooUserActivated);
     when(mockPasswordEncoder.matches(rawPassword, encodedPassword)).thenReturn(true);
     when(mockAuthManager.authenticate(any()))
@@ -366,7 +366,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void login_whenAccountNotActivated_expectException() {
+  void login_whenAccountNotActivated_expectException() {
     when(mockUserRepo.findUserModelByEmail("foo@mail.com")).thenReturn(fooUserNotActivated);
     when(mockAuthManager.authenticate(any()))
         .thenReturn(new UsernamePasswordAuthenticationToken("foo@mail.com", encodedPassword));
@@ -376,7 +376,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void login_whenIncorrectPassword_expectException() {
+  void login_whenIncorrectPassword_expectException() {
     when(mockUserRepo.findUserModelByEmail("fooActivated@mail.com")).thenReturn(fooUserActivated);
     when(mockAuthManager.authenticate(any()))
         .thenThrow(new BadCredentialsException("Bad credentials"));
@@ -387,7 +387,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void login_whenAccountNotExist_expectException() {
+  void login_whenAccountNotExist_expectException() {
     when(mockUserRepo.findUserModelByEmail("user.not.registered@mail.com")).thenReturn(null);
     when(mockAuthManager.authenticate(any()))
         .thenThrow(new BadCredentialsException("Bad credentials"));
@@ -398,7 +398,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void login_whenUnknownJWTFail_expectException() {
+  void login_whenUnknownJWTFail_expectException() {
     when(mockUserRepo.findUserModelByEmail("fooActivated@mail.com")).thenReturn(fooUserActivated);
     when(mockAuthManager.authenticate(any()))
         .thenReturn(
@@ -411,7 +411,7 @@ public class AuthServiceUnitTest {
   }
 
   @Test
-  public void login_whenUnknownDBFailure_expectException() {
+  void login_whenUnknownDBFailure_expectException() {
     when(mockUserRepo.findUserModelByEmail(anyString())).thenThrow(new RuntimeException());
 
     assertThrows(

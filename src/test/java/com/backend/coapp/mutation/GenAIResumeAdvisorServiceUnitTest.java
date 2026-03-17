@@ -46,7 +46,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   private final String VALID_RESPONSE = "Here are some improvements...";
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockUsageManagementService = Mockito.mock(GenAIUsageManagementService.class);
     mockGeminiService = Mockito.mock(GeminiGenAIService.class);
     mockApplicationRepository = Mockito.mock(ApplicationRepository.class);
@@ -77,7 +77,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void constructor_expectInitCorrectInstance() {
+  void constructor_expectInitCorrectInstance() {
     assertEquals(mockGeminiService, genAIResumeAdvisorService.getGenAIService());
     assertEquals(
         mockUsageManagementService, genAIResumeAdvisorService.getGenAIUsageManagementService());
@@ -91,7 +91,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAdvice_whenValidPromptNoApplicationNoExperience_expectReturnResponse() {
+  void getAdvice_whenValidPromptNoApplicationNoExperience_expectReturnResponse() {
     when(mockGeminiService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
     String result = genAIResumeAdvisorService.getAdvice(USER_ID, null, VALID_PROMPT);
@@ -106,7 +106,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_expectInstructionIncludedInFinalPrompt() {
+  void getAdvice_expectInstructionIncludedInFinalPrompt() {
     when(mockGeminiService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
     genAIResumeAdvisorService.getAdvice(USER_ID, null, VALID_PROMPT);
@@ -116,7 +116,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
+  void getAdvice_whenPromptExceedsMaxCharacters_expectOverCharacterLimitException() {
     String oversizedPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS + 1);
 
     assertThrows(
@@ -128,7 +128,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenPromptExactlyAtLimit_expectNoException() {
+  void getAdvice_whenPromptExactlyAtLimit_expectNoException() {
     String exactPrompt = "a".repeat(GenAIConstants.MAX_PROMPT_CHARACTERS);
     when(mockGeminiService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
@@ -140,7 +140,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAdvice_whenValidPromptWithApplicationNoExperience_expectReturnResponse() {
+  void getAdvice_whenValidPromptWithApplicationNoExperience_expectReturnResponse() {
     when(mockApplicationRepository.findById(APP_ID)).thenReturn(Optional.of(fooApplication));
     when(mockGeminiService.generateResponse(anyString())).thenReturn(VALID_RESPONSE);
 
@@ -158,7 +158,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
+  void getAdvice_whenValidPromptWithApplicationNoDescription_expectReturnResponse() {
     ApplicationModel noDescApp =
         ApplicationModel.builder()
             .userId(USER_ID)
@@ -184,7 +184,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
+  void getAdvice_whenApplicationNotFound_expectApplicationNotFoundException() {
     when(mockApplicationRepository.findById("nonExistentAppId")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -196,7 +196,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
+  void getAdvice_whenApplicationNotOwnedByUser_expectApplicationNotOwnedException() {
     when(mockApplicationRepository.findById(APP_ID)).thenReturn(Optional.of(fooApplication));
 
     assertThrows(
@@ -208,7 +208,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
     ApplicationModel longDescApp =
         ApplicationModel.builder()
@@ -235,7 +235,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobTitleExceedsLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenApplicationJobTitleExceedsLimit_expectOverCharacterLimitException() {
     ApplicationModel longTitleApp =
         ApplicationModel.builder()
             .userId(USER_ID)
@@ -258,7 +258,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void
+  void
       getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
     ApplicationModel bothExceedApp =
         ApplicationModel.builder()
@@ -282,7 +282,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobDescriptionExactlyAtLimit_expectNoException() {
+  void getAdvice_whenApplicationJobDescriptionExactlyAtLimit_expectNoException() {
     ApplicationModel exactDescApp =
         ApplicationModel.builder()
             .userId(USER_ID)
@@ -302,7 +302,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenApplicationJobTitleExactlyAtLimit_expectNoException() {
+  void getAdvice_whenApplicationJobTitleExactlyAtLimit_expectNoException() {
     ApplicationModel exactTitleApp =
         ApplicationModel.builder()
             .userId(USER_ID)
@@ -326,7 +326,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAdvice_whenUserHasExperience_expectExperienceIncludedInPrompt() {
+  void getAdvice_whenUserHasExperience_expectExperienceIncludedInPrompt() {
     UserExperienceModel experience =
         new UserExperienceModel(
             USER_ID,
@@ -351,7 +351,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenExperienceLengthExactlyAtLimit_expectIncludedInPrompt() {
+  void getAdvice_whenExperienceLengthExactlyAtLimit_expectIncludedInPrompt() {
     // header = "Student work experiences are listed in the format (Job Title - Job Description):\n"
     // = 81 chars
     // experience entry = roleTitle + " - " + roleDescription + "\n" = "T - " + desc + "\n" =
@@ -377,7 +377,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenMultipleExperiences_expectSortedByMostRecent() {
+  void getAdvice_whenMultipleExperiences_expectSortedByMostRecent() {
     UserExperienceModel firstExperience =
         new UserExperienceModel(
             USER_ID,
@@ -409,7 +409,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenMultipleExperiencesWithOneExceedChar_expectSortedByMostRecent() {
+  void getAdvice_whenMultipleExperiencesWithOneExceedChar_expectSortedByMostRecent() {
     UserExperienceModel firstExperience =
         new UserExperienceModel(
             USER_ID,
@@ -467,7 +467,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAdvice_whenUsageCheckThrows_expectExceptionPropagated() {
+  void getAdvice_whenUsageCheckThrows_expectExceptionPropagated() {
     doThrow(new GenAIQuotaExceededException())
         .when(mockUsageManagementService)
         .checkAndIncrementUsage(anyString());
@@ -480,7 +480,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  public void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
+  void getAdvice_whenGenAIServiceThrows_expectExceptionPropagated() {
     when(mockGeminiService.generateResponse(anyString()))
         .thenThrow(new GenAIServiceException("Gemini failed"));
 

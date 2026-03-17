@@ -37,7 +37,7 @@ public class CompanyServiceUnitTest {
   private CompanyModel varianCompany;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     mockCompanyRepository = Mockito.mock(CompanyRepository.class);
     mockReviewRepository = Mockito.mock(ReviewRepository.class);
 
@@ -55,7 +55,7 @@ public class CompanyServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(mockCompanyRepository, companyService.getCompanyRepository());
     assertSame(mockReviewRepository, companyService.getReviewRepository());
   }
@@ -65,7 +65,7 @@ public class CompanyServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void createCompany_whenValidData_expectSuccess() {
+  void createCompany_whenValidData_expectSuccess() {
     when(mockCompanyRepository.findByCompanyNameLower("amazon")).thenReturn(Optional.empty());
     when(mockCompanyRepository.save(any())).thenAnswer(i -> i.getArgument(0));
 
@@ -80,7 +80,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void createCompany_whenCompanyAlreadyExists_expectException() {
+  void createCompany_whenCompanyAlreadyExists_expectException() {
     when(mockCompanyRepository.findByCompanyNameLower("niche"))
         .thenReturn(Optional.of(nicheCompany));
 
@@ -92,7 +92,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void createCompany_whenCompanyExistsCaseInsensitive_expectException() {
+  void createCompany_whenCompanyExistsCaseInsensitive_expectException() {
     when(mockCompanyRepository.findByCompanyNameLower("niche"))
         .thenReturn(Optional.of(nicheCompany));
 
@@ -104,14 +104,14 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void createCompany_whenInvalidWebsite_expectException() {
+  void createCompany_whenInvalidWebsite_expectException() {
     assertThrows(
         InvalidWebsiteException.class,
         () -> companyService.createCompany("Test", "City", "invalidurl.com"));
   }
 
   @Test
-  public void createCompany_whenDatabaseSaveFails_expectException() {
+  void createCompany_whenDatabaseSaveFails_expectException() {
     when(mockCompanyRepository.findByCompanyNameLower(anyString())).thenReturn(Optional.empty());
     when(mockCompanyRepository.save(any(CompanyModel.class)))
         .thenThrow(new RuntimeException("Database error"));
@@ -127,7 +127,7 @@ public class CompanyServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAllCompanies_withPagination_expectSuccess() {
+  void getAllCompanies_withPagination_expectSuccess() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyModel> mockPage = new PageImpl<>(List.of(nicheCompany, varianCompany), pageable, 2);
     when(mockCompanyRepository.findAll(pageable)).thenReturn(mockPage);
@@ -140,7 +140,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void getAllCompanies_withSearch_expectFilteredResults() {
+  void getAllCompanies_withSearch_expectFilteredResults() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyModel> mockPage = new PageImpl<>(List.of(nicheCompany), pageable, 1);
     when(mockCompanyRepository.findByCompanyNameLowerContaining("niche", pageable))
@@ -154,7 +154,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void getAllCompanies_withSearchNoResults_expectEmpty() {
+  void getAllCompanies_withSearchNoResults_expectEmpty() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyModel> emptyPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
     when(mockCompanyRepository.findByCompanyNameLowerContaining("nonexistent", pageable))
@@ -167,7 +167,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void getAllCompanies_withBlankSearch_expectAllResults() {
+  void getAllCompanies_withBlankSearch_expectAllResults() {
     Pageable pageable = PageRequest.of(0, 10);
     Page<CompanyModel> mockPage = new PageImpl<>(List.of(nicheCompany, varianCompany), pageable, 2);
     when(mockCompanyRepository.findAll(pageable)).thenReturn(mockPage);
@@ -182,7 +182,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void getAllCompanies_whenDatabaseFails_expectException() {
+  void getAllCompanies_whenDatabaseFails_expectException() {
     Pageable pageable = PageRequest.of(0, 10);
     when(mockCompanyRepository.findAll(pageable)).thenThrow(new RuntimeException("Database error"));
 
@@ -195,7 +195,7 @@ public class CompanyServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getAllCompanies_withoutPagination_expectAllResults() {
+  void getAllCompanies_withoutPagination_expectAllResults() {
     Page<CompanyModel> mockPage = new PageImpl<>(List.of(nicheCompany, varianCompany));
     when(mockCompanyRepository.findAll(any(Pageable.class))).thenReturn(mockPage);
 
@@ -210,7 +210,7 @@ public class CompanyServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void getCompanyById_whenExists_expectSuccess() {
+  void getCompanyById_whenExists_expectSuccess() {
     when(mockCompanyRepository.findById("company_001")).thenReturn(Optional.of(nicheCompany));
 
     CompanyResponse response = companyService.getCompanyById("company_001");
@@ -221,7 +221,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void getCompanyById_whenNotExists_expectException() {
+  void getCompanyById_whenNotExists_expectException() {
     when(mockCompanyRepository.findById("nonexistentid")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -229,7 +229,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void getCompanyById_whenDatabaseFails_expectException() {
+  void getCompanyById_whenDatabaseFails_expectException() {
     when(mockCompanyRepository.findById(anyString()))
         .thenThrow(new RuntimeException("Database error"));
 
@@ -241,7 +241,7 @@ public class CompanyServiceUnitTest {
   // -------------------------------------------------------------------------
 
   @Test
-  public void updateAvgRating_whenNoReviews_expectZeroRating() {
+  void updateAvgRating_whenNoReviews_expectZeroRating() {
     when(mockCompanyRepository.findById("company_001")).thenReturn(Optional.of(nicheCompany));
     when(mockReviewRepository.getAverageRatingByCompanyId("company_001")).thenReturn(null);
     when(mockCompanyRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -254,7 +254,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void updateAvgRating_whenOneReview_expectCorrectRating() {
+  void updateAvgRating_whenOneReview_expectCorrectRating() {
     when(mockCompanyRepository.findById("company_001")).thenReturn(Optional.of(nicheCompany));
     when(mockReviewRepository.getAverageRatingByCompanyId("company_001")).thenReturn(5.0);
     when(mockCompanyRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -267,7 +267,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void updateAvgRating_whenMultipleReviews_expectCorrectAverage() {
+  void updateAvgRating_whenMultipleReviews_expectCorrectAverage() {
     when(mockCompanyRepository.findById("company_001")).thenReturn(Optional.of(nicheCompany));
     when(mockReviewRepository.getAverageRatingByCompanyId("company_001")).thenReturn(4.0);
     when(mockCompanyRepository.save(any())).thenAnswer(i -> i.getArgument(0));
@@ -280,7 +280,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void updateAvgRating_whenCompanyNotFound_expectException() {
+  void updateAvgRating_whenCompanyNotFound_expectException() {
     when(mockCompanyRepository.findById("nonexistentid")).thenReturn(Optional.empty());
 
     assertThrows(
@@ -288,7 +288,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void updateAvgRating_whenDatabaseFindFails_expectException() {
+  void updateAvgRating_whenDatabaseFindFails_expectException() {
     when(mockCompanyRepository.findById(anyString()))
         .thenThrow(new RuntimeException("Database error"));
 
@@ -296,7 +296,7 @@ public class CompanyServiceUnitTest {
   }
 
   @Test
-  public void updateAvgRating_whenDatabaseSaveFails_expectException() {
+  void updateAvgRating_whenDatabaseSaveFails_expectException() {
     ReviewModel review = mock(ReviewModel.class);
     when(review.getRating()).thenReturn(5);
 
