@@ -285,8 +285,7 @@ public class GenAIUsageManagementServiceUnitTest {
   }
 
   @Test
-  void
-      decrementUsage_whenUsageRepoOperationFails_expectGenAIUsageManagementServiceException() {
+  void decrementUsage_whenUsageRepoOperationFails_expectGenAIUsageManagementServiceException() {
     when(mockUserGenAIUsageRepository.findUserGenAIUsageModelByUserId(anyString()))
         .thenThrow(new RuntimeException("DB failed"));
 

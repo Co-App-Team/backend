@@ -177,8 +177,7 @@ class JwtServiceTest {
 
       JwtServiceFailException ex =
           assertThrows(
-              JwtServiceFailException.class,
-              () -> jwtService.generateToken(this.userDetails));
+              JwtServiceFailException.class, () -> jwtService.generateToken(this.userDetails));
 
       assertTrue(ex.getMessage().contains("Unexpected JWT error"));
     }
@@ -279,8 +278,7 @@ class JwtServiceTest {
 
       JwtServiceFailException ex =
           assertThrows(
-              JwtServiceFailException.class,
-              () -> jwtService.extractUserIdentity(this.validToken));
+              JwtServiceFailException.class, () -> jwtService.extractUserIdentity(this.validToken));
 
       assertTrue(ex.getMessage().contains("Unexpected JWT error"));
     }

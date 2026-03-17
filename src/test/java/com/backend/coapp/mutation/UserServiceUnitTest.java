@@ -351,8 +351,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  void
-      createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+  void createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
@@ -401,8 +400,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  void
-      deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnedException() {
+  void deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnedException() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
 
     assertThrows(
@@ -545,8 +543,7 @@ public class UserServiceUnitTest {
   }
 
   @Test
-  void
-      updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnedException() {
+  void updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnedException() {
     when(mockUserExperienceRepository.findById("exp_001")).thenReturn(Optional.of(fooExperience1));
     when(mockCompanyRepository.existsById("company_001")).thenReturn(true);
 

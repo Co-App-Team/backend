@@ -208,8 +208,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  void
-      getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenApplicationJobDescriptionExceedsLimit_expectOverCharacterLimitException() {
     ApplicationModel longDescApp =
         ApplicationModel.builder()
             .userId(USER_ID)
@@ -258,8 +257,7 @@ public class GenAIResumeAdvisorServiceUnitTest {
   }
 
   @Test
-  void
-      getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
+  void getAdvice_whenBothJobTitleAndDescriptionExceedLimit_expectOverCharacterLimitException() {
     ApplicationModel bothExceedApp =
         ApplicationModel.builder()
             .userId(USER_ID)
