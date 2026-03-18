@@ -177,10 +177,7 @@ class JwtServiceTest {
 
       JwtServiceFailException ex =
           assertThrows(
-              JwtServiceFailException.class,
-              () -> {
-                jwtService.generateToken(this.userDetails);
-              });
+              JwtServiceFailException.class, () -> jwtService.generateToken(this.userDetails));
 
       assertTrue(ex.getMessage().contains("Unexpected JWT error"));
     }
@@ -281,10 +278,7 @@ class JwtServiceTest {
 
       JwtServiceFailException ex =
           assertThrows(
-              JwtServiceFailException.class,
-              () -> {
-                jwtService.extractUserIdentity(this.validToken);
-              });
+              JwtServiceFailException.class, () -> jwtService.extractUserIdentity(this.validToken));
 
       assertTrue(ex.getMessage().contains("Unexpected JWT error"));
     }
@@ -357,5 +351,13 @@ class JwtServiceTest {
   @Test
   void getExpirationDurationInMilliseconds_expectCorrectExpirationDuration() {
     assertEquals(EXPIRATION_TIME, this.jwtService.getExpirationDurationInMilliseconds());
+  }
+
+  // Verifies that validateUserDetail is called in isTokenValid before token parsing.
+  // Added to kill the mutation "removed call to validateUserDetail"
+  // without this test, passing null userDetails would not be caught before
+  @Test
+  void isTokenValid_whenNullUserDetails_expectException() {
+    assertThrows(JwtServiceFailException.class, () -> jwtService.isTokenValid(validToken, null));
   }
 }
