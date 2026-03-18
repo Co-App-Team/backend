@@ -7,6 +7,7 @@ import static org.mockito.Mockito.*;
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.exception.application.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
@@ -17,6 +18,7 @@ import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import com.backend.coapp.service.ApplicationService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,9 @@ class ApplicationServiceUnitTest {
   private CompanyModel testCompany;
   private UserModel testUser;
   private ApplicationModel existingApp;
+
+  private final LocalDate testDate = LocalDate.now().plusDays(30);
+  private final LocalDateTime testInterviewDateTime = testDate.atTime(10, 0);
 
   @BeforeEach
   void setUp() {
@@ -105,7 +110,7 @@ class ApplicationServiceUnitTest {
         .sourceLink("https://link.com")
         .dateApplied(LocalDate.now())
         .notes("Notes")
-        .interviewDate(null);
+        .interviewDateTime(null);
   }
 
   private ApplicationResponse executeCreate(ApplicationModel.ApplicationModelBuilder builder) {
@@ -121,7 +126,7 @@ class ApplicationServiceUnitTest {
         m.getSourceLink(),
         m.getDateApplied(),
         m.getNotes(),
-        m.getInterviewDate());
+        m.getInterviewDateTime());
   }
 
   // -------------------------------------------------------------------------
@@ -141,13 +146,14 @@ class ApplicationServiceUnitTest {
 
   @Test
   void createApplication_whenInterviewDateProvided_expectSuccess() {
-    LocalDate interview = LocalDate.now().plusDays(14);
+    LocalDateTime interview = LocalDateTime.now().plusDays(14);
     setupCreateMocks("company_001", "user_001", "Data Scientist");
 
-    ApplicationResponse response = executeCreate(getValidCreateBuilder().interviewDate(interview));
+    ApplicationResponse response =
+        executeCreate(getValidCreateBuilder().interviewDateTime(interview));
 
     assertNotNull(response);
-    assertEquals(interview, response.getInterviewDate());
+    assertEquals(interview, response.getInterviewDateTime());
   }
 
   @Test
@@ -235,7 +241,7 @@ class ApplicationServiceUnitTest {
         .sourceLink(existingApp.getSourceLink())
         .dateApplied(existingApp.getDateApplied())
         .notes(existingApp.getNotes())
-        .interviewDate(existingApp.getInterviewDate());
+        .interviewDateTime(existingApp.getInterviewDateTime());
   }
 
   private ApplicationResponse executeUpdate(ApplicationModel.ApplicationModelBuilder builder) {
@@ -257,7 +263,7 @@ class ApplicationServiceUnitTest {
         m.getSourceLink(),
         m.getDateApplied(),
         m.getNotes(),
-        m.getInterviewDate());
+        m.getInterviewDateTime());
   }
 
   // -------------------------------------------------------------------------
@@ -333,7 +339,7 @@ class ApplicationServiceUnitTest {
     when(mockApp.getSourceLink()).thenReturn("http://old.com");
     when(mockApp.getDateApplied()).thenReturn(LocalDate.now());
     when(mockApp.getNotes()).thenReturn("Old Notes");
-    when(mockApp.getInterviewDate()).thenReturn(null);
+    when(mockApp.getInterviewDateTime()).thenReturn(null);
 
     when(mockAppRepo.findById(anyString())).thenReturn(Optional.of(mockApp));
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
@@ -426,12 +432,12 @@ class ApplicationServiceUnitTest {
   @Test
   void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
     setupExistingAppMock();
-    LocalDate newInterview = LocalDate.now().plusDays(7);
+    LocalDateTime newInterview = LocalDateTime.now().plusDays(7);
 
     ApplicationResponse response =
-        executeUpdate(getValidUpdateBuilder().interviewDate(newInterview));
+        executeUpdate(getValidUpdateBuilder().interviewDateTime(newInterview));
 
-    assertEquals(newInterview, response.getInterviewDate());
+    assertEquals(newInterview, response.getInterviewDateTime());
   }
 
   @Test
@@ -469,6 +475,26 @@ class ApplicationServiceUnitTest {
 
     assertEquals(ApplicationStatus.APPLIED, response.getStatus());
     assertEquals(LocalDate.now(), response.getDateApplied());
+  }
+
+  @Test
+  void updateApplication_whenAppliedDateAfterDeadline_expectInvalidRequest() {
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+
+    // existingApp deadline = LocalDate.now().plusDays(5); set dateApplied beyond it
+    var params = getValidUpdateBuilder().dateApplied(LocalDate.now().plusDays(10));
+    assertThrows(InvalidRequestException.class, () -> executeUpdate(params));
+  }
+
+  @Test
+  void updateApplication_whenAppliedDateEqualsDeadline_expectSuccess() {
+    setupExistingAppMock();
+
+    // dateApplied == applicationDeadline (same day) should NOT throw
+    var params = getValidUpdateBuilder().dateApplied(LocalDate.now().plusDays(5));
+    ApplicationResponse response = executeUpdate(params);
+    assertNotNull(response);
   }
 
   // -------------------------------------------------------------------------
@@ -796,5 +822,176 @@ class ApplicationServiceUnitTest {
         () ->
             applicationService.getFilteredApplications(
                 "user_001", null, null, "dateApplied", "desc", 0, 20));
+  }
+
+  // -------------------------------------------------------------------------
+  // getInterviewApplications — helpers
+  // -------------------------------------------------------------------------
+
+  private void mockInterviewQuery(List<ApplicationModel> results) {
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenReturn((List) results);
+  }
+
+  // -------------------------------------------------------------------------
+  // getInterviewApplications
+  // -------------------------------------------------------------------------
+
+  @Test
+  void getInterviewApplications_whenNoDateRange_returnInterviewingApps() {
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Interviewing Role")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDateTime(testInterviewDateTime)
+            .applicationDeadline(testDate)
+            .build();
+
+    mockInterviewQuery(List.of(existingApp, interviewingApp));
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(app -> "Interviewing Role".equals(app.getJobTitle())));
+    assertTrue(result.stream().anyMatch(app -> "Software Engineer".equals(app.getJobTitle())));
+  }
+
+  @Test
+  void getInterviewApplications_whenDateRangeProvided_returnFilteredApps() {
+    LocalDate start = testDate.minusDays(1);
+    LocalDate end = testDate.plusDays(1);
+
+    ApplicationModel insideRange =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Inside Range")
+            .status(ApplicationStatus.INTERVIEWING)
+            .interviewDateTime(testInterviewDateTime)
+            .applicationDeadline(testDate)
+            .build();
+
+    mockInterviewQuery(List.of(existingApp, insideRange));
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", start, end);
+
+    assertEquals(2, result.size());
+    assertTrue(result.stream().anyMatch(app -> "Inside Range".equals(app.getJobTitle())));
+    assertTrue(result.stream().anyMatch(app -> "Software Engineer".equals(app.getJobTitle())));
+  }
+
+  @Test
+  void getInterviewApplications_whenStatusNotInterviewingButDateExists_returnResults() {
+    mockInterviewQuery(List.of(existingApp));
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertFalse(result.isEmpty());
+    assertEquals(1, result.size());
+    assertEquals("Software Engineer", result.get(0).getJobTitle());
+  }
+
+  @Test
+  void getInterviewApplications_whenInterviewDateNull_notReturned() {
+    mockInterviewQuery(List.of(existingApp));
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertEquals(1, result.size());
+    assertNotEquals("No Date", result.get(0).getJobTitle());
+    assertEquals("Software Engineer", result.get(0).getJobTitle());
+  }
+
+  @Test
+  void getInterviewApplications_whenWrongUser_returnEmpty() {
+    mockInterviewQuery(Collections.emptyList());
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("wrong_user", null, null);
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void getInterviewApplications_whenDatesProvided_expectMongoQueryCalled() {
+    mockInterviewQuery(Collections.emptyList());
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", testDate, testDate);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  void getInterviewApplications_whenBothDatesProvided_expectDateRangeInQuery() {
+    mockInterviewQuery(Collections.emptyList());
+
+    applicationService.getInterviewApplications(
+        "user_001", testDate.minusDays(1), testDate.plusDays(1));
+
+    ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+    verify(mockMongoTemplate).find(captor.capture(), eq(ApplicationModel.class));
+    assertTrue(captor.getValue().toString().contains("gte"));
+  }
+
+  @Test
+  void getInterviewApplications_whenOnlyStartDate_expectNoDateRangeInQuery() {
+    mockInterviewQuery(Collections.emptyList());
+
+    applicationService.getInterviewApplications("user_001", testDate, null);
+
+    ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
+    verify(mockMongoTemplate).find(captor.capture(), eq(ApplicationModel.class));
+    assertFalse(captor.getValue().toString().contains("gte"));
+  }
+
+  @Test
+  void getInterviewApplications_whenDatesNull_expectMongoQueryCalled() {
+    mockInterviewQuery(Collections.emptyList());
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", null, null);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  void getInterviewApplications_whenStartDateOnly_expectMongoQueryCalled() {
+    mockInterviewQuery(Collections.emptyList());
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", testDate, null);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  void getInterviewApplications_whenEndDateOnly_expectMongoQueryCalled() {
+    mockInterviewQuery(Collections.emptyList());
+
+    List<ApplicationResponse> result =
+        applicationService.getInterviewApplications("user_001", null, testDate);
+
+    assertTrue(result.isEmpty());
+    verify(mockMongoTemplate).find(any(Query.class), eq(ApplicationModel.class));
+  }
+
+  @Test
+  void getInterviewApplications_whenDbFails_expectRuntimeException() {
+    when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
+        .thenThrow(new RuntimeException("DB Crash"));
+
+    assertThrows(
+        RuntimeException.class,
+        () -> applicationService.getInterviewApplications("user_001", null, null));
   }
 }
