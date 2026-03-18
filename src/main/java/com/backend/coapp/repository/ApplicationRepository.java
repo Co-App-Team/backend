@@ -35,5 +35,14 @@ public interface ApplicationRepository extends MongoRepository<ApplicationModel,
    */
   List<ApplicationModel> findByUserIdAndStatus(String userId, ApplicationStatus status);
 
+  /**
+   * Checks if an application exists for the given user, company, and job title.
+   *
+   * @param userId The user's ID
+   * @param companyId The company's ID
+   * @param jobTitle The job title
+   * @return {@code true} if an application exists with the specified criteria, {@code false}
+   *     otherwise
+   */
   boolean existsByUserIdAndCompanyIdAndJobTitle(String userId, String companyId, String jobTitle);
 }

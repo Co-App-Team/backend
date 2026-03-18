@@ -3,6 +3,7 @@ package com.backend.coapp.dto.response;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -27,7 +28,7 @@ public class ApplicationResponse implements IResponse {
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
-  private LocalDate interviewDate;
+  private LocalDateTime interviewDateTime;
 
   @Override
   public Map<String, Object> toMap() {
@@ -42,7 +43,7 @@ public class ApplicationResponse implements IResponse {
     map.put("sourceLink", this.sourceLink);
     map.put("dateApplied", this.dateApplied);
     map.put("notes", this.notes);
-    map.put("interviewDate", this.interviewDate);
+    map.put("interviewDateTime", this.interviewDateTime);
     return map;
   }
 
@@ -58,6 +59,6 @@ public class ApplicationResponse implements IResponse {
         application.getSourceLink(),
         application.getDateApplied(),
         application.getNotes(),
-        application.getInterviewDate());
+        application.getInterviewDateTime());
   }
 }

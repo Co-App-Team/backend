@@ -6,6 +6,7 @@ import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 class UpdateApplicationRequestTest {
@@ -16,6 +17,7 @@ class UpdateApplicationRequestTest {
 
   private final LocalDate deadline = LocalDate.now().plusMonths(1);
   private final LocalDate applied = LocalDate.now().plusMonths(1);
+  private final LocalDateTime interviewDateTime = LocalDateTime.now().plusMonths(1);
 
   /** Helper methods to create a valid builder. */
   private UpdateApplicationRequest.UpdateApplicationRequestBuilder getValidRequestBuilder() {
@@ -36,7 +38,7 @@ class UpdateApplicationRequestTest {
         .numPositions(3)
         .sourceLink("https://updated-link.com")
         .notes("Updated notes")
-        .interviewDate(deadline);
+        .interviewDateTime(interviewDateTime);
   }
 
   @Test
@@ -57,7 +59,7 @@ class UpdateApplicationRequestTest {
     assertEquals(3, request.getNumPositions());
     assertEquals("https://updated-link.com", request.getSourceLink());
     assertEquals("Updated notes", request.getNotes());
-    assertEquals(deadline, request.getInterviewDate());
+    assertEquals(interviewDateTime, request.getInterviewDateTime());
   }
 
   @Test
@@ -124,7 +126,7 @@ class UpdateApplicationRequestTest {
     assertDoesNotThrow(
         () ->
             UpdateApplicationRequest.builder()
-                .interviewDate(LocalDate.now())
+                .interviewDateTime(LocalDateTime.now())
                 .build()
                 .validateRequest());
   }
@@ -290,7 +292,7 @@ class UpdateApplicationRequestTest {
   @Test
   void validateRequest_whenNumPositionsIsZero_expectNoException() {
     UpdateApplicationRequest request =
-        UpdateApplicationRequest.builder().jobTitle(validJobTitle).interviewDate(null).build();
+        UpdateApplicationRequest.builder().jobTitle(validJobTitle).interviewDateTime(null).build();
     assertDoesNotThrow(request::validateRequest);
   }
 
@@ -332,21 +334,22 @@ class UpdateApplicationRequestTest {
   }
 
   @Test
-  void validateRequest_whenInterviewDateInThePast_expectException() {
+  void validateRequest_whenInterviewDateTooFarInThePast_expectException() {
     UpdateApplicationRequest request =
-        getValidRequestBuilder().interviewDate(LocalDate.now().minusDays(1)).build();
+        getValidRequestBuilder().interviewDateTime(LocalDateTime.now().minusYears(1)).build();
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Interview Date cannot be in the past.", exception.getMessage());
+        EXCEPTION_PREFIX + "Interview Date cannot be set 3 months in the past.",
+        exception.getMessage());
   }
 
   @Test
   void validateRequest_whenInterviewDateIsToday_expectSuccess() {
     UpdateApplicationRequest request =
-        getValidRequestBuilder().interviewDate(LocalDate.now()).build();
+        getValidRequestBuilder().interviewDateTime(LocalDateTime.now()).build();
 
     assertDoesNotThrow(request::validateRequest);
   }

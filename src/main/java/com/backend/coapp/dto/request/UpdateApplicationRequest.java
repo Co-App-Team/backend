@@ -5,6 +5,7 @@ import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import com.backend.coapp.util.UrlValidator;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +31,7 @@ public class UpdateApplicationRequest implements IRequest {
   private String sourceLink;
   private LocalDate dateApplied;
   private String notes;
-  private LocalDate interviewDate;
+  private LocalDateTime interviewDateTime;
 
   private boolean hasAtLeastOneField() {
     return companyId != null
@@ -42,7 +43,7 @@ public class UpdateApplicationRequest implements IRequest {
         || sourceLink != null
         || dateApplied != null
         || notes != null
-        || interviewDate != null;
+        || interviewDateTime != null;
   }
 
   public void validateRequest() {
@@ -89,8 +90,9 @@ public class UpdateApplicationRequest implements IRequest {
         && dateApplied.isAfter(applicationDeadline)) {
       throw new InvalidRequestException("Date applied cannot be after application deadline.");
     }
-    if (interviewDate != null && interviewDate.isBefore(LocalDate.now())) {
-      throw new InvalidRequestException("Interview Date cannot be in the past.");
+    if (interviewDateTime != null
+        && interviewDateTime.isBefore(LocalDateTime.now().minusMonths(3))) {
+      throw new InvalidRequestException("Interview Date cannot be set 3 months in the past.");
     }
   }
 }
