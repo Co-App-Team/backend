@@ -4,6 +4,7 @@ import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.exception.application.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
@@ -12,6 +13,7 @@ import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +60,7 @@ public class ApplicationService {
    * @param sourceLink URL to job posting (nullable)
    * @param dateApplied Date application was submitted (non-null)
    * @param notes Additional notes (nullable)
-   * @param interviewDate Date of interview (nullable)
+   * @param interviewDateTime Date of interview (nullable)
    * @return ApplicationResponse DTO containing created application data
    * @throws CompanyNotFoundException If company doesn't exist
    * @throws UserNotFoundException If user doesn't exist
@@ -76,7 +78,7 @@ public class ApplicationService {
       String sourceLink,
       LocalDate dateApplied,
       String notes,
-      LocalDate interviewDate) {
+      LocalDateTime interviewDateTime) {
     if (this.companyRepository.findById(companyId).isEmpty()) {
       throw new CompanyNotFoundException();
     }
@@ -106,7 +108,7 @@ public class ApplicationService {
               .sourceLink(sourceLink)
               .dateApplied(dateApplied)
               .notes(notes)
-              .interviewDate(interviewDate)
+              .interviewDateTime(interviewDateTime)
               .build();
 
       ApplicationModel savedApplication = this.applicationRepository.save(applicationModel);
@@ -132,7 +134,7 @@ public class ApplicationService {
    * @param newSourceLink Updated source link (nullable)
    * @param newDateApplied Updated date applied (nullable)
    * @param newNotes Updated notes (nullable)
-   * @param newInterviewDate Updated interview date (nullable)
+   * @param newInterviewDateTime Updated interview date (nullable)
    * @return ApplicationResponse DTO containing updated application data
    * @throws ApplicationNotFoundException If application doesn't exist
    * @throws UnauthorizedApplicationAccessException If user doesn't own application
@@ -151,7 +153,7 @@ public class ApplicationService {
       String newSourceLink,
       LocalDate newDateApplied,
       String newNotes,
-      LocalDate newInterviewDate) {
+      LocalDateTime newInterviewDateTime) {
 
     ApplicationModel existingApp =
         this.applicationRepository
@@ -174,7 +176,7 @@ public class ApplicationService {
     boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
     boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
     boolean interviewDateChanged =
-        !Objects.equals(existingApp.getInterviewDate(), newInterviewDate);
+        !Objects.equals(existingApp.getInterviewDateTime(), newInterviewDateTime);
 
     if (!companyChanged
         && !titleChanged
@@ -197,6 +199,16 @@ public class ApplicationService {
       newDateApplied = LocalDate.now();
     }
 
+    if (newDateApplied != null
+        && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
+        && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
+      throw new InvalidRequestException(
+          "The applied date must be before the application deadline."
+              + existingApp.getApplicationDeadline()
+              + " "
+              + newDateApplied);
+    }
+
     existingApp.setCompanyId(newCompanyId);
     existingApp.setJobTitle(newJobTitle);
     existingApp.setStatus(newStatus);
@@ -206,7 +218,7 @@ public class ApplicationService {
     existingApp.setSourceLink(newSourceLink);
     existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
-    existingApp.setInterviewDate(newInterviewDate);
+    existingApp.setInterviewDateTime(newInterviewDateTime);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);
     return ApplicationResponse.fromModel(updatedApp);
@@ -356,5 +368,32 @@ public class ApplicationService {
     int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
     return new PaginationResponse(
         page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
+  }
+
+  /**
+   * Retrieves a list of applications for a user that are currently in the interview stage.
+   *
+   * <p>Filters applications where {@code interviewDateTime} exists. If both startDate and endDate
+   * are provided, results are further filtered to include only interviews within that specific date
+   * range.
+   *
+   * @param userId The ID of the user whose applications are being retrieved
+   * @param startDate Optional start date to filter interview dates (inclusive)
+   * @param endDate Optional end date to filter interview dates (inclusive)
+   * @return A list of {@link ApplicationResponse} objects representing the matching applications
+   * @throws ApplicationServiceFailException If the database query fails
+   */
+  public List<ApplicationResponse> getInterviewApplications(
+      String userId, LocalDate startDate, LocalDate endDate) {
+    Criteria criteria = Criteria.where("userId").is(userId).and("interviewDateTime").exists(true);
+
+    if (startDate != null && endDate != null) {
+      criteria.gte(startDate).lte(endDate);
+    }
+
+    List<ApplicationModel> applicationModels =
+        mongoTemplate.find(new Query(criteria), ApplicationModel.class);
+
+    return applicationModels.stream().map(ApplicationResponse::fromModel).toList();
   }
 }

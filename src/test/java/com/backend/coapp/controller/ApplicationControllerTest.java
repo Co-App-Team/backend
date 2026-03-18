@@ -17,6 +17,7 @@ import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.service.ApplicationService;
 import com.backend.coapp.service.JwtService;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,8 @@ class ApplicationControllerTest {
   private CreateApplicationRequest createRequest;
   private UpdateApplicationRequest updateRequest;
 
-  private final LocalDate DATE = LocalDate.of(2800, 1, 1);
+  private final LocalDate date = LocalDate.of(2800, 1, 1);
+  private final LocalDateTime datetime = LocalDateTime.of(2800, 1, 1, 12, 0, 0);
 
   @BeforeEach
   void setUp() {
@@ -62,26 +64,26 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATE);
+            datetime);
 
     this.createRequest =
         CreateApplicationRequest.builder()
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(DATE)
+            .applicationDeadline(date)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(DATE)
+            .dateApplied(date)
             .notes("I think it's not that good.")
-            .interviewDate(DATE)
+            .interviewDateTime(datetime)
             .build();
 
     this.updateRequest =
@@ -89,13 +91,13 @@ class ApplicationControllerTest {
             .companyId("comp456")
             .jobTitle("Senior Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(DATE)
+            .applicationDeadline(date)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(DATE)
+            .dateApplied(date)
             .notes("Updated notes.")
-            .interviewDate(DATE)
+            .interviewDateTime(datetime)
             .build();
 
     when(this.authentication.getPrincipal()).thenReturn(mockUser);
@@ -115,13 +117,13 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATE))
+            datetime))
         .thenReturn(this.mockResponse);
 
     mockMvc
@@ -143,13 +145,13 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATE);
+            datetime);
   }
 
   @Test
@@ -165,7 +167,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new CompanyNotFoundException());
 
     mockMvc
@@ -192,7 +194,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new DuplicateApplicationException("job", "comp"));
 
     mockMvc
@@ -230,7 +232,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class));
+            any(LocalDateTime.class));
   }
 
   @Test
@@ -246,7 +248,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
@@ -270,13 +272,13 @@ class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "Updated notes.",
-            DATE);
+            datetime);
 
     when(this.applicationService.updateApplication(
             "user1",
@@ -284,13 +286,13 @@ class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "Updated notes.",
-            DATE))
+            datetime))
         .thenReturn(updatedResponse);
 
     mockMvc
@@ -311,13 +313,13 @@ class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "Updated notes.",
-            DATE);
+            datetime);
   }
 
   @Test
@@ -334,7 +336,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new ApplicationNotFoundException());
 
     mockMvc
@@ -362,7 +364,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new UnauthorizedApplicationAccessException("update"));
 
     mockMvc
@@ -401,7 +403,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class));
+            any(LocalDateTime.class));
   }
 
   @Test
@@ -418,7 +420,7 @@ class ApplicationControllerTest {
             anyString(),
             any(LocalDate.class),
             anyString(),
-            any(LocalDate.class)))
+            any(LocalDateTime.class)))
         .thenThrow(new ApplicationServiceFailException("Database error"));
 
     mockMvc
@@ -547,11 +549,11 @@ class ApplicationControllerTest {
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(DATE)
+            .applicationDeadline(date)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(DATE)
+            .dateApplied(date)
             .build();
 
     ApplicationResponse responseWithoutNotes =
@@ -560,11 +562,11 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             null,
             null);
 
@@ -573,11 +575,11 @@ class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(DATE),
+            eq(date),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(DATE),
+            eq(date),
             isNull(),
             isNull()))
         .thenReturn(responseWithoutNotes);
@@ -598,11 +600,11 @@ class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(DATE),
+            eq(date),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(DATE),
+            eq(date),
             isNull(),
             isNull());
   }
@@ -817,5 +819,69 @@ class ApplicationControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applications").isEmpty())
         .andExpect(jsonPath("$.pagination.totalItems").value(0));
+  }
+
+  // test get interview applications
+
+  @Test
+  @WithMockUser(username = "user1")
+  void getInterviewApplications_whenNoParams_expect200WithApplications() throws Exception {
+    ApplicationResponse interviewResponse =
+        new ApplicationResponse(
+            "appInterview",
+            "comp456",
+            "Interview Role",
+            ApplicationStatus.INTERVIEWING,
+            date,
+            "Great role",
+            1,
+            "https://linkedin.com",
+            date,
+            "I think it's not that good.",
+            datetime);
+
+    when(this.applicationService.getInterviewApplications(eq("user1"), isNull(), isNull()))
+        .thenReturn(List.of(interviewResponse));
+
+    mockMvc
+        .perform(get("/api/application/interviews"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].jobTitle").value("Interview Role"))
+        .andExpect(jsonPath("$[0].status").value("INTERVIEWING"));
+
+    verify(this.applicationService, times(1))
+        .getInterviewApplications(eq("user1"), isNull(), isNull());
+  }
+
+  @Test
+  @WithMockUser(username = "user1")
+  void getInterviewApplications_whenDateRangeProvided_expect200() throws Exception {
+    LocalDate start = date.minusDays(1);
+    LocalDate end = date.plusDays(1);
+
+    when(this.applicationService.getInterviewApplications("user1", start, end))
+        .thenReturn(Collections.emptyList());
+
+    mockMvc
+        .perform(
+            get("/api/application/interviews")
+                .param("startDate", start.toString())
+                .param("endDate", end.toString()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$").isArray());
+
+    verify(this.applicationService, times(1)).getInterviewApplications("user1", start, end);
+  }
+
+  @Test
+  @WithMockUser(username = "user1")
+  void getInterviewApplications_whenServiceFails_expect500() throws Exception {
+    when(this.applicationService.getInterviewApplications(anyString(), any(), any()))
+        .thenThrow(new ApplicationServiceFailException("DB error"));
+
+    mockMvc
+        .perform(get("/api/application/interviews"))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value("INTERNAL_ERROR"));
   }
 }
