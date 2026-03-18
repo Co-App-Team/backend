@@ -154,9 +154,8 @@ class ApplicationServiceUnitTest {
   void createApplication_whenCompanyNotFound_expectException() {
     when(mockCompRepo.findById("invalid_id")).thenReturn(Optional.empty());
 
-    assertThrows(
-        CompanyNotFoundException.class,
-        () -> executeCreate(getValidCreateBuilder().companyId("invalid_id")));
+    var params = getValidCreateBuilder().companyId("invalid_id");
+    assertThrows(CompanyNotFoundException.class, () -> executeCreate(params));
   }
 
   @Test
@@ -164,10 +163,8 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
     when(mockUserRepo.findById("invalid_user")).thenReturn(Optional.empty());
 
-    assertThrows(
-        UserNotFoundException.class,
-        () ->
-            executeCreate(getValidCreateBuilder().companyId("company_001").userId("invalid_user")));
+    var params = getValidCreateBuilder().companyId("company_001").userId("invalid_user");
+    assertThrows(UserNotFoundException.class, () -> executeCreate(params));
   }
 
   @Test
@@ -178,9 +175,8 @@ class ApplicationServiceUnitTest {
             "user_001", "company_001", "Software Engineer"))
         .thenReturn(true);
 
-    assertThrows(
-        DuplicateApplicationException.class,
-        () -> executeCreate(getValidCreateBuilder().jobTitle("Software Engineer")));
+    var params = getValidCreateBuilder().jobTitle("Software Engineer");
+    assertThrows(DuplicateApplicationException.class, () -> executeCreate(params));
   }
 
   @Test
@@ -191,8 +187,8 @@ class ApplicationServiceUnitTest {
         .thenReturn(false);
     when(mockAppRepo.save(any())).thenThrow(new RuntimeException("DB Crash"));
 
-    assertThrows(
-        ApplicationServiceFailException.class, () -> executeCreate(getValidCreateBuilder()));
+    var params = getValidCreateBuilder();
+    assertThrows(ApplicationServiceFailException.class, () -> executeCreate(params));
   }
 
   // -------------------------------------------------------------------------
@@ -294,9 +290,8 @@ class ApplicationServiceUnitTest {
   void updateApplication_whenNotOwner_expectUnauthorized() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
 
-    assertThrows(
-        UnauthorizedApplicationAccessException.class,
-        () -> executeUpdate(getValidUpdateBuilder().userId("wrong_user").jobTitle("Title")));
+    var params = getValidUpdateBuilder().userId("wrong_user").jobTitle("Title");
+    assertThrows(UnauthorizedApplicationAccessException.class, () -> executeUpdate(params));
   }
 
   @Test
@@ -304,16 +299,16 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
 
-    assertThrows(NoChangesDetectedException.class, () -> executeUpdate(getValidUpdateBuilder()));
+    var params = getValidUpdateBuilder();
+    assertThrows(NoChangesDetectedException.class, () -> executeUpdate(params));
   }
 
   @Test
   void updateApplication_whenAppNotFound_expectException() {
     when(mockAppRepo.findById("invalid_app_id")).thenReturn(Optional.empty());
 
-    assertThrows(
-        ApplicationNotFoundException.class,
-        () -> executeUpdate("invalid_app_id", getValidUpdateBuilder().jobTitle("t")));
+    var params = getValidUpdateBuilder().jobTitle("t");
+    assertThrows(ApplicationNotFoundException.class, () -> executeUpdate("invalid_app_id", params));
   }
 
   @Test
@@ -321,9 +316,8 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("non_existent_company")).thenReturn(Optional.empty());
 
-    assertThrows(
-        CompanyNotFoundException.class,
-        () -> executeUpdate(getValidUpdateBuilder().companyId("non_existent_company")));
+    var params = getValidUpdateBuilder().companyId("non_existent_company");
+    assertThrows(CompanyNotFoundException.class, () -> executeUpdate(params));
   }
 
   @Test
@@ -345,8 +339,8 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
     when(mockAppRepo.save(any())).thenThrow(new RuntimeException("Update DB Crash"));
 
-    assertThrows(
-        RuntimeException.class, () -> executeUpdate(getValidUpdateBuilder().jobTitle("New Title")));
+    var params = getValidUpdateBuilder().jobTitle("New Title");
+    assertThrows(RuntimeException.class, () -> executeUpdate(params));
   }
 
   @Test
