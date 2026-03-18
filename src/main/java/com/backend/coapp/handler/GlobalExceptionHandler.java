@@ -369,8 +369,7 @@ public class GlobalExceptionHandler {
     String message = "Invalid request body.";
 
     Throwable cause = e.getCause();
-    if (cause instanceof InvalidFormatException invalidFormatException
-        && !invalidFormatException.getPath().isEmpty()) {
+    if (cause instanceof InvalidFormatException invalidFormatException) {
 
       String fieldName = invalidFormatException.getPath().get(0).getPropertyName();
       Class<?> targetType = invalidFormatException.getTargetType();
