@@ -363,6 +363,47 @@ class UserControllerTest {
   }
 
   @Test
+  void createNewUserExperience_whenInvalidDateFormat_expect400WithDateMessage() throws Exception {
+    String invalidDateJson =
+        """
+        {
+            "companyId": "someCompanyId",
+            "roleTitle": "Software Engineer",
+            "roleDescription": "Built microservices",
+            "startDate": "01/01/2023",
+            "endDate": "2024-01-01"
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/user/experience")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidDateJson)
+                .principal(this.authentication))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(RequestErrorCode.INVALID_FORMAT_FIELD.name()))
+        .andExpect(
+            jsonPath("$.message")
+                .value("Invalid date format for field 'startDate'. Expected format: yyyy-MM-dd."));
+  }
+
+  @Test
+  void createNewUserExperience_whenMalformedJson_expect400WithGenericMessage() throws Exception {
+    String malformedJson = "{ this is not valid json }";
+
+    mockMvc
+        .perform(
+            post("/api/user/experience")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(malformedJson)
+                .principal(this.authentication))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(RequestErrorCode.INVALID_FORMAT_FIELD.name()))
+        .andExpect(jsonPath("$.message").value("Invalid request body."));
+  }
+
+  @Test
   void deleteUserExperience_whenSuccess_expect200() throws Exception {
     doNothing().when(userService).deleteUserExperience(any(), any());
 
