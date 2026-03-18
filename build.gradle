@@ -75,7 +75,7 @@ pitest {
 	junit5PluginVersion = '1.2.3'
 
 	targetClasses = ['com.backend.coapp.service.*']
-	excludedClasses = ['com.backend.coapp.service.genAI.*'] // decided these weren't worth the effort
+	excludedClasses = ['com.backend.coapp.service.genAI.*']
 	targetTests = [
 			'com.backend.coapp.mutation.*',
 			'com.backend.coapp.service.JwtServiceTest',]
@@ -85,7 +85,7 @@ pitest {
 	outputFormats = ['XML', 'HTML']
 	enableDefaultIncrementalAnalysis = true
 	mutationThreshold = 99
-	coverageThreshold = 0 // unsure if we need a cov threshold here
+	coverageThreshold = 0
 	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED', '-XX:+EnableDynamicAgentLoading']
 }
 

@@ -93,53 +93,35 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
   }
 
-  private class CreateBuilder {
-    String userId = "user_001";
-    String companyId = "company_001";
-    String jobTitle = "Data Scientist";
-    ApplicationStatus status = ApplicationStatus.APPLIED;
-    LocalDate deadline = LocalDate.now();
-    String desc = "Desc";
-    Integer positions = 1;
-    String link = "https://link.com";
-    LocalDate dateApplied = LocalDate.now();
-    String notes = "Notes";
-    LocalDate interviewDate = null;
+  private ApplicationModel.ApplicationModelBuilder getValidCreateBuilder() {
+    return ApplicationModel.builder()
+        .userId("user_001")
+        .companyId("company_001")
+        .jobTitle("Data Scientist")
+        .status(ApplicationStatus.APPLIED)
+        .applicationDeadline(LocalDate.now())
+        .jobDescription("Desc")
+        .numPositions(1)
+        .sourceLink("https://link.com")
+        .dateApplied(LocalDate.now())
+        .notes("Notes")
+        .interviewDate(null);
+  }
 
-    CreateBuilder withUserId(String v) {
-      this.userId = v;
-      return this;
-    }
-
-    CreateBuilder withCompanyId(String v) {
-      this.companyId = v;
-      return this;
-    }
-
-    CreateBuilder withJobTitle(String v) {
-      this.jobTitle = v;
-      return this;
-    }
-
-    CreateBuilder withInterviewDate(LocalDate v) {
-      this.interviewDate = v;
-      return this;
-    }
-
-    ApplicationResponse execute() {
-      return applicationService.createApplication(
-          userId,
-          companyId,
-          jobTitle,
-          status,
-          deadline,
-          desc,
-          positions,
-          link,
-          dateApplied,
-          notes,
-          interviewDate);
-    }
+  private ApplicationResponse executeCreate(ApplicationModel.ApplicationModelBuilder builder) {
+    ApplicationModel m = builder.build();
+    return applicationService.createApplication(
+        m.getUserId(),
+        m.getCompanyId(),
+        m.getJobTitle(),
+        m.getStatus(),
+        m.getApplicationDeadline(),
+        m.getJobDescription(),
+        m.getNumPositions(),
+        m.getSourceLink(),
+        m.getDateApplied(),
+        m.getNotes(),
+        m.getInterviewDate());
   }
 
   // -------------------------------------------------------------------------
@@ -150,7 +132,7 @@ class ApplicationServiceUnitTest {
   void createApplication_whenValid_expectSuccess() {
     setupCreateMocks("company_001", "user_001", "Data Scientist");
 
-    ApplicationResponse response = new CreateBuilder().execute();
+    ApplicationResponse response = executeCreate(getValidCreateBuilder());
 
     assertNotNull(response);
     assertEquals("Data Scientist", response.getJobTitle());
@@ -162,7 +144,7 @@ class ApplicationServiceUnitTest {
     LocalDate interview = LocalDate.now().plusDays(14);
     setupCreateMocks("company_001", "user_001", "Data Scientist");
 
-    ApplicationResponse response = new CreateBuilder().withInterviewDate(interview).execute();
+    ApplicationResponse response = executeCreate(getValidCreateBuilder().interviewDate(interview));
 
     assertNotNull(response);
     assertEquals(interview, response.getInterviewDate());
@@ -172,9 +154,9 @@ class ApplicationServiceUnitTest {
   void createApplication_whenCompanyNotFound_expectException() {
     when(mockCompRepo.findById("invalid_id")).thenReturn(Optional.empty());
 
-    CreateBuilder builder = new CreateBuilder().withCompanyId("invalid_id");
-
-    assertThrows(CompanyNotFoundException.class, builder::execute);
+    assertThrows(
+        CompanyNotFoundException.class,
+        () -> executeCreate(getValidCreateBuilder().companyId("invalid_id")));
   }
 
   @Test
@@ -182,10 +164,10 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
     when(mockUserRepo.findById("invalid_user")).thenReturn(Optional.empty());
 
-    CreateBuilder builder =
-        new CreateBuilder().withCompanyId("company_001").withUserId("invalid_user");
-
-    assertThrows(UserNotFoundException.class, builder::execute);
+    assertThrows(
+        UserNotFoundException.class,
+        () ->
+            executeCreate(getValidCreateBuilder().companyId("company_001").userId("invalid_user")));
   }
 
   @Test
@@ -196,9 +178,9 @@ class ApplicationServiceUnitTest {
             "user_001", "company_001", "Software Engineer"))
         .thenReturn(true);
 
-    CreateBuilder builder = new CreateBuilder().withJobTitle("Software Engineer");
-
-    assertThrows(DuplicateApplicationException.class, builder::execute);
+    assertThrows(
+        DuplicateApplicationException.class,
+        () -> executeCreate(getValidCreateBuilder().jobTitle("Software Engineer")));
   }
 
   @Test
@@ -209,9 +191,8 @@ class ApplicationServiceUnitTest {
         .thenReturn(false);
     when(mockAppRepo.save(any())).thenThrow(new RuntimeException("DB Crash"));
 
-    CreateBuilder builder = new CreateBuilder();
-
-    assertThrows(ApplicationServiceFailException.class, builder::execute);
+    assertThrows(
+        ApplicationServiceFailException.class, () -> executeCreate(getValidCreateBuilder()));
   }
 
   // -------------------------------------------------------------------------
@@ -222,7 +203,7 @@ class ApplicationServiceUnitTest {
   void getApplications_whenUserHasApplications_expectList() {
     when(mockAppRepo.findByUserId("user_001")).thenReturn(List.of(existingApp));
 
-    List<?> result = applicationService.getApplications("user_001");
+    List<ApplicationResponse> result = applicationService.getApplications("user_001");
 
     assertEquals(1, result.size());
   }
@@ -231,7 +212,7 @@ class ApplicationServiceUnitTest {
   void getApplications_whenNoApplications_expectEmptyList() {
     when(mockAppRepo.findByUserId("user_001")).thenReturn(Collections.emptyList());
 
-    List<?> result = applicationService.getApplications("user_001");
+    List<ApplicationResponse> result = applicationService.getApplications("user_001");
 
     assertTrue(result.isEmpty());
   }
@@ -246,95 +227,41 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
   }
 
-  private class UpdateBuilder {
-    String userId = "user_001";
-    String appId = "app_001";
-    String companyId = "company_001";
-    String jobTitle = existingApp.getJobTitle();
-    ApplicationStatus status = existingApp.getStatus();
-    LocalDate deadline = existingApp.getApplicationDeadline();
-    String desc = existingApp.getJobDescription();
-    Integer positions = existingApp.getNumPositions();
-    String link = existingApp.getSourceLink();
-    LocalDate dateApplied = existingApp.getDateApplied();
-    String notes = existingApp.getNotes();
-    LocalDate interviewDate = existingApp.getInterviewDate();
+  private ApplicationModel.ApplicationModelBuilder getValidUpdateBuilder() {
+    return ApplicationModel.builder()
+        .userId("user_001")
+        .companyId("company_001")
+        .jobTitle(existingApp.getJobTitle())
+        .status(existingApp.getStatus())
+        .applicationDeadline(existingApp.getApplicationDeadline())
+        .jobDescription(existingApp.getJobDescription())
+        .numPositions(existingApp.getNumPositions())
+        .sourceLink(existingApp.getSourceLink())
+        .dateApplied(existingApp.getDateApplied())
+        .notes(existingApp.getNotes())
+        .interviewDate(existingApp.getInterviewDate());
+  }
 
-    UpdateBuilder withUserId(String v) {
-      this.userId = v;
-      return this;
-    }
+  private ApplicationResponse executeUpdate(ApplicationModel.ApplicationModelBuilder builder) {
+    return executeUpdate("app_001", builder);
+  }
 
-    UpdateBuilder withAppId(String v) {
-      this.appId = v;
-      return this;
-    }
-
-    UpdateBuilder withCompanyId(String v) {
-      this.companyId = v;
-      return this;
-    }
-
-    UpdateBuilder withJobTitle(String v) {
-      this.jobTitle = v;
-      return this;
-    }
-
-    UpdateBuilder withStatus(ApplicationStatus v) {
-      this.status = v;
-      return this;
-    }
-
-    UpdateBuilder withDeadline(LocalDate v) {
-      this.deadline = v;
-      return this;
-    }
-
-    UpdateBuilder withDesc(String v) {
-      this.desc = v;
-      return this;
-    }
-
-    UpdateBuilder withPositions(Integer v) {
-      this.positions = v;
-      return this;
-    }
-
-    UpdateBuilder withLink(String v) {
-      this.link = v;
-      return this;
-    }
-
-    UpdateBuilder withDateApplied(LocalDate v) {
-      this.dateApplied = v;
-      return this;
-    }
-
-    UpdateBuilder withNotes(String v) {
-      this.notes = v;
-      return this;
-    }
-
-    UpdateBuilder withInterviewDate(LocalDate v) {
-      this.interviewDate = v;
-      return this;
-    }
-
-    ApplicationResponse execute() {
-      return applicationService.updateApplication(
-          userId,
-          appId,
-          companyId,
-          jobTitle,
-          status,
-          deadline,
-          desc,
-          positions,
-          link,
-          dateApplied,
-          notes,
-          interviewDate);
-    }
+  private ApplicationResponse executeUpdate(
+      String appId, ApplicationModel.ApplicationModelBuilder builder) {
+    ApplicationModel m = builder.build();
+    return applicationService.updateApplication(
+        m.getUserId(),
+        appId,
+        m.getCompanyId(),
+        m.getJobTitle(),
+        m.getStatus(),
+        m.getApplicationDeadline(),
+        m.getJobDescription(),
+        m.getNumPositions(),
+        m.getSourceLink(),
+        m.getDateApplied(),
+        m.getNotes(),
+        m.getInterviewDate());
   }
 
   // -------------------------------------------------------------------------
@@ -346,16 +273,16 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
 
     ApplicationResponse response =
-        new UpdateBuilder()
-            .withJobTitle("Senior SE")
-            .withStatus(ApplicationStatus.INTERVIEWING)
-            .withDeadline(LocalDate.now().plusDays(10))
-            .withDesc("New Desc")
-            .withPositions(2)
-            .withLink("https://new.link")
-            .withDateApplied(LocalDate.now())
-            .withNotes("New Notes")
-            .execute();
+        executeUpdate(
+            getValidUpdateBuilder()
+                .jobTitle("Senior SE")
+                .status(ApplicationStatus.INTERVIEWING)
+                .applicationDeadline(LocalDate.now().plusDays(10))
+                .jobDescription("New Desc")
+                .numPositions(2)
+                .sourceLink("https://new.link")
+                .dateApplied(LocalDate.now())
+                .notes("New Notes"));
 
     assertEquals("Senior SE", response.getJobTitle());
     assertEquals("New Desc", response.getJobDescription());
@@ -367,9 +294,9 @@ class ApplicationServiceUnitTest {
   void updateApplication_whenNotOwner_expectUnauthorized() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
 
-    UpdateBuilder builder = new UpdateBuilder().withUserId("wrong_user").withJobTitle("Title");
-
-    assertThrows(UnauthorizedApplicationAccessException.class, builder::execute);
+    assertThrows(
+        UnauthorizedApplicationAccessException.class,
+        () -> executeUpdate(getValidUpdateBuilder().userId("wrong_user").jobTitle("Title")));
   }
 
   @Test
@@ -377,18 +304,16 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
 
-    UpdateBuilder builder = new UpdateBuilder();
-
-    assertThrows(NoChangesDetectedException.class, builder::execute);
+    assertThrows(NoChangesDetectedException.class, () -> executeUpdate(getValidUpdateBuilder()));
   }
 
   @Test
   void updateApplication_whenAppNotFound_expectException() {
     when(mockAppRepo.findById("invalid_app_id")).thenReturn(Optional.empty());
 
-    UpdateBuilder builder = new UpdateBuilder().withAppId("invalid_app_id").withJobTitle("t");
-
-    assertThrows(ApplicationNotFoundException.class, builder::execute);
+    assertThrows(
+        ApplicationNotFoundException.class,
+        () -> executeUpdate("invalid_app_id", getValidUpdateBuilder().jobTitle("t")));
   }
 
   @Test
@@ -396,9 +321,9 @@ class ApplicationServiceUnitTest {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("non_existent_company")).thenReturn(Optional.empty());
 
-    UpdateBuilder builder = new UpdateBuilder().withCompanyId("non_existent_company");
-
-    assertThrows(CompanyNotFoundException.class, builder::execute);
+    assertThrows(
+        CompanyNotFoundException.class,
+        () -> executeUpdate(getValidUpdateBuilder().companyId("non_existent_company")));
   }
 
   @Test
@@ -420,16 +345,16 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById(anyString())).thenReturn(Optional.of(testCompany));
     when(mockAppRepo.save(any())).thenThrow(new RuntimeException("Update DB Crash"));
 
-    UpdateBuilder builder = new UpdateBuilder().withJobTitle("New Title");
-
-    assertThrows(RuntimeException.class, builder::execute);
+    assertThrows(
+        RuntimeException.class, () -> executeUpdate(getValidUpdateBuilder().jobTitle("New Title")));
   }
 
   @Test
   void updateApplication_whenOnlyTitleChanges_expectSuccess() {
     setupExistingAppMock();
 
-    ApplicationResponse response = new UpdateBuilder().withJobTitle("Brand New Title").execute();
+    ApplicationResponse response =
+        executeUpdate(getValidUpdateBuilder().jobTitle("Brand New Title"));
 
     assertEquals("Brand New Title", response.getJobTitle());
   }
@@ -439,7 +364,7 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
 
     ApplicationResponse response =
-        new UpdateBuilder().withStatus(ApplicationStatus.ACCEPTED).execute();
+        executeUpdate(getValidUpdateBuilder().status(ApplicationStatus.ACCEPTED));
 
     assertEquals(ApplicationStatus.ACCEPTED, response.getStatus());
   }
@@ -448,7 +373,8 @@ class ApplicationServiceUnitTest {
   void updateApplication_whenOnlyDescriptionChanges_expectSuccess() {
     setupExistingAppMock();
 
-    ApplicationResponse response = new UpdateBuilder().withDesc("Brand New Description").execute();
+    ApplicationResponse response =
+        executeUpdate(getValidUpdateBuilder().jobDescription("Brand New Description"));
 
     assertEquals("Brand New Description", response.getJobDescription());
   }
@@ -458,7 +384,7 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
 
     ApplicationResponse response =
-        new UpdateBuilder().withLink("https://new-job-link.com").execute();
+        executeUpdate(getValidUpdateBuilder().sourceLink("https://new-job-link.com"));
 
     assertEquals("https://new-job-link.com", response.getSourceLink());
   }
@@ -468,7 +394,7 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
     LocalDate newDate = LocalDate.now().minusDays(1);
 
-    ApplicationResponse response = new UpdateBuilder().withDateApplied(newDate).execute();
+    ApplicationResponse response = executeUpdate(getValidUpdateBuilder().dateApplied(newDate));
 
     assertEquals(newDate, response.getDateApplied());
   }
@@ -478,7 +404,7 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
 
     ApplicationResponse response =
-        new UpdateBuilder().withNotes("Updated internal notes").execute();
+        executeUpdate(getValidUpdateBuilder().notes("Updated internal notes"));
 
     assertEquals("Updated internal notes", response.getNotes());
   }
@@ -488,7 +414,8 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
     LocalDate newDeadline = LocalDate.now().plusWeeks(2);
 
-    ApplicationResponse response = new UpdateBuilder().withDeadline(newDeadline).execute();
+    ApplicationResponse response =
+        executeUpdate(getValidUpdateBuilder().applicationDeadline(newDeadline));
 
     assertEquals(newDeadline, response.getApplicationDeadline());
   }
@@ -497,7 +424,7 @@ class ApplicationServiceUnitTest {
   void updateApplication_whenOnlyPositionsChanges_expectSuccess() {
     setupExistingAppMock();
 
-    ApplicationResponse response = new UpdateBuilder().withPositions(99).execute();
+    ApplicationResponse response = executeUpdate(getValidUpdateBuilder().numPositions(99));
 
     assertEquals(99, response.getNumPositions());
   }
@@ -507,7 +434,8 @@ class ApplicationServiceUnitTest {
     setupExistingAppMock();
     LocalDate newInterview = LocalDate.now().plusDays(7);
 
-    ApplicationResponse response = new UpdateBuilder().withInterviewDate(newInterview).execute();
+    ApplicationResponse response =
+        executeUpdate(getValidUpdateBuilder().interviewDate(newInterview));
 
     assertEquals(newInterview, response.getInterviewDate());
   }
@@ -521,9 +449,32 @@ class ApplicationServiceUnitTest {
     when(mockCompRepo.findById("company_002")).thenReturn(Optional.of(secondCompany));
     when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
 
-    ApplicationResponse response = new UpdateBuilder().withCompanyId("company_002").execute();
+    ApplicationResponse response = executeUpdate(getValidUpdateBuilder().companyId("company_002"));
 
     assertEquals("company_002", response.getCompanyId());
+  }
+
+  @Test
+  void updateApplication_whenStatusChangedToApplied_expectDateAppliedSetToToday() {
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.INTERVIEWING)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .build();
+    ReflectionTestUtils.setField(interviewingApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(interviewingApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        executeUpdate(getValidUpdateBuilder().status(ApplicationStatus.APPLIED));
+
+    assertEquals(ApplicationStatus.APPLIED, response.getStatus());
+    assertEquals(LocalDate.now(), response.getDateApplied());
   }
 
   // -------------------------------------------------------------------------
@@ -560,10 +511,10 @@ class ApplicationServiceUnitTest {
   // getFilteredApplications — helpers
   // -------------------------------------------------------------------------
 
-  private void mockFilteredQuery(List<?> results, long count) {
+  private void mockFilteredQuery(List<ApplicationModel> results, long count) {
     when(mockMongoTemplate.count(any(Query.class), eq(ApplicationModel.class))).thenReturn(count);
     when(mockMongoTemplate.find(any(Query.class), eq(ApplicationModel.class)))
-        .thenReturn((List<ApplicationModel>) results);
+        .thenReturn((List) results);
   }
 
   // -------------------------------------------------------------------------
@@ -574,11 +525,11 @@ class ApplicationServiceUnitTest {
   void getFilteredApplications_whenNoFilters_expectAllUserApplications() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", null, null, "dateApplied", "desc", 0, 20);
 
-    assertEquals(1, ((List<?>) result.get("applications")).size());
+    assertEquals(1, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   @Test
@@ -587,11 +538,11 @@ class ApplicationServiceUnitTest {
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", "Goo", null, "dateApplied", "desc", 0, 20);
 
-    assertEquals(1, ((List<?>) result.get("applications")).size());
+    assertEquals(1, ((List<ApplicationResponse>) result.get("applications")).size());
     verify(mockCompRepo, atLeastOnce()).findByCompanyNameContainingIgnoreCase("Goo");
   }
 
@@ -601,11 +552,11 @@ class ApplicationServiceUnitTest {
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", "google", null, "dateApplied", "desc", 0, 20);
 
-    assertEquals(1, ((List<?>) result.get("applications")).size());
+    assertEquals(1, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   @Test
@@ -614,11 +565,11 @@ class ApplicationServiceUnitTest {
         .thenReturn(Collections.emptyList());
     mockFilteredQuery(Collections.emptyList(), 0L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", "nonexistent", null, "dateApplied", "desc", 0, 20);
 
-    assertTrue(((List<?>) result.get("applications")).isEmpty());
+    assertTrue(((List<ApplicationResponse>) result.get("applications")).isEmpty());
   }
 
   @Test
@@ -634,29 +585,29 @@ class ApplicationServiceUnitTest {
   void getFilteredApplications_whenStatusMatches_expectFilteredResults() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", null, List.of(ApplicationStatus.APPLIED), "dateApplied", "desc", 0, 20);
 
-    assertEquals(1, ((List<?>) result.get("applications")).size());
+    assertEquals(1, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   @Test
   void getFilteredApplications_whenStatusDoesNotMatch_expectEmptyList() {
     mockFilteredQuery(Collections.emptyList(), 0L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", null, List.of(ApplicationStatus.REJECTED), "dateApplied", "desc", 0, 20);
 
-    assertTrue(((List<?>) result.get("applications")).isEmpty());
+    assertTrue(((List<ApplicationResponse>) result.get("applications")).isEmpty());
   }
 
   @Test
   void getFilteredApplications_whenMultipleStatuses_expectMatchingResults() {
     mockFilteredQuery(List.of(existingApp, existingApp), 2L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001",
             null,
@@ -666,40 +617,40 @@ class ApplicationServiceUnitTest {
             0,
             20);
 
-    assertEquals(2, ((List<?>) result.get("applications")).size());
+    assertEquals(2, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   @Test
   void getFilteredApplications_whenEmptyStatusList_expectAllResults() {
     mockFilteredQuery(List.of(existingApp), 1L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", null, Collections.emptyList(), "dateApplied", "desc", 0, 20);
 
-    assertEquals(1, ((List<?>) result.get("applications")).size());
+    assertEquals(1, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   @Test
   void getFilteredApplications_whenSortOrderAsc_expectAscendingResults() {
     mockFilteredQuery(List.of(existingApp, existingApp), 2L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", null, null, "dateApplied", "asc", 0, 20);
 
-    assertEquals(2, ((List<?>) result.get("applications")).size());
+    assertEquals(2, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   @Test
   void getFilteredApplications_whenPaginated_expectCorrectPage() {
     mockFilteredQuery(List.of(existingApp, existingApp, existingApp), 5L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", null, null, "dateApplied", "desc", 0, 3);
 
-    assertEquals(3, ((List<?>) result.get("applications")).size());
+    assertEquals(3, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   // -------------------------------------------------------------------------
@@ -774,8 +725,8 @@ class ApplicationServiceUnitTest {
   void getFilteredApplications_whenPaginated_expectCorrectPaginationMetadata() {
     mockFilteredQuery(List.of(existingApp, existingApp, existingApp), 5L);
 
-    Map<?, ?> pagination =
-        (Map<?, ?>)
+    Map<String, ?> pagination =
+        (Map<String, ?>)
             applicationService
                 .getFilteredApplications("user_001", null, null, "dateApplied", "desc", 0, 3)
                 .get("pagination");
@@ -792,8 +743,8 @@ class ApplicationServiceUnitTest {
   void getFilteredApplications_whenNoResults_expectZeroTotalPages() {
     mockFilteredQuery(Collections.emptyList(), 0L);
 
-    Map<?, ?> pagination =
-        (Map<?, ?>)
+    Map<String, ?> pagination =
+        (Map<String, ?>)
             applicationService
                 .getFilteredApplications(
                     "user_001",
@@ -813,8 +764,8 @@ class ApplicationServiceUnitTest {
   void getFilteredApplications_whenOnSecondPage_expectHasPreviousTrue() {
     mockFilteredQuery(List.of(existingApp, existingApp), 5L);
 
-    Map<?, ?> pagination =
-        (Map<?, ?>)
+    Map<String, ?> pagination =
+        (Map<String, ?>)
             applicationService
                 .getFilteredApplications("user_001", null, null, "dateApplied", "desc", 1, 3)
                 .get("pagination");
@@ -830,11 +781,11 @@ class ApplicationServiceUnitTest {
         .thenReturn(List.of(testCompany));
     mockFilteredQuery(List.of(existingApp), 1L);
 
-    Map<?, ?> result =
+    Map<String, ?> result =
         applicationService.getFilteredApplications(
             "user_001", "Google", List.of(ApplicationStatus.APPLIED), "dateApplied", "desc", 0, 20);
 
-    assertEquals(1, ((List<?>) result.get("applications")).size());
+    assertEquals(1, ((List<ApplicationResponse>) result.get("applications")).size());
   }
 
   // -------------------------------------------------------------------------
@@ -851,28 +802,5 @@ class ApplicationServiceUnitTest {
         () ->
             applicationService.getFilteredApplications(
                 "user_001", null, null, "dateApplied", "desc", 0, 20));
-  }
-
-  @Test
-  void updateApplication_whenStatusChangedToApplied_expectDateAppliedSetToToday() {
-    ApplicationModel interviewingApp =
-        ApplicationModel.builder()
-            .userId("user_001")
-            .companyId("company_001")
-            .jobTitle("Software Engineer")
-            .status(ApplicationStatus.INTERVIEWING)
-            .applicationDeadline(LocalDate.now().plusDays(5))
-            .build();
-    ReflectionTestUtils.setField(interviewingApp, "id", "app_001");
-
-    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(interviewingApp));
-    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
-    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
-
-    ApplicationResponse response =
-        new UpdateBuilder().withStatus(ApplicationStatus.APPLIED).execute();
-
-    assertEquals(ApplicationStatus.APPLIED, response.getStatus());
-    assertEquals(LocalDate.now(), response.getDateApplied());
   }
 }
