@@ -47,7 +47,7 @@ Response body:
 }
 ```
 
-### Bad request
+## Bad request
 
 ### Exception: N/A
 
@@ -60,5 +60,16 @@ Response body:
 {
   "error":"REQUEST_HAS_NULL_OR_EMPTY_FIELD",
   "message":"The error message will be customized based on the request."
+}
+```
+
+Bad request (request has invalid data format). For example, we expect date in format of `yyyy-MM-dd`
+
+**Response 400 BAD REQUEST:**
+
+```json
+{
+    "error": "INVALID_FORMAT_FIELD",
+    "message": "Invalid date format for field 'startDate'. Expected format: yyyy-MM-dd."
 }
 ```

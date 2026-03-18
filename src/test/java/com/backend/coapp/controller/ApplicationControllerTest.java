@@ -14,6 +14,7 @@ import com.backend.coapp.exception.application.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
+import com.backend.coapp.model.enumeration.RequestErrorCode;
 import com.backend.coapp.service.ApplicationService;
 import com.backend.coapp.service.JwtService;
 import java.time.LocalDate;
@@ -179,6 +180,32 @@ class ApplicationControllerTest {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("COMPANY_NOT_FOUND"))
         .andExpect(jsonPath("$.message").exists());
+  }
+
+  @Test
+  void createApplication_whenInvalidIntegerValue_expect400WithFieldMessage() throws Exception {
+    String invalidIntJson =
+        """
+        {
+            "companyId": "someCompanyId",
+            "jobTitle": "Software Engineer",
+            "status": "APPLIED",
+            "applicationDeadline": "2024-01-01",
+            "numPositions": "notANumber"
+        }
+        """;
+
+    mockMvc
+        .perform(
+            post("/api/application")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(invalidIntJson)
+                .principal(this.authentication))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.error").value(RequestErrorCode.INVALID_FORMAT_FIELD.name()))
+        .andExpect(jsonPath("$.message").value("Invalid value for field 'numPositions'."));
+
+    verifyNoInteractions(applicationService);
   }
 
   @Test
