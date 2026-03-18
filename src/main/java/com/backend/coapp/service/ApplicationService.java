@@ -200,7 +200,6 @@ public class ApplicationService {
     }
 
     if (newDateApplied != null
-        && existingApp.getApplicationDeadline() != null
         && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
         && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
       throw new InvalidRequestException(

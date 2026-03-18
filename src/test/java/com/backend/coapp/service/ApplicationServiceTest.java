@@ -792,6 +792,7 @@ class ApplicationServiceTest {
   @Test
   void updateApplication_whenOnlyInterviewDateChanges_expectSuccess() {
     LocalDateTime newInterviewDateTime = datetime.plusDays(1);
+
     ApplicationResponse response =
         this.applicationService.updateApplication(
             "user_001",
@@ -806,28 +807,44 @@ class ApplicationServiceTest {
             existingApp.getDateApplied(),
             existingApp.getNotes(),
             newInterviewDateTime);
+
+    assertNotNull(response);
+    assertEquals(newInterviewDateTime, response.getInterviewDateTime());
   }
 
   @Test
   void updateApplication_whenAppliedDateAfterApplicationDeadline_expectError() {
-    LocalDate newAppliedDate = date.plusYears(10);
+
+    String userId = "user_001";
+    String appId = existingApp.getId();
+    String companyId = existingApp.getCompanyId();
+    String jobTitle = existingApp.getJobTitle();
+    ApplicationStatus status = existingApp.getStatus();
+    LocalDate deadline = existingApp.getApplicationDeadline();
+    String description = existingApp.getJobDescription();
+    Integer positions = existingApp.getNumPositions();
+    String link = existingApp.getSourceLink();
+    String notes = existingApp.getNotes();
+    LocalDateTime interviewTime = existingApp.getInterviewDateTime();
+
+    LocalDate invalidAppliedDate = deadline.plusDays(1);
 
     assertThrows(
         InvalidRequestException.class,
         () ->
             this.applicationService.updateApplication(
-                "user_001",
-                existingApp.getId(),
-                existingApp.getCompanyId(),
-                existingApp.getJobTitle(),
-                existingApp.getStatus(),
-                existingApp.getApplicationDeadline(),
-                existingApp.getJobDescription(),
-                existingApp.getNumPositions(),
-                existingApp.getSourceLink(),
-                newAppliedDate,
-                existingApp.getNotes(),
-                existingApp.getInterviewDateTime()));
+                userId,
+                appId,
+                companyId,
+                jobTitle,
+                status,
+                deadline,
+                description,
+                positions,
+                link,
+                invalidAppliedDate,
+                notes,
+                interviewTime));
   }
 
   @Test
