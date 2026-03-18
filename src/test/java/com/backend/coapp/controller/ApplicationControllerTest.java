@@ -48,8 +48,8 @@ class ApplicationControllerTest {
   private CreateApplicationRequest createRequest;
   private UpdateApplicationRequest updateRequest;
 
-  private final LocalDate DATE = LocalDate.of(2800, 1, 1);
-  private final LocalDateTime DATETIME = LocalDateTime.of(2800, 1, 1, 12, 0, 0);
+  private final LocalDate date = LocalDate.of(2800, 1, 1);
+  private final LocalDateTime datetime = LocalDateTime.of(2800, 1, 1, 12, 0, 0);
 
   @BeforeEach
   void setUp() {
@@ -64,26 +64,26 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATETIME);
+            datetime);
 
     this.createRequest =
         CreateApplicationRequest.builder()
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(DATE)
+            .applicationDeadline(date)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(DATE)
+            .dateApplied(date)
             .notes("I think it's not that good.")
-            .interviewDateTime(DATETIME)
+            .interviewDateTime(datetime)
             .build();
 
     this.updateRequest =
@@ -91,13 +91,13 @@ class ApplicationControllerTest {
             .companyId("comp456")
             .jobTitle("Senior Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(DATE)
+            .applicationDeadline(date)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(DATE)
+            .dateApplied(date)
             .notes("Updated notes.")
-            .interviewDateTime(DATETIME)
+            .interviewDateTime(datetime)
             .build();
 
     when(this.authentication.getPrincipal()).thenReturn(mockUser);
@@ -117,13 +117,13 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATETIME))
+            datetime))
         .thenReturn(this.mockResponse);
 
     mockMvc
@@ -145,13 +145,13 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATETIME);
+            datetime);
   }
 
   @Test
@@ -272,13 +272,13 @@ class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "Updated notes.",
-            DATETIME);
+            datetime);
 
     when(this.applicationService.updateApplication(
             "user1",
@@ -286,13 +286,13 @@ class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "Updated notes.",
-            DATETIME))
+            datetime))
         .thenReturn(updatedResponse);
 
     mockMvc
@@ -313,13 +313,13 @@ class ApplicationControllerTest {
             "comp456",
             "Senior Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "Updated notes.",
-            DATETIME);
+            datetime);
   }
 
   @Test
@@ -549,11 +549,11 @@ class ApplicationControllerTest {
             .companyId("comp456")
             .jobTitle("Software Engineer")
             .status(ApplicationStatus.APPLIED)
-            .applicationDeadline(DATE)
+            .applicationDeadline(date)
             .jobDescription("Great role")
             .numPositions(1)
             .sourceLink("https://linkedin.com")
-            .dateApplied(DATE)
+            .dateApplied(date)
             .build();
 
     ApplicationResponse responseWithoutNotes =
@@ -562,11 +562,11 @@ class ApplicationControllerTest {
             "comp456",
             "Software Engineer",
             ApplicationStatus.APPLIED,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             null,
             null);
 
@@ -575,11 +575,11 @@ class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(DATE),
+            eq(date),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(DATE),
+            eq(date),
             isNull(),
             isNull()))
         .thenReturn(responseWithoutNotes);
@@ -600,11 +600,11 @@ class ApplicationControllerTest {
             eq("comp456"),
             eq("Software Engineer"),
             eq(ApplicationStatus.APPLIED),
-            eq(DATE),
+            eq(date),
             eq("Great role"),
             eq(1),
             eq("https://linkedin.com"),
-            eq(DATE),
+            eq(date),
             isNull(),
             isNull());
   }
@@ -832,13 +832,13 @@ class ApplicationControllerTest {
             "comp456",
             "Interview Role",
             ApplicationStatus.INTERVIEWING,
-            DATE,
+            date,
             "Great role",
             1,
             "https://linkedin.com",
-            DATE,
+            date,
             "I think it's not that good.",
-            DATETIME);
+            datetime);
 
     when(this.applicationService.getInterviewApplications(eq("user1"), isNull(), isNull()))
         .thenReturn(List.of(interviewResponse));
@@ -856,8 +856,8 @@ class ApplicationControllerTest {
   @Test
   @WithMockUser(username = "user1")
   void getInterviewApplications_whenDateRangeProvided_expect200() throws Exception {
-    LocalDate start = DATE.minusDays(1);
-    LocalDate end = DATE.plusDays(1);
+    LocalDate start = date.minusDays(1);
+    LocalDate end = date.plusDays(1);
 
     when(this.applicationService.getInterviewApplications("user1", start, end))
         .thenReturn(Collections.emptyList());

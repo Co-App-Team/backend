@@ -4,6 +4,7 @@ import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.dto.response.PaginationResponse;
 import com.backend.coapp.exception.application.*;
 import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
@@ -196,6 +197,17 @@ public class ApplicationService {
 
     if (statusChanged && newStatus == ApplicationStatus.APPLIED) {
       newDateApplied = LocalDate.now();
+    }
+
+    if (newDateApplied != null
+        && existingApp.getApplicationDeadline() != null
+        && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
+        && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
+      throw new InvalidRequestException(
+          "The applied date must be before the application deadline."
+              + existingApp.getApplicationDeadline()
+              + " "
+              + newDateApplied);
     }
 
     existingApp.setCompanyId(newCompanyId);
