@@ -7,6 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+/**
+ * DTO request for filtering interview applications by date range. Required: None. Optional:
+ * startDate, endDate. Validation: If provided, both dates are required and the startDate must be
+ * before the endDate. *
+ */
 @Getter
 @Setter
 @NoArgsConstructor
