@@ -147,8 +147,22 @@ Response body:
 
 **Response 400 BAD REQUEST:**
 
- *The backend will return 400 if any field is invalid. 
- This includes null/emptty fields or role title/description is over character limit (We will specify exact number of character limit in the response's message).*
+Role title/description is over character limit (We will specify exact number of character limit in the response's message).*
+
+```json
+{
+ "message": "Role description must be less than 1000 characters.",
+ "error": "OVER_LIMIT_CHARACTER"
+}
+```
+or
+
+```json
+{
+ "message": "Role title must be less than 80 characters.",
+ "error": "OVER_LIMIT_CHARACTER"
+}
+```
 
 **Response 404 NOT FOUND:**
 
@@ -188,9 +202,22 @@ Response body:
 
 **Response 400 BAD REQUEST:**
 
-*The backend will return 400 if any field is invalid.
-This includes null/emptty fields or role title/description is over character limit (We will specify exact number of character limit in the response's message).*
+Role title/description is over character limit (We will specify exact number of character limit in the response's message).*
 
+```json
+{
+ "message": "Role description must be less than 1000 characters.",
+ "error": "OVER_LIMIT_CHARACTER"
+}
+```
+or
+
+```json
+{
+ "message": "Role title must be less than 80 characters.",
+ "error": "OVER_LIMIT_CHARACTER"
+}
+```
 
 **Response 404 NOT FOUND:**
 

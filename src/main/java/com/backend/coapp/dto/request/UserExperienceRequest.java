@@ -1,5 +1,6 @@
 package com.backend.coapp.dto.request;
 
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.util.ExperienceConstants;
 import java.time.LocalDate;
@@ -32,7 +33,7 @@ public class UserExperienceRequest implements IRequest {
     }
 
     if (roleTitle.length() > ExperienceConstants.MAX_JOB_TITLE_LENGTH) {
-      throw new InvalidRequestException(
+      throw new OverCharacterLimitException(
           "Role title must be less than %s characters"
               .formatted(ExperienceConstants.MAX_JOB_TITLE_LENGTH));
     }
@@ -42,8 +43,8 @@ public class UserExperienceRequest implements IRequest {
     }
 
     if (roleDescription.length() > ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH) {
-      throw new InvalidRequestException(
-          "Role title must be less than %s characters."
+      throw new OverCharacterLimitException(
+          "Role description must be less than %s characters."
               .formatted(ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH));
     }
 

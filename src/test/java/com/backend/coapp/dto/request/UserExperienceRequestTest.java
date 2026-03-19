@@ -3,6 +3,7 @@ package com.backend.coapp.dto.request;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.util.ExperienceConstants;
 import java.time.LocalDate;
@@ -80,7 +81,7 @@ class UserExperienceRequestTest {
         buildValidRequest().toBuilder()
             .roleTitle("a".repeat(ExperienceConstants.MAX_JOB_TITLE_LENGTH + 1))
             .build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
+    assertThrows(OverCharacterLimitException.class, request::validateRequest);
   }
 
   @Test
@@ -110,7 +111,7 @@ class UserExperienceRequestTest {
         buildValidRequest().toBuilder()
             .roleDescription("a".repeat(ExperienceConstants.MAX_EXPERIENCE_DESCRIPTION_LENGTH + 1))
             .build();
-    assertThrows(InvalidRequestException.class, request::validateRequest);
+    assertThrows(OverCharacterLimitException.class, request::validateRequest);
   }
 
   @Test
