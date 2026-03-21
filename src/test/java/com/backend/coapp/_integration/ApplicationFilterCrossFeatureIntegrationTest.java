@@ -47,6 +47,7 @@ class ApplicationFilterCrossFeatureIntegrationTest {
   @Autowired private PasswordEncoder passwordEncoder;
 
   private String testCompanyId;
+  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
@@ -55,10 +56,12 @@ class ApplicationFilterCrossFeatureIntegrationTest {
     this.companyRepository.deleteAll();
     this.userRepository.deleteAll();
 
+    // A company already exists
     CompanyModel testCompany = new CompanyModel("Filter Corp", "Remote", "https://filter.com");
     this.companyRepository.save(testCompany);
     this.testCompanyId = testCompany.getId();
 
+    // A user already exists
     UserModel testUser =
         new UserModel(
             "user_filter",
@@ -69,14 +72,19 @@ class ApplicationFilterCrossFeatureIntegrationTest {
             true,
             1234);
     this.userRepository.save(testUser);
+    this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
   @Test
   void filterFlow_whenUserCreatesAppliesAndFilters_expectCorrectStatusAndSort() throws Exception {
-    assertThat(applicationRepository.count()).isZero();
 
-    // User logs in
+    // A user exists and a company exists in the database
+    assertThat(applicationRepository.count()).isZero();
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // A user logs in
     LoginRequest loginRequest = new LoginRequest(testUserEmail, "password123");
     MvcResult loginResult =
         mockMvc
@@ -85,12 +93,13 @@ class ApplicationFilterCrossFeatureIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
     Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
     assertThat(authCookie).isNotNull();
 
-    // Create Application A (APPLIED, yesterday)
+    // The user creates Application A (APPLIED, yesterday)
     CreateApplicationRequest reqA =
         CreateApplicationRequest.builder()
             .companyId(testCompanyId)
@@ -107,7 +116,7 @@ class ApplicationFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isCreated());
 
-    // Create Application B (INTERVIEWING, today)
+    // The user creates Application B (INTERVIEWING, today)
     CreateApplicationRequest reqB =
         CreateApplicationRequest.builder()
             .companyId(testCompanyId)
@@ -124,7 +133,7 @@ class ApplicationFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isCreated());
 
-    // Create Application C (REJECTED, tomorrow)
+    // The user creates Application C (REJECTED, tomorrow)
     CreateApplicationRequest reqC =
         CreateApplicationRequest.builder()
             .companyId(testCompanyId)
@@ -141,14 +150,17 @@ class ApplicationFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isCreated());
 
-    // Feature 3: Filter by status INTERVIEWING
+    // Verify all 3 applications exist in DB
+    assertThat(applicationRepository.count()).isEqualTo(3);
+
+    // The user filters applications by status INTERVIEWING
     mockMvc
         .perform(get("/api/application").param("status", "INTERVIEWING").cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applications.length()").value(1))
         .andExpect(jsonPath("$.applications[0].status").value("INTERVIEWING"));
 
-    // Feature 3: Sort by dateApplied ascending
+    // The user sorts applications by dateApplied ascending
     mockMvc
         .perform(
             get("/api/application")
@@ -160,7 +172,7 @@ class ApplicationFilterCrossFeatureIntegrationTest {
         .andExpect(jsonPath("$.applications[0].jobTitle").value("Dev A"))
         .andExpect(jsonPath("$.applications[2].jobTitle").value("Dev C"));
 
-    // Cross-feature update: Change App A status
+    // The user updates Application A to OFFER_RECEIVED
     ApplicationModel appA =
         applicationRepository.findAll().stream()
             .filter(app -> app.getJobTitle().equals("Dev A"))
@@ -180,12 +192,24 @@ class ApplicationFilterCrossFeatureIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateReq))
                 .cookie(authCookie))
-        .andExpect(status().isOk());
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.status").value("OFFER_RECEIVED"));
 
-    // Feature 3: Verify APPLIED filter returns empty now
+    // Verify DB update
+    ApplicationModel updatedAppA = applicationRepository.findById(appA.getId()).orElseThrow();
+    assertThat(updatedAppA.getStatus()).isEqualTo(ApplicationStatus.OFFER_RECEIVED);
+
+    // The user filters by APPLIED status and expects empty result
     mockMvc
         .perform(get("/api/application").param("status", "APPLIED").cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.applications.length()").value(0));
+
+    // Cross-feature check
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // The user logs out
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
   }
 }

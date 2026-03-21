@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.backend.coapp.dto.request.LoginRequest;
+import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
@@ -41,13 +42,15 @@ class ExperienceCompanyConstraintCrossFeatureIntegrationTest {
   @Autowired private ObjectMapper objectMapper;
   @Autowired private PasswordEncoder passwordEncoder;
 
+  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
   void setUp() {
-    companyRepository.deleteAll();
-    userRepository.deleteAll();
+    this.companyRepository.deleteAll();
+    this.userRepository.deleteAll();
 
+    // A user already exists
     UserModel testUser =
         new UserModel(
             "user_exp",
@@ -57,14 +60,20 @@ class ExperienceCompanyConstraintCrossFeatureIntegrationTest {
             "User",
             true,
             1234);
-    userRepository.save(testUser);
-    testUserEmail = testUser.getEmail();
+    this.userRepository.save(testUser);
+    this.testUserId = testUser.getId();
+    this.testUserEmail = testUser.getEmail();
   }
 
   @Test
   void experienceFlow_whenUserAddsExperienceForNonExistentCompany_expectFailureThenSuccess()
       throws Exception {
-    // Login
+
+    // A user exists in the database
+    assertThat(userRepository.count()).isOne();
+    assertThat(companyRepository.count()).isZero();
+
+    // A user logs in
     LoginRequest loginRequest = new LoginRequest(testUserEmail, "pass");
     MvcResult loginResult =
         mockMvc
@@ -73,12 +82,13 @@ class ExperienceCompanyConstraintCrossFeatureIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
     Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
     assertThat(authCookie).isNotNull();
 
-    // Step 1: Attempt to add experience with random companyId (Feature 6 + Feature 4 check)
+    // The user attempts to add experience with a non-existent company ID
     Map<String, String> expReq = new HashMap<>();
     expReq.put("companyId", "non-existent-id");
     expReq.put("roleTitle", "Dev");
@@ -94,7 +104,11 @@ class ExperienceCompanyConstraintCrossFeatureIntegrationTest {
         .andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error").value("COMPANY_NOT_FOUND"));
 
-    // Step 2: Create Company (Feature 4)
+    // Cross-feature check: Ensure no experience was created (User profile unchanged)
+    // (Assuming specific verification logic or just general sanity check)
+    assertThat(companyRepository.count()).isZero();
+
+    // The user creates a valid company first
     Map<String, String> companyReq = new HashMap<>();
     companyReq.put("companyName", "Valid Corp");
     companyReq.put("location", "Remote");
@@ -113,7 +127,15 @@ class ExperienceCompanyConstraintCrossFeatureIntegrationTest {
     String validCompanyId =
         JsonPath.read(companyResult.getResponse().getContentAsString(), "$.companyId");
 
-    // Step 3: Retry adding experience with valid companyId (Feature 6)
+    // Verify company exists in DB
+    assertThat(companyRepository.count()).isOne();
+    CompanyModel createdCompany =
+        companyRepository
+            .findById(validCompanyId)
+            .orElseThrow(() -> new AssertionError("Company should exist"));
+    assertThat(createdCompany.getCompanyName()).isEqualTo("Valid Corp");
+
+    // The user retries adding experience with the valid company ID
     expReq.put("companyId", validCompanyId);
 
     mockMvc
@@ -124,5 +146,12 @@ class ExperienceCompanyConstraintCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.experienceId").exists());
+
+    // Cross-feature check
+    assertThat(userRepository.count()).isOne();
+    assertThat(companyRepository.count()).isOne();
+
+    // The user logs out
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
   }
 }

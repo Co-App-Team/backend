@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.backend.coapp.dto.request.CreateApplicationRequest;
 import com.backend.coapp.dto.request.LoginRequest;
+import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
@@ -54,6 +55,7 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
   @MockitoBean private GenAIService genAIService;
 
   private String testCompanyId;
+  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
@@ -62,20 +64,30 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
     this.companyRepository.deleteAll();
     this.userRepository.deleteAll();
 
+    // A company already exists
     CompanyModel testCompany = new CompanyModel("AI Corp", "Remote", "https://ai.com");
     this.companyRepository.save(testCompany);
     this.testCompanyId = testCompany.getId();
 
+    // A user already exists
     UserModel testUser =
         new UserModel(
             "user_ai", "ai@example.com", passwordEncoder.encode("pass"), "AI", "User", true, 1234);
     this.userRepository.save(testUser);
+    this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
   @Test
-  void aiAdvisorFlow_whenUserPromptsWithApplicationContext_expectQuotaDecrement() throws Exception {
-    // Login
+  void aiAdvisorFlow_whenUserPromptsWithApplicationContext_expectQuotaDecrementAndCorrectDBState()
+      throws Exception {
+
+    // A user exists and a company exists in the database
+    assertThat(applicationRepository.count()).isZero();
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // A user logs in
     LoginRequest loginRequest = new LoginRequest(testUserEmail, "pass");
     MvcResult loginResult =
         mockMvc
@@ -84,12 +96,13 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
     Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
     assertThat(authCookie).isNotNull();
 
-    // Check Initial Quota
+    // The user checks their initial AI quota
     MvcResult quotaResult =
         mockMvc
             .perform(get("/api/resume-ai-advisor/remaining-quota").cookie(authCookie))
@@ -99,7 +112,7 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
     int initialQuota =
         JsonPath.read(quotaResult.getResponse().getContentAsString(), "$.remainingQuota");
 
-    // Create Application
+    // The user creates an application to provide context for the AI
     CreateApplicationRequest appReq =
         CreateApplicationRequest.builder()
             .companyId(testCompanyId)
@@ -107,6 +120,7 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
             .status(ApplicationStatus.APPLIED)
             .applicationDeadline(LocalDate.now().plusDays(10))
             .build();
+
     MvcResult appResult =
         mockMvc
             .perform(
@@ -119,10 +133,18 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
 
     String appId = JsonPath.read(appResult.getResponse().getContentAsString(), "$.applicationId");
 
+    // Verify application exists in DB
+    ApplicationModel createdApp =
+        applicationRepository
+            .findById(appId)
+            .orElseThrow(() -> new AssertionError("Application should exist"));
+    assertThat(createdApp.getJobTitle()).isEqualTo("AI Engineer");
+    assertThat(applicationRepository.count()).isOne();
+
     // Mock GenAI Service response
     when(genAIService.generateResponse(anyString())).thenReturn("Mocked AI Advice");
 
-    // Prompt AI
+    // The user prompts the AI advisor using the application context
     Map<String, String> promptReq = new HashMap<>();
     promptReq.put("userPrompt", "Review my resume");
     promptReq.put("applicationId", appId);
@@ -136,10 +158,17 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.response").value("Mocked AI Advice"));
 
-    // Verify Quota Decremented
+    // Verify the quota was decremented
     mockMvc
         .perform(get("/api/resume-ai-advisor/remaining-quota").cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.remainingQuota").value(initialQuota - 1));
+
+    // Cross-feature check
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // The user logs out
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
   }
 }

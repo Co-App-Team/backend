@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.CreateApplicationRequest;
 import com.backend.coapp.dto.request.LoginRequest;
 import com.backend.coapp.dto.request.UpdateApplicationRequest;
+import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
@@ -47,6 +48,7 @@ class InterviewFilterCrossFeatureIntegrationTest {
   @Autowired private PasswordEncoder passwordEncoder;
 
   private String testCompanyId;
+  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
@@ -55,10 +57,12 @@ class InterviewFilterCrossFeatureIntegrationTest {
     this.companyRepository.deleteAll();
     this.userRepository.deleteAll();
 
+    // A company already exists
     CompanyModel testCompany = new CompanyModel("Interview Inc", "Remote", "https://interview.com");
     this.companyRepository.save(testCompany);
     this.testCompanyId = testCompany.getId();
 
+    // A user already exists
     UserModel testUser =
         new UserModel(
             "user_int",
@@ -69,15 +73,20 @@ class InterviewFilterCrossFeatureIntegrationTest {
             true,
             1234);
     this.userRepository.save(testUser);
+    this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
   @Test
   void interviewFilterFlow_whenUserSchedulesAndFiltersByDate_expectCorrectApplications()
       throws Exception {
-    assertThat(applicationRepository.count()).isZero();
 
-    // Login
+    // A user exists and a company exists in the database
+    assertThat(applicationRepository.count()).isZero();
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // A user logs in
     LoginRequest loginRequest = new LoginRequest(testUserEmail, "password123");
     MvcResult loginResult =
         mockMvc
@@ -86,14 +95,14 @@ class InterviewFilterCrossFeatureIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
     Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
     assertThat(authCookie).isNotNull();
 
-    // Create App A (Interview Future month 1)
+    // The user creates App A (Interview scheduled for next month)
     LocalDateTime interviewDateA = LocalDate.now().plusMonths(1).atTime(10, 0);
-    LocalDateTime interviewDateB = LocalDate.now().plusMonths(2).atTime(10, 0);
 
     CreateApplicationRequest reqA =
         CreateApplicationRequest.builder()
@@ -111,7 +120,9 @@ class InterviewFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isCreated());
 
-    // Create App B (Interview future month 2)
+    // The user creates App B (Interview scheduled for two months from now)
+    LocalDateTime interviewDateB = LocalDate.now().plusMonths(2).atTime(10, 0);
+
     CreateApplicationRequest reqB =
         CreateApplicationRequest.builder()
             .companyId(testCompanyId)
@@ -128,7 +139,10 @@ class InterviewFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isCreated());
 
-    // Feature 5: Filter Interviews by Date Range
+    // Verify DB state
+    assertThat(applicationRepository.count()).isEqualTo(2);
+
+    // The user filters interviews by a specific date range (captures A, excludes B)
     String startDate = LocalDate.now().plusWeeks(2).toString();
     String endDate = LocalDate.now().plusWeeks(6).toString();
 
@@ -139,16 +153,16 @@ class InterviewFilterCrossFeatureIntegrationTest {
                 .param("endDate", endDate)
                 .cookie(authCookie))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.length()").value(1)) // Should only be App A
+        .andExpect(jsonPath("$.length()").value(1))
         .andExpect(jsonPath("$[0].jobTitle").value("Job A"));
 
-    // Feature 5: Validation Error (Missing endDate)
+    // The user attempts to filter with a missing parameter (Bad Request)
     mockMvc
         .perform(
             get("/api/application/interviews").param("startDate", startDate).cookie(authCookie))
         .andExpect(status().isBadRequest());
 
-    // Update App B date to fall within range
+    // The user updates App B interview date to fall within the range
     String jobBId =
         applicationRepository.findAll().stream()
             .filter(app -> app.getJobTitle().equals("Job B"))
@@ -173,7 +187,11 @@ class InterviewFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isOk());
 
-    // Feature 5: Re-filter, should now have 2 results
+    // Verify DB update
+    ApplicationModel updatedAppB = applicationRepository.findById(jobBId).orElseThrow();
+    assertThat(updatedAppB.getInterviewDateTime()).isEqualTo(newDateB);
+
+    // The user filters again and expects both applications
     mockMvc
         .perform(
             get("/api/application/interviews")
@@ -182,5 +200,12 @@ class InterviewFilterCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.length()").value(2));
+
+    // Cross-feature check
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // The user logs out
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
   }
 }

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.backend.coapp.dto.request.CreateApplicationRequest;
 import com.backend.coapp.dto.request.LoginRequest;
+import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
@@ -54,18 +55,21 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
   @MockitoBean private GenAIService genAIService;
 
   private String testCompanyId;
+  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
   void setUp() {
-    applicationRepository.deleteAll();
-    companyRepository.deleteAll();
-    userRepository.deleteAll();
+    this.applicationRepository.deleteAll();
+    this.companyRepository.deleteAll();
+    this.userRepository.deleteAll();
 
+    // A company already exists
     CompanyModel testCompany = new CompanyModel("AI Test Corp", "Remote", "https://aitest.com");
-    companyRepository.save(testCompany);
-    testCompanyId = testCompany.getId();
+    this.companyRepository.save(testCompany);
+    this.testCompanyId = testCompany.getId();
 
+    // A user already exists
     UserModel testUser =
         new UserModel(
             "user_del",
@@ -75,14 +79,20 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
             "User",
             true,
             1234);
-    userRepository.save(testUser);
-    testUserEmail = testUser.getEmail();
+    this.userRepository.save(testUser);
+    this.testUserId = testUser.getId();
+    this.testUserEmail = testUser.getEmail();
   }
 
   @Test
-  void aiAdvisorFlow_whenApplicationContextIsDeleted_expectErrorOrGracefulHandling()
-      throws Exception {
-    // Login
+  void aiAdvisorFlow_whenApplicationContextIsDeleted_expectNotFoundError() throws Exception {
+
+    // A user exists and a company exists in the database
+    assertThat(applicationRepository.count()).isZero();
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // A user logs in
     LoginRequest loginRequest = new LoginRequest(testUserEmail, "pass");
     MvcResult loginResult =
         mockMvc
@@ -91,12 +101,13 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(loginRequest)))
             .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message").value("Logged in successfully."))
             .andReturn();
 
     Cookie authCookie = loginResult.getResponse().getCookie("Authorization");
     assertThat(authCookie).isNotNull();
 
-    // Step 1: Create Application
+    // The user creates an application
     CreateApplicationRequest appReq =
         CreateApplicationRequest.builder()
             .companyId(testCompanyId)
@@ -104,6 +115,7 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
             .status(ApplicationStatus.APPLIED)
             .applicationDeadline(LocalDate.now().plusDays(10))
             .build();
+
     MvcResult appResult =
         mockMvc
             .perform(
@@ -116,10 +128,18 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
 
     String appId = JsonPath.read(appResult.getResponse().getContentAsString(), "$.applicationId");
 
+    // Verify DB state
+    assertThat(applicationRepository.count()).isOne();
+    ApplicationModel createdApp =
+        applicationRepository
+            .findById(appId)
+            .orElseThrow(() -> new AssertionError("App should exist"));
+    assertThat(createdApp.getUserId()).isEqualTo(testUserId);
+
     // Mock GenAI Service response
     when(genAIService.generateResponse(anyString())).thenReturn("Mocked AI Advice");
 
-    // Step 2: Use AI with valid appId
+    // The user successfully prompts the AI with the valid application context
     Map<String, String> promptReq = new HashMap<>();
     promptReq.put("userPrompt", "Context check");
     promptReq.put("applicationId", appId);
@@ -132,13 +152,17 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
                 .cookie(authCookie))
         .andExpect(status().isOk());
 
-    // Step 3: Delete Application
+    // The user decides to delete the application
     mockMvc
         .perform(delete("/api/application/{id}", appId).cookie(authCookie))
         .andExpect(status().isOk());
 
-    // Step 4: Use AI again with deleted appId
-    // The real service will check ID, find nothing, and throw ApplicationNotFoundException -> 404
+    // Verify application is deleted
+    assertThat(applicationRepository.count()).isZero();
+    assertThat(applicationRepository.findById(appId)).isEmpty();
+
+    // The user attempts to use the AI advisor with the deleted application context
+    // The service should detect the missing context and return 404
     mockMvc
         .perform(
             post("/api/resume-ai-advisor")
@@ -146,5 +170,12 @@ class AIDeletedApplicationContextCrossFeatureIntegrationTest {
                 .content(objectMapper.writeValueAsString(promptReq))
                 .cookie(authCookie))
         .andExpect(status().isNotFound());
+
+    // Cross-feature check
+    assertThat(companyRepository.count()).isOne();
+    assertThat(userRepository.count()).isOne();
+
+    // The user logs out
+    mockMvc.perform(get("/api/auth/logout").cookie(authCookie)).andExpect(status().isOk());
   }
 }
