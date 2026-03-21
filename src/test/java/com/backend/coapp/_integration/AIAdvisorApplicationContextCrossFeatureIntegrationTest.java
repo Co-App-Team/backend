@@ -55,7 +55,6 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
   @MockitoBean private GenAIService genAIService;
 
   private String testCompanyId;
-  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
@@ -74,7 +73,6 @@ class AIAdvisorApplicationContextCrossFeatureIntegrationTest {
         new UserModel(
             "user_ai", "ai@example.com", passwordEncoder.encode("pass"), "AI", "User", true, 1234);
     this.userRepository.save(testUser);
-    this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 

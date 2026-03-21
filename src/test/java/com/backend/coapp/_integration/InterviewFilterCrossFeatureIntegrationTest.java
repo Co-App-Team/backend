@@ -48,7 +48,6 @@ class InterviewFilterCrossFeatureIntegrationTest {
   @Autowired private PasswordEncoder passwordEncoder;
 
   private String testCompanyId;
-  private String testUserId;
   private String testUserEmail;
 
   @BeforeEach
@@ -73,7 +72,6 @@ class InterviewFilterCrossFeatureIntegrationTest {
             true,
             1234);
     this.userRepository.save(testUser);
-    this.testUserId = testUser.getId();
     this.testUserEmail = testUser.getEmail();
   }
 
