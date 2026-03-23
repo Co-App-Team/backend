@@ -19,6 +19,11 @@ Thank you for contributing! This guide will help you set up the project environm
     * Make sure you have **Java JDK 21** installed. You can install it from [Oracle](https://www.oracle.com/ca-en/java/technologies/downloads/#java21) or via IntelliJ.
     * [Configure IntelliJ to use JDK 21](https://www.baeldung.com/intellij-change-java-version) for the project.
 
+After successfully set up, your Java SDK version in IntelliJ should look as follows:
+
+![JavaSDKIntelliJ.png](docs/img/JavaSDKIntelliJ.png)
+
+
 4. **Set up Gradle**
 
     * If Gradle is not set up in IntelliJ, download and configure it.
@@ -32,11 +37,45 @@ Thank you for contributing! This guide will help you set up the project environm
       ```bash
       ./gradlew --version
       ```
+5. **Include Keys**
 
-5. **You're ready to go!**
+For the application to function properly, you need to include keys inside `local.properties` under the root of the project:
 
-    * You can now build the project and run tasks using Gradle.
+```shell
+CoApp
+├── Dockerfile
+├── README.md
+├── build
+├── build.gradle
+├── docs
+├── gradle
+├── gradlew
+├── gradlew.bat
+├── local.properties    <----- Include keys here
+├── settings.gradle
+└── src
+```
 
+`local.properties` will have the following fields:
+
+```shell
+SPRING_DATA_MONGODB_URI=<YOUR_MONGO_DB_URI>
+NO_REPLY_EMAIL_PASSWORD=<YOUR_NO_REPLY_EMAIL_PASSWORD>
+JWT_SECRET_KEY=<YOUR_JWT_SECRET_KEY>
+GOOGLE_GENAI_API_KEY=<YOUR_GOOGLE_GENAI_API_KEY>
+```
+
+> \[!IMPORTANT\]
+> For TA to run and build our project locally, please reach out to any of our team member for `local.properties`
+
+6. **You're ready to go!**
+
+    * You can now build and run the project using Gradle. Launch the backend locally by select:
+![buildProjectFirstOption.png](docs/img/buildProjectFirstOption.png)
+
+or find `src/main/java/com/backend/coapp/CoAppApplication.java` and run:
+
+![buildProjectSecondOption.png](docs/img/buildProjectSecondOption.png)
 ## Development workflow
 
 ### Preliminary
