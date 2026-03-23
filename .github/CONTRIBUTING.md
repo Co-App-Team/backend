@@ -77,9 +77,9 @@ For every API call, except from `api/auth/*`, the application will expect `JWT` 
 To obtain the `JWT` token, you will need to log in to the application (if you have not yet created an account, please do so).
 After log in successfully, you can find `JWT` in cookie:
 
- ![loginFromPostman.png](../docs/img/loginFromPostman.png)
+ ![loginFromPostman.png](docs/img/loginFromPostman.png)
  
 Postman will also cache your cookie here: \
-![tokenExample.png](../docs/img/tokenExample.png)
+![tokenExample.png](docs/img/tokenExample.png)
 
 If you need to clean cookie and login against, please select `Cookies` and remove `Authorization` cookie
