@@ -19,7 +19,7 @@ Thank you for contributing! This guide will help you set up the project environm
     * Make sure you have **Java JDK 21** installed. You can install it from [Oracle](https://www.oracle.com/ca-en/java/technologies/downloads/#java21) or via IntelliJ.
     * [Configure IntelliJ to use JDK 21](https://www.baeldung.com/intellij-change-java-version) for the project.
 
-After successfully set up, your Java SDK version in IntelliJ should look as follows:
+If set up properly, your Java SDK version in IntelliJ should look as follows:
 
 ![JavaSDKIntelliJ.png](docs/img/JavaSDKIntelliJ.png)
 
