@@ -1,6 +1,6 @@
 package com.backend.coapp.dto.request;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 
 /** An interface for every REST API requests. */
 public interface IRequest {

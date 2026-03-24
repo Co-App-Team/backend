@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-import com.backend.coapp.exception.EmailInvalidAddressException;
-import com.backend.coapp.exception.EmailServiceException;
+import com.backend.coapp.exception.auth.EmailInvalidAddressException;
+import com.backend.coapp.exception.auth.EmailServiceException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -16,18 +16,18 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
 /** Parts of the unit test are written with help of Claude (Sonnet 4.6) */
-public class EmailServiceTest {
+class EmailServiceTest {
   private JavaMailSender mailSender;
   private EmailService emailService;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.mailSender = Mockito.mock(JavaMailSender.class);
     this.emailService = new EmailService(mailSender);
   }
 
   @Test
-  public void sendEmail_whenTargetEmailInvalid_expectException() {
+  void sendEmail_whenTargetEmailInvalid_expectException() {
     assertThrows(
         EmailInvalidAddressException.class,
         () -> this.emailService.sendEmail("", "Foo Subject", "Woof woof"));
@@ -52,7 +52,7 @@ public class EmailServiceTest {
   }
 
   @Test
-  public void sendEmail_whenSubjectInvalid_expectException() {
+  void sendEmail_whenSubjectInvalid_expectException() {
     assertThrows(
         EmailServiceException.class,
         () -> this.emailService.sendEmail("foo@mail.com", null, "Woof woof"));
@@ -62,7 +62,7 @@ public class EmailServiceTest {
   }
 
   @Test
-  public void sendEmail_whenBodyInvalid_expectException() {
+  void sendEmail_whenBodyInvalid_expectException() {
     assertThrows(
         EmailServiceException.class,
         () -> this.emailService.sendEmail("foo@mail.com", "foo", null));
@@ -71,7 +71,7 @@ public class EmailServiceTest {
   }
 
   @Test
-  public void sendEmail_whenMailServiceFail_expectException() {
+  void sendEmail_whenMailServiceFail_expectException() {
     doThrow(new MailException("Mail Sender fail.") {})
         .when(this.mailSender)
         .send(any(SimpleMailMessage.class));
@@ -84,7 +84,7 @@ public class EmailServiceTest {
   }
 
   @Test
-  public void sendEmail_whenSendSuccessfully_expectNoException() {
+  void sendEmail_whenSendSuccessfully_expectNoException() {
     this.emailService.sendEmail("foo@mail.com", "Foo", "woof woof");
 
     ArgumentCaptor<SimpleMailMessage> captorMessage =

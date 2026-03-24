@@ -25,8 +25,5 @@ jobs:
         with:
           gradle-version: '9.2.1'
 
-      - name: Build with Gradle 9.2.1
-        run: gradle build
-
       - name: Unit test
         run: gradle test

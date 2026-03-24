@@ -2,21 +2,22 @@ package com.backend.coapp.dto.request;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.backend.coapp.exception.InvalidRequestException;
+import com.backend.coapp.exception.global.InvalidRequestException;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.util.ApplicationConstants;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
-public class CreateApplicationRequestTest {
+class CreateApplicationRequestTest {
 
-  private final String validUserId = "user-123";
   private final String validCompanyId = "comp-456";
   private final String validJobTitle = "Software Engineer";
   private final ApplicationStatus validStatus = ApplicationStatus.APPLIED;
 
   private final LocalDate validDateApplied = LocalDate.now();
   private final LocalDate validDeadline = LocalDate.now().plusMonths(1);
+  private final LocalDateTime validInterviewDateTime = LocalDateTime.now().plusMonths(1);
 
   private final String validUrl = "https://careers.google.com";
 
@@ -29,11 +30,12 @@ public class CreateApplicationRequestTest {
         .jobTitle(validJobTitle)
         .status(validStatus)
         .applicationDeadline(validDeadline)
+        .interviewDateTime(validInterviewDateTime)
         .dateApplied(validDateApplied);
   }
 
   @Test
-  public void getMethods_expectInitValues() {
+  void getMethods_expectInitValues() {
     CreateApplicationRequest request =
         getValidRequestBuilder()
             .jobDescription("Description")
@@ -53,7 +55,7 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenValidRequest_expectNoException() {
+  void validateRequest_whenValidRequest_expectNoException() {
     CreateApplicationRequest request = getValidRequestBuilder().sourceLink(validUrl).build();
 
     assertDoesNotThrow(request::validateRequest);
@@ -61,7 +63,7 @@ public class CreateApplicationRequestTest {
 
   // Company ID Validation
   @Test
-  public void validateRequest_whenCompanyIdIsNull_expectException() {
+  void validateRequest_whenCompanyIdIsNull_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().companyId(null).build();
 
     InvalidRequestException exception =
@@ -71,7 +73,7 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenCompanyIdIsBlank_expectException() {
+  void validateRequest_whenCompanyIdIsBlank_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().companyId(" ").build();
 
     InvalidRequestException exception =
@@ -82,7 +84,7 @@ public class CreateApplicationRequestTest {
 
   // Job Title Validation
   @Test
-  public void validateRequest_whenJobTitleIsNull_expectException() {
+  void validateRequest_whenJobTitleIsNull_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().jobTitle(null).build();
 
     InvalidRequestException exception =
@@ -92,7 +94,7 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenJobTitleIsBlank_expectException() {
+  void validateRequest_whenJobTitleIsBlank_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().jobTitle(" ").build();
 
     InvalidRequestException exception =
@@ -103,7 +105,7 @@ public class CreateApplicationRequestTest {
 
   // Status Validation
   @Test
-  public void validateRequest_whenStatusIsNull_expectException() {
+  void validateRequest_whenStatusIsNull_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().status(null).build();
 
     InvalidRequestException exception =
@@ -114,7 +116,7 @@ public class CreateApplicationRequestTest {
 
   // Deadline Validation
   @Test
-  public void validateRequest_whenDeadlineIsNull_expectException() {
+  void validateRequest_whenDeadlineIsNull_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().applicationDeadline(null).build();
 
     InvalidRequestException exception =
@@ -125,7 +127,7 @@ public class CreateApplicationRequestTest {
 
   // Source Link Validation
   @Test
-  public void validateRequest_whenSourceLinkIsInvalid_expectException() {
+  void validateRequest_whenSourceLinkIsInvalid_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().sourceLink("not-a-url").build();
 
     InvalidRequestException exception =
@@ -135,7 +137,7 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenSourceLinkIsBlank_expectSuccess() {
+  void validateRequest_whenSourceLinkIsBlank_expectSuccess() {
     CreateApplicationRequest request = getValidRequestBuilder().sourceLink("   ").build();
 
     assertDoesNotThrow(request::validateRequest);
@@ -143,7 +145,7 @@ public class CreateApplicationRequestTest {
 
   // Job Description Length Validation
   @Test
-  public void validateRequest_whenJobDescriptionExceedsMaxLength_expectException() {
+  void validateRequest_whenJobDescriptionExceedsMaxLength_expectException() {
     String longDescription = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1);
     CreateApplicationRequest request =
         getValidRequestBuilder().jobDescription(longDescription).build();
@@ -152,12 +154,14 @@ public class CreateApplicationRequestTest {
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
     assertEquals(
-        EXCEPTION_PREFIX + "Job description cannot exceed 2000 characters.",
+        EXCEPTION_PREFIX
+            + "Job description cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH),
         exception.getMessage());
   }
 
   @Test
-  public void validateRequest_whenJobDescriptionExactlyMaxLength_expectSuccess() {
+  void validateRequest_whenJobDescriptionExactlyMaxLength_expectSuccess() {
     String maxDescription = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH);
     CreateApplicationRequest request =
         getValidRequestBuilder().jobDescription(maxDescription).build();
@@ -167,27 +171,47 @@ public class CreateApplicationRequestTest {
 
   // Notes Length Validation
   @Test
-  public void validateRequest_whenNotesExceedsMaxLength_expectException() {
-    String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH + 1);
+  void validateRequest_whenNotesExceedsMaxLength_expectException() {
+    String longNotes = "a".repeat(ApplicationConstants.MAX_JOB_NOTES_LENGTH + 1);
     CreateApplicationRequest request = getValidRequestBuilder().notes(longNotes).build();
 
     InvalidRequestException exception =
         assertThrows(InvalidRequestException.class, request::validateRequest);
 
-    assertEquals(EXCEPTION_PREFIX + "Notes cannot exceed 2000 characters.", exception.getMessage());
+    assertEquals(
+        EXCEPTION_PREFIX
+            + "Notes cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_NOTES_LENGTH),
+        exception.getMessage());
   }
 
   @Test
-  public void validateRequest_whenNotesExactlyMaxLength_expectSuccess() {
+  void validateRequest_whenNotesExactlyMaxLength_expectSuccess() {
     String maxNotes = "a".repeat(ApplicationConstants.MAX_JOB_DESCRIPTION_LENGTH);
     CreateApplicationRequest request = getValidRequestBuilder().notes(maxNotes).build();
 
     assertDoesNotThrow(request::validateRequest);
   }
 
+  // Job tile length validation
+  @Test
+  void validateRequest_whenJobTitleExceedsLimit_expectException() {
+    String longTitle = "a".repeat(ApplicationConstants.MAX_JOB_TITLE_LENGTH + 1);
+    CreateApplicationRequest request = getValidRequestBuilder().jobTitle(longTitle).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX
+            + "Job title cannot exceed %s characters."
+                .formatted(ApplicationConstants.MAX_JOB_TITLE_LENGTH),
+        exception.getMessage());
+  }
+
   // Num Positions Validation
   @Test
-  public void validateRequest_whenNumPositionsNegative_expectException() {
+  void validateRequest_whenNumPositionsNegative_expectException() {
     CreateApplicationRequest request = getValidRequestBuilder().numPositions(-1).build();
 
     InvalidRequestException exception =
@@ -198,30 +222,15 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenNumPositionsZero_expectSuccess() {
+  void validateRequest_whenNumPositionsZero_expectSuccess() {
     CreateApplicationRequest request = getValidRequestBuilder().numPositions(0).build();
     assertDoesNotThrow(request::validateRequest);
   }
 
   // Date Applied vs Deadline Validation
-  @Test
-  public void validateRequest_whenDateAppliedAfterDeadline_expectException() {
-    LocalDate deadline = LocalDate.now().minusDays(1);
-    LocalDate applied = LocalDate.now();
-
-    CreateApplicationRequest request =
-        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
-
-    InvalidRequestException exception =
-        assertThrows(InvalidRequestException.class, request::validateRequest);
-
-    assertEquals(
-        EXCEPTION_PREFIX + "Date applied cannot be after application deadline.",
-        exception.getMessage());
-  }
 
   @Test
-  public void validateRequest_whenDateAppliedBeforeDeadline_expectSuccess() {
+  void validateRequest_whenDateAppliedBeforeDeadline_expectSuccess() {
     LocalDate applied = LocalDate.now().minusDays(3);
     LocalDate deadline = LocalDate.now();
 
@@ -232,9 +241,47 @@ public class CreateApplicationRequestTest {
   }
 
   @Test
-  public void validateRequest_whenDateAppliedIsNull_expectSuccess() {
+  void validateRequest_whenDateAppliedIsNull_expectSuccess() {
     CreateApplicationRequest request = getValidRequestBuilder().dateApplied(null).build();
 
     assertDoesNotThrow(request::validateRequest);
+  }
+
+  // Interview Date Validation
+  @Test
+  void validateRequest_whenInterviewDateTooFarInThePast_expectException() {
+    CreateApplicationRequest request =
+        getValidRequestBuilder().interviewDateTime(LocalDateTime.now().minusYears(1)).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX + "Interview Date cannot be set 3 months in the past.",
+        exception.getMessage());
+  }
+
+  @Test
+  void validateRequest_whenInterviewDateIsToday_expectSuccess() {
+    CreateApplicationRequest request =
+        getValidRequestBuilder().interviewDateTime(LocalDateTime.now()).build();
+
+    assertDoesNotThrow(request::validateRequest);
+  }
+
+  @Test
+  void validateRequest_whenDateAppliedAfterDeadline_expectException() {
+    LocalDate applied = LocalDate.now().plusDays(5);
+    LocalDate deadline = LocalDate.now();
+
+    CreateApplicationRequest request =
+        getValidRequestBuilder().applicationDeadline(deadline).dateApplied(applied).build();
+
+    InvalidRequestException exception =
+        assertThrows(InvalidRequestException.class, request::validateRequest);
+
+    assertEquals(
+        EXCEPTION_PREFIX + "Date applied cannot be after application deadline.",
+        exception.getMessage());
   }
 }

@@ -1,6 +1,6 @@
 package com.backend.coapp.config;
 
-import com.backend.coapp.exception.AuthEmailNotRegisteredException;
+import com.backend.coapp.exception.auth.AuthEmailNotRegisteredException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;

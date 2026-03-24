@@ -38,10 +38,10 @@ public interface CompanyRepository extends MongoRepository<CompanyModel, String>
   Page<CompanyModel> findByCompanyNameLowerContaining(String searchTerm, Pageable pageable);
 
   /**
-   * Find companies by partial name match (case-insensitive) without pagination
+   * Find companies with names that contain the case-insensitive given string.
    *
-   * @param searchTerm The search term (already lowercased)
-   * @return List of companies matching the search term
+   * @param companyName The partial or full company name to search
+   * @return A list of matching companies
    */
-  List<CompanyModel> findByCompanyNameLowerContaining(String searchTerm);
+  List<CompanyModel> findByCompanyNameContainingIgnoreCase(String companyName);
 }

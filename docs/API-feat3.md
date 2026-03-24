@@ -14,15 +14,16 @@ The first endpoint is the most important and provides the minimum requirements f
 ### Application DTO
 ```json
 {
-  "id": "string",
-  "userId": "string",
-  "companyName": "string",
+  "applicationId": "string",
+  "companyId": "string",
   "jobTitle": "string",
-  "postingLink": "string",
   "status": "string",
-  "dateApplied": "datetime string",
-  "notes": "string (optional)",
-  "address": "string (optional)"
+  "applicationDeadline": "date string",
+  "jobDescription": "string (optional)",
+  "numPositions": "integer (optional)",
+  "sourceLink": "string (optional)",
+  "dateApplied": "date string (optional)",
+  "notes": "string (optional)"
 }
 ```
 
@@ -45,7 +46,7 @@ The first endpoint is the most important and provides the minimum requirements f
 
 ### 1. Get Filtered/Searched Applications
 
-**Path:** `/api/applications`
+**Path:** `/api/application`
 
 **Method:** `GET`
 
@@ -76,26 +77,16 @@ The first endpoint is the most important and provides the minimum requirements f
 {
   "applications": [
     {
-      "id": "x",
-      "userId": "y",
-      "companyName": "Niche",
+      "applicationId": "x",
+      "companyId": "z",
       "jobTitle": "Software Engineering Intern",
-      "postingLink": "link",
       "status": "APPLIED",
-      "dateApplied": "date string",
-      "notes": "Applied through university portal",
-      "address": "address here"
-    },
-    {
-      "id": "x",
-      "userId": "y",
-      "companyName": "Varian",
-      "jobTitle": "Software Engineering Intern",
-      "postingLink": "link",
-      "status": "APPLIED",
-      "dateApplied": "date string",
-      "notes": "Applied through university portal",
-      "address": "address here"
+      "applicationDeadline": "2024-03-01",
+      "jobDescription": "Build cool things.",
+      "numPositions": 3,
+      "sourceLink": "https://linkedin.com/jobs/123",
+      "dateApplied": "2024-01-15",
+      "notes": "Applied through university portal"
     }
   ],
   "pagination": {
@@ -107,35 +98,19 @@ The first endpoint is the most important and provides the minimum requirements f
     "hasPrevious": false
   }
 }
+
 ```
 
 **Response 400 Bad Request:**
 
 Returns when query has an invalid value:
 
-```json
-{
-  "error": "BAD_REQUEST",
-  "message": "Invalid query parameter",
-  "details": {
-    "parameter": {Name of offending parameter},
-    "invalidValue": {The value causing the offense},
-    "validValues": [{An array of valid values}]
-  }
-}
-```
-
 **Example:** `status=invalidStatusName` 
 
 ```json
 {
-  "error": "BAD_REQUEST",
-  "message": "Invalid query parameter",
-  "details": {
-    "parameter": "status",
-    "invalidValue": "invalidStatusName",
-    "validValues": ["NOT_APPLIED", "APPLIED", "INTERVIEW_SCHEDULED", "INTERVIEWING", "OFFER_RECEIVED", "REJECTED", "WITHDRAWN", "ACCEPTED"]
-  }
+  "error": "REQUEST_HAS_NULL_OR_EMPTY_FIELD",
+  "message": "Invalid inputs of the request. Invalid value for status: 'invalidStatusName'."
 }
 ```
 

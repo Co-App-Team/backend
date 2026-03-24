@@ -5,7 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.backend.coapp.dto.response.UserResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.exception.auth.*;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotFoundException;
+import com.backend.coapp.exception.genai.ExperienceNotOwnedException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.document.UserExperienceModel;
 import com.backend.coapp.model.document.UserModel;
@@ -28,7 +32,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 /** Parts of the unit test are generated with help of Claude (Sonnet 4.6) and revised by Bao Ngo */
 @SpringBootTest
 @Testcontainers
-public class UserServiceTest {
+class UserServiceTest {
   @Container @ServiceConnection
   static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
@@ -44,6 +48,8 @@ public class UserServiceTest {
   private UserModel fooUserNotActivated;
   private UserModel fooUserActivated;
   private final String RAW_PASSWORD = "password123";
+  private final String FOO_USER_ACTIVATED_ID = "789";
+  private final String FOO_USER_NOT_ACTIVATED_ID = "123";
 
   private UserExperienceModel fooExperience1;
   private UserExperienceModel fooExperience2;
@@ -84,13 +90,13 @@ public class UserServiceTest {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     this.userRepository.deleteAll();
     this.userExperienceRepository.deleteAll();
     this.companyRepository.deleteAll();
     this.fooUserNotActivated =
         new UserModel(
-            "123",
+            FOO_USER_NOT_ACTIVATED_ID,
             "foo@mail.com",
             this.passwordEncoder.encode(RAW_PASSWORD),
             "foo",
@@ -100,7 +106,7 @@ public class UserServiceTest {
     this.userRepository.save(fooUserNotActivated);
     this.fooUserActivated =
         new UserModel(
-            "789",
+            FOO_USER_ACTIVATED_ID,
             "fooActivated@mail.com",
             this.passwordEncoder.encode(RAW_PASSWORD),
             "fooActivated",
@@ -118,12 +124,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void constructor_expectSameInitInstance() {
+  void constructor_expectSameInitInstance() {
     assertSame(this.userRepository, this.userService.getUserRepository());
   }
 
   @Test
-  public void getDummyUser_expectInitValues() {
+  void getDummyUser_expectInitValues() {
     UserResponse user = this.userService.getDummyUser();
 
     assertNotNull(user);
@@ -133,54 +139,50 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserPassword_whenOldPasswordMatch_expectNoException() {
+  void updateUserPassword_whenOldPasswordMatch_expectNoException() {
     assertDoesNotThrow(
         () ->
             this.userService.updateUserPassword(
-                this.fooUserActivated.getId(), this.RAW_PASSWORD, "newPassword"));
-    UserModel user = this.userRepository.findUserModelById(this.fooUserActivated.getId());
+                FOO_USER_ACTIVATED_ID, this.RAW_PASSWORD, "newPassword"));
+    UserModel user = this.userRepository.findUserModelById(FOO_USER_ACTIVATED_ID);
     assertNotNull(user);
     assertTrue(this.passwordEncoder.matches("newPassword", user.getPassword()));
   }
 
   @Test
-  public void updatePassword_whenNoAccountFound_expectException() {
+  void updatePassword_whenNoAccountFound_expectException() {
     assertThrows(
         AuthEmailNotRegisteredException.class,
         () -> this.userService.updateUserPassword("notExistUser", "1", "2"));
   }
 
   @Test
-  public void updatePassword_whenNoAccountNotYetActivated_expectException() {
+  void updatePassword_whenNoAccountNotYetActivated_expectException() {
+    String fooUserNotActivatedPassword = this.fooUserNotActivated.getPassword();
     assertThrows(
         AuthAccountNotYetActivatedException.class,
         () ->
             this.userService.updateUserPassword(
-                this.fooUserNotActivated.getId(),
-                this.fooUserNotActivated.getPassword(),
-                "newPassword"));
+                FOO_USER_NOT_ACTIVATED_ID, fooUserNotActivatedPassword, "newPassword"));
   }
 
   @Test
-  public void updatePassword_whenOldPasswordNotMatch_expectException() {
+  void updatePassword_whenOldPasswordNotMatch_expectException() {
     assertThrows(
         AuthBadCredentialException.class,
         () ->
-            this.userService.updateUserPassword(
-                this.fooUserActivated.getId(), "fooEmail", "newPassword"));
+            this.userService.updateUserPassword(FOO_USER_ACTIVATED_ID, "fooEmail", "newPassword"));
   }
 
   @Test
-  public void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
+  void updatePassword_whenNewPasswordSameWithOldPassword_expectException() {
     assertThrows(
         UserInvalidPasswordChangeException.class,
-        () ->
-            this.userService.updateUserPassword(
-                this.fooUserActivated.getId(), "fooEmail", "fooEmail"));
+        () -> this.userService.updateUserPassword(FOO_USER_ACTIVATED_ID, "fooEmail", "fooEmail"));
   }
 
   @Test
-  public void udpatePassword_whenDatabaseSaveOperationFail_expectException() {
+  void udpatePassword_whenDatabaseSaveOperationFail_expectException() {
     this.userService =
         new UserService(
             this.mockUserRepository,
@@ -195,13 +197,13 @@ public class UserServiceTest {
         UserServiceFailException.class,
         () ->
             this.userService.updateUserPassword(
-                this.fooUserActivated.getId(), this.RAW_PASSWORD, "newPassword"));
+                FOO_USER_ACTIVATED_ID, this.RAW_PASSWORD, "newPassword"));
 
     verify(this.mockUserRepository, times(1)).save(any(UserModel.class));
   }
 
   @Test
-  public void udpatePassword_whenDatabaseFindOperationFail_expectException() {
+  void udpatePassword_whenDatabaseFindOperationFail_expectException() {
     this.userService =
         new UserService(
             this.mockUserRepository,
@@ -211,30 +213,31 @@ public class UserServiceTest {
 
     when(this.mockUserRepository.findUserModelById(any())).thenThrow(new RuntimeException());
 
+    String fooUserActivatedPassword = this.fooUserActivated.getPassword();
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.updateUserPassword(
-                this.fooUserActivated.getId(), this.fooUserActivated.getPassword(), "newPassword"));
+                FOO_USER_ACTIVATED_ID, fooUserActivatedPassword, "newPassword"));
 
     verify(this.mockUserRepository, never()).save(any(UserModel.class));
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserExit_expectReturnUser() {
+  void getUserInformationFromUserID_whenUserExit_expectReturnUser() {
     UserModel user = this.userService.getUserInformationFromUserID(this.fooUserActivated.getId());
 
     assertThat(this.fooUserActivated).usingRecursiveComparison().isEqualTo(user);
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserNotExit_expectException() {
+  void getUserInformationFromUserID_whenUserNotExit_expectException() {
     assertThrows(
-        UserNotExistException.class, () -> this.userService.getUserInformationFromUserID("999"));
+        UserNotFoundException.class, () -> this.userService.getUserInformationFromUserID("999"));
   }
 
   @Test
-  public void getUserInformationFromUserID_whenUserRepoFail_expectException() {
+  void getUserInformationFromUserID_whenUserRepoFail_expectException() {
     this.userService =
         new UserService(
             this.mockUserRepository,
@@ -246,11 +249,11 @@ public class UserServiceTest {
 
     assertThrows(
         UserServiceFailException.class,
-        () -> this.userService.getUserInformationFromUserID(this.fooUserActivated.getId()));
+        () -> this.userService.getUserInformationFromUserID(FOO_USER_ACTIVATED_ID));
   }
 
   @Test
-  public void getAllUserExperience_whenUserHasExperiences_expectReturnAll() {
+  void getAllUserExperience_whenUserHasExperiences_expectReturnAll() {
     setUpExperiences();
 
     List<UserExperienceModel> results =
@@ -260,7 +263,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void getAllUserExperience_whenUserHasNoExperiences_expectReturnEmptyList() {
+  void getAllUserExperience_whenUserHasNoExperiences_expectReturnEmptyList() {
     this.userExperienceRepository.deleteAll();
 
     List<UserExperienceModel> results =
@@ -270,7 +273,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void getAllUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void getAllUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     UserService serviceWithMockRepo =
         new UserService(
             this.userRepository,
@@ -282,11 +285,11 @@ public class UserServiceTest {
 
     assertThrows(
         UserServiceFailException.class,
-        () -> serviceWithMockRepo.getAllUserExperience(fooUserActivated.getId()));
+        () -> serviceWithMockRepo.getAllUserExperience(FOO_USER_ACTIVATED_ID));
   }
 
   @Test
-  public void createNewUserExperience_whenValidArgs_expectReturnSavedModel() {
+  void createNewUserExperience_whenValidArgs_expectReturnSavedModel() {
     setUpCompany();
 
     UserExperienceModel result =
@@ -309,7 +312,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsNull_expectReturnSavedModel() {
+  void createNewUserExperience_whenEndDateIsNull_expectReturnSavedModel() {
     setUpCompany();
 
     UserExperienceModel result =
@@ -326,14 +329,14 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
+  void createNewUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
     this.companyRepository.deleteAll();
 
     assertThrows(
         CompanyNotFoundException.class,
         () ->
             this.userService.createNewUserExperience(
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 "nonExistentCompanyId",
                 "Software Engineer",
                 "Some description",
@@ -342,7 +345,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void createNewUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     setUpCompany();
 
     UserService serviceWithMockRepo =
@@ -353,13 +356,13 @@ public class UserServiceTest {
             this.companyRepository);
 
     when(mockUserExperienceRepository.save(any())).thenThrow(new RuntimeException());
-
+    String fooCompanyId = fooCompany.getId();
     assertThrows(
         UserServiceFailException.class,
         () ->
             serviceWithMockRepo.createNewUserExperience(
-                fooUserActivated.getId(),
-                fooCompany.getId(),
+                FOO_USER_ACTIVATED_ID,
+                fooCompanyId,
                 "Software Engineer",
                 "Some description",
                 START_DATE,
@@ -367,12 +370,13 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCalled_expectPersistedInDatabase() {
+  void createNewUserExperience_whenCalled_expectPersistedInDatabase() {
     setUpCompany();
+    String fooCompanyId = fooCompany.getId();
 
     this.userService.createNewUserExperience(
-        fooUserActivated.getId(),
-        fooCompany.getId(),
+        FOO_USER_ACTIVATED_ID,
+        fooCompanyId,
         "Software Engineer",
         "Some description",
         START_DATE,
@@ -385,12 +389,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.createNewUserExperience(
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 null, // companyId null
                 "Software Engineer",
                 "Some description",
@@ -399,12 +403,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.createNewUserExperience(
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 null, // roleTitle null
                 "Some description",
@@ -413,12 +417,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.createNewUserExperience(
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 null, // roleDescription null
@@ -427,12 +431,12 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+  void createNewUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.createNewUserExperience(
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 "Some description",
@@ -441,28 +445,28 @@ public class UserServiceTest {
   }
 
   @Test
-  public void
-      createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+  void createNewUserExperience_whenEndDateIsBeforeStartDate_expectUserServiceFailException() {
+    LocalDate invalidEndDate = START_DATE.minusDays(1);
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.createNewUserExperience(
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 "Some description",
                 START_DATE,
-                START_DATE.minusDays(1))); // endDate before startDate
+                invalidEndDate)); // endDate before startDate
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
+  void createNewUserExperience_whenEndDateIsAfterStartDate_expectSuccess() {
     setUpCompany();
-
+    String fooCompanyId = fooCompany.getId();
     UserExperienceModel result =
         this.userService.createNewUserExperience(
-            fooUserActivated.getId(),
-            fooCompany.getId(),
+            FOO_USER_ACTIVATED_ID,
+            fooCompanyId,
             "Software Engineer",
             "Some description",
             START_DATE,
@@ -473,13 +477,14 @@ public class UserServiceTest {
   }
 
   @Test
-  public void createNewUserExperience_whenEndDateIsNull_expectSuccess() {
+  void createNewUserExperience_whenEndDateIsNull_expectSuccess() {
     setUpCompany();
 
+    String fooCompanyId = fooCompany.getId();
     UserExperienceModel result =
         this.userService.createNewUserExperience(
-            fooUserActivated.getId(),
-            fooCompany.getId(),
+            FOO_USER_ACTIVATED_ID,
+            fooCompanyId,
             "Software Engineer",
             "Some description",
             START_DATE,
@@ -490,7 +495,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
+  void deleteUserExperience_whenValidArgs_expectExperienceDeleted() {
     setUpExperiences();
 
     this.userService.deleteUserExperience(fooExperience1.getId(), fooUserActivated.getId());
@@ -502,28 +507,29 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
+  void deleteUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
     assertThrows(
         ExperienceNotFoundException.class,
         () ->
             this.userService.deleteUserExperience(
-                "nonExistentExperienceId", fooUserActivated.getId()));
+                "nonExistentExperienceId", FOO_USER_ACTIVATED_ID));
   }
 
   @Test
-  public void deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
+  void deleteUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
     setUpExperiences();
-
+    String fooExperience1Id = fooExperience1.getId();
     assertThrows(
         ExperienceNotOwnedException.class,
         () ->
             this.userService.deleteUserExperience(
-                fooExperience1.getId(), "anotherUserId")); // different user trying to delete
+                fooExperience1Id, "anotherUserId")); // different user trying to delete
   }
 
   @Test
-  public void deleteUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void deleteUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     setUpExperiences();
+    String fooExperience1Id = fooExperience1.getId();
 
     UserService serviceWithMockRepo =
         new UserService(
@@ -536,13 +542,11 @@ public class UserServiceTest {
 
     assertThrows(
         UserServiceFailException.class,
-        () ->
-            serviceWithMockRepo.deleteUserExperience(
-                fooExperience1.getId(), fooUserActivated.getId()));
+        () -> serviceWithMockRepo.deleteUserExperience(fooExperience1Id, FOO_USER_ACTIVATED_ID));
   }
 
   @Test
-  public void deleteUserExperience_whenDeleted_expectNotFoundInDatabase() {
+  void deleteUserExperience_whenDeleted_expectNotFoundInDatabase() {
     setUpExperiences();
 
     this.userService.deleteUserExperience(fooExperience1.getId(), fooUserActivated.getId());
@@ -553,7 +557,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void deleteUserExperience_whenDeleteOne_expectOtherExperiencesUnaffected() {
+  void deleteUserExperience_whenDeleteOne_expectOtherExperiencesUnaffected() {
     setUpExperiences();
 
     this.userService.deleteUserExperience(fooExperience1.getId(), fooUserActivated.getId());
@@ -565,7 +569,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenValidArgs_expectAllFieldsUpdated() {
+  void updateUserExperience_whenValidArgs_expectAllFieldsUpdated() {
     setUpExperiences();
     setUpCompany();
     LocalDate newStartDate = LocalDate.now().minusYears(2);
@@ -590,7 +594,7 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenEndDateIsNull_expectEndDateCleared() {
+  void updateUserExperience_whenEndDateIsNull_expectEndDateCleared() {
     setUpExperiences();
     setUpCompany();
 
@@ -609,15 +613,15 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenCompanyIdIsNull_expectUserServiceFailException() {
     setUpExperiences();
-
+    String fooExperience1Id = fooExperience1.getId();
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
                 null, // companyId null
                 "Software Engineer",
                 "Some description",
@@ -626,15 +630,15 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenRoleTitleIsNull_expectUserServiceFailException() {
     setUpExperiences();
-
+    String fooExperience1Id = fooExperience1.getId();
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 null, // roleTitle null
                 "Some description",
@@ -643,15 +647,16 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenRoleDescriptionIsNull_expectUserServiceFailException() {
     setUpExperiences();
 
+    String fooExperience1Id = fooExperience1.getId();
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 null, // roleDescription null
@@ -660,15 +665,17 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
+  void updateUserExperience_whenStartDateIsNull_expectUserServiceFailException() {
     setUpExperiences();
+
+    String fooExperience1Id = fooExperience1.getId();
 
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 "Some description",
@@ -677,30 +684,33 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
+  void updateUserExperience_whenStartDateAfterEndDate_expectUserServiceFailException() {
     setUpExperiences();
+
+    String fooExperience1Id = fooExperience1.getId();
+    LocalDate invalidEndDate = START_DATE.minusDays(1);
 
     assertThrows(
         UserServiceFailException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 "Some description",
                 START_DATE,
-                START_DATE.minusDays(1)));
+                invalidEndDate));
   }
 
   @Test
-  public void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
+  void updateUserExperience_whenExperienceNotFound_expectExperienceNotFoundException() {
     assertThrows(
         ExperienceNotFoundException.class,
         () ->
             this.userService.updateUserExperience(
                 "nonExistentExperienceId",
-                fooUserActivated.getId(),
+                FOO_USER_ACTIVATED_ID,
                 "someCompanyId",
                 "Software Engineer",
                 "Some description",
@@ -709,17 +719,20 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
+  void updateUserExperience_whenExperienceNotOwnedByUser_expectExperienceNotOwnException() {
     setUpExperiences();
     setUpCompany();
+
+    String fooExperience1Id = fooExperience1.getId();
+    String fooCompanyId = fooCompany.getId();
 
     assertThrows(
         ExperienceNotOwnedException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
+                fooExperience1Id,
                 "anotherUserId", // different user
-                fooCompany.getId(),
+                fooCompanyId,
                 "Software Engineer",
                 "Some description",
                 START_DATE,
@@ -727,15 +740,16 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
+  void updateUserExperience_whenCompanyNotFound_expectCompanyNotFoundException() {
     setUpExperiences();
+    String fooExperience1Id = fooExperience1.getId();
 
     assertThrows(
         CompanyNotFoundException.class,
         () ->
             this.userService.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
                 "nonExistentCompanyId", // company doesn't exist
                 "Software Engineer",
                 "Some description",
@@ -744,9 +758,11 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
+  void updateUserExperience_whenRepositoryThrows_expectUserServiceFailException() {
     setUpExperiences();
     setUpCompany();
+    String fooExperience1Id = fooExperience1.getId();
+    String fooCompanyId = fooCompany.getId();
 
     UserService serviceWithMockRepo =
         new UserService(
@@ -761,9 +777,9 @@ public class UserServiceTest {
         UserServiceFailException.class,
         () ->
             serviceWithMockRepo.updateUserExperience(
-                fooExperience1.getId(),
-                fooUserActivated.getId(),
-                fooCompany.getId(),
+                fooExperience1Id,
+                FOO_USER_ACTIVATED_ID,
+                fooCompanyId,
                 "Software Engineer",
                 "Some description",
                 START_DATE,
@@ -771,14 +787,17 @@ public class UserServiceTest {
   }
 
   @Test
-  public void updateUserExperience_whenUpdated_expectPersistedInDatabase() {
+  void updateUserExperience_whenUpdated_expectPersistedInDatabase() {
     setUpExperiences();
     setUpCompany();
 
+    String fooExperience1Id = fooExperience1.getId();
+    String fooCompanyId = fooCompany.getId();
+
     this.userService.updateUserExperience(
-        fooExperience1.getId(),
-        fooUserActivated.getId(),
-        fooCompany.getId(),
+        fooExperience1Id,
+        FOO_USER_ACTIVATED_ID,
+        fooCompanyId,
         "Senior Software Engineer",
         "Updated description",
         START_DATE,

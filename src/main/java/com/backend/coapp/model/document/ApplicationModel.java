@@ -8,6 +8,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.data.annotation.CreatedDate;
@@ -33,6 +34,10 @@ public class ApplicationModel {
   private String companyId;
 
   @NotBlank(message = "Job title cannot be empty")
+  @Size(
+      max = ApplicationConstants.MAX_JOB_TITLE_LENGTH,
+      message =
+          ("Job title cannot exceed " + ApplicationConstants.MAX_JOB_TITLE_LENGTH + " characters"))
   private String jobTitle;
 
   @NotNull(message = "Application Deadline cannot be null")
@@ -70,4 +75,6 @@ public class ApplicationModel {
       message =
           ("Notes cannot exceed " + ApplicationConstants.MAX_JOB_NOTES_LENGTH + " characters"))
   private String notes;
+
+  private LocalDateTime interviewDateTime;
 }

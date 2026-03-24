@@ -1,18 +1,29 @@
 package com.backend.coapp.service;
 
 import com.backend.coapp.dto.response.ApplicationResponse;
-import com.backend.coapp.exception.*;
+import com.backend.coapp.dto.response.PaginationResponse;
+import com.backend.coapp.exception.application.*;
+import com.backend.coapp.exception.company.CompanyNotFoundException;
+import com.backend.coapp.exception.global.InvalidRequestException;
+import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
+import com.backend.coapp.model.document.CompanyModel;
 import com.backend.coapp.model.enumeration.ApplicationStatus;
 import com.backend.coapp.repository.ApplicationRepository;
 import com.backend.coapp.repository.CompanyRepository;
 import com.backend.coapp.repository.UserRepository;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -23,14 +34,17 @@ public class ApplicationService {
   private final ApplicationRepository applicationRepository;
   private final CompanyRepository companyRepository;
   private final UserRepository userRepository;
+  private final MongoTemplate mongoTemplate;
 
   public ApplicationService(
       ApplicationRepository applicationRepository,
       CompanyRepository companyRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      MongoTemplate mongoTemplate) {
     this.applicationRepository = applicationRepository;
     this.companyRepository = companyRepository;
     this.userRepository = userRepository;
+    this.mongoTemplate = mongoTemplate;
   }
 
   /**
@@ -46,6 +60,7 @@ public class ApplicationService {
    * @param sourceLink URL to job posting (nullable)
    * @param dateApplied Date application was submitted (non-null)
    * @param notes Additional notes (nullable)
+   * @param interviewDateTime Date of interview (nullable)
    * @return ApplicationResponse DTO containing created application data
    * @throws CompanyNotFoundException If company doesn't exist
    * @throws UserNotFoundException If user doesn't exist
@@ -62,7 +77,8 @@ public class ApplicationService {
       Integer numPositions,
       String sourceLink,
       LocalDate dateApplied,
-      String notes) {
+      String notes,
+      LocalDateTime interviewDateTime) {
     if (this.companyRepository.findById(companyId).isEmpty()) {
       throw new CompanyNotFoundException();
     }
@@ -92,6 +108,7 @@ public class ApplicationService {
               .sourceLink(sourceLink)
               .dateApplied(dateApplied)
               .notes(notes)
+              .interviewDateTime(interviewDateTime)
               .build();
 
       ApplicationModel savedApplication = this.applicationRepository.save(applicationModel);
@@ -117,6 +134,7 @@ public class ApplicationService {
    * @param newSourceLink Updated source link (nullable)
    * @param newDateApplied Updated date applied (nullable)
    * @param newNotes Updated notes (nullable)
+   * @param newInterviewDateTime Updated interview date (nullable)
    * @return ApplicationResponse DTO containing updated application data
    * @throws ApplicationNotFoundException If application doesn't exist
    * @throws UnauthorizedApplicationAccessException If user doesn't own application
@@ -134,12 +152,13 @@ public class ApplicationService {
       Integer newNumPositions,
       String newSourceLink,
       LocalDate newDateApplied,
-      String newNotes) {
+      String newNotes,
+      LocalDateTime newInterviewDateTime) {
 
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -156,6 +175,8 @@ public class ApplicationService {
     boolean linkChanged = !Objects.equals(existingApp.getSourceLink(), newSourceLink);
     boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
     boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
+    boolean interviewDateChanged =
+        !Objects.equals(existingApp.getInterviewDateTime(), newInterviewDateTime);
 
     if (!companyChanged
         && !titleChanged
@@ -165,12 +186,27 @@ public class ApplicationService {
         && !notesChanged
         && !statusChanged
         && !deadlineChanged
-        && !positionsChanged) {
+        && !positionsChanged
+        && !interviewDateChanged) {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
     if (companyChanged && this.companyRepository.findById(newCompanyId).isEmpty()) {
       throw new CompanyNotFoundException();
+    }
+
+    if (statusChanged && newStatus == ApplicationStatus.APPLIED) {
+      newDateApplied = LocalDate.now();
+    }
+
+    if (newDateApplied != null
+        && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
+        && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
+      throw new InvalidRequestException(
+          "The applied date must be before the application deadline."
+              + existingApp.getApplicationDeadline()
+              + " "
+              + newDateApplied);
     }
 
     existingApp.setCompanyId(newCompanyId);
@@ -182,6 +218,7 @@ public class ApplicationService {
     existingApp.setSourceLink(newSourceLink);
     existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
+    existingApp.setInterviewDateTime(newInterviewDateTime);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);
     return ApplicationResponse.fromModel(updatedApp);
@@ -199,7 +236,7 @@ public class ApplicationService {
     ApplicationModel existingApp =
         this.applicationRepository
             .findById(applicationId)
-            .orElseThrow(() -> new ApplicationNotFoundException());
+            .orElseThrow(ApplicationNotFoundException::new);
 
     if (!existingApp.getUserId().equals(userId)) {
       throw new UnauthorizedApplicationAccessException(
@@ -224,5 +261,139 @@ public class ApplicationService {
     }
 
     return userApplications;
+  }
+
+  /**
+   * Retrieves a paginated, optionally filtered and sorted list of applications for a user.
+   *
+   * <p>Search is performed against company name (case-insensitive, partial match). Because the
+   * model only stores a company id, matching company IDs are resolved from the companies collection
+   * and then used in a filter. If the search matches no companies the result will be empty.
+   *
+   * @param userId The ID of the authenticated user, always applied as a filter
+   * @param search Optional company name search term (case-insensitive, partial match)
+   * @param statuses Optional list of status values to include
+   * @param sortBy Field to sort by
+   * @param sortOrder Sort direction: asc/desc (default desc)
+   * @param page page number
+   * @param size results per page
+   * @return Map with keys "applications" (List) and "pagination" (Map)
+   * @throws ApplicationServiceFailException If the database query fails
+   */
+  public Map<String, Object> getFilteredApplications(
+      String userId,
+      String search,
+      List<ApplicationStatus> statuses,
+      String sortBy,
+      String sortOrder,
+      int page,
+      int size) {
+
+    try {
+      Criteria criteria = buildCriteria(userId, search, statuses);
+      Sort sort = buildSort(sortBy, sortOrder);
+
+      long totalItems = mongoTemplate.count(new Query(criteria), ApplicationModel.class);
+      List<ApplicationModel> applications = fetchApplications(criteria, sort, page, size);
+
+      List<ApplicationResponse> applicationResponses = mapToResponses(applications);
+      PaginationResponse pagination = buildPagination(page, size, totalItems);
+
+      return Map.of("applications", applicationResponses, "pagination", pagination.toMap());
+
+    } catch (Exception e) {
+      log.error("Failed to retrieve applications for user {}: {}", userId, e.getMessage());
+      throw new ApplicationServiceFailException(
+          "Failed to retrieve applications. Please try again.");
+    }
+  }
+
+  /**
+   * Builds the MongoDB query criteria from user filters. Always filters by userId. optionally
+   * filters by company name search and status list.
+   */
+  private Criteria buildCriteria(String userId, String search, List<ApplicationStatus> statuses) {
+    Criteria criteria = Criteria.where("userId").is(userId);
+
+    if (search != null && !search.isBlank()) {
+      List<String> matchingCompanyIds = resolveCompanyIds(search);
+      criteria = criteria.and("companyId").in(matchingCompanyIds);
+    }
+
+    if (statuses != null && !statuses.isEmpty()) {
+      criteria = criteria.and("status").in(statuses);
+    }
+
+    return criteria;
+  }
+
+  /**
+   * Resolves a list of company IDs matching the given search term (case-insensitive, partial
+   * match). Returns an empty list if no companies match, which will force an empty query result.
+   */
+  private List<String> resolveCompanyIds(String search) {
+    return this.companyRepository.findByCompanyNameContainingIgnoreCase(search.trim()).stream()
+        .map(CompanyModel::getId)
+        .toList();
+  }
+
+  /**
+   * Builds a Sort from the given field and direction string. Defaults to descending if sortOrder is
+   * not "asc".
+   */
+  private Sort buildSort(String sortBy, String sortOrder) {
+    // validation has already ensured sortOrder is either asc or desc
+    Sort.Direction direction =
+        "asc".equalsIgnoreCase(sortOrder) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    return Sort.by(direction, sortBy);
+  }
+
+  /** Executes the paginated MongoDB query and returns the matching ApplicationModel documents. */
+  private List<ApplicationModel> fetchApplications(
+      Criteria criteria, Sort sort, int page, int size) {
+    return mongoTemplate.find(
+        new Query(criteria).with(sort).skip((long) page * size).limit(size),
+        ApplicationModel.class);
+  }
+
+  /** Maps a list of ApplicationModel documents to ApplicationResponse DTOs. */
+  private List<ApplicationResponse> mapToResponses(List<ApplicationModel> applications) {
+    return applications.stream().map(ApplicationResponse::fromModel).toList();
+  }
+
+  /** Constructs the PaginationResponse from current page state and total item count. */
+  private PaginationResponse buildPagination(int page, int size, long totalItems) {
+    // simpler to do manually in this case, as using the spring data page class is a lot of work
+    // when building queries in this way.
+    int totalPages = (totalItems == 0) ? 0 : (int) Math.ceil((double) totalItems / size);
+    return new PaginationResponse(
+        page, totalPages, totalItems, size, page < totalPages - 1, page > 0);
+  }
+
+  /**
+   * Retrieves a list of applications for a user that are currently in the interview stage.
+   *
+   * <p>Filters applications where {@code interviewDateTime} exists. If both startDate and endDate
+   * are provided, results are further filtered to include only interviews within that specific date
+   * range.
+   *
+   * @param userId The ID of the user whose applications are being retrieved
+   * @param startDate Optional start date to filter interview dates (inclusive)
+   * @param endDate Optional end date to filter interview dates (inclusive)
+   * @return A list of {@link ApplicationResponse} objects representing the matching applications
+   * @throws ApplicationServiceFailException If the database query fails
+   */
+  public List<ApplicationResponse> getInterviewApplications(
+      String userId, LocalDate startDate, LocalDate endDate) {
+    Criteria criteria = Criteria.where("userId").is(userId).and("interviewDateTime").exists(true);
+
+    if (startDate != null && endDate != null) {
+      criteria.gte(startDate).lte(endDate);
+    }
+
+    List<ApplicationModel> applicationModels =
+        mongoTemplate.find(new Query(criteria), ApplicationModel.class);
+
+    return applicationModels.stream().map(ApplicationResponse::fromModel).toList();
   }
 }

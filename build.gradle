@@ -4,6 +4,8 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.diffplug.spotless' version '6.25.0'
 	id 'jacoco'
+	id 'info.solidsoft.pitest' version '1.19.0-rc.2'
+	id "org.sonarqube" version "7.2.3.7755"
 }
 
 group = 'com.backend'
@@ -39,6 +41,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.boot:spring-boot-starter-security-test'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'com.google.genai:google-genai:1.0.0'
 }
 
 tasks.named('test') {
@@ -64,5 +68,30 @@ jacocoTestReport {
 		xml.required = true // Codecov needs XML
 		csv.required = false
 		html.required = true
+	}
+}
+
+pitest {
+	junit5PluginVersion = '1.2.3'
+
+	targetClasses = ['com.backend.coapp.service.*']
+	excludedClasses = ['com.backend.coapp.service.genAI.*']
+	targetTests = [
+			'com.backend.coapp.mutation.*',
+			'com.backend.coapp.service.JwtServiceTest',]
+
+	threads = 4
+	timestampedReports = false
+	outputFormats = ['XML', 'HTML']
+	enableDefaultIncrementalAnalysis = true
+	mutationThreshold = 99
+	coverageThreshold = 0
+	jvmArgs = ['--add-opens', 'java.base/java.lang=ALL-UNNAMED', '-XX:+EnableDynamicAgentLoading']
+}
+
+sonar {
+	properties {
+		property "sonar.projectKey", "Co-App-Team_backend"
+		property "sonar.organization", "co-app-team"
 	}
 }

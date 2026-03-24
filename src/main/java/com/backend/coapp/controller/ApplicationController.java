@@ -1,6 +1,8 @@
 package com.backend.coapp.controller;
 
 import com.backend.coapp.dto.request.CreateApplicationRequest;
+import com.backend.coapp.dto.request.GetApplicationsRequest;
+import com.backend.coapp.dto.request.GetInterviewApplicationsRequest;
 import com.backend.coapp.dto.request.UpdateApplicationRequest;
 import com.backend.coapp.dto.response.ApplicationResponse;
 import com.backend.coapp.model.document.UserModel;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -55,7 +58,8 @@ public class ApplicationController {
             applicationRequest.getNumPositions(),
             applicationRequest.getSourceLink(),
             applicationRequest.getDateApplied(),
-            applicationRequest.getNotes());
+            applicationRequest.getNotes(),
+            applicationRequest.getInterviewDateTime());
 
     return ResponseEntity.status(HttpStatus.CREATED).body(application.toMap());
   }
@@ -91,7 +95,8 @@ public class ApplicationController {
             applicationRequest.getNumPositions(),
             applicationRequest.getSourceLink(),
             applicationRequest.getDateApplied(),
-            applicationRequest.getNotes());
+            applicationRequest.getNotes(),
+            applicationRequest.getInterviewDateTime());
 
     return ResponseEntity.ok(application.toMap());
   }
@@ -116,18 +121,56 @@ public class ApplicationController {
   }
 
   /**
-   * Retrieves all job applications for the currently authenticated user.
+   * Get a paginated list of applications with optional filtering and sorting. all query params are
+   * optional and can be combined freely.
    *
-   * @param authentication The authentication object provided by Spring Security.
-   * @return ResponseEntity containing a list of applications.
+   * @param applicationRequest query params: search, status, sortBy, sortOrder, page, size
+   * @return 200 with applications and pagination unless there is an error.
    */
   @GetMapping
-  public ResponseEntity<List<ApplicationResponse>> getApplications(Authentication authentication) {
-    UserModel user = (UserModel) authentication.getPrincipal();
-    String userId = user.getId();
+  public ResponseEntity<Map<String, Object>> getApplications(
+      @ModelAttribute GetApplicationsRequest applicationRequest) {
 
-    List<ApplicationResponse> applicationList = this.applicationService.getApplications(userId);
+    applicationRequest.validateRequest();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String userId = auth.getName();
 
-    return ResponseEntity.ok(applicationList);
+    Map<String, Object> response =
+        this.applicationService.getFilteredApplications(
+            userId,
+            applicationRequest.getSearch(),
+            applicationRequest.getParsedStatuses(),
+            applicationRequest.getSortBy(),
+            applicationRequest.getSortOrder(),
+            applicationRequest.getPage(),
+            applicationRequest.getSize());
+
+    return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Retrieves a list of job applications with scheduled interviews for the authenticated user.
+   *
+   * <p>Applications are filtered by the existence of an interview date. Supports optional filtering
+   * by a date range for the interview date. User ID is extracted from the security context.
+   *
+   * @param interviewApplicationsRequest The request object containing optional start and end dates
+   * @return ResponseEntity containing a list of {@link ApplicationResponse}
+   */
+  @GetMapping("/interviews")
+  public ResponseEntity<List<ApplicationResponse>> getInterviewApplications(
+      @ModelAttribute GetInterviewApplicationsRequest interviewApplicationsRequest) {
+
+    interviewApplicationsRequest.validateRequest();
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    String userId = auth.getName();
+
+    List<ApplicationResponse> response =
+        this.applicationService.getInterviewApplications(
+            userId,
+            interviewApplicationsRequest.getStartDate(),
+            interviewApplicationsRequest.getEndDate());
+
+    return ResponseEntity.ok(response);
   }
 }

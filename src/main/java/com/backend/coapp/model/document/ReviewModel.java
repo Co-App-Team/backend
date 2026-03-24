@@ -9,16 +9,13 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;
-import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /** Review Model */
 @Data
 @NoArgsConstructor
 @Document(collection = "reviews")
-@CompoundIndexes({
-  @CompoundIndex(name = "user_company_unique", def = "{'userId': 1, 'companyId': 1}", unique = true)
-})
+@CompoundIndex(name = "user_company_unique", def = "{'userId': 1, 'companyId': 1}", unique = true)
 public class ReviewModel {
 
   @Id private String id;

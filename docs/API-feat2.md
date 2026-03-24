@@ -19,7 +19,8 @@ This document outlines the API endpoints for the log job applications feature of
   "numPositions": "int (optional)", 
   "sourceLink": "string (optional)",
   "dateApplied": "datetime string (optional)",
-  "notes": "string (optional)"
+  "notes": "string (optional)",
+  "interviewDateTime": "datetime string (optional)"
 }
 ```
 
@@ -75,7 +76,8 @@ This document outlines the API endpoints for the log job applications feature of
   "numPositions": "positions (optional)", 
   "sourceLink": "link (optional)", 
   "dateApplied": "applied (optional)",
-  "notes": "notes (optional)"
+  "notes": "notes (optional)",
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -93,7 +95,8 @@ Response body:
   "numPositions": "numPositions (optional)",
   "sourceLink": "sourceLink (optional)",
   "dateApplied": "dateApplied (optional)",
-  "notes": "notes (optional)"
+  "notes": "notes (optional)",
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -164,7 +167,8 @@ Response body:
   "numPositions": "positions (optional)", 
   "sourceLink": "link (optional)", 
   "dateApplied": "applied (optional)",
-  "notes": "notes (optional)"
+  "notes": "notes (optional)",
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -181,7 +185,8 @@ Response body:
   "numPositions": "numPositions (optional)",
   "sourceLink": "sourceLink (optional)",
   "dateApplied": "dateApplied (optional)",
-  "notes": "notes (optional)"
+  "notes": "notes (optional)",
+  "interviewDateTime": "interview date (optional)"
 }
 ```
 
@@ -295,7 +300,8 @@ Array of applications:
     "numPositions": "numPositions (optional)",
     "sourceLink": "sourceLink (optional)",
     "dateApplied": "dateApplied (optional)",
-    "notes": "notes (optional)"
+    "notes": "notes (optional)",
+    "interviewDateTime": "interview date (optional)"
   }
 ]
 ```

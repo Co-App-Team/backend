@@ -1,8 +1,8 @@
 package com.backend.coapp.service;
 
-import com.backend.coapp.exception.JwtExpiredException;
-import com.backend.coapp.exception.JwtInvalidTokenException;
-import com.backend.coapp.exception.JwtServiceFailException;
+import com.backend.coapp.exception.auth.JwtExpiredException;
+import com.backend.coapp.exception.auth.JwtInvalidTokenException;
+import com.backend.coapp.exception.auth.JwtServiceFailException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

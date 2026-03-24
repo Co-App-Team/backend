@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.backend.coapp.exception.AuthEmailNotRegisteredException;
+import com.backend.coapp.exception.auth.AuthEmailNotRegisteredException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
