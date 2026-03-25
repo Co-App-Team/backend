@@ -1,19 +1,20 @@
 /*
-How to run (you must have k6 installed):
+Load testing script
 
-```
+Requirements:
+- k6 must be installed globally
+- a valid backend on the specified url must be running on render (paid tier)
+- 69a4ddcab0a73ab3e5bd5a8b is a valid companyId (Test company)
+
+
+How to run:
 cd src/test/java/com/backend/coapp/_performance
 k6 run loadtest.js
-```
 
-Note: if your environment is on the free tier of render,
-you must make sure the backend is running
-and will not have to spin up before running this load test
+*/
 
- */
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-
 
 export const options = {
     stages: [
@@ -24,21 +25,23 @@ export const options = {
 };
 
 const BASE_URL = 'https://coapp-backend-dev.onrender.com';
-let i = 1;
+const TEST_COMPANY_ID = "69a4ddcab0a73ab3e5bd5a8b"
 
 export default function () {
 
-    i += 1
+    const uniqueId = `v${__VU}i${__ITER}`;
+    
+    // Feature 1: Authentication and Profile ------------------------------------------------------------------------------------
 
-    // Feature 1: log in and get token
+    // Request 1: Login (Write/Session Creation)
     const loginRes = http.post(`${BASE_URL}/api/auth/login`, JSON.stringify({
         email: 'geetloomba79@gmail.com',
         password: '123qwe',
     }), { headers: { 'Content-Type': 'application/json' } });
 
-    // Extract token to be used for the remaining requests
     const authToken = loginRes.json('token');
-    check(loginRes, { 'logged in': (r) => r.status === 200 });
+    check(loginRes, { 'login status 200': (r) => r.status === 200 });
+    
     const authParams = {
         headers: {
             'Content-Type': 'application/json',
@@ -46,35 +49,101 @@ export default function () {
         },
     };
 
-    // Feature 2: GET a list of applications for the user
-    const getApplicationRes = http.get(`${BASE_URL}/api/application`, authParams);
+    // Request 2: Get About Me (Read)
+    const aboutMeRes = http.get(`${BASE_URL}/api/user/about-me`, authParams);
+    check(aboutMeRes, { 'get profile status 200': (r) => r.status === 200 });
 
-    check(getApplicationRes, { 'Get Application status 200': (r) => r.status === 200 });
+    // Feature 2: Application Management ------------------------------------------------------------------------------------
 
-    // Feature 2: POST a new application
-    const payload = JSON.stringify(
-        {"companyId":"69a4ddcab0a73ab3e5bd5a8b","jobTitle":`test${i}`,"numPositions":"1","status":"NOT_APPLIED","applicationDeadline":"2100-03-01","jobDescription":"","sourceLink":""}
-    );
-    const postApplicationRes = http.post(`${BASE_URL}/api/application`, payload, authParams);
-    const applicationId = postApplicationRes.json().applicationId;
-    check(postApplicationRes, { 'Post Application status 200': (r) => r.status === 201 });
+    // Request 1: Create Application (Write)
+    const appPayload = JSON.stringify({
+        "companyId": TEST_COMPANY_ID,
+        "jobTitle": `Engineer_${uniqueId}`,
+        "numPositions": "1",
+        "status": "NOT_APPLIED",
+        "applicationDeadline": "2100-01-01",
+        "jobDescription": "Load testing",
+        "sourceLink": "https://test.com"
+    });
+    const postAppRes = http.post(`${BASE_URL}/api/application`, appPayload, authParams);
+    const applicationId = postAppRes.json().applicationId;
+    check(postAppRes, { 'post application status 201': (r) => r.status === 201 });
 
-    // Feature 2: DELETE application (for test cleanup)
-    const deleteApplicationRes = http.request('DELETE', `${BASE_URL}/api/application/${applicationId}`, null, authParams);
-    check(deleteApplicationRes, { 'Delete Application status 200': (r) => r.status === 200 });
+    // Request 2: Delete Application (Cleanup/Write)
+    if (applicationId) {
+        const delAppRes = http.del(`${BASE_URL}/api/application/${applicationId}`, null, authParams);
+        check(delAppRes, { 'delete application status 200': (r) => r.status === 200 });
+    }
 
-    // Feature 1: GET user information
-    const res2 = http.get(`${BASE_URL}/api/user/about-me`, authParams);
+    // Feature 3: Application Filtering/Search ------------------------------------------------------------------------------------
 
-    check(res2, { 'GET user information status 200': (r) => r.status === 200 });
+    // Request 1: Search by Text (Read)
+    const searchRes = http.get(`${BASE_URL}/api/application?search=Niche`, authParams);
+    check(searchRes, { 'search applications status 200': (r) => r.status === 200 });
 
-    // Feature 1: log out
-    const res3 = http.get(`${BASE_URL}/api/auth/logout`, authParams);
+    // Request 2: Filter by Multiple Statuses (Read)
+    const filterRes = http.get(`${BASE_URL}/api/application?status=APPLIED,INTERVIEWING`, authParams);
+    check(filterRes, { 'filter applications status 200': (r) => r.status === 200 });
 
-    check(res3, { 'GET log out status 200': (r) => r.status === 200 });
+    // Feature 4: Company Wiki and Reviews ------------------------------------------------------------------------------------
 
+    // Request 1: Get All Companies (Read)
+    const getCompaniesRes = http.get(`${BASE_URL}/api/companies?usePagination=true&size=10`, authParams);
+    check(getCompaniesRes, { 'get companies status 200': (r) => r.status === 200 });
 
-    sleep(6);
+    // Request 2: Create Review for Company (Write)
+    const reviewPayload = JSON.stringify({
+        "rating": 5,
+        "comment": `Great mentorship`,
+        "workTermSeason": "Summer",
+        "workTermYear": 2025,
+        "jobTitle": "Software Intern"
+    });
+    const postReviewRes = http.post(`${BASE_URL}/api/companies/${TEST_COMPANY_ID}/reviews`, reviewPayload, authParams);
+    const reviewId = postReviewRes.json().reviewId;
+    check(postReviewRes, { 'post review status 201': (r) => r.status === 201});
 
+    // Request 3: Delete Review (Cleanup/Write)
+    if (reviewId) {
+        const delReviewRes = http.del(`${BASE_URL}/api/companies/${targetCompId}/reviews/${reviewId}`, null, authParams);
+        check(delReviewRes, { 'delete review status 200': (r) => r.status === 200 });
+    }
 
+    // Feature 5: Interview Applications ------------------------------------------------------------------------------------
+
+    // Request 1: Get All Interviews (Read)
+    const getInterviewsRes = http.get(`${BASE_URL}/api/application/interviews`, authParams);
+    check(getInterviewsRes, { 'get interviews status 200': (r) => r.status === 200 });
+
+    // Request 2: Get Interviews with Date Filter (Read/Logic Test)
+    const dateFilteredRes = http.get(`${BASE_URL}/api/application/interviews?startDate=2024-01-01&endDate=2025-12-31`, authParams);
+    check(dateFilteredRes, { 'get filtered interviews status 200': (r) => r.status === 200 });
+
+    // Feature 6: AI Resume Builder and Profile Experience ------------------------------------------------------------------------------------
+
+    // Request 1: Get Remaining Quota (Read)
+    const quotaRes = http.get(`${BASE_URL}/api/resume-ai-advisor/remaining-quota`, authParams);
+    check(quotaRes, { 'get ai quota status 200': (r) => r.status === 200 });
+
+    // Request 2: Create Experience Entry (Write)
+    const expPayload = JSON.stringify({
+        "companyId": TEST_COMPANY_ID,
+        "roleTitle": "Software Developer",
+        "roleDescription": `Handled microservices ${uniqueId}`,
+        "startDate": "2023-01-01"
+    });
+    const postExpRes = http.post(`${BASE_URL}/api/user/experience`, expPayload, authParams);
+    const expId = postExpRes.json('experienceId');
+    check(postExpRes, { 'post experience status 200': (r) => r.status === 200 });
+
+    // Request 3: Delete Experience (Cleanup/Write)
+    if (expId) {
+        const delExpRes = http.del(`${BASE_URL}/api/user/experience/${expId}`, null, authParams);
+        check(delExpRes, { 'delete experience status 200': (r) => r.status === 200 });
+    }
+
+    // Logout and final safety sleep
+    http.get(`${BASE_URL}/api/auth/logout`, authParams);
+
+    sleep(6); // to maintain the 200 Requests Per Minute target across 20 users
 }
