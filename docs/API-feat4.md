@@ -520,7 +520,7 @@ Note: This would return a list of all companies
 
 ### 5. Update Review
 
-**Path:** `/api/companies/{companyId}/reviews/{reviewId}`
+**Path:** `/api/companies/{companyId}/reviews`
 
 **Method:** `PUT`
 
@@ -531,7 +531,6 @@ Note: This would return a list of all companies
 **Path Parameters:**
 
 - `companyId` (string, required): The unique identifier of the company
-- `reviewId` (string, required): The unique identifier of the review
 
 **Request Headers:**
 
@@ -633,7 +632,7 @@ _Note: At least one field must be provided to update_
 
 ### 6. Delete Review
 
-**Path:** `/api/companies/{companyId}/reviews/{reviewId}`
+**Path:** `/api/companies/{companyId}/reviews`
 
 **Method:** `DELETE`
 
@@ -644,7 +643,6 @@ _Note: At least one field must be provided to update_
 **Path Parameters:**
 
 - `companyId` (string, required): The unique identifier of the company
-- `reviewId` (string, required): The unique identifier of the review
 
 **Request Headers:**
 
