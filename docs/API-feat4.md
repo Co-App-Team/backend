@@ -524,7 +524,7 @@ Note: This would return a list of all companies
 
 **Method:** `PUT`
 
-**Description:** Updates an existing review. Users can only update their own reviews.
+**Description:** Updates an existing review for that company by the user making the request. Users can only update their own reviews.
 
 **Authentication:** Required (JWT token in cookie)
 
@@ -636,7 +636,7 @@ _Note: At least one field must be provided to update_
 
 **Method:** `DELETE`
 
-**Description:** Deletes a review. Users can only delete their own reviews.
+**Description:** Deletes a review for the specified company from the user making the request if any. Users can only delete their own reviews.
 
 **Authentication:** Required (JWT token in cookie)
 
