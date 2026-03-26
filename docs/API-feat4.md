@@ -520,18 +520,17 @@ Note: This would return a list of all companies
 
 ### 5. Update Review
 
-**Path:** `/api/companies/{companyId}/reviews/{reviewId}`
+**Path:** `/api/companies/{companyId}/reviews`
 
 **Method:** `PUT`
 
-**Description:** Updates an existing review. Users can only update their own reviews.
+**Description:** Updates an existing review for that company by the user making the request. Users can only update their own reviews.
 
 **Authentication:** Required (JWT token in cookie)
 
 **Path Parameters:**
 
 - `companyId` (string, required): The unique identifier of the company
-- `reviewId` (string, required): The unique identifier of the review
 
 **Request Headers:**
 
@@ -633,18 +632,17 @@ _Note: At least one field must be provided to update_
 
 ### 6. Delete Review
 
-**Path:** `/api/companies/{companyId}/reviews/{reviewId}`
+**Path:** `/api/companies/{companyId}/reviews`
 
 **Method:** `DELETE`
 
-**Description:** Deletes a review. Users can only delete their own reviews.
+**Description:** Deletes a review for the specified company from the user making the request if any. Users can only delete their own reviews.
 
 **Authentication:** Required (JWT token in cookie)
 
 **Path Parameters:**
 
 - `companyId` (string, required): The unique identifier of the company
-- `reviewId` (string, required): The unique identifier of the review
 
 **Request Headers:**
 
