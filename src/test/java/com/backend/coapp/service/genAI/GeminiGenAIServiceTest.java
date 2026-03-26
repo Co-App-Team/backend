@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.*;
 
+import com.backend.coapp.exception.genai.GenAIOutOfServiceException;
 import com.backend.coapp.exception.genai.GenAIServiceException;
 import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.util.GenAIConstants;
@@ -89,5 +90,18 @@ class GeminiGenAIServiceTest {
 
     verifyNoInteractions(models);
     assertNotNull(ex);
+  }
+
+  @Test
+  void generateResponse_whenGeminiClientThrows429_expectGenAIServiceException() {
+    when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
+        .thenThrow(new RuntimeException("429 Too Many requests"));
+
+    GenAIOutOfServiceException ex =
+        assertThrows(
+            GenAIOutOfServiceException.class,
+            () -> geminiGenAIService.generateResponse(VALID_PROMPT));
+
+    assertNotNull(ex.getMessage());
   }
 }

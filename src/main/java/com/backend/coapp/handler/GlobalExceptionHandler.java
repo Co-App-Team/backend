@@ -385,4 +385,14 @@ public class GlobalExceptionHandler {
     return ResponseEntity.badRequest()
         .body(Map.of("error", RequestErrorCode.INVALID_FORMAT_FIELD.name(), "message", message));
   }
+
+  @ExceptionHandler(GenAIOutOfServiceException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIOutOfServiceException(
+      GenAIOutOfServiceException ex) {
+
+    String errorMessage = "ERROR: Resume workshop Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(Map.of("error", GenAIErrorCode.SERVICE_UNAVAILABLE, "message", ex.getMessage()));
+  }
 }

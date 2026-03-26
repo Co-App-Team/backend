@@ -2,10 +2,7 @@ package com.backend.coapp.service;
 
 import com.backend.coapp.exception.application.ApplicationNotFoundException;
 import com.backend.coapp.exception.application.ApplicationNotOwnedException;
-import com.backend.coapp.exception.genai.ConcurrencyException;
-import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
-import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
-import com.backend.coapp.exception.genai.OverCharacterLimitException;
+import com.backend.coapp.exception.genai.*;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.ApplicationModel;
 import com.backend.coapp.model.document.UserExperienceModel;
@@ -57,6 +54,7 @@ public class GenAIResumeAdvisorService {
    * @throws UserNotFoundException when user doesn't exist
    * @throws GenAIQuotaExceededException when user exceed GenAI usage limit
    * @throws ConcurrencyException when the same user make a request twice
+   * @throws GenAIOutOfServiceException when we reach usage limit (internally)
    */
   public String getAdvice(String userId, String applicationId, String prompt)
       throws OverCharacterLimitException,
@@ -65,7 +63,8 @@ public class GenAIResumeAdvisorService {
           GenAIUsageManagementServiceException,
           UserNotFoundException,
           GenAIQuotaExceededException,
-          ConcurrencyException {
+          ConcurrencyException,
+          GenAIOutOfServiceException {
     String applicationJobDescription = null;
     String applicationJobTitle = null;
     if (prompt.length() > GenAIConstants.MAX_PROMPT_CHARACTERS) {
