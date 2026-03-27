@@ -25,10 +25,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tools.jackson.databind.exc.InvalidFormatException;
 
-/** Exception handler for controller.
+/**
+ * Exception handler for controller.
  *
- * Internal exceptions (5** HTTP status) will be logged for debugging.
- * */
+ * <p>Internal exceptions (5** HTTP status) will be logged for debugging.
+ */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -396,18 +397,25 @@ public class GlobalExceptionHandler {
     String errorMessage = "ERROR: Resume workshop Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-        .body(Map.of("error", GenAIErrorCode.SERVICE_UNAVAILABLE, "message", "Our AI service is currently unavailable. Please try again later."));
+        .body(
+            Map.of(
+                "error",
+                GenAIErrorCode.SERVICE_UNAVAILABLE,
+                "message",
+                "Our AI service is currently unavailable. Please try again later."));
   }
 
   @ExceptionHandler(GenAIServiceException.class)
-  public ResponseEntity<Map<String, Object>> handleGenAIServiceException(
-          GenAIServiceException ex) {
+  public ResponseEntity<Map<String, Object>> handleGenAIServiceException(GenAIServiceException ex) {
 
     String errorMessage = "ERROR: GenAI Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(Map.of("error", SystemErrorCode.INTERNAL_ERROR, "message", "GenAI Service failed. Please try again later."));
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "GenAI Service failed. Please try again later."));
   }
-
-
 }

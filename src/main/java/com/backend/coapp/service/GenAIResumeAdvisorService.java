@@ -66,7 +66,7 @@ public class GenAIResumeAdvisorService {
           GenAIQuotaExceededException,
           ConcurrencyException,
           GenAIOutOfServiceException,
-          GenAIServiceException{
+          GenAIServiceException {
     String applicationJobDescription = null;
     String applicationJobTitle = null;
     if (prompt.length() > GenAIConstants.MAX_PROMPT_CHARACTERS) {

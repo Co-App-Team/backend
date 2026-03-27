@@ -257,19 +257,19 @@ class GenAIResumeAdvisorControllerTest {
   @Test
   void resumeAdvisor_whenGenAIServiceFails_expect500() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
-            .thenThrow(new GenAIServiceException("Internal error"));
+        .thenThrow(new GenAIServiceException("Internal error"));
 
     mockMvc
-            .perform(
-                    post("/api/resume-ai-advisor")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(validRequest))
-                            .principal(this.authentication))
-            .andExpect(status().isInternalServerError())
-            .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
+        .perform(
+            post("/api/resume-ai-advisor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validRequest))
+                .principal(this.authentication))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
 
     verify(genAIResumeAdvisorService, times(1))
-            .getAdvice(mockUser.getId(), validRequest.getApplicationId(), validRequest.getUserPrompt());
+        .getAdvice(mockUser.getId(), validRequest.getApplicationId(), validRequest.getUserPrompt());
   }
 
   @Test
@@ -335,6 +335,4 @@ class GenAIResumeAdvisorControllerTest {
 
     verify(genAIUsageManagementService, times(1)).getNumberOfRequestLeft(mockUser.getId());
   }
-
-
 }
