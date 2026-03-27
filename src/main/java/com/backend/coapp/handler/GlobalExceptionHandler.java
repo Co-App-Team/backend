@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(ApiException.class)
   public ResponseEntity<Map<String, Object>> handleApiException(ApiException ex) {
-    String responseMessage = ((Exception) ex).getMessage();
+    String responseMessage = ex.getMessage();
     if (ex.getStatus() == HttpStatus.INTERNAL_SERVER_ERROR) {
       log.error("Failure %s".formatted(ex.getMessage()));
       responseMessage = "Service is unavailable. Please try again later.";
