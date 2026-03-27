@@ -11,10 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.backend.coapp.dto.request.GenAIResumeAdvisorRequest;
 import com.backend.coapp.exception.application.ApplicationNotFoundException;
 import com.backend.coapp.exception.application.ApplicationNotOwnedException;
-import com.backend.coapp.exception.genai.ConcurrencyException;
-import com.backend.coapp.exception.genai.GenAIQuotaExceededException;
-import com.backend.coapp.exception.genai.GenAIUsageManagementServiceException;
-import com.backend.coapp.exception.genai.OverCharacterLimitException;
+import com.backend.coapp.exception.genai.*;
 import com.backend.coapp.exception.global.UserNotFoundException;
 import com.backend.coapp.model.document.UserModel;
 import com.backend.coapp.model.enumeration.SystemErrorCode;
@@ -242,6 +239,24 @@ class GenAIResumeAdvisorControllerTest {
   void resumeAdvisor_whenServiceFails_expect500() throws Exception {
     when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
         .thenThrow(new GenAIUsageManagementServiceException("Internal error"));
+
+    mockMvc
+        .perform(
+            post("/api/resume-ai-advisor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(validRequest))
+                .principal(this.authentication))
+        .andExpect(status().isInternalServerError())
+        .andExpect(jsonPath("$.error").value(SystemErrorCode.INTERNAL_ERROR.name()));
+
+    verify(genAIResumeAdvisorService, times(1))
+        .getAdvice(mockUser.getId(), validRequest.getApplicationId(), validRequest.getUserPrompt());
+  }
+
+  @Test
+  void resumeAdvisor_whenGenAIServiceFails_expect500() throws Exception {
+    when(genAIResumeAdvisorService.getAdvice(anyString(), any(), anyString()))
+        .thenThrow(new GenAIServiceException("Internal error"));
 
     mockMvc
         .perform(
