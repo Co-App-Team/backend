@@ -192,6 +192,10 @@ export default function () {
 
     // Feature 6: AI Resume Builder and Profile Experience ------------------------------------------------------------------------------------
 
+    // NOTE: For feature 6, we don’t perform load tests on the API that evolve Gemini API call since there is a
+    // Gemini usage limit on the free tier version. Instead, we perform load tests on getting AI quota
+    // and creating/deleting experiences. We have confirmed this with the instructor.
+
     // Request 1: Get Remaining Quota (Read)
     const quotaRes = http.get(`${BASE_URL}/api/resume-ai-advisor/remaining-quota`, authParams);
     check(quotaRes, { 'get ai quota status 200': (r) => r.status === 200 });
