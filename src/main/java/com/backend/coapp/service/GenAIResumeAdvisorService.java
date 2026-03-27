@@ -55,6 +55,7 @@ public class GenAIResumeAdvisorService {
    * @throws GenAIQuotaExceededException when user exceed GenAI usage limit
    * @throws ConcurrencyException when the same user make a request twice
    * @throws GenAIOutOfServiceException when we reach usage limit (internally)
+   * @throws GenAIServiceException when there is something wrong for GenAI service (internally)
    */
   public String getAdvice(String userId, String applicationId, String prompt)
       throws OverCharacterLimitException,
@@ -64,7 +65,8 @@ public class GenAIResumeAdvisorService {
           UserNotFoundException,
           GenAIQuotaExceededException,
           ConcurrencyException,
-          GenAIOutOfServiceException {
+          GenAIOutOfServiceException,
+          GenAIServiceException{
     String applicationJobDescription = null;
     String applicationJobTitle = null;
     if (prompt.length() > GenAIConstants.MAX_PROMPT_CHARACTERS) {

@@ -52,10 +52,8 @@ public class GeminiGenAIService implements GenAIService {
           geminiClient.models.generateContent(this.model, prompt, null);
       return response.text();
     } catch (Exception e) {
-      log.error("Gemini exception type: {}", e.getClass().getName());
-      log.error("Gemini exception message: {}", e.getMessage());
       if (e.getMessage().contains("429")) {
-        throw new GenAIOutOfServiceException();
+        throw new GenAIOutOfServiceException(e.getMessage());
       }
       throw new GenAIServiceException(e.getMessage());
     }
