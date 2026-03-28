@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-    String errorMessage = "ERROR: Undefined exception: " + ex.getMessage();
+    String errorMessage = "ERROR: Runtime exception: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(

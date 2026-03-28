@@ -5,11 +5,13 @@ import com.backend.coapp.exception.genai.GenAIServiceException;
 import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.util.GenAIConstants;
 import com.google.genai.Client;
+import com.google.genai.errors.ApiException;
 import com.google.genai.types.GenerateContentResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -51,10 +53,13 @@ public class GeminiGenAIService implements GenAIService {
       GenerateContentResponse response =
           geminiClient.models.generateContent(this.model, prompt, null);
       return response.text();
-    } catch (Exception e) {
-      if (e.getMessage().contains("429")) {
+    } catch (ApiException e) {
+      if (e.code() == HttpStatus.TOO_MANY_REQUESTS.value() || (e.code() >= 500 && e.code() < 600)) {
+        // This includes 503 - SERVICE UNAVAILABLE and 500 - INTERNAL ERROR
         throw new GenAIOutOfServiceException(e.getMessage());
       }
+      throw new GenAIServiceException(e.getMessage());
+    } catch (Exception e) {
       throw new GenAIServiceException(e.getMessage());
     }
   }

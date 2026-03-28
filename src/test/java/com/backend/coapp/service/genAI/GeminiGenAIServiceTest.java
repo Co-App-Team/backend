@@ -11,6 +11,7 @@ import com.backend.coapp.exception.genai.OverCharacterLimitException;
 import com.backend.coapp.util.GenAIConstants;
 import com.google.genai.Client;
 import com.google.genai.Models;
+import com.google.genai.errors.ApiException;
 import com.google.genai.types.GenerateContentResponse;
 import java.lang.reflect.Field;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 
 class GeminiGenAIServiceTest {
 
@@ -93,14 +95,62 @@ class GeminiGenAIServiceTest {
   }
 
   @Test
-  void generateResponse_whenGeminiClientThrows429_expectGenAIServiceException() {
+  void generateResponse_whenGeminiClientThrows429_expectGenAIOutOfServiceException() {
     when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
-        .thenThrow(new RuntimeException("429 Too Many requests"));
+        .thenThrow(
+            new ApiException(
+                HttpStatus.TOO_MANY_REQUESTS.value(),
+                HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                "Please try again"));
 
     GenAIOutOfServiceException ex =
         assertThrows(
             GenAIOutOfServiceException.class,
             () -> geminiGenAIService.generateResponse(VALID_PROMPT));
+
+    assertNotNull(ex.getMessage());
+  }
+
+  @ParameterizedTest
+  @ValueSource(ints = {429, 503, 500})
+  void generateResponse_whenGeminiClientThrowsOutOfServiceStatus_expectGenAIOutOfServiceException(
+      int statusCode) {
+    HttpStatus httpStatus = HttpStatus.valueOf(statusCode);
+    when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
+        .thenThrow(new ApiException(statusCode, httpStatus.getReasonPhrase(), "Please try again"));
+
+    GenAIOutOfServiceException ex =
+        assertThrows(
+            GenAIOutOfServiceException.class,
+            () -> geminiGenAIService.generateResponse(VALID_PROMPT));
+
+    assertNotNull(ex.getMessage());
+  }
+
+  @Test
+  void generateResponse_whenGeminiClientThrows400_expectGenAIServiceException() {
+    when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
+        .thenThrow(
+            new ApiException(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Invalid API key"));
+
+    GenAIServiceException ex =
+        assertThrows(
+            GenAIServiceException.class, () -> geminiGenAIService.generateResponse(VALID_PROMPT));
+
+    assertNotNull(ex.getMessage());
+  }
+
+  @Test
+  void generateResponse_whenGeminiClientThrowsRuntimeException_expectGenAIServiceException() {
+    when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
+        .thenThrow(new RuntimeException());
+
+    GenAIServiceException ex =
+        assertThrows(
+            GenAIServiceException.class, () -> geminiGenAIService.generateResponse(VALID_PROMPT));
 
     assertNotNull(ex.getMessage());
   }
