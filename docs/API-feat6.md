@@ -53,6 +53,16 @@ Response body:
 }
 ```
 
+**Response 503 SERVICE UNAVAILABLE**
+
+Response body:
+```json
+{
+    "error": "SERVICE_UNAVAILABLE",
+    "message": "Our AI service is currently unavailable. Please try again later."
+}
+```
+
 **Path:** `api/resume-ai-advisor/remaining-quota`
 
 **Method:** `GET`
