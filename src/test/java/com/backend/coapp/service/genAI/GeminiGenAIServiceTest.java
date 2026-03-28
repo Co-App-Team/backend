@@ -127,14 +127,12 @@ class GeminiGenAIServiceTest {
     assertNotNull(ex.getMessage());
   }
 
-  @Test
-  void generateResponse_whenGeminiClientThrows400_expectGenAIServiceException() {
+  @ParameterizedTest
+  @ValueSource(ints = {400, 600})
+  void generateResponse_whenGeminiClientThrowsNonOutOfServiceStatus_expectGenAIServiceException(
+      int statusCode) {
     when(models.generateContent(eq(MODEL), eq(VALID_PROMPT), isNull()))
-        .thenThrow(
-            new ApiException(
-                HttpStatus.BAD_REQUEST.value(),
-                HttpStatus.BAD_REQUEST.getReasonPhrase(),
-                "Invalid API key"));
+        .thenThrow(new ApiException(statusCode, "Error", "Something went wrong"));
 
     GenAIServiceException ex =
         assertThrows(
