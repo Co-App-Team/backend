@@ -25,7 +25,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import tools.jackson.databind.exc.InvalidFormatException;
 
-/** Exception handler for controller. */
+/**
+ * Exception handler for controller.
+ *
+ * <p>Internal exceptions (5** HTTP status) will be logged for debugging.
+ */
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
@@ -63,7 +67,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<Map<String, Object>> handleRuntimeException(RuntimeException ex) {
-    String errorMessage = "ERROR: Reset verification code service failed: " + ex.getMessage();
+    String errorMessage = "ERROR: Runtime exception: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
@@ -112,7 +116,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AuthenticationException.class)
   public ResponseEntity<Map<String, Object>> handleAuthenticationException(
       AuthenticationException ex) {
-    String errorMessage = "ERROR: JWT Service failed: " + ex.getMessage();
+    String errorMessage = "ERROR: Authentication Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
@@ -333,7 +337,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(GenAIUsageManagementServiceException.class)
   public ResponseEntity<Map<String, Object>> handleGenAIUsageManagementServiceException(
       GenAIUsageManagementServiceException ex) {
-    String errorMessage = "ERROR: Application Service failed: " + ex.getMessage();
+    String errorMessage = "ERROR: GenAI Service failed: " + ex.getMessage();
     log.error(errorMessage);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
@@ -384,5 +388,34 @@ public class GlobalExceptionHandler {
 
     return ResponseEntity.badRequest()
         .body(Map.of("error", RequestErrorCode.INVALID_FORMAT_FIELD.name(), "message", message));
+  }
+
+  @ExceptionHandler(GenAIOutOfServiceException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIOutOfServiceException(
+      GenAIOutOfServiceException ex) {
+
+    String errorMessage = "ERROR: Resume workshop Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+        .body(
+            Map.of(
+                "error",
+                GenAIErrorCode.SERVICE_UNAVAILABLE,
+                "message",
+                "Our AI service is currently unavailable. Please try again later."));
+  }
+
+  @ExceptionHandler(GenAIServiceException.class)
+  public ResponseEntity<Map<String, Object>> handleGenAIServiceException(GenAIServiceException ex) {
+
+    String errorMessage = "ERROR: GenAI Service failed: " + ex.getMessage();
+    log.error(errorMessage);
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            Map.of(
+                "error",
+                SystemErrorCode.INTERNAL_ERROR,
+                "message",
+                "GenAI Service failed. Please try again later."));
   }
 }
