@@ -165,60 +165,29 @@ public class ApplicationService {
           "You do not have permission to edit this application.");
     }
 
-    boolean companyChanged = !Objects.equals(existingApp.getCompanyId(), newCompanyId);
-    boolean titleChanged = !Objects.equals(existingApp.getJobTitle(), newJobTitle);
-    boolean statusChanged = !Objects.equals(existingApp.getStatus(), newStatus);
-    boolean deadlineChanged =
-        !Objects.equals(existingApp.getApplicationDeadline(), newApplicationDeadline);
-    boolean descChanged = !Objects.equals(existingApp.getJobDescription(), newJobDescription);
-    boolean positionsChanged = !Objects.equals(existingApp.getNumPositions(), newNumPositions);
-    boolean linkChanged = !Objects.equals(existingApp.getSourceLink(), newSourceLink);
-    boolean dateAppliedChanged = !Objects.equals(existingApp.getDateApplied(), newDateApplied);
-    boolean notesChanged = !Objects.equals(existingApp.getNotes(), newNotes);
-    boolean interviewDateChanged =
-        !Objects.equals(existingApp.getInterviewDateTime(), newInterviewDateTime);
+    boolean hasChanges =
+        !Objects.equals(existingApp.getCompanyId(), newCompanyId)
+            || !Objects.equals(existingApp.getJobTitle(), newJobTitle)
+            || !Objects.equals(existingApp.getStatus(), newStatus)
+            || !Objects.equals(existingApp.getApplicationDeadline(), newApplicationDeadline)
+            || !Objects.equals(existingApp.getJobDescription(), newJobDescription)
+            || !Objects.equals(existingApp.getNumPositions(), newNumPositions)
+            || !Objects.equals(existingApp.getSourceLink(), newSourceLink)
+            || !Objects.equals(existingApp.getDateApplied(), newDateApplied)
+            || !Objects.equals(existingApp.getNotes(), newNotes)
+            || !Objects.equals(existingApp.getInterviewDateTime(), newInterviewDateTime);
 
-    if (!companyChanged
-        && !titleChanged
-        && !descChanged
-        && !linkChanged
-        && !dateAppliedChanged
-        && !notesChanged
-        && !statusChanged
-        && !deadlineChanged
-        && !positionsChanged
-        && !interviewDateChanged) {
+    if (!hasChanges) {
       throw new NoChangesDetectedException("No fields were changed.");
     }
 
-    if (companyChanged && this.companyRepository.findById(newCompanyId).isEmpty()) {
+    if (!Objects.equals(existingApp.getCompanyId(), newCompanyId)
+        && this.companyRepository.findById(newCompanyId).isEmpty()) {
       throw new CompanyNotFoundException();
     }
 
-    if (statusChanged && newStatus == ApplicationStatus.APPLIED) {
-      newDateApplied = LocalDate.now();
-    }
-
-    if (statusChanged && newStatus == ApplicationStatus.NOT_APPLIED) {
-      newDateApplied = null;
-    }
-
-    if (statusChanged
-        && (existingApp.getStatus() == ApplicationStatus.INTERVIEWING
-            || existingApp.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED)
-        && (newStatus == ApplicationStatus.NOT_APPLIED || newStatus == ApplicationStatus.APPLIED)) {
-      newInterviewDateTime = null;
-    }
-
-    if (newDateApplied != null
-        && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
-        && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
-      throw new InvalidRequestException(
-          "The applied date must be before the application deadline."
-              + existingApp.getApplicationDeadline()
-              + " "
-              + newDateApplied);
-    }
+    // Process logic for status transitions and date constraints
+    validateAndSyncStatusDates(existingApp, newStatus, newDateApplied, newInterviewDateTime);
 
     existingApp.setCompanyId(newCompanyId);
     existingApp.setJobTitle(newJobTitle);
@@ -227,12 +196,59 @@ public class ApplicationService {
     existingApp.setJobDescription(newJobDescription);
     existingApp.setNumPositions(newNumPositions);
     existingApp.setSourceLink(newSourceLink);
-    existingApp.setDateApplied(newDateApplied);
     existingApp.setNotes(newNotes);
-    existingApp.setInterviewDateTime(newInterviewDateTime);
 
     ApplicationModel updatedApp = this.applicationRepository.save(existingApp);
     return ApplicationResponse.fromModel(updatedApp);
+  }
+
+  /**
+   * Validates and synchronizes application dates based on status changes
+   *
+   * @param existingApp The existing application model
+   * @param newStatus The proposed new status
+   * @param newDateApplied The proposed applied date
+   * @param newInterviewDateTime The proposed interview date
+   * @throws InvalidRequestException If dates violate business logic
+   */
+  private void validateAndSyncStatusDates(
+      ApplicationModel existingApp,
+      ApplicationStatus newStatus,
+      LocalDate newDateApplied,
+      LocalDateTime newInterviewDateTime) {
+
+    boolean statusChanged = !Objects.equals(existingApp.getStatus(), newStatus);
+
+    if (statusChanged) {
+      if (newStatus == ApplicationStatus.APPLIED) {
+        newDateApplied = LocalDate.now();
+      } else if (newStatus == ApplicationStatus.NOT_APPLIED) {
+        newDateApplied = null;
+      }
+
+      boolean wasInterviewing =
+          existingApp.getStatus() == ApplicationStatus.INTERVIEWING
+              || existingApp.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED;
+      boolean isReverting =
+          newStatus == ApplicationStatus.NOT_APPLIED || newStatus == ApplicationStatus.APPLIED;
+
+      if (wasInterviewing && isReverting) {
+        newInterviewDateTime = null;
+      }
+    }
+
+    if (newDateApplied != null
+        && existingApp.getApplicationDeadline() != null
+        && newDateApplied.isAfter(existingApp.getApplicationDeadline())) {
+      throw new InvalidRequestException(
+          "The applied date must be before the application deadline."
+              + existingApp.getApplicationDeadline()
+              + " "
+              + newDateApplied);
+    }
+
+    existingApp.setDateApplied(newDateApplied);
+    existingApp.setInterviewDateTime(newInterviewDateTime);
   }
 
   /**
