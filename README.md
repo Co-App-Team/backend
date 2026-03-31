@@ -34,5 +34,9 @@ docker image build -t coapp-backend .
 
 2. Run docker image
 ```bash
-docker run -d -p 8080:8080 coapp-backend
-```
+docker run -d \
+  -p 8080:8080 \
+  -v $(pwd)/local.properties:/app/local.properties \
+  -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/local.properties \
+  coapp-backend
+  ```

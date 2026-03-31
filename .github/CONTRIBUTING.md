@@ -122,3 +122,24 @@ Postman will also cache your cookie here: \
 ![tokenExample.png](docs/img/tokenExample.png)
 
 If you need to clean cookie and login against, please select `Cookies` and remove `Authorization` cookie
+
+### Testing
+
+#### Unit tests
+
+To run unit tests, you can either run through IntelliJ or through terminal using this command:
+```shell
+./gradlew test
+```
+> \[!IMPORTANT\]
+> Since we are using testing container, make sure to have `Docker` running in the background before triggering the unit tests
+
+
+#### Mutation tests
+To run mutation tests, you can use the following command:
+```shell
+./gradlew pitest 
+```
+
+#### Load tests
+To run the load test, please follow the instructions shown in [loadtest.js](src/test/java/com/backend/coapp/_performance/loadtest.js).
