@@ -632,19 +632,19 @@ class ApplicationServiceTest {
     this.applicationRepository.save(existingApp);
 
     ApplicationResponse response =
-            this.applicationService.updateApplication(
-                    "user_001",
-                    existingApp.getId(),
-                    testCompany.getId(),
-                    "Brand New Title",
-                    ApplicationStatus.NOT_APPLIED,
-                    existingApp.getApplicationDeadline(),
-                    null,
-                    null,
-                    null,
-                    null,
-                    null,
-                    existingApp.getInterviewDateTime());
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.NOT_APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
 
     assertNull(response.getDateApplied());
   }
