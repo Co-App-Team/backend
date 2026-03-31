@@ -205,7 +205,9 @@ public class ApplicationService {
 
     if (statusChanged
         && (existingApp.getStatus() == ApplicationStatus.INTERVIEWING
-            || existingApp.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED)) {
+            || existingApp.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED)
+        && newStatus != ApplicationStatus.INTERVIEW_SCHEDULED
+        && newStatus != ApplicationStatus.INTERVIEWING) {
       newInterviewDateTime = null;
     }
 
