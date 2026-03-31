@@ -13,8 +13,7 @@ Performance target:
 The system must be able to concurrently handle at least 20 users generating a total of 200 requests per minute.
 
 How to run:
-cd src/test/java/com/backend/coapp/_performance
-k6 run loadtest.js
+k6 run src/test/java/com/backend/coapp/_performance/loadtest.js
 
 SAMPLE k6 OUTPUT & ANALYSIS (from a successful run):
 This output demonstrates the test passing all requirements with 100% success rate.
@@ -219,5 +218,5 @@ export default function () {
 
     http.get(`${BASE_URL}/api/auth/logout`, authParams);
 
-    sleep(6); // so as to not have TOO many requests since this is already way too overkill for the minimum
+    // sleep(6); // so as to not have TOO many requests since this is already way too overkill for the minimum
 }
