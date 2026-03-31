@@ -756,20 +756,20 @@ class ApplicationServiceTest {
     this.existingApp.setApplicationDeadline(null);
     this.applicationRepository.save(existingApp);
 
-        ApplicationResponse response =
-            this.applicationService.updateApplication(
-                    "user_001",
-                    existingApp.getId(),
-                    testCompany.getId(),
-                    existingApp.getJobTitle(),
-                    existingApp.getStatus(),
-                    null, // new deadline is null
-                    existingApp.getJobDescription(),
-                    existingApp.getNumPositions(),
-                    existingApp.getSourceLink(),
-                    LocalDate.now(), // new date applied is NOT null
-                    existingApp.getNotes(),
-                    existingApp.getInterviewDateTime());
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            null, // new deadline is null
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            LocalDate.now(), // new date applied is NOT null
+            existingApp.getNotes(),
+            existingApp.getInterviewDateTime());
 
     assertNotNull(response);
     assertNull(response.getApplicationDeadline());
