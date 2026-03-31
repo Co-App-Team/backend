@@ -237,14 +237,15 @@ public class ApplicationService {
       }
     }
 
-    if (newDateApplied != null
-        && existingApp.getApplicationDeadline() != null
-        && newDateApplied.isAfter(existingApp.getApplicationDeadline())) {
-      throw new InvalidRequestException(
-          "The applied date must be before the application deadline."
-              + existingApp.getApplicationDeadline()
-              + " "
-              + newDateApplied);
+    if (newDateApplied != null) {
+      LocalDate deadline = existingApp.getApplicationDeadline();
+      if (deadline != null && newDateApplied.isAfter(deadline)) {
+        throw new InvalidRequestException(
+            "The applied date must be before the application deadline."
+                + deadline
+                + " "
+                + newDateApplied);
+      }
     }
 
     existingApp.setDateApplied(newDateApplied);
