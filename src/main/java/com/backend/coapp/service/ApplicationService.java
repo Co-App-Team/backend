@@ -203,6 +203,12 @@ public class ApplicationService {
       newDateApplied = null;
     }
 
+    if (statusChanged
+        && (existingApp.getStatus() == ApplicationStatus.INTERVIEWING
+            || existingApp.getStatus() == ApplicationStatus.INTERVIEW_SCHEDULED)) {
+      newInterviewDateTime = null;
+    }
+
     if (newDateApplied != null
         && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
         && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
