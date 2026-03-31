@@ -199,6 +199,10 @@ public class ApplicationService {
       newDateApplied = LocalDate.now();
     }
 
+    if (statusChanged && newStatus == ApplicationStatus.NOT_APPLIED) {
+      newDateApplied = null;
+    }
+
     if (newDateApplied != null
         && !newDateApplied.isBefore(existingApp.getApplicationDeadline())
         && !newDateApplied.isEqual(existingApp.getApplicationDeadline())) {
