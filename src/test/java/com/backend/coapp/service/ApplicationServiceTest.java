@@ -700,6 +700,58 @@ class ApplicationServiceTest {
   }
 
   @Test
+  void
+      updateApplication_whenStatusChangesFromInterviewToInterviewScheduld_InterviewDateHasNoChange() {
+    this.existingApp.setStatus(ApplicationStatus.INTERVIEWING);
+    this.existingApp.setInterviewDateTime(datetime);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.INTERVIEW_SCHEDULED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertEquals(datetime, response.getInterviewDateTime());
+  }
+
+  @Test
+  void
+      updateApplication_whenStatusChangesFromInterviewScheduledToInterviewing_InterviewDateHasNoChange() {
+    this.existingApp.setStatus(ApplicationStatus.INTERVIEW_SCHEDULED);
+    this.existingApp.setInterviewDateTime(datetime);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.INTERVIEWING,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertEquals(datetime, response.getInterviewDateTime());
+  }
+
+  @Test
   void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
     CompanyModel secondCompany = new CompanyModel("Amazon", "Seattle", "https://amazon.com");
     companyRepository.save(secondCompany);
