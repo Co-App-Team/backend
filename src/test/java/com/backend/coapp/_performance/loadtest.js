@@ -1,7 +1,7 @@
 /*
 Load testing script
 
-written with the help of gemini flash 3.0
+Written with the help of Gemini Flash 3.0
 
 Requirements:
 - k6 must be installed globally
@@ -12,31 +12,108 @@ Requirements:
 Performance target:
 The system must be able to concurrently handle at least 20 users generating a total of 200 requests per minute.
 
+
 How to run:
-cd src/test/java/com/backend/coapp/_performance
-k6 run loadtest.js
+k6 run src/test/java/com/backend/coapp/_performance/loadtest.js
 
-SAMPLE k6 OUTPUT & ANALYSIS (from a successful run):
-This output demonstrates the test passing all requirements with 100% success rate.
+═══════════════════════════════════════════════════════════════════
+PERFORMANCE ANALYSIS - TARGET MET AND EXCEEDED
+═══════════════════════════════════════════════════════════════════
 
-          /\      Grafana   /‾‾/
+CONCURRENT USER TARGET: 20 users
+────────────────────────────────
+✓ MET: The test ran with exactly 20 virtual users (VUs) concurrently
+  at peak load, simulating 20 independent authenticated sessions.
+  All 20 VUs completed their iterations without interruption
+  (227 complete, 0 interrupted).
+
+REQUEST RATE TARGET: 200 requests per minute
+─────────────────────────────────────────────
+✓ EXCEEDED: The system handled 28.23 requests/second, which equals
+  approximately 1,694 requests per minute — over 8x the required target.
+
+  Target  :   200 req/min  (  3.33 req/s )
+  Achieved: 1,694 req/min  ( 28.23 req/s )
+  Excess  : +1,494 req/min ( +747% above target )
+
+  3,405 total HTTP requests were completed successfully across the
+  2-minute test window, with 0 failures recorded.
+
+RELIABILITY
+───────────
+✓ PERFECT: 100% of all checks passed (3,178 out of 3,178).
+  Every endpoint returned the expected HTTP status code on every
+  single request across all 14 tested operations:
+
+  - Authentication  : login (200)
+  - User profile    : get profile (200)
+  - Applications    : post (201), delete (200), search (200), filter (200)
+  - Companies       : get (200)
+  - Reviews         : post (201), delete (200)
+  - Interviews      : get (200), get filtered (200)
+  - AI quota        : get (200)
+  - Experience      : post (200), delete (200)
+
+  http_req_failed: 0.00% — zero failed HTTP requests out of 3,405.
+  This confirms the backend is both highly available and correct
+  under concurrent load.
+
+RESPONSE TIME
+─────────────
+✓ ACCEPTABLE: Average response time was 546ms, with a median of 594ms.
+  Given that the backend is hosted on Render (a cloud provider with
+  cold-start and network latency characteristics), and that each
+  request involves authenticated REST calls over the internet,
+  these figures are reasonable and consistent.
+
+  avg : 546ms
+  med : 594ms
+  p(90):  1.0s  — 90% of requests completed within 1 second
+  p(95):  1.03s — 95% of requests completed within 1.03 seconds
+  max :   1.72s — worst-case response, still within acceptable bounds
+
+  The tight gap between p(90) and p(95) (only 30ms) indicates
+  highly consistent and predictable performance under load, with
+  no significant outliers or tail latency spikes.
+
+CONCLUSION
+──────────
+The system comfortably meets and substantially exceeds the stated
+performance requirements. Under a realistic multi-user workload
+covering 14 distinct API operations — including authenticated CRUD
+actions across applications, reviews, interviews, and experience —
+the backend sustained over 1,694 requests per minute with 20
+concurrent users, a 0% failure rate, and sub-second response times
+at the 90th percentile. No bottlenecks, timeouts, or degradation
+were observed during the test window.
+
+═══════════════════════════════════════════════════════════════════
+SAMPLE k6 OUTPUT (from a successful run):
+═══════════════════════════════════════════════════════════════════
+
+k6 run src/test/java/com/backend/coapp/_performance/loadtest.js
+
+         /\      Grafana   /‾‾/
     /\  /  \     |\  __   /  /
    /  \/    \    | |/ /  /   ‾‾\
   /          \   |   (  |  (‾)  |
  / __________ \  |_|\_\  \_____/
 
+
      execution: local
-        script: loadtest.js
+        script: src/test/java/com/backend/coapp/_performance/loadtest.js
         output: -
 
      scenarios: (100.00%) 1 scenario, 20 max VUs, 2m30s max duration (incl. graceful stop):
               * default: Up to 20 looping VUs for 2m0s over 3 stages (gracefulRampDown: 30s, gracefulStop: 30s)
 
+
+
   █ TOTAL RESULTS
 
-    checks_total.......: 2702    21.460896/s  : Total checks run (~15 checks per iteration x 193 iterations)
-    checks_succeeded...: 100.00% 2702 out of 2702  : PERFECT: All API assertions passed (status codes 200/201)
-    checks_failed......: 0.00%   0 out of 2702  : No failures in business logic checks
+    checks_total.......: 3178    26.351949/s
+    checks_succeeded...: 100.00% 3178 out of 3178
+    checks_failed......: 0.00%   0 out of 3178
 
     ✓ login status 200
     ✓ get profile status 200
@@ -54,33 +131,29 @@ This output demonstrates the test passing all requirements with 100% success rat
     ✓ delete experience status 200
 
     HTTP
-    http_req_duration..............: avg=258.67ms min=98.93ms med=140.27ms max=1.82s  p(90)=682.56ms p(95)=749.53ms  : Response times: Excellent (avg <300ms, p95 <1s)
-      { expected_response:true }...: avg=258.67ms min=98.93ms med=140.27ms max=1.82s  p(90)=682.56ms p(95)=749.53ms
-    http_req_failed................: 0.00%  0 out of 2895  ← PERFECT: Zero HTTP errors (no 4xx/5xx)
-    http_reqs......................: 2895   22.993817/s  ← ~23 req/s = ~1380 RPM (FAR exceeds 200 RPM requirement)
+    http_req_duration..............: avg=546.26ms min=96.75ms med=594.21ms max=1.72s  p(90)=1s     p(95)=1.03s
+      { expected_response:true }...: avg=546.26ms min=96.75ms med=594.21ms max=1.72s  p(90)=1s     p(95)=1.03s
+    http_req_failed................: 0.00%  0 out of 3405
+    http_reqs......................: 3405   28.234231/s
 
     EXECUTION
-    iteration_duration.............: avg=9.89s    min=7.96s   med=10.1s    max=12.48s p(90)=11.05s   p(95)=11.52s  : Each full iteration ~10s (15 reqs + sleep(6))
-    iterations.....................: 193    1.532921/s  : Total loops completed across all VUs
-    vus............................: 1      min=1         max=20  : VUs ramped correctly
-    vus_max........................: 20     min=20        max=20  : ✓ Met: 20 concurrent users achieved & held for 1m
+    iteration_duration.............: avg=8.2s     min=2s      med=9.12s    max=13.01s p(90)=10.93s p(95)=11.02s
+    iterations.....................: 227    1.882282/s
+    vus............................: 2      min=1         max=20
+    vus_max........................: 20     min=20        max=20
 
     NETWORK
-    data_received..................: 1.1 MB 9.0 kB/s
-    data_sent......................: 327 kB 2.6 kB/s
+    data_received..................: 1.3 MB 11 kB/s
+    data_sent......................: 377 kB 3.1 kB/s
 
-running (2m05.9s), 00/20 VUs, 193 complete and 0 interrupted iterations
+
+
+
+running (2m00.6s), 00/20 VUs, 227 complete and 0 interrupted iterations
 default ✓ [======================================] 00/20 VUs  2m0s
 
-KEY METRICS EXPLAINED & REQUIREMENT PASS:
-- CONCURRENT USERS: vus_max=20 → Handled 20 real users (testuser1-20@test.com) simultaneously.
-- REQUESTS PER MINUTE: http_reqs=2895 over ~2min = ~1380 RPM (>> 200 RPM required).
-- SUCCESS RATE: 100% checks & HTTP → No errors, all features (auth, CRUD, search, AI quota) functional under load.
-- LATENCY: avg=259ms, p95=750ms → Responsive (sub-second for 95% of requests).
-- STABILITY: Held peak for 1m (steady-state stage), graceful ramp up/down → Realistic traffic simulation.
-- CONCLUSION: System PASSES requirements with significant headroom (6x+ RPM capacity demonstrated).
-
 */
+
 
 
 import http from 'k6/http';
@@ -219,5 +292,5 @@ export default function () {
 
     http.get(`${BASE_URL}/api/auth/logout`, authParams);
 
-    sleep(6); // so as to not have TOO many requests since this is already way too overkill for the minimum
+    // sleep(6); // so as to not have TOO many requests since this is already way too overkill for the minimum
 }
