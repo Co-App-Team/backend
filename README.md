@@ -40,3 +40,5 @@ docker run -d \
   -e SPRING_CONFIG_ADDITIONAL_LOCATION=file:/app/local.properties \
   coapp-backend
   ```
+
+This is a test
