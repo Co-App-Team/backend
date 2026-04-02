@@ -625,6 +625,158 @@ class ApplicationServiceTest {
   }
 
   @Test
+  void updateApplication_whenStatusChangesToNotApplied_dateAppliedBecomesNull() {
+    this.existingApp.setStatus(ApplicationStatus.APPLIED);
+    this.existingApp.setDateApplied(date);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.NOT_APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertNull(response.getDateApplied());
+  }
+
+  @Test
+  void updateApplication_whenStatusChangesFromInterviewing_InterviewDateBecomesNull() {
+    this.existingApp.setStatus(ApplicationStatus.INTERVIEWING);
+    this.existingApp.setInterviewDateTime(datetime);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.NOT_APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertNull(response.getInterviewDateTime());
+  }
+
+  @Test
+  void updateApplication_whenStatusChangesFromInterviewScheduled_InterviewDateBecomesNull() {
+    this.existingApp.setStatus(ApplicationStatus.INTERVIEW_SCHEDULED);
+    this.existingApp.setInterviewDateTime(datetime);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.APPLIED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertNull(response.getInterviewDateTime());
+  }
+
+  @Test
+  void
+      updateApplication_whenStatusChangesFromInterviewToInterviewScheduld_InterviewDateHasNoChange() {
+    this.existingApp.setStatus(ApplicationStatus.INTERVIEWING);
+    this.existingApp.setInterviewDateTime(datetime);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.INTERVIEW_SCHEDULED,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertEquals(datetime, response.getInterviewDateTime());
+  }
+
+  @Test
+  void
+      updateApplication_whenStatusChangesFromInterviewScheduledToInterviewing_InterviewDateHasNoChange() {
+    this.existingApp.setStatus(ApplicationStatus.INTERVIEW_SCHEDULED);
+    this.existingApp.setInterviewDateTime(datetime);
+
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            "Brand New Title",
+            ApplicationStatus.INTERVIEWING,
+            existingApp.getApplicationDeadline(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            existingApp.getInterviewDateTime());
+
+    assertEquals(datetime, response.getInterviewDateTime());
+  }
+
+  @Test
+  void updateApplication_whenDeadlineIsNullAndDateAppliedIsSet_expectSuccess() {
+    this.existingApp.setApplicationDeadline(null);
+    this.applicationRepository.save(existingApp);
+
+    ApplicationResponse response =
+        this.applicationService.updateApplication(
+            "user_001",
+            existingApp.getId(),
+            testCompany.getId(),
+            existingApp.getJobTitle(),
+            existingApp.getStatus(),
+            null, // new deadline is null
+            existingApp.getJobDescription(),
+            existingApp.getNumPositions(),
+            existingApp.getSourceLink(),
+            LocalDate.now(), // new date applied is NOT null
+            existingApp.getNotes(),
+            existingApp.getInterviewDateTime());
+
+    assertNotNull(response);
+    assertNull(response.getApplicationDeadline());
+    assertNotNull(response.getDateApplied());
+  }
+
+  @Test
   void updateApplication_whenCompanyIsChangedToValidCompany_expectSuccess() {
     CompanyModel secondCompany = new CompanyModel("Amazon", "Seattle", "https://amazon.com");
     companyRepository.save(secondCompany);

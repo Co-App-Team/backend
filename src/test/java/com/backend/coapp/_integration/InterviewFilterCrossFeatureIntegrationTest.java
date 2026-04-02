@@ -109,6 +109,7 @@ class InterviewFilterCrossFeatureIntegrationTest {
             .status(ApplicationStatus.INTERVIEWING)
             .applicationDeadline(LocalDate.now().plusDays(10))
             .interviewDateTime(interviewDateA)
+            .status(ApplicationStatus.INTERVIEWING)
             .build();
     mockMvc
         .perform(
@@ -174,6 +175,7 @@ class InterviewFilterCrossFeatureIntegrationTest {
         UpdateApplicationRequest.builder()
             .companyId(testCompanyId)
             .jobTitle("Job B")
+            .status(ApplicationStatus.INTERVIEWING)
             .interviewDateTime(newDateB)
             .build();
 

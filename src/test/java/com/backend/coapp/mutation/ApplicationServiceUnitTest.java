@@ -478,6 +478,176 @@ class ApplicationServiceUnitTest {
   }
 
   @Test
+  void updateApplication_whenStatusChangesToNotApplied_dateAppliedBecomesNull() {
+    ApplicationModel appliedApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.APPLIED)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .dateApplied(LocalDate.now()) // Has a date
+            .build();
+    ReflectionTestUtils.setField(appliedApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(appliedApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        executeUpdate(
+            "app_001",
+            getValidUpdateBuilder()
+                .status(ApplicationStatus.NOT_APPLIED)
+                .jobTitle("Brand New Title")
+                .dateApplied(LocalDate.now()));
+
+    assertNull(response.getDateApplied());
+    assertEquals(ApplicationStatus.NOT_APPLIED, response.getStatus());
+
+    ArgumentCaptor<ApplicationModel> appCaptor = ArgumentCaptor.forClass(ApplicationModel.class);
+    verify(mockAppRepo).save(appCaptor.capture());
+    assertNull(appCaptor.getValue().getDateApplied());
+  }
+
+  @Test
+  void updateApplication_whenStatusFromInterviewingToNotApplied_interviewDateTimeBecomesNull() {
+    LocalDateTime datetime = LocalDateTime.now();
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.INTERVIEWING)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .interviewDateTime(datetime)
+            .build();
+    ReflectionTestUtils.setField(interviewingApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(interviewingApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        executeUpdate(
+            "app_001",
+            getValidUpdateBuilder()
+                .status(ApplicationStatus.NOT_APPLIED)
+                .jobTitle("Brand New Title")
+                .interviewDateTime(datetime));
+
+    assertNull(response.getInterviewDateTime());
+    assertEquals(ApplicationStatus.NOT_APPLIED, response.getStatus());
+
+    ArgumentCaptor<ApplicationModel> appCaptor = ArgumentCaptor.forClass(ApplicationModel.class);
+    verify(mockAppRepo).save(appCaptor.capture());
+    assertNull(appCaptor.getValue().getInterviewDateTime());
+  }
+
+  @Test
+  void updateApplication_whenStatusFromInterviewingToApplied_interviewDateTimeBecomesNull() {
+    LocalDateTime datetime = LocalDateTime.now();
+    ApplicationModel interviewingApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.INTERVIEWING)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .interviewDateTime(datetime)
+            .build();
+    ReflectionTestUtils.setField(interviewingApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(interviewingApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        executeUpdate(
+            "app_001",
+            getValidUpdateBuilder()
+                .status(ApplicationStatus.APPLIED)
+                .jobTitle("Brand New Title")
+                .interviewDateTime(datetime));
+
+    assertNull(response.getInterviewDateTime());
+    assertEquals(ApplicationStatus.APPLIED, response.getStatus());
+
+    ArgumentCaptor<ApplicationModel> appCaptor = ArgumentCaptor.forClass(ApplicationModel.class);
+    verify(mockAppRepo).save(appCaptor.capture());
+    assertNull(appCaptor.getValue().getInterviewDateTime());
+  }
+
+  @Test
+  void
+      updateApplication_whenStatusFromInterviewScheduledToNotApplied_interviewDateTimeBecomesNull() {
+    LocalDateTime datetime = LocalDateTime.now();
+    ApplicationModel scheduledApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.INTERVIEW_SCHEDULED)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .interviewDateTime(datetime)
+            .build();
+    ReflectionTestUtils.setField(scheduledApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(scheduledApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        executeUpdate(
+            "app_001",
+            getValidUpdateBuilder()
+                .status(ApplicationStatus.NOT_APPLIED)
+                .jobTitle("Brand New Title")
+                .interviewDateTime(datetime));
+
+    assertNull(response.getInterviewDateTime());
+    assertEquals(ApplicationStatus.NOT_APPLIED, response.getStatus());
+
+    ArgumentCaptor<ApplicationModel> appCaptor = ArgumentCaptor.forClass(ApplicationModel.class);
+    verify(mockAppRepo).save(appCaptor.capture());
+    assertNull(appCaptor.getValue().getInterviewDateTime());
+  }
+
+  @Test
+  void updateApplication_whenStatusFromInterviewScheduledToApplied_interviewDateTimeBecomesNull() {
+    LocalDateTime datetime = LocalDateTime.now();
+    ApplicationModel scheduledApp =
+        ApplicationModel.builder()
+            .userId("user_001")
+            .companyId("company_001")
+            .jobTitle("Software Engineer")
+            .status(ApplicationStatus.INTERVIEW_SCHEDULED)
+            .applicationDeadline(LocalDate.now().plusDays(5))
+            .interviewDateTime(datetime)
+            .build();
+    ReflectionTestUtils.setField(scheduledApp, "id", "app_001");
+
+    when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(scheduledApp));
+    when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
+    when(mockAppRepo.save(any())).thenAnswer(i -> i.getArgument(0));
+
+    ApplicationResponse response =
+        executeUpdate(
+            "app_001",
+            getValidUpdateBuilder()
+                .status(ApplicationStatus.APPLIED)
+                .jobTitle("Brand New Title")
+                .interviewDateTime(datetime));
+
+    assertNull(response.getInterviewDateTime());
+    assertEquals(ApplicationStatus.APPLIED, response.getStatus());
+
+    ArgumentCaptor<ApplicationModel> appCaptor = ArgumentCaptor.forClass(ApplicationModel.class);
+    verify(mockAppRepo).save(appCaptor.capture());
+    assertNull(appCaptor.getValue().getInterviewDateTime());
+  }
+
+  @Test
   void updateApplication_whenAppliedDateAfterDeadline_expectInvalidRequest() {
     when(mockAppRepo.findById("app_001")).thenReturn(Optional.of(existingApp));
     when(mockCompRepo.findById("company_001")).thenReturn(Optional.of(testCompany));
@@ -727,7 +897,7 @@ class ApplicationServiceUnitTest {
   }
 
   @Test
-  void getFilteredApplications_whenPage2Size3_expectSkip6() {
+  void getFilteredApplications_whenPage2Size3_expectSkip6Limit3() {
     mockFilteredQuery(List.of(existingApp, existingApp), 10L);
 
     applicationService.getFilteredApplications("user_001", null, null, "dateApplied", "desc", 2, 3);
@@ -735,6 +905,7 @@ class ApplicationServiceUnitTest {
     ArgumentCaptor<Query> captor = ArgumentCaptor.forClass(Query.class);
     verify(mockMongoTemplate).find(captor.capture(), eq(ApplicationModel.class));
     assertEquals(6L, captor.getValue().getSkip());
+    assertEquals(3L, captor.getValue().getLimit());
   }
 
   // -------------------------------------------------------------------------
